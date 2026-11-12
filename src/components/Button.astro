@@ -1,0 +1,200 @@
+---
+/**
+ * Кнопка-посилання. Дві форми (Figma, «Кнопки: стани»):
+ *  - primary   — залита, зі стрілкою в колі. Наведення: коло від курсора відкриває градієнт
+ *                (темна тема Orchid → Orange, світла Indigo 600 → Orchid Deep), стрілка повертається
+ *                вправо й зсувається на 4 px. Градієнт лежить на всю кнопку, коло лише відкриває його,
+ *                тому в кінці наведення кнопка точно така, як у Figma.
+ *  - secondary — з обводкою. Наведення: обводка 2 px стає градієнтною, колір біжить по контуру.
+ * Розмір md — 56 px (перший екран), sm — 48 px (шапка).
+ */
+import arrowOnGold from '../assets/hero/arrow-cta-dark.svg';
+import arrowOnIndigo from '../assets/hero/arrow-cta-light.svg';
+
+interface Props {
+  href: string;
+  variant?: 'primary' | 'secondary';
+  size?: 'md' | 'sm';
+  class?: string;
+}
+
+const { href, variant = 'primary', size = 'md', class: className } = Astro.props;
+---
+
+<a
+  href={href}
+  class:list={['btn', `btn--${variant}`, `btn--${size}`, { 'ring-hover': variant === 'secondary' }, className]}
+  data-btn
+>
+  {variant === 'primary' && <span class="btn__fill" aria-hidden="true" />}
+  <span class="btn__label"><slot /></span>
+  {
+    variant === 'primary' && (
+      <span class="btn__arrow" aria-hidden="true">
+        <img src={arrowOnGold.src} width="18" height="18" alt="" data-theme-only="dark" />
+        <img src={arrowOnIndigo.src} width="18" height="18" alt="" data-theme-only="light" />
+      </span>
+    )
+  }
+</a>
+
+<style>
+  .btn {
+    --x: 50%;
+    --y: 50%;
+    /* Радіус кола. 100 % у circle() — більше за відстань від центру до кута */
+    --r: 100%;
+
+    position: relative;
+    isolation: isolate;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    height: 56px;
+    padding-inline: 32px;
+    border-radius: 999px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 22px;
+    white-space: nowrap;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.2s ease;
+  }
+
+  .btn--sm {
+    height: 48px;
+    padding-inline: 24px;
+    font-size: 14px;
+  }
+
+  .btn__label {
+    position: relative;
+  }
+
+  /* ---------- Головна ---------- */
+  .btn--primary {
+    overflow: hidden;
+    padding-right: 10px;
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-fg);
+  }
+
+  .btn__fill {
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background: var(--btn-primary-hover);
+    clip-path: circle(0 at var(--x) var(--y));
+    transition:
+      clip-path var(--dur-btn) var(--ease-out-in),
+      filter 0.2s ease;
+    pointer-events: none;
+  }
+
+  .btn__arrow {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border: 1.5px solid currentColor;
+    border-radius: 50%;
+  }
+
+  .btn__arrow img {
+    transition: transform var(--dur-btn) var(--ease-out-in);
+  }
+
+  /* ---------- Друга: кільце при наведенні — спільний клас .ring-hover (global.css) ---------- */
+  .btn--secondary {
+    transition:
+      border-color var(--dur-btn) var(--ease-out-in),
+      background-color 0.2s ease,
+      transform 0.2s ease;
+  }
+
+  /* ---------- Стани ---------- */
+  @media (hover: hover) {
+    .btn--primary:hover .btn__fill {
+      clip-path: circle(var(--r) at var(--x) var(--y));
+    }
+    .btn--primary:hover .btn__arrow img {
+      transform: translateX(4px) rotate(45deg);
+    }
+  }
+
+  /* Клавіатура: та сама заливка, коло росте з центру */
+  .btn--primary:focus-visible .btn__fill {
+    clip-path: circle(var(--r) at var(--x) var(--y));
+  }
+  .btn--primary:focus-visible .btn__arrow img {
+    transform: translateX(4px) rotate(45deg);
+  }
+
+  /* Натискання (і короткий спалах на телефоні, клас ставить скрипт) */
+  .btn:active,
+  .btn.is-pressed {
+    transform: scale(0.98);
+  }
+  .btn--primary:active .btn__fill,
+  .btn--primary.is-pressed .btn__fill {
+    clip-path: circle(var(--r) at var(--x) var(--y));
+    filter: brightness(0.9);
+  }
+
+  /* Вимкнений рух: колір міняється одразу, без кола й без повороту стрілки */
+  @media (prefers-reduced-motion: reduce) {
+    .btn,
+    .btn__fill,
+    .btn__arrow img {
+      transition: none !important;
+      animation: none !important;
+    }
+    .btn--primary:hover .btn__arrow img,
+    .btn--primary:focus-visible .btn__arrow img {
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLElement>('[data-btn]');
+
+  function placeFill(btn: HTMLElement, clientX: number, clientY: number) {
+    const r = btn.getBoundingClientRect();
+    const x = clientX - r.left;
+    const y = clientY - r.top;
+    // Радіус кола: відстань до найдальшого кута, щоб залити всю кнопку
+    const radius = Math.hypot(Math.max(x, r.width - x), Math.max(y, r.height - y));
+    btn.style.setProperty('--x', `${x}px`);
+    btn.style.setProperty('--y', `${y}px`);
+    btn.style.setProperty('--r', `${Math.ceil(radius) + 1}px`);
+  }
+
+  buttons.forEach((btn) => {
+    btn.addEventListener('pointerenter', (e) => {
+      if (e.pointerType === 'mouse') placeFill(btn, e.clientX, e.clientY);
+    });
+    // Коло стискається туди, де курсор залишив кнопку
+    btn.addEventListener('pointerleave', (e) => {
+      if (e.pointerType === 'mouse') placeFill(btn, e.clientX, e.clientY);
+    });
+    btn.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'mouse') return;
+      placeFill(btn, e.clientX, e.clientY);
+      btn.classList.add('is-pressed');
+    });
+    const release = () => window.setTimeout(() => btn.classList.remove('is-pressed'), 350);
+    btn.addEventListener('pointerup', release);
+    btn.addEventListener('pointercancel', release);
+    // Фокус з клавіатури — коло з центру
+    btn.addEventListener('focus', () => {
+      btn.style.removeProperty('--x');
+      btn.style.removeProperty('--y');
+      btn.style.removeProperty('--r');
+    });
+  });
+</script>

@@ -1,0 +1,127 @@
+---
+/**
+ * Перемикач теми: капсула з ліловою обводкою, кругла ручка з місяцем (темна) або сонцем (світла).
+ * Темна тема — ручка справа. Стоїть у футері й у меню, у шапці його немає.
+ * Тему до першого малювання ставить вбудований скрипт у <head> (layouts/Base.astro).
+ */
+import { ui, type Locale } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+<button class="theme-switch" type="button" role="switch" aria-checked="true" aria-label={ui[locale].theme.label} data-theme-switch>
+  <span class="theme-switch__knob">
+    <svg class="theme-switch__moon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+      <path fill="currentColor" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path>
+    </svg>
+    <svg class="theme-switch__sun" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+      <circle cx="12" cy="12" r="4.5" fill="currentColor"></circle>
+      <path
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"
+      ></path>
+    </svg>
+  </span>
+</button>
+
+<style>
+  .theme-switch {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 64px;
+    height: 34px;
+    padding: 3px;
+    border: 1.5px solid var(--accent-text);
+    border-radius: 999px;
+    background: var(--bg);
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Невидима зона натискання не менша за 44 px */
+  .theme-switch::after {
+    content: '';
+    position: absolute;
+    inset: -6px;
+  }
+
+  .theme-switch__knob {
+    display: grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--accent-text);
+    color: var(--bg);
+    /* темна тема: ручка справа. 64 − 2 × 1,5 рамка − 2 × 3 відступ − 26 ручка = 29
+       (у документі 30 — тоді ручка на 1 px налазить на рамку) */
+    transform: translateX(29px);
+    transition:
+      transform var(--dur-btn) var(--ease-out-in),
+      background-color var(--dur-btn) var(--ease-out-in);
+  }
+
+  :global(:root[data-theme='light']) .theme-switch__knob {
+    transform: translateX(0);
+  }
+
+  .theme-switch__sun {
+    display: none;
+  }
+  :global(:root[data-theme='light']) .theme-switch__moon {
+    display: none;
+  }
+  :global(:root[data-theme='light']) .theme-switch__sun {
+    display: block;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .theme-switch__knob {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  type Theme = 'dark' | 'light';
+  const root = document.documentElement;
+  const switches = document.querySelectorAll<HTMLButtonElement>('[data-theme-switch]');
+  const themeColor = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let animTimer = 0;
+
+  const current = (): Theme => (root.dataset.theme === 'light' ? 'light' : 'dark');
+
+  function sync(theme: Theme) {
+    switches.forEach((btn) => btn.setAttribute('aria-checked', String(theme === 'dark')));
+    themeColor?.setAttribute('content', theme === 'dark' ? '#150b2e' : '#f8eedd');
+  }
+
+  function apply(theme: Theme) {
+    // Плавна зміна кольорів лише на час перемикання
+    if (!reduceMotion.matches) {
+      root.classList.add('theme-anim');
+      window.clearTimeout(animTimer);
+      animTimer = window.setTimeout(() => root.classList.remove('theme-anim'), 450);
+    }
+    root.dataset.theme = theme;
+    sync(theme);
+    try {
+      localStorage.setItem('lindigo-theme', theme);
+    } catch {
+      // приватний режим: вибір просто не запам'ятається
+    }
+    // Рідина в першому екрані міняє картинку
+    window.dispatchEvent(new CustomEvent('lindigo:theme', { detail: theme }));
+  }
+
+  switches.forEach((btn) => btn.addEventListener('click', () => apply(current() === 'dark' ? 'light' : 'dark')));
+  sync(current());
+</script>

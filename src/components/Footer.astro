@@ -1,0 +1,48 @@
+---
+/**
+ * ТИМЧАСОВИЙ футер: лише нижній рядок (копірайт, мови, перемикач теми).
+ * Повний футер із рідиною й логотипом на всю ширину буде після макета.
+ */
+import LangSwitch from './LangSwitch.astro';
+import ThemeSwitch from './ThemeSwitch.astro';
+import { ui, type Locale } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+  path?: string;
+}
+
+const { locale, path = '/' } = Astro.props;
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <p class="footer__copy">© {year} Lindigo Design Studio. {ui[locale].footer.rights}</p>
+  <div class="footer__controls">
+    <LangSwitch locale={locale} path={path} />
+    <ThemeSwitch locale={locale} />
+  </div>
+</footer>
+
+<style>
+  .footer {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px 24px;
+    padding: 24px clamp(16px, 5.29vw, 80px);
+    border-top: 1px solid var(--glass-border);
+  }
+
+  .footer__copy {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .footer__controls {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+</style>

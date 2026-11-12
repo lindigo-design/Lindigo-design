@@ -1,0 +1,260 @@
+---
+/**
+ * Перший екран головної (Figma, сторінка «UI дизайн»: «Accueil · Premier écran», темна й світла теми).
+ * Фон: картинка з макета (постер) і поверх неї полотно з рідиною — картинка сама стає рідиною.
+ * Шари: постер → полотно → затемнення зліва → зерно → текст. Див. hero-animation-lindigo.md, розділ 1.
+ * Постер лишається завжди: швидкий перший показ і запасний варіант без WebGL.
+ */
+import { Image } from 'astro:assets';
+import Button from '../Button.astro';
+import WorkCard from '../WorkCard.astro';
+import bgDark from '../../assets/hero/bg-dark.jpg';
+import bgLight from '../../assets/hero/bg-light.jpg';
+import { featuredWorks } from '../../data/featured';
+import { localePath, ui, type Locale } from '../../i18n/ui';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = ui[locale].hero;
+const bgWidths = [768, 1280, 1920, 2752];
+---
+
+<section class="hero" style={`--lead-width: ${t.leadWidth}`} data-hero>
+  <div class="hero__bg" aria-hidden="true">
+    <Image
+      src={bgDark}
+      alt=""
+      widths={bgWidths}
+      sizes="100vw"
+      loading="eager"
+      fetchpriority="high"
+      class="hero__bg-img hero__bg-img--dark"
+      data-theme-only="dark"
+      data-fluid-src="dark"
+    />
+    <Image
+      src={bgLight}
+      alt=""
+      widths={bgWidths}
+      sizes="126vw"
+      loading="lazy"
+      class="hero__bg-img hero__bg-img--light"
+      data-theme-only="light"
+      data-fluid-src="light"
+    />
+    <canvas class="hero__fluid" data-fluid></canvas>
+    <div class="hero__shade"></div>
+    <div class="hero__grain"></div>
+  </div>
+
+  <div class="hero__content">
+    <div class="hero__text">
+      <h1 class="hero__title">
+        {t.title.map((line, i) => <span class:list={['hero__line', { 'hero__line--accent': i === t.title.length - 1 }]}>{line} </span>)}
+      </h1>
+
+      <p class="hero__lead">{t.lead}</p>
+
+      <div class="hero__actions">
+        <Button href={localePath(locale, '/contact/')} variant="primary">{t.primary}</Button>
+        <Button href={localePath(locale, '/realisations/')} variant="secondary">{t.secondary}</Button>
+      </div>
+    </div>
+
+    <WorkCard locale={locale} works={featuredWorks} />
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 100vh;
+    min-height: 100svh;
+    /* місце під шапку: 16 + 82 + 16 */
+    padding-top: 136px;
+    overflow: hidden;
+  }
+
+  .hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .hero__bg :global(.hero__bg-img) {
+    position: absolute;
+    max-width: none;
+    object-fit: cover;
+  }
+
+  .hero__bg :global(.hero__bg-img--dark) {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* У світлій темі в макеті картинка збільшена й зсунута: 125,8 % × 108,1 %, зсув −7,1 % / −4,1 % */
+  .hero__bg :global(.hero__bg-img--light) {
+    left: -7.09%;
+    top: -4.06%;
+    width: 125.8%;
+    height: 108.11%;
+  }
+
+  /* Полотно з'являється поверх постера, коли перший кадр готовий (він збігається з постером) */
+  .hero__fluid,
+  .hero__shade,
+  .hero__grain {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .hero__fluid {
+    display: block;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .hero__fluid:global(.is-ready) {
+    opacity: 1;
+  }
+
+  /* Затемнення зліва: рідина не заважає тексту */
+  .hero__shade {
+    background: linear-gradient(
+      90deg,
+      var(--bg) 0%,
+      color-mix(in srgb, var(--bg) 60%, transparent) 35%,
+      transparent 60%
+    );
+  }
+
+  /* Зерно: шум SVG feTurbulence, 8 % */
+  .hero__grain {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity: 0.08;
+    mix-blend-mode: overlay;
+  }
+
+  .hero__content {
+    display: flex;
+    align-items: flex-end;
+    gap: 24px;
+    /* Боки: 80 px на макеті 1512; масштабується разом із заголовком і карткою.
+       Низ: на макеті 1512 × 982 від кнопок до краю екрана 109 px (64 + 45), це 11,1 % висоти екрана.
+       Так зміст стоїть на 240 px нижче шапки, як у Figma, і на інших висотах зберігає пропорцію. */
+    padding: 0 clamp(40px, 5.29vw, 80px) clamp(64px, 11.1vh, 160px);
+  }
+
+  .hero__text {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 32px;
+  }
+
+  .hero__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    /* 86 px на макеті 1512 */
+    font-size: clamp(30px, 5.69vw, 86px);
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .hero__line {
+    display: block;
+  }
+
+  .hero__line--accent {
+    color: var(--accent-text);
+  }
+
+  .hero__lead {
+    max-width: var(--lead-width);
+    font-size: 20px;
+    line-height: 30px;
+  }
+
+  .hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .hero__content > :global(.work-card) {
+    flex-shrink: 0;
+    /* 392 px на макеті 1512 */
+    width: min(392px, 25.93vw);
+  }
+
+  /* Ширина менша за макет: заголовок може переноситись, картка стає під текстом.
+     Мобільний макет ще не намальовано — це тимчасова розкладка. */
+  @media (max-width: 1100px) {
+    .hero__content {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 48px;
+      padding: 0 40px 48px;
+    }
+    .hero__content > :global(.work-card) {
+      width: min(392px, 100%);
+    }
+    .hero__title {
+      white-space: normal;
+      font-size: clamp(30px, 7.2vw, 72px);
+    }
+  }
+
+  /* Телефон: текст лежить поверх рідини, затемнення на весь екран, 45 % */
+  @media (max-width: 640px) {
+    .hero__shade {
+      background: color-mix(in srgb, var(--bg) 45%, transparent);
+    }
+    .hero {
+      padding-top: 112px;
+    }
+    .hero__content {
+      gap: 32px;
+      padding: 0 16px 32px;
+    }
+    .hero__text {
+      gap: 24px;
+    }
+    .hero__lead {
+      font-size: 16px;
+      line-height: 24px;
+    }
+    .hero__actions {
+      flex-direction: column;
+      align-items: stretch;
+      width: 100%;
+    }
+    .hero__actions :global(.btn) {
+      height: 50px;
+    }
+    .hero__actions :global(.btn--primary) {
+      justify-content: space-between;
+    }
+  }
+</style>
+
+<script>
+  // Рідину вантажимо окремо й пізно, щоб вона не гальмувала перший показ
+  const start = () => import('./fluid/fluid').then((m) => m.initHeroFluid());
+  if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 2000 });
+  else setTimeout(start, 200);
+</script>

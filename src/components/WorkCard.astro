@@ -1,0 +1,260 @@
+---
+/**
+ * Картка «Остання робота» на скляній підкладці: підпис, назва, обкладинка зі стрілкою в колі,
+ * лічильник «01 / 02» і лінія прогресу. Якщо робіт більше однієї, картка гортається сама.
+ */
+import { Image } from 'astro:assets';
+import arrow from '../assets/hero/arrow-card.svg';
+import type { FeaturedWork } from '../data/featured';
+import { localePath, ui, type Locale } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+  works: FeaturedWork[];
+  /** Скільки секунд показується один слайд */
+  interval?: number;
+}
+
+const { locale, works, interval = 6 } = Astro.props;
+const t = ui[locale].hero;
+const pad = (n: number) => String(n).padStart(2, '0');
+const total = works.length;
+---
+
+<section
+  class="work-card"
+  aria-roledescription="carousel"
+  aria-label={t.latest}
+  data-work-card
+  data-interval={interval}
+  style={`--interval: ${interval}s`}
+>
+  {
+    works.map((work, i) => (
+      <article
+        class="work-card__slide"
+        data-slide
+        aria-roledescription="slide"
+        aria-label={`${pad(i + 1)} / ${pad(total)}`}
+        hidden={i !== 0}
+      >
+        <a class="work-card__link" href={localePath(locale, `/realisations/${work.slug}/`)}>
+          <p class="work-card__eyebrow">{t.latest}</p>
+          <h2 class="work-card__title">{work.title}</h2>
+          <div class="work-card__cover">
+            <Image
+              src={work.cover}
+              alt=""
+              widths={[360, 720]}
+              sizes="360px"
+              loading={i === 0 ? 'eager' : 'lazy'}
+            />
+            <span class="work-card__arrow" aria-hidden="true">
+              <img src={arrow.src} width="20" height="20" alt="" />
+            </span>
+          </div>
+          <span class="visually-hidden">{t.openCase}</span>
+        </a>
+      </article>
+    ))
+  }
+
+  <div class="work-card__footer">
+    <p class="work-card__counter" aria-live="polite">
+      <span data-current>01</span> / {pad(total)}
+    </p>
+    <div class="work-card__track">
+      <div class="work-card__progress" data-progress style={`--step: ${1 / total}`}></div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .work-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 392px;
+    max-width: 100%;
+    padding: 16px;
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-card);
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  .work-card__slide[hidden] {
+    display: none;
+  }
+
+  .work-card__slide.is-entering {
+    animation: work-fade 0.6s var(--ease-out-in);
+  }
+
+  .work-card__link {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-decoration: none;
+    border-radius: var(--radius-media);
+  }
+
+  .work-card__eyebrow {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .work-card__title {
+    margin-top: -8px; /* 12 між блоками картки, 4 між підписом і назвою */
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 28px;
+  }
+
+  .work-card__cover {
+    position: relative;
+    aspect-ratio: 360 / 220;
+    overflow: hidden;
+    border: 1px solid var(--beige-50);
+    border-radius: var(--radius-media);
+  }
+
+  .work-card__cover :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: top;
+    transition: transform 0.8s var(--ease-out-in);
+  }
+
+  .work-card__arrow {
+    position: absolute;
+    top: 34px;
+    right: 16px;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--beige-50);
+    border-radius: 50%;
+    background: rgba(248, 238, 221, 0.1);
+    transition: transform var(--dur-btn) var(--ease-out-in);
+  }
+
+  .work-card__arrow img {
+    transition: transform var(--dur-btn) var(--ease-out-in);
+  }
+
+  @media (hover: hover) {
+    .work-card__link:hover .work-card__cover :global(img) {
+      transform: scale(1.03);
+    }
+    .work-card__link:hover .work-card__arrow img {
+      transform: rotate(45deg);
+    }
+  }
+
+  .work-card__footer {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .work-card__counter {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 11px;
+    line-height: 17px;
+  }
+
+  .work-card__track {
+    height: 2px;
+    border-radius: 1px;
+    background: var(--track);
+    overflow: hidden;
+  }
+
+  /* Без автогортання: лінія показує позицію слайда. З автогортанням: заповнюється за час слайда. */
+  .work-card__progress {
+    height: 100%;
+    width: calc(var(--step) * 100%);
+    background: var(--fg);
+  }
+
+  .work-card.is-playing .work-card__progress {
+    width: 100%;
+    transform-origin: left;
+    animation: work-progress var(--interval) linear forwards;
+  }
+
+  .work-card.is-paused .work-card__progress {
+    animation-play-state: paused;
+  }
+
+  @keyframes work-progress {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  @keyframes work-fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .work-card *,
+    .work-card .work-card__progress {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+</style>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  document.querySelectorAll<HTMLElement>('[data-work-card]').forEach((card) => {
+    const slides = Array.from(card.querySelectorAll<HTMLElement>('[data-slide]'));
+    const current = card.querySelector<HTMLElement>('[data-current]');
+    const progress = card.querySelector<HTMLElement>('[data-progress]');
+    if (slides.length < 2 || reduceMotion || !progress) return;
+
+    let index = 0;
+    card.classList.add('is-playing');
+
+    const show = (next: number) => {
+      slides[index].hidden = true;
+      index = next;
+      const slide = slides[index];
+      slide.hidden = false;
+      slide.classList.remove('is-entering');
+      void slide.offsetWidth;
+      slide.classList.add('is-entering');
+      if (current) current.textContent = String(index + 1).padStart(2, '0');
+      // Перезапуск лінії прогресу
+      progress.style.animation = 'none';
+      void progress.offsetWidth;
+      progress.style.animation = '';
+    };
+
+    // Наступний слайд — коли лінія прогресу заповнилась
+    progress.addEventListener('animationend', () => show((index + 1) % slides.length));
+
+    // Пауза, поки людина дивиться на картку або вкладка прихована
+    const pause = () => card.classList.add('is-paused');
+    const resume = () => card.classList.remove('is-paused');
+    card.addEventListener('pointerenter', pause);
+    card.addEventListener('pointerleave', resume);
+    card.addEventListener('focusin', pause);
+    card.addEventListener('focusout', resume);
+    document.addEventListener('visibilitychange', () => (document.hidden ? pause() : resume()));
+  });
+</script>

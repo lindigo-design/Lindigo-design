@@ -1,0 +1,52 @@
+---
+/** Перемикач мов «FR · EN · UK». Стоїть у шапці й у футері. */
+import { locales, localePath, ui, type Locale } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+  path?: string;
+}
+
+const { locale, path = '/' } = Astro.props;
+---
+
+<nav class="langs" aria-label={ui[locale].header.languages}>
+  {
+    locales.map((l, i) => (
+      <>
+        {i > 0 && <span aria-hidden="true">·</span>}
+        <a href={localePath(l, path)} hreflang={l} lang={l} aria-current={l === locale ? 'page' : undefined}>
+          {l.toUpperCase()}
+        </a>
+      </>
+    ))
+  }
+</nav>
+
+<style>
+  .langs {
+    display: flex;
+    gap: 0.6em;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .langs a {
+    text-decoration: none;
+    text-underline-offset: 4px;
+  }
+
+  .langs a:hover,
+  .langs a[aria-current='page'] {
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+  }
+
+  @media (max-width: 380px) {
+    .langs {
+      font-size: 12px;
+    }
+  }
+</style>

@@ -1,0 +1,143 @@
+---
+/**
+ * Шапка: скляна смуга, прилипає вгорі й їде разом зі сторінкою.
+ * Логотип зліва; справа мови, «Записатися на дзвінок» (друга кнопка) і бургер у колі.
+ * Перемикача теми тут немає: він у футері й у меню (див. hero-animation-lindigo.md, 3.5).
+ */
+import { Image } from 'astro:assets';
+import Button from './Button.astro';
+import LangSwitch from './LangSwitch.astro';
+import logoLight from '../assets/hero/logo-light.png';
+import logoDark from '../assets/hero/logo-dark.png';
+import { localePath, ui, type Locale } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+  path?: string;
+}
+
+const { locale, path = '/' } = Astro.props;
+const t = ui[locale].header;
+---
+
+<header class="header">
+  <div class="header__bar">
+    <a class="header__logo" href={localePath(locale)} aria-label={t.home}>
+      <Image src={logoLight} width={151} height={48} densities={[1, 2]} alt="" loading="eager" data-theme-only="dark" />
+      <Image src={logoDark} width={151} height={48} densities={[1, 2]} alt="" loading="eager" data-theme-only="light" />
+    </a>
+
+    <div class="header__actions">
+      <LangSwitch locale={locale} path={path} />
+
+      <Button href={localePath(locale, '/contact/')} variant="secondary" size="sm" class="header__call">
+        {t.bookCall}
+      </Button>
+
+      <!-- Наведення як у другої кнопки: спільний клас .ring-hover. data-btn — короткий спалах кільця від дотику -->
+      <button class="header__burger ring-hover" type="button" aria-label={t.menu} aria-expanded="false" data-btn>
+        <span></span>
+        <span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<style>
+  .header {
+    position: fixed;
+    inset: 0 0 auto;
+    z-index: 50;
+    padding: 16px 56px;
+  }
+
+  .header__bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 24px;
+    border: 1px solid var(--glass-border);
+    border-radius: 999px;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  .header__logo {
+    display: block;
+    flex-shrink: 0;
+    border-radius: 8px;
+  }
+
+  .header__logo :global(img) {
+    width: 151px;
+    height: 48px;
+  }
+
+  .header__actions {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .header__burger {
+    display: grid;
+    place-content: center;
+    gap: 6px;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .header__burger span {
+    width: 20px;
+    height: 2px;
+    border-radius: 1px;
+    background: currentColor;
+    transition: transform var(--dur-btn) var(--ease-out-in);
+  }
+
+  /* Власний маленький рух бургера: лінії трохи роз'їжджаються */
+  @media (hover: hover) {
+    .header__burger:hover span:first-child {
+      transform: translateX(-2px);
+    }
+    .header__burger:hover span:last-child {
+      transform: translateX(2px);
+    }
+  }
+  .header__burger:focus-visible span:first-child {
+    transform: translateX(-2px);
+  }
+  .header__burger:focus-visible span:last-child {
+    transform: translateX(2px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .header__burger span {
+      transition: none;
+    }
+  }
+
+  /* Мобільний макет ще не намальовано: поки ховаємо кнопку дзвінка, лишаємо мови й бургер */
+  @media (max-width: 900px) {
+    .header {
+      padding: 12px 16px;
+    }
+    .header__bar {
+      padding: 8px 8px 8px 20px;
+    }
+    .header__logo :global(img) {
+      width: 113px;
+      height: 36px;
+    }
+    .header__actions {
+      gap: 16px;
+    }
+    .header__actions :global(.header__call) {
+      display: none;
+    }
+  }
+</style>
