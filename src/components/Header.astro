@@ -1,12 +1,15 @@
 ---
 /**
  * Шапка: скляна смуга, прилипає вгорі й їде разом зі сторінкою.
- * Логотип зліва; справа мови, «Записатися на дзвінок» (друга кнопка) і бургер у колі.
- * Перемикача теми тут немає: він у футері й у меню (див. hero-animation-lindigo.md, 3.5).
+ * Логотип зліва; справа мова, перемикач теми, «Записатися на дзвінок» (друга кнопка) і бургер у колі.
+ *  - від 780 px: усе;
+ *  - 600–779 px: без кнопки дзвінка (не влазить; вона є в меню бургера);
+ *  - до 599 px: лише логотип і бургер, мова й тема — у меню бургера.
  */
 import { Image } from 'astro:assets';
 import Button from './Button.astro';
 import LangSwitch from './LangSwitch.astro';
+import ThemeSwitch from './ThemeSwitch.astro';
 import logoLight from '../assets/hero/logo-light.png';
 import logoDark from '../assets/hero/logo-dark.png';
 import { localePath, ui, type Locale } from '../i18n/ui';
@@ -28,7 +31,8 @@ const t = ui[locale].header;
     </a>
 
     <div class="header__actions">
-      <LangSwitch locale={locale} path={path} />
+      <div class="header__lang"><LangSwitch locale={locale} path={path} /></div>
+      <div class="header__theme"><ThemeSwitch locale={locale} /></div>
 
       <Button href={localePath(locale, '/contact/')} variant="secondary" size="sm" class="header__call">
         {t.bookCall}
@@ -121,22 +125,38 @@ const t = ui[locale].header;
     }
   }
 
-  /* Мобільний макет ще не намальовано: поки ховаємо кнопку дзвінка, лишаємо мови й бургер */
-  @media (max-width: 900px) {
+  .header__lang,
+  .header__theme {
+    display: flex;
+    align-items: center;
+  }
+
+  /* Планшет (Figma, 834): зовнішні відступи 24 px */
+  @media (max-width: 1199px) {
     .header {
-      padding: 12px 16px;
+      padding: 16px 24px;
+    }
+  }
+
+  /* Кнопка дзвінка не влазить: ховаємо, вона є в меню бургера.
+     Межу виміряно для найдовшого підпису («Записатися на дзвінок»), щоб до логотипа лишалось ≥ 24 px.
+     Тимчасово 779 px: поки в шапці широкий рядок «FR · EN · UK»; після меню мов (крок 2) межа зменшиться. */
+  @media (max-width: 779px) {
+    .header__actions :global(.header__call) {
+      display: none;
+    }
+  }
+
+  /* Телефон (Figma, 390): лише логотип і бургер */
+  @media (max-width: 599px) {
+    .header {
+      padding: 12px;
     }
     .header__bar {
-      padding: 8px 8px 8px 20px;
+      padding: 10px 10px 10px 16px;
     }
-    .header__logo :global(img) {
-      width: 113px;
-      height: 36px;
-    }
-    .header__actions {
-      gap: 16px;
-    }
-    .header__actions :global(.header__call) {
+    .header__lang,
+    .header__theme {
       display: none;
     }
   }

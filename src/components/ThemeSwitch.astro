@@ -1,7 +1,8 @@
 ---
 /**
- * Перемикач теми: капсула з ліловою обводкою, кругла ручка з місяцем (темна) або сонцем (світла).
- * Темна тема — ручка справа. Стоїть у футері й у меню, у шапці його немає.
+ * Перемикач теми: прозора капсула з ліловою обводкою 1,5 px, кругла ручка з місяцем (темна)
+ * або сонцем (світла). Темна тема — ручка справа (Figma, «Шапка: мова і тема, стани»).
+ * Один компонент у трьох місцях: шапка (від 600 px), меню бургера, футер. Стан у всіх однаковий.
  * Тему до першого малювання ставить вбудований скрипт у <head> (layouts/Base.astro).
  */
 import { ui, type Locale } from '../i18n/ui';
@@ -37,12 +38,17 @@ const { locale } = Astro.props;
     align-items: center;
     width: 64px;
     height: 34px;
-    padding: 3px;
+    padding: 0 4px;
     border: 1.5px solid var(--accent-text);
     border-radius: 999px;
-    background: var(--bg);
+    background: transparent;
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
+  }
+
+  .theme-switch:focus-visible {
+    outline: 2px solid var(--btn-primary-bg);
+    outline-offset: 3px;
   }
 
   /* Невидима зона натискання не менша за 44 px */
@@ -60,9 +66,8 @@ const { locale } = Astro.props;
     border-radius: 50%;
     background: var(--accent-text);
     color: var(--bg);
-    /* темна тема: ручка справа. 64 − 2 × 1,5 рамка − 2 × 3 відступ − 26 ручка = 29
-       (у документі 30 — тоді ручка на 1 px налазить на рамку) */
-    transform: translateX(29px);
+    /* темна тема: ручка справа. 64 − 2 × 1,5 рамка − 2 × 4 відступ − 26 ручка = 27 (як у Figma) */
+    transform: translateX(27px);
     transition:
       transform var(--dur-btn) var(--ease-out-in),
       background-color var(--dur-btn) var(--ease-out-in);
