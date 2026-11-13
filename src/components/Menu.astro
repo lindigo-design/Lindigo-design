@@ -150,17 +150,18 @@ const current = (p: string) => here === localePath(locale, p);
   }
 
   /* ---------- Анімація ----------
-     Відкриття: коло з центру бургера 0,7 с; пункти знизу по черзі (через 0,25 с, крок 0,06 с);
+     Відкриття: коло з центру бургера 0,9 с; пункти знизу по черзі (через 0,25 с, крок 0,06 с);
      стовпчик і верхній рядок — прозорістю 0,4 с через 0,4 с; лінії бургера стають хрестиком за 0,4 с.
-     Закриття швидше: вміст зникає за 0,2 с, коло стискається до бургера за 0,5 с. */
+     Закриття: вміст зникає за 0,2 с, коло стискається до бургера за 0,7 с.
+     (У завданні 0,7 і 0,5 с — сповільнено на прохання Яни: так рух спокійніший.) */
   .menu {
     --cx: calc(100% - 81px);
     --cy: 57px;
     clip-path: circle(0 at var(--cx) var(--cy));
     visibility: hidden;
     transition:
-      clip-path 0.5s var(--ease-out-in),
-      visibility 0s 0.5s;
+      clip-path 0.7s var(--ease-out-in),
+      visibility 0s 0.7s;
   }
 
   .menu.is-open {
@@ -168,7 +169,7 @@ const current = (p: string) => here === localePath(locale, p);
     clip-path: circle(var(--r, 150vmax) at var(--cx) var(--cy));
     visibility: visible;
     transition:
-      clip-path 0.7s var(--ease-out-in),
+      clip-path 0.9s var(--ease-out-in),
       visibility 0s;
   }
 
@@ -673,13 +674,14 @@ const current = (p: string) => here === localePath(locale, p);
       if (isOpen) return;
       isOpen = true;
       window.clearTimeout(hideTimer);
+      root.classList.remove('menu-closing');
       placeCircle();
       menu!.hidden = false;
       menu!.inert = false;
       void menu!.offsetWidth; // щоб перехід стартував
       menu!.classList.add('is-open', 'is-opening');
       window.clearTimeout(openingTimer);
-      openingTimer = window.setTimeout(() => menu!.classList.remove('is-opening'), 700);
+      openingTimer = window.setTimeout(() => menu!.classList.remove('is-opening'), 900);
       root.classList.add('menu-open');
       outside().forEach((el) => (el.inert = true));
       burger!.setAttribute('aria-expanded', 'true');
@@ -694,6 +696,8 @@ const current = (p: string) => here === localePath(locale, p);
       placeCircle();
       window.clearTimeout(openingTimer);
       menu!.classList.remove('is-open', 'is-opening');
+      // Бургер з'явиться з-під скла під мишкою: його кільце наведення вмикаємо одразу, без проявлення
+      root.classList.add('menu-closing');
       burger!.setAttribute('aria-expanded', 'false');
       burger!.setAttribute('aria-label', burger!.dataset.labelOpen ?? '');
       // Усе, що змушує браузер перемалювати сторінку під склом (смуга прокрутки, inert, фокус,
@@ -708,8 +712,10 @@ const current = (p: string) => here === localePath(locale, p);
           menu!.inert = true;
           menu!.hidden = true;
           window.dispatchEvent(new CustomEvent('lindigo:menu', { detail: { open: false } }));
+          // Два кадри, щоб бургер уже намалювався у стані наведення, потім повертаємо переходи
+          requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('menu-closing')));
         },
-        reduceMotion.matches ? 200 : 500,
+        reduceMotion.matches ? 200 : 700,
       );
     }
 

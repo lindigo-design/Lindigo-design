@@ -148,6 +148,13 @@ const t = ui[locale].header;
     }
   }
 
+  /* Меню закривається: бургер з'являється з-під скла вже в стані наведення, без проявлення кільця */
+  :global(html.menu-closing) .header__burger,
+  :global(html.menu-closing) .header__burger::before,
+  :global(html.menu-closing) .header__burger span {
+    transition: none !important;
+  }
+
   .header__lang,
   .header__theme {
     display: flex;
