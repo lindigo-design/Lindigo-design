@@ -51,6 +51,11 @@
   --rule: color-mix(in srgb, var(--fg) 30%, transparent);
   /* Підписи «Задача клієнта», номери неактивних вкладок */
   --label-muted: var(--grey-supplement);
+  /* «Як ми працюємо»: перший крок виділений щільною карткою */
+  --step-bg: var(--card-bg);
+  --step-border: var(--card-border);
+  --step-first-bg: var(--indigo-950);
+  --step-first-border: rgba(248, 238, 221, 0.16);
   --glass-bg: rgba(21, 11, 46, 0.55);
   --glass-border: rgba(248, 238, 221, 0.2);
   --track: rgba(248, 238, 221, 0.3);
@@ -80,6 +85,10 @@
   --text-supplement: var(--grey-supplement);
   --rule: color-mix(in srgb, var(--fg) 24%, transparent);
   --label-muted: var(--indigo-800);
+  --step-bg: rgba(21, 11, 46, 0.03);
+  --step-border: rgba(21, 11, 46, 0.13);
+  --step-first-bg: var(--beige-50);
+  --step-first-border: rgba(21, 11, 46, 0.13);
   --glass-bg: rgba(248, 238, 221, 0.6);
   --glass-border: rgba(21, 11, 46, 0.16);
   --track: rgba(21, 11, 46, 0.25);

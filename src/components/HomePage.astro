@@ -7,6 +7,7 @@ import Menu from './Menu.astro';
 import Directions from './Directions.astro';
 import Principles from './Principles.astro';
 import Works from './Works.astro';
+import Process from './Process.astro';
 import { ui, type Locale } from '../i18n/ui';
 
 interface Props {
@@ -25,6 +26,7 @@ const t = ui[locale];
     <Directions locale={locale} />
     <Principles locale={locale} />
     <Works locale={locale} />
+    <Process locale={locale} />
   </main>
   <Footer locale={locale} />
 </Base>

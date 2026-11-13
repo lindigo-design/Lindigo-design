@@ -32,6 +32,19 @@ export const languageNames: Record<Locale, string> = {
 export const ui = {
   fr: {
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
+    process: {
+      eyebrow: 'Six étapes, de l’appel au lancement',
+      title: 'Notre méthode',
+      steps: [
+        { title: 'Rencontre et brief', text: `Le premier appel est gratuit. Vous nous présentez votre projet, nous vous posons des questions sur votre activité et vos clients. Nous convenons de qui prend les décisions chez vous et des délais. Après l’appel, vous recevez un court compte rendu écrit.` },
+        { title: 'Proposition', text: `Nous décrivons ce que nous allons faire, le coût et l’ordre des étapes. Vous signez le devis et versez un acompte de 30${NBSP}%. Ensuite, nous commençons.` },
+        { title: 'Stratégie et structure', text: `C’est le travail avant le design. Nous étudions vos clients et votre marché. Nous en tirons l’arborescence et des maquettes en noir et blanc. Nous avons besoin de vos textes, photos et accès. Trois séries de corrections sont prévues.` },
+        { title: 'Design', text: `Nous présentons deux propositions de page d’accueil. Vous en choisissez une, et nous dessinons le reste pour ordinateur et mobile. Trois séries de corrections sont prévues. Après validation, deuxième paiement${NBSP}: 50${NBSP}%.` },
+        { title: 'Développement et tests', text: `Nous construisons le site et ajoutons les animations. Nous le testons sur mobile, vérifions la vitesse et les formulaires. Vous consultez le site via un lien de test.` },
+        { title: 'Lancement', text: `Nous mettons le site en ligne sur votre domaine et vous montrons comment modifier les textes et les photos. Vous réglez les 20${NBSP}% restants.` },
+      ],
+    },
+    // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     works: {
       eyebrow: 'Réalisations',
       title: 'Projets choisis',
@@ -139,6 +152,19 @@ export const ui = {
   },
   en: {
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
+    process: {
+      eyebrow: 'Six steps from the first call to launch',
+      title: 'How we work',
+      steps: [
+        { title: 'Introduction & brief', text: 'The first call is free. You tell us about your project, and we ask about your business and your clients. We agree on who makes decisions on your side and on timelines. After the call, you get a short written summary.' },
+        { title: 'Proposal', text: `We write down what we’ll do, how much it costs and in what order. You sign the proposal and pay a 30${NBSP}% deposit. Then we get started.` },
+        { title: 'Strategy & structure', text: 'This is the work before design. We study your clients and your market, and turn that into a sitemap and black-and-white wireframes. We’ll need your texts, photos and access details. Three rounds of revisions are included.' },
+        { title: 'Design', text: `We show two options for the home page. You pick one, and we design the rest for desktop and mobile. Three rounds of revisions are included. After approval comes the second payment, 50${NBSP}%.` },
+        { title: 'Development & testing', text: 'We build the site and add the animations. We test it on phones and check speed and forms. You review the site via a test link.' },
+        { title: 'Launch', text: `We move the site to your domain and show you how to update texts and photos. You pay the remaining 20${NBSP}%.` },
+      ],
+    },
+    // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     works: {
       eyebrow: 'Work',
       title: 'Selected work',
@@ -245,6 +271,18 @@ export const ui = {
     },
   },
   uk: {
+    process: {
+      eyebrow: 'Шість кроків від дзвінка до запуску',
+      title: 'Як ми працюємо',
+      steps: [
+        { title: 'Знайомство і брифінг', text: 'Перший дзвінок безкоштовний. Ви розповідаєте про задачу, ми ставимо питання про ваш бізнес і ваших клієнтів. Домовляємось, хто у вас приймає рішення і які строки. Після дзвінка ви отримуєте короткий підсумок на письмі.' },
+        { title: 'Пропозиція', text: `Пишемо, що зробимо, скільки це коштує і в якому порядку. Ви підписуєте пропозицію й вносите 30${NBSP}%. Після цього починаємо.` },
+        { title: 'Стратегія і структура', text: 'Це робота ще до дизайну. Вивчаємо ваших клієнтів і ваш ринок. З цього складаємо карту сторінок і чорно-білі макети. Від вас потрібні тексти, фото й доступи. На правки є три кола.' },
+        { title: 'Дизайн', text: `Показуємо два варіанти стартової сторінки. Ви обираєте один, і ми малюємо решту для комп’ютера й телефону. На правки є три кола. Після погодження другий платіж, 50${NBSP}%.` },
+        { title: 'Розробка і перевірка', text: 'Збираємо сайт і додаємо анімацію. Перевіряємо його на телефонах, дивимось швидкість і форми. Ви дивитесь сайт за тестовим посиланням.' },
+        { title: 'Запуск', text: `Переносимо сайт на ваш домен і показуємо, як міняти тексти й фото. Ви оплачуєте останні 20${NBSP}%.` },
+      ],
+    },
     works: {
       eyebrow: 'Роботи',
       title: 'Вибрані роботи',
