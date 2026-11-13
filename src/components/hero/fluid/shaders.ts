@@ -238,6 +238,7 @@ export const gradientSubtractShader = /* glsl */ `
 /**
  * Екран. uBox — рамка <img> у координатах полотна (x, y знизу, ширина, висота).
  * uScale — масштаб object-fit: cover усередині рамки.
+ * uPos — object-position картинки (0–1, y знизу): яку частину картинки видно, коли вона ширша за рамку.
  */
 export const displayShader = /* glsl */ `
   precision highp float;
@@ -249,18 +250,21 @@ export const displayShader = /* glsl */ `
   uniform vec4 uPrevBox;
   uniform vec2 uScale;
   uniform vec2 uPrevScale;
+  uniform vec2 uPos;
+  uniform vec2 uPrevPos;
   uniform float uMix;
 
-  vec2 imageUv (vec2 uv, vec4 box, vec2 scale) {
+  vec2 imageUv (vec2 uv, vec4 box, vec2 scale, vec2 pos) {
     vec2 b = (uv - box.xy) / box.zw;
-    return (b - 0.5) * scale + 0.5;
+    // як object-fit: cover + object-position (pos = 0.5 — по центру)
+    return b * scale + (1.0 - scale) * pos;
   }
 
   void main () {
     vec2 uv = vUv + texture2D(uDisp, vUv).xy;
-    vec3 color = texture2D(uImage, imageUv(uv, uBox, uScale)).rgb;
+    vec3 color = texture2D(uImage, imageUv(uv, uBox, uScale, uPos)).rgb;
     if (uMix < 1.0) {
-      vec3 prev = texture2D(uPrevImage, imageUv(uv, uPrevBox, uPrevScale)).rgb;
+      vec3 prev = texture2D(uPrevImage, imageUv(uv, uPrevBox, uPrevScale, uPrevPos)).rgb;
       color = mix(prev, color, uMix);
     }
     gl_FragColor = vec4(color, 1.0);
