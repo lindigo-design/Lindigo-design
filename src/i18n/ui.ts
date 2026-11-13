@@ -32,6 +32,22 @@ export const languageNames: Record<Locale, string> = {
 export const ui = {
   fr: {
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
+    reviews: {
+      eyebrow: 'Avis',
+      title: 'Ce que disent nos clients',
+      view: 'Voir le projet',
+      prev: 'Avis précédent',
+      next: 'Avis suivant',
+      items: [
+        {
+          slug: 'datatixx',
+          quote: 'Lindigo a créé notre identité et notre site, et a participé au design de notre service web. Elle a d’abord étudié notre activité et nos utilisateurs, puis elle a commencé à dessiner.',
+          author: 'Malcolm Duff, PDG SaS DataTixx',
+          meta: 'datixxia · branding, site web, design de service web',
+        },
+      ],
+    },
+    // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     photos: { eyebrow: 'Photo et contenu', title: 'Des photos au service de votre marque', more: 'Voir les photos', strip: 'Exemples de photos' },
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     process: {
@@ -154,6 +170,22 @@ export const ui = {
   },
   en: {
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
+    reviews: {
+      eyebrow: 'Testimonials',
+      title: 'What clients say',
+      view: 'View case',
+      prev: 'Previous testimonial',
+      next: 'Next testimonial',
+      items: [
+        {
+          slug: 'datatixx',
+          quote: 'Lindigo created our identity and website and contributed to the design of our web service. She first studied our business and users, and only then started designing.',
+          author: 'Malcolm Duff, PDG SaS DataTixx',
+          meta: 'datixxia · branding, website, web service design',
+        },
+      ],
+    },
+    // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     photos: { eyebrow: 'Photo & content', title: 'Photos that work for your brand', more: 'See photos', strip: 'Photo examples' },
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     process: {
@@ -275,6 +307,22 @@ export const ui = {
     },
   },
   uk: {
+    reviews: {
+      eyebrow: 'Відгуки',
+      title: 'Що кажуть клієнти',
+      view: 'Дивитися кейс',
+      prev: 'Попередній відгук',
+      next: 'Наступний відгук',
+      // У макеті лічильник «01 / 03», але заповнений лише один відгук
+      items: [
+        {
+          slug: 'datatixx',
+          quote: 'Lindigo створила нашу айдентику й сайт і долучилась до дизайну вебсервісу. Спершу вона вивчила наш бізнес і користувачів, а потім почала малювати.',
+          author: 'Malcolm Duff, PDG SaS DataTixx',
+          meta: 'datixxia · брендинг, сайт, дизайн вебсервісу',
+        },
+      ],
+    },
     photos: { eyebrow: 'Фото й контент', title: 'Фото, які працюють на бренд', more: 'Дивитися фото', strip: 'Приклади фото' },
     process: {
       eyebrow: 'Шість кроків від дзвінка до запуску',

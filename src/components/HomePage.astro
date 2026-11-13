@@ -9,6 +9,7 @@ import Principles from './Principles.astro';
 import Works from './Works.astro';
 import Process from './Process.astro';
 import PhotoStrip from './PhotoStrip.astro';
+import Reviews from './Reviews.astro';
 import { ui, type Locale } from '../i18n/ui';
 
 interface Props {
@@ -29,6 +30,7 @@ const t = ui[locale];
     <Works locale={locale} />
     <Process locale={locale} />
     <PhotoStrip locale={locale} />
+    <Reviews locale={locale} />
   </main>
   <Footer locale={locale} />
 </Base>

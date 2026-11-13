@@ -1,0 +1,366 @@
+---
+/**
+ * Блок «06 Відгуки» (Figma «Головна · Варіант 2», темна й світла тема).
+ * Ліворуч зображення зробленої роботи (664 × 540), праворуч скляна картка відгуку: лапки, цитата,
+ * автор і підпис, «Дивитися кейс», навігація (той самий SliderNav, що в «Роботах»).
+ * Відгуки беруться з ui[locale].reviews.items; лічильник рахується сам.
+ */
+import { Image } from 'astro:assets';
+import SliderNav from './SliderNav.astro';
+import bgDark from '../assets/reviews/bg-dark.jpg';
+import bgLight from '../assets/reviews/bg-light.jpg';
+import allDark from '../assets/works/all-dark.svg';
+import allLight from '../assets/works/all-light.svg';
+import datatixx from '../assets/works/datatixx.jpg';
+import { keepLastWords, localePath, ui, type Locale } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = ui[locale].reviews;
+const images: Record<string, ImageMetadata> = { datatixx };
+---
+
+<section class="reviews" aria-labelledby="reviews-title" data-reviews>
+  <div class="reviews__bg" aria-hidden="true">
+    <Image src={bgDark} alt="" widths={[760, 1512]} sizes="100vw" data-theme-only="dark" />
+    <Image src={bgLight} alt="" widths={[760, 1512]} sizes="100vw" data-theme-only="light" />
+  </div>
+
+  <header class="reviews__head">
+    <p class="reviews__eyebrow">{t.eyebrow}</p>
+    <h2 class="reviews__title" id="reviews-title">{t.title}</h2>
+  </header>
+
+  <div class="reviews__body">
+    {
+      t.items.map((item, i) => (
+        <div class="review" hidden={i !== 0} data-slide>
+          <div class="review__media">
+            <Image src={images[item.slug]} alt="" widths={[600, 900, 1200]} sizes="(max-width: 900px) 100vw, 664px" loading="lazy" />
+          </div>
+          <figure class="review__card">
+            <blockquote class="review__quote">
+              <span class="review__mark" aria-hidden="true">“</span>
+              <p>{keepLastWords(item.quote)}</p>
+            </blockquote>
+            <figcaption class="review__author">
+              <span class="review__name">{item.author}</span>
+              <span class="review__meta">{item.meta}</span>
+            </figcaption>
+          </figure>
+        </div>
+      ))
+    }
+
+    <!-- Керування стоїть поверх картки, у її нижньому рядку (як у Figma); на вузьких екранах — під нею -->
+    <div class="reviews__controls">
+      {
+        t.items.map((item, i) => (
+          <a class="reviews__case" href={localePath(locale, `/realisations/${item.slug}/`)} hidden={i !== 0} data-case-link>
+            {t.view}
+            <span class="reviews__case-icon" aria-hidden="true">
+              <img src={allDark.src} width="36" height="36" alt="" data-theme-only="dark" />
+              <img src={allLight.src} width="36" height="36" alt="" data-theme-only="light" />
+            </span>
+          </a>
+        ))
+      }
+      <SliderNav prevLabel={t.prev} nextLabel={t.next} total={t.items.length} />
+    </div>
+  </div>
+</section>
+
+<style>
+  .reviews {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+    padding: 120px clamp(40px, 5.29vw, 80px);
+    background: var(--section-bg);
+    overflow: hidden;
+  }
+
+  .reviews__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .reviews__bg :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .reviews__head {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .reviews__eyebrow {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .reviews__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 56px;
+    line-height: 68px;
+  }
+
+  /* Зображення 664 і картка, 24 px між ними, висота 540 */
+  .reviews__body {
+    position: relative;
+    --img-w: min(664px, 49.1%);
+  }
+
+  .review {
+    display: flex;
+    gap: 24px;
+    height: 540px;
+  }
+
+  .review[hidden] {
+    display: none;
+  }
+
+  .review.is-entering {
+    animation: review-in 0.5s var(--ease-out-in);
+  }
+
+  @keyframes review-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  .review__media {
+    flex: 0 0 var(--img-w);
+    overflow: hidden;
+    border-radius: 32px;
+  }
+
+  .review__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 0 50%;
+  }
+
+  /* Картка: скло, 48 px усередині; знизу місце під рядок керування */
+  .review__card {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    margin: 0;
+    padding: 48px 48px 128px;
+    border: 1px solid var(--step-border);
+    border-radius: 32px;
+    background: var(--step-bg);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  .review__quote {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 0;
+  }
+
+  .review__mark {
+    display: block;
+    height: 56px;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 96px;
+    line-height: 1.05;
+    color: var(--accent-text);
+  }
+
+  .review__quote p {
+    font-size: 28px;
+    line-height: 40px;
+    color: color-mix(in srgb, var(--fg) 95%, transparent);
+  }
+
+  .review__author {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .review__name {
+    font-weight: 600;
+    font-size: 18px;
+    line-height: 26px;
+  }
+
+  .review__meta {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--label-muted);
+  }
+
+  /* Рядок керування в нижній частині картки: «Дивитися кейс» зліва, стрілки справа */
+  .reviews__controls {
+    position: absolute;
+    right: 48px;
+    bottom: 48px;
+    left: calc(var(--img-w) + 24px + 48px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+
+  .reviews__case {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 22px;
+    text-decoration: none;
+    border-radius: 999px;
+  }
+
+  .reviews__case[hidden] {
+    display: none;
+  }
+
+  .reviews__case-icon img {
+    display: block;
+    transition: transform var(--dur-btn) var(--ease-out-in);
+  }
+
+  @media (hover: hover) {
+    .reviews__case:hover .reviews__case-icon img {
+      transform: rotate(45deg);
+    }
+  }
+  .reviews__case:focus-visible .reviews__case-icon img {
+    transform: rotate(45deg);
+  }
+
+  .reviews__controls :global(.slider-nav) {
+    gap: 16px;
+  }
+
+  @media (max-width: 1100px) {
+    .review__card {
+      padding: 32px 32px 112px;
+    }
+    .reviews__controls {
+      right: 32px;
+      bottom: 32px;
+      left: calc(var(--img-w) + 24px + 32px);
+    }
+    .review__quote p {
+      font-size: 22px;
+      line-height: 32px;
+    }
+  }
+
+  /* Зображення над карткою; керування під карткою */
+  @media (max-width: 900px) {
+    .review {
+      flex-direction: column;
+      height: auto;
+    }
+    .review__media {
+      flex: none;
+      aspect-ratio: 664 / 540;
+      max-height: 420px;
+    }
+    .review__card {
+      padding-bottom: 32px;
+    }
+    .reviews__controls {
+      position: static;
+      margin-top: 24px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .reviews {
+      gap: 24px;
+      padding: 96px 20px;
+    }
+    .reviews__title {
+      font-size: 32px;
+      line-height: 40px;
+    }
+    .review {
+      gap: 16px;
+    }
+    .review__media,
+    .review__card {
+      border-radius: 24px;
+    }
+    .review__card {
+      gap: 20px;
+      padding: 24px;
+    }
+    .review__mark {
+      height: 40px;
+      font-size: 72px;
+    }
+    .review__quote p {
+      font-size: 18px;
+      line-height: 28px;
+    }
+    .reviews__controls {
+      flex-wrap: wrap;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .review.is-entering {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-reviews]').forEach((root) => {
+    const slides = Array.from(root.querySelectorAll<HTMLElement>('[data-slide]'));
+    const links = Array.from(root.querySelectorAll<HTMLElement>('[data-case-link]'));
+    const current = root.querySelector<HTMLElement>('[data-slider-current]');
+    let index = 0;
+
+    function show(next: number) {
+      const n = (next + slides.length) % slides.length;
+      if (n === index) return;
+      slides[index].hidden = true;
+      links[index].hidden = true;
+      index = n;
+      slides[index].hidden = false;
+      links[index].hidden = false;
+      slides[index].classList.remove('is-entering');
+      void slides[index].offsetWidth;
+      slides[index].classList.add('is-entering');
+      if (current) current.textContent = String(index + 1).padStart(2, '0');
+    }
+
+    root.querySelector('[data-slider-prev]')?.addEventListener('click', () => show(index - 1));
+    root.querySelector('[data-slider-next]')?.addEventListener('click', () => show(index + 1));
+  });
+</script>
