@@ -1,0 +1,76 @@
+---
+/**
+ * Логотип Lindigo Design (Figma, компонент «Logo + icon», 151 × 54).
+ * Три SVG-частини: знак, «design» і «lindigo», розставлені за координатами з Figma.
+ * Темна тема — Beige 50 (#F8EEDD), світла — Indigo 800 (#36206E).
+ * Стоїть у шапці й у меню; посилання й підпис задає місце, де логотип використано.
+ */
+import darkIcon from '../assets/logo/dark-icon.svg';
+import darkDesign from '../assets/logo/dark-design.svg';
+import darkLindigo from '../assets/logo/dark-lindigo.svg';
+import lightIcon from '../assets/logo/light-icon.svg';
+import lightDesign from '../assets/logo/light-design.svg';
+import lightLindigo from '../assets/logo/light-lindigo.svg';
+
+const sets = [
+  { theme: 'dark', icon: darkIcon, design: darkDesign, lindigo: darkLindigo },
+  { theme: 'light', icon: lightIcon, design: lightDesign, lindigo: lightLindigo },
+] as const;
+---
+
+<span class="logo" aria-hidden="true">
+  {
+    sets.map((s) => (
+      <span class="logo__set" data-theme-only={s.theme}>
+        <img class="logo__icon" src={s.icon.src} width="24.9614" height="34.354" alt="" />
+        <img class="logo__design" src={s.design.src} width="46.2191" height="15.6728" alt="" />
+        <img class="logo__lindigo" src={s.lindigo.src} width="112.263" height="32.8338" alt="" />
+      </span>
+    ))
+  }
+</span>
+
+<style>
+  /* 151 × 54 як у Figma; частини стоять у відсотках, тож логотип масштабується цілим */
+  .logo {
+    position: relative;
+    display: block;
+    width: 151px;
+    aspect-ratio: 151 / 54;
+  }
+
+  .logo__set {
+    position: absolute;
+    inset: 0;
+  }
+
+  .logo__set img {
+    position: absolute;
+    display: block;
+    max-width: none;
+  }
+
+  /* Знак: inset 17.83% 80.77% 18.55% 2.7% */
+  .logo__icon {
+    left: 2.7%;
+    top: 17.83%;
+    width: 16.53%;
+    height: 63.62%;
+  }
+
+  /* «design»: inset 7.61% 42.15% 63.37% 27.24% */
+  .logo__design {
+    left: 27.24%;
+    top: 7.61%;
+    width: 30.61%;
+    height: 29.02%;
+  }
+
+  /* «lindigo»: inset 30.89% 2.78% 8.3% 22.87% */
+  .logo__lindigo {
+    left: 22.87%;
+    top: 30.89%;
+    width: 74.35%;
+    height: 60.81%;
+  }
+</style>
