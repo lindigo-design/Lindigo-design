@@ -147,6 +147,60 @@ const current = (p: string) => path === p;
     display: none;
   }
 
+  /* ---------- Анімація ----------
+     Відкриття: коло з центру бургера 0,7 с; пункти знизу по черзі (через 0,25 с, крок 0,06 с);
+     стовпчик і верхній рядок — прозорістю 0,4 с через 0,4 с; лінії бургера стають хрестиком за 0,4 с.
+     Закриття швидше: вміст зникає за 0,2 с, коло стискається до бургера за 0,5 с. */
+  .menu {
+    --cx: calc(100% - 81px);
+    --cy: 57px;
+    clip-path: circle(0 at var(--cx) var(--cy));
+    visibility: hidden;
+    transition:
+      clip-path 0.5s var(--ease-out-in) 0.1s,
+      visibility 0s 0.6s;
+  }
+
+  .menu.is-open {
+    clip-path: circle(150vmax at var(--cx) var(--cy));
+    visibility: visible;
+    transition:
+      clip-path 0.7s var(--ease-out-in),
+      visibility 0s;
+  }
+
+  .menu__nav li {
+    opacity: 0;
+    transform: translateY(40px);
+    transition:
+      opacity 0.2s ease,
+      transform 0s 0.2s;
+  }
+
+  .menu.is-open .menu__nav li {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 0.6s var(--ease-out-in) calc(0.25s + var(--i) * 0.06s),
+      transform 0.6s var(--ease-out-in) calc(0.25s + var(--i) * 0.06s);
+  }
+
+  .menu__logo,
+  .menu__settings--top,
+  .menu__aside,
+  .menu__bottom {
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .menu.is-open .menu__logo,
+  .menu.is-open .menu__settings--top,
+  .menu.is-open .menu__aside,
+  .menu.is-open .menu__bottom {
+    opacity: 1;
+    transition: opacity 0.4s var(--ease-out-in) 0.4s;
+  }
+
   .menu__inner {
     display: flex;
     flex-direction: column;
@@ -200,19 +254,27 @@ const current = (p: string) => path === p;
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Хрестик: дві лінії 2 px, як у Figma (20 px, кінці заокруглені) */
+  /* Хрестик: дві лінії 2 px, як у Figma (14 px по діагоналі поля 20 px, кінці заокруглені).
+     Закрите меню: лінії стоять як у бургера (20 px, 6 px між ними); відкриття повертає їх на ±45°. */
   .menu__close span {
     position: absolute;
-    width: 14px;
+    width: 20px;
     height: 2px;
     border-radius: 1px;
     background: currentColor;
+    transition: transform 0.4s var(--ease-out-in);
   }
   .menu__close span:first-child {
-    transform: rotate(45deg);
+    transform: translateY(-4px);
   }
   .menu__close span:last-child {
-    transform: rotate(-45deg);
+    transform: translateY(4px);
+  }
+  .menu.is-open .menu__close span:first-child {
+    transform: rotate(45deg) scaleX(0.7);
+  }
+  .menu.is-open .menu__close span:last-child {
+    transform: rotate(-45deg) scaleX(0.7);
   }
 
   /* ---------- Нижня частина: навігація і стовпчик ---------- */
@@ -507,10 +569,43 @@ const current = (p: string) => path === p;
     }
   }
 
+  /* Без руху: кола й виїжджання немає, меню з'являється прозорістю за 0,2 с */
   @media (prefers-reduced-motion: reduce) {
-    .menu__nav a,
+    .menu,
+    .menu.is-open {
+      clip-path: none;
+    }
+    .menu {
+      opacity: 0;
+      transition:
+        opacity 0.2s ease,
+        visibility 0s 0.2s;
+    }
+    .menu.is-open {
+      opacity: 1;
+      transition:
+        opacity 0.2s ease,
+        visibility 0s;
+    }
+    .menu .menu__nav li,
+    .menu .menu__logo,
+    .menu .menu__settings--top,
+    .menu .menu__aside,
+    .menu .menu__bottom,
+    .menu .menu__close span,
     .menu__go {
+      transform: none;
+      opacity: 1;
+      transition: none !important;
+    }
+    .menu__nav a {
       transition: none;
+    }
+    .menu .menu__close span:first-child {
+      transform: rotate(45deg) scaleX(0.7);
+    }
+    .menu .menu__close span:last-child {
+      transform: rotate(-45deg) scaleX(0.7);
     }
   }
 </style>
@@ -518,16 +613,100 @@ const current = (p: string) => path === p;
 <script>
   const menu = document.querySelector<HTMLElement>('[data-menu]');
   const burger = document.querySelector<HTMLButtonElement>('[data-menu-open]');
+
   if (menu && burger) {
-    const open = () => {
-      menu.hidden = false;
-      burger.setAttribute('aria-expanded', 'true');
-    };
-    const close = () => {
-      menu.hidden = true;
-      burger.setAttribute('aria-expanded', 'false');
-    };
+    const root = document.documentElement;
+    const closeBtn = menu.querySelector<HTMLButtonElement>('[data-menu-close]')!;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let isOpen = false;
+    let hideTimer = 0;
+
+    // Решта сторінки (усе, крім меню), яку робимо inert, поки меню відкрите
+    const outside = () => Array.from(document.body.children).filter((el) => el !== menu && el.tagName !== 'SCRIPT') as HTMLElement[];
+
+    // Центр кола — центр бургера
+    function placeCircle() {
+      const r = burger!.getBoundingClientRect();
+      menu!.style.setProperty('--cx', `${r.left + r.width / 2}px`);
+      menu!.style.setProperty('--cy', `${r.top + r.height / 2}px`);
+    }
+
+    function focusables() {
+      return Array.from(
+        menu!.querySelectorAll<HTMLElement>('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'),
+      ).filter((el) => el.offsetParent !== null || el === closeBtn);
+    }
+
+    function open() {
+      if (isOpen) return;
+      isOpen = true;
+      window.clearTimeout(hideTimer);
+      placeCircle();
+      menu!.hidden = false;
+      menu!.inert = false;
+      void menu!.offsetWidth; // щоб перехід стартував
+      menu!.classList.add('is-open');
+      root.classList.add('menu-open');
+      outside().forEach((el) => (el.inert = true));
+      burger!.setAttribute('aria-expanded', 'true');
+      burger!.setAttribute('aria-label', burger!.dataset.labelClose ?? '');
+      closeBtn.focus({ preventScroll: true });
+      window.dispatchEvent(new CustomEvent('lindigo:menu', { detail: { open: true } }));
+    }
+
+    function close() {
+      if (!isOpen) return;
+      isOpen = false;
+      placeCircle();
+      menu!.classList.remove('is-open');
+      root.classList.remove('menu-open');
+      outside().forEach((el) => (el.inert = false));
+      burger!.setAttribute('aria-expanded', 'false');
+      burger!.setAttribute('aria-label', burger!.dataset.labelOpen ?? '');
+      burger!.focus({ preventScroll: true });
+      // Після закриття меню недоступне для фокуса й читалок
+      hideTimer = window.setTimeout(
+        () => {
+          menu!.inert = true;
+          menu!.hidden = true;
+        },
+        reduceMotion.matches ? 200 : 600,
+      );
+      window.dispatchEvent(new CustomEvent('lindigo:menu', { detail: { open: false } }));
+    }
+
+    menu.inert = true;
     burger.addEventListener('click', open);
-    menu.querySelector('[data-menu-close]')?.addEventListener('click', close);
+    closeBtn.addEventListener('click', close);
+
+    // Клік по будь-якому посиланню меню закриває його
+    menu.querySelectorAll('a[href]').forEach((a) => a.addEventListener('click', close));
+
+    menu.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        close();
+        return;
+      }
+      // Фокус не виходить за межі меню
+      if (e.key === 'Tab') {
+        const items = focusables();
+        const first = items[0];
+        const last = items[items.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+
+    window.addEventListener('resize', () => isOpen && placeCircle());
+    // Повернення назад зі сторінки (кеш браузера): меню закрите
+    window.addEventListener('pageshow', () => {
+      if (isOpen) close();
+    });
   }
 </script>
