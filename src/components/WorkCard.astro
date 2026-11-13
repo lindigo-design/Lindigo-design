@@ -48,6 +48,7 @@ const total = works.length;
               widths={[360, 720]}
               sizes="360px"
               loading={i === 0 ? 'eager' : 'lazy'}
+              class="work-card__img"
             />
             <span class="work-card__arrow" aria-hidden="true">
               <img src={arrow.src} width="20" height="20" alt="" />
@@ -122,7 +123,7 @@ const total = works.length;
     border-radius: var(--radius-media);
   }
 
-  .work-card__cover :global(img) {
+  .work-card__cover :global(.work-card__img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -149,7 +150,7 @@ const total = works.length;
   }
 
   @media (hover: hover) {
-    .work-card__link:hover .work-card__cover :global(img) {
+    .work-card__link:hover .work-card__cover :global(.work-card__img) {
       transform: scale(1.03);
     }
     .work-card__link:hover .work-card__arrow img {

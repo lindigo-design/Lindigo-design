@@ -1,0 +1,256 @@
+---
+/**
+ * Меню мов у шапці (Figma, «Шапка: мова і тема, стани»).
+ * Закрите: «FR ▾». Відкрите: скляна панель із трьома посиланнями на ту саму сторінку іншою мовою.
+ * Відкривається лише кліком (не наведенням). Закривається: Esc, клік поза меню, втрата фокуса, вибір мови.
+ * Без JavaScript посилання доступні: список відкривається, коли кнопка в фокусі.
+ * Назви мов завжди їхньою мовою, без прапорів.
+ */
+import { languageNames, locales, localePath, ui, type Locale } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+  path?: string;
+}
+
+const { locale, path = '/' } = Astro.props;
+const listId = `lang-list-${Math.random().toString(36).slice(2, 8)}`;
+---
+
+<div class="lang" data-lang-menu>
+  <button class="lang__btn" type="button" aria-expanded="false" aria-controls={listId} aria-label={ui[locale].header.langButton}>
+    <span aria-hidden="true">{locale.toUpperCase()}</span>
+    <svg class="lang__chev" viewBox="0 0 12 12" width="12" height="12" aria-hidden="true">
+      <path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+  </button>
+
+  <ul class="lang__list" id={listId}>
+    {
+      locales.map((l) => (
+        <li>
+          <a href={localePath(l, path)} lang={l} hreflang={l} aria-current={l === locale ? 'true' : undefined} data-lang={l}>
+            <span class="lang__code">{l.toUpperCase()}</span>
+            <span class="lang__name">{languageNames[l]}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<style>
+  .lang {
+    position: relative;
+  }
+
+  .lang__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-width: 44px;
+    height: 44px;
+    padding: 0 4px;
+    border: 0;
+    border-radius: 8px;
+    background: none;
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+
+  .lang__chev {
+    transition: transform 0.2s ease;
+  }
+
+  .lang__btn[aria-expanded='true'] .lang__chev {
+    transform: rotate(180deg);
+  }
+
+  /* Панель: скло, 8 px під кнопкою, по правому краю кнопки */
+  .lang__list {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 10;
+    margin: 0;
+    padding: 8px;
+    list-style: none;
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+    opacity: 0;
+    transform: translateY(-6px);
+    visibility: hidden;
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease,
+      visibility 0s 0.2s;
+  }
+
+  .lang__list.is-open,
+  :global(:root:not(.js)) .lang:focus-within .lang__list {
+    opacity: 1;
+    transform: none;
+    visibility: visible;
+    transition:
+      opacity 0.2s ease,
+      transform 0.2s ease,
+      visibility 0s;
+  }
+
+  .lang__list[hidden] {
+    display: none;
+  }
+
+  .lang__list a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 200px;
+    height: 44px;
+    padding: 0 12px;
+    border-radius: 8px;
+    color: var(--fg);
+    text-decoration: none;
+    transition: background-color 0.15s ease;
+  }
+
+  .lang__list a:hover,
+  .lang__list a:focus-visible {
+    background: color-mix(in srgb, var(--fg) 8%, transparent);
+  }
+
+  .lang__list a:focus-visible {
+    outline-offset: -2px;
+  }
+
+  /* Код мови: Martian Mono 14; у поточної — підкреслення 2 px на відстані 2 px */
+  .lang__code {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    padding-bottom: 2px;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -4px;
+  }
+
+  .lang__list a[aria-current='true'] .lang__code {
+    border-bottom-color: currentColor;
+  }
+
+  .lang__name {
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 22px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lang__chev,
+    .lang__list,
+    .lang__list.is-open {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-lang-menu]').forEach((menu) => {
+    const btn = menu.querySelector<HTMLButtonElement>('.lang__btn')!;
+    const list = menu.querySelector<HTMLUListElement>('.lang__list')!;
+    const links = Array.from(list.querySelectorAll<HTMLAnchorElement>('a'));
+    let closeTimer = 0;
+
+    list.hidden = true;
+
+    const isOpen = () => btn.getAttribute('aria-expanded') === 'true';
+
+    function open(focus?: 'current' | 'first' | 'last') {
+      window.clearTimeout(closeTimer);
+      list.hidden = false;
+      void list.offsetWidth; // щоб спрацював перехід появи
+      list.classList.add('is-open');
+      btn.setAttribute('aria-expanded', 'true');
+      if (focus) {
+        const target =
+          focus === 'first' ? links[0] : focus === 'last' ? links[links.length - 1] : (links.find((a) => a.hasAttribute('aria-current')) ?? links[0]);
+        target.focus();
+      }
+    }
+
+    function close(returnFocus = false) {
+      if (!isOpen()) return;
+      list.classList.remove('is-open');
+      btn.setAttribute('aria-expanded', 'false');
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      closeTimer = window.setTimeout(() => (list.hidden = true), reduce ? 0 : 200);
+      if (returnFocus) btn.focus();
+    }
+
+    btn.addEventListener('click', () => (isOpen() ? close() : open()));
+
+    btn.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        open('current');
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        open('last');
+      }
+    });
+
+    list.addEventListener('keydown', (e) => {
+      const i = links.indexOf(document.activeElement as HTMLAnchorElement);
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        links[(i + 1) % links.length].focus();
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        links[(i - 1 + links.length) % links.length].focus();
+      } else if (e.key === 'Home') {
+        e.preventDefault();
+        links[0].focus();
+      } else if (e.key === 'End') {
+        e.preventDefault();
+        links[links.length - 1].focus();
+      }
+    });
+
+    menu.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && isOpen()) {
+        e.preventDefault();
+        close(true);
+      }
+    });
+
+    // Фокус пішов з меню — закриваємо
+    menu.addEventListener('focusout', (e) => {
+      if (!menu.contains(e.relatedTarget as Node | null)) close();
+    });
+
+    // Клік поза меню
+    document.addEventListener('pointerdown', (e) => {
+      if (isOpen() && !menu.contains(e.target as Node)) close();
+    });
+
+    // Вибір мови: запам'ятовуємо. Автоматично за мовою браузера нікого не перекидаємо.
+    links.forEach((a) =>
+      a.addEventListener('click', () => {
+        try {
+          localStorage.setItem('lindigo-lang', a.dataset.lang ?? '');
+        } catch {
+          // приватний режим
+        }
+        close();
+      }),
+    );
+  });
+</script>

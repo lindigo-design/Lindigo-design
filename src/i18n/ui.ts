@@ -10,6 +10,13 @@ export function localePath(locale: Locale, path = '/'): string {
 
 const NBSP = ' ';
 
+/** Назви мов завжди їхньою мовою, не перекладаються */
+export const languageNames: Record<Locale, string> = {
+  fr: 'Français',
+  en: 'English',
+  uk: 'Українська',
+};
+
 /**
  * Тексти першого екрана.
  * FR і UK — з макетів Figma (рішення Яни, 12.11.2026).
@@ -32,6 +39,7 @@ export const ui = {
     header: {
       bookCall: 'Réserver un appel',
       menu: 'Ouvrir le menu',
+      langButton: `Langue${NBSP}: français. Changer de langue`,
       languages: 'Langue du site',
       home: 'Lindigo Design Studio, accueil',
     },
@@ -60,6 +68,7 @@ export const ui = {
     header: {
       bookCall: 'Book a call',
       menu: 'Open menu',
+      langButton: 'Language: English. Change language',
       languages: 'Site language',
       home: 'Lindigo Design Studio, home',
     },
@@ -88,6 +97,7 @@ export const ui = {
     header: {
       bookCall: 'Записатися на дзвінок',
       menu: 'Відкрити меню',
+      langButton: 'Мова: українська. Змінити мову',
       languages: 'Мова сайту',
       home: 'Lindigo Design Studio, головна',
     },

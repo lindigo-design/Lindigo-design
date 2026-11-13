@@ -1,5 +1,8 @@
 ---
-/** Перемикач мов «FR · EN · UK». Стоїть у шапці й у футері. */
+/**
+ * Мови рядком «FR EN UK» (меню бургера, футер). Поточна підкреслена лінією 2 px (Figma, меню відкрите).
+ * У шапці замість нього випадаюче меню LangMenu.astro; посилання будуються однаково — localePath().
+ */
 import { locales, localePath, ui, type Locale } from '../i18n/ui';
 
 interface Props {
@@ -12,13 +15,10 @@ const { locale, path = '/' } = Astro.props;
 
 <nav class="langs" aria-label={ui[locale].header.languages}>
   {
-    locales.map((l, i) => (
-      <>
-        {i > 0 && <span aria-hidden="true">·</span>}
-        <a href={localePath(l, path)} hreflang={l} lang={l} aria-current={l === locale ? 'page' : undefined}>
-          {l.toUpperCase()}
-        </a>
-      </>
+    locales.map((l) => (
+      <a href={localePath(l, path)} hreflang={l} lang={l} aria-current={l === locale ? 'page' : undefined} data-lang={l}>
+        {l.toUpperCase()}
+      </a>
     ))
   }
 </nav>
@@ -26,27 +26,52 @@ const { locale, path = '/' } = Astro.props;
 <style>
   .langs {
     display: flex;
-    gap: 0.6em;
+    gap: 4px;
     font-family: var(--font-mono);
     font-weight: 500;
     font-size: 14px;
     line-height: 20px;
   }
 
+  /* Зона натискання 44 px заввишки; підкреслення 2 px під кодом */
   .langs a {
+    display: inline-flex;
+    align-items: center;
+    min-width: 32px;
+    height: 44px;
+    padding: 0 4px;
+    color: var(--fg);
     text-decoration: none;
-    text-underline-offset: 4px;
   }
 
-  .langs a:hover,
-  .langs a[aria-current='page'] {
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
+  .langs a {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-repeat: no-repeat;
+    background-position: 4px calc(50% + 13px);
+    background-size: 0 2px;
+    transition: background-size 0.2s ease;
   }
 
-  @media (max-width: 380px) {
-    .langs {
-      font-size: 12px;
+  .langs a[aria-current='page'],
+  .langs a:hover {
+    background-size: calc(100% - 8px) 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .langs a {
+      transition: none;
     }
   }
 </style>
+
+<script>
+  document.querySelectorAll<HTMLAnchorElement>('.langs a[data-lang]').forEach((a) =>
+    a.addEventListener('click', () => {
+      try {
+        localStorage.setItem('lindigo-lang', a.dataset.lang ?? '');
+      } catch {
+        // приватний режим
+      }
+    }),
+  );
+</script>

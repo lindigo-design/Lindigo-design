@@ -2,13 +2,13 @@
 /**
  * Шапка: скляна смуга, прилипає вгорі й їде разом зі сторінкою.
  * Логотип зліва; справа мова, перемикач теми, «Записатися на дзвінок» (друга кнопка) і бургер у колі.
- *  - від 780 px: усе;
- *  - 600–779 px: без кнопки дзвінка (не влазить; вона є в меню бургера);
+ *  - від 720 px: усе;
+ *  - 600–719 px: без кнопки дзвінка (не влазить; вона є в меню бургера);
  *  - до 599 px: лише логотип і бургер, мова й тема — у меню бургера.
  */
 import { Image } from 'astro:assets';
 import Button from './Button.astro';
-import LangSwitch from './LangSwitch.astro';
+import LangMenu from './LangMenu.astro';
 import ThemeSwitch from './ThemeSwitch.astro';
 import logoLight from '../assets/hero/logo-light.png';
 import logoDark from '../assets/hero/logo-dark.png';
@@ -31,7 +31,7 @@ const t = ui[locale].header;
     </a>
 
     <div class="header__actions">
-      <div class="header__lang"><LangSwitch locale={locale} path={path} /></div>
+      <div class="header__lang"><LangMenu locale={locale} path={path} /></div>
       <div class="header__theme"><ThemeSwitch locale={locale} /></div>
 
       <Button href={localePath(locale, '/contact/')} variant="secondary" size="sm" class="header__call">
@@ -56,15 +56,28 @@ const t = ui[locale].header;
   }
 
   .header__bar {
+    position: relative;
+    isolation: isolate;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 16px 24px;
     border: 1px solid var(--glass-border);
     border-radius: 999px;
+  }
+
+  /* Скло — окремим шаром. Якщо розмиття стоїть на самій смузі, вкладене скло (панель мов)
+     розмиває лише вміст смуги, а не сторінку під нею. */
+  .header__bar::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    border-radius: inherit;
     background: var(--glass-bg);
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
+    pointer-events: none;
   }
 
   .header__logo {
@@ -140,8 +153,8 @@ const t = ui[locale].header;
 
   /* Кнопка дзвінка не влазить: ховаємо, вона є в меню бургера.
      Межу виміряно для найдовшого підпису («Записатися на дзвінок»), щоб до логотипа лишалось ≥ 24 px.
-     Тимчасово 779 px: поки в шапці широкий рядок «FR · EN · UK»; після меню мов (крок 2) межа зменшиться. */
-  @media (max-width: 779px) {
+  */
+  @media (max-width: 719px) {
     .header__actions :global(.header__call) {
       display: none;
     }
