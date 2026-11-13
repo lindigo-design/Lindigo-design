@@ -1,0 +1,45 @@
+# Тимчасова копія сайту для перегляду на GitHub Pages:
+# https://lindigo-design.github.io/Lindigo-design/
+# Справжній сайт буде на https://lindigo-design.com (тут власний домен не налаштовуємо).
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Одна публікація за раз; поточну не скасовуємо
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      # site: https://lindigo-design.github.io, base: /Lindigo-design, noindex у <head>
+      PUBLIC_PREVIEW: 'true'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Build Astro and upload Pages artifact
+        uses: withastro/action@v6
+        with:
+          # У package.json немає поля engines
+          node-version: 22
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5

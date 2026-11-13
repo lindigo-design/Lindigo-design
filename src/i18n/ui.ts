@@ -2,10 +2,16 @@ export const locales = ['fr', 'en', 'uk'] as const;
 export type Locale = (typeof locales)[number];
 export const defaultLocale: Locale = 'fr';
 
-/** Адреса сторінки для мови: французька — без префікса, інші — /en/, /uk/. */
+/**
+ * Адреса сторінки для мови: французька — без префікса, інші — /en/, /uk/.
+ * Спереду додається base сайту (import.meta.env.BASE_URL): на тимчасовій копії GitHub Pages це
+ * /Lindigo-design, на справжньому домені base порожній — адреси не змінюються.
+ */
 export function localePath(locale: Locale, path = '/'): string {
   const clean = path.startsWith('/') ? path : `/${path}`;
-  return locale === defaultLocale ? clean : `/${locale}${clean}`;
+  const local = locale === defaultLocale ? clean : `/${locale}${clean}`;
+  const base = (import.meta.env.BASE_URL ?? '/').replace(/\/+$/, '');
+  return `${base}${local}`;
 }
 
 const NBSP = ' ';

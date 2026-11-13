@@ -13,6 +13,8 @@ interface Props {
 const { locale, title, description, path = '/' } = Astro.props;
 const site = Astro.site ?? new URL(Astro.url.origin);
 const canonical = new URL(localePath(locale, path), site);
+// Тимчасова копія на GitHub Pages не має потрапляти в пошук
+const isPreview = import.meta.env.PUBLIC_PREVIEW === 'true';
 ---
 
 <!doctype html>
@@ -22,6 +24,7 @@ const canonical = new URL(localePath(locale, path), site);
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {isPreview && <meta name="robots" content="noindex, nofollow" />}
     <link rel="canonical" href={canonical} />
     {
       locales.map((l) => (
