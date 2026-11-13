@@ -32,6 +32,8 @@ export const languageNames: Record<Locale, string> = {
 export const ui = {
   fr: {
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
+    photos: { eyebrow: 'Photo et contenu', title: 'Des photos au service de votre marque', more: 'Voir les photos', strip: 'Exemples de photos' },
+    // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     process: {
       eyebrow: 'Six étapes, de l’appel au lancement',
       title: 'Notre méthode',
@@ -152,6 +154,8 @@ export const ui = {
   },
   en: {
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
+    photos: { eyebrow: 'Photo & content', title: 'Photos that work for your brand', more: 'See photos', strip: 'Photo examples' },
+    // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     process: {
       eyebrow: 'Six steps from the first call to launch',
       title: 'How we work',
@@ -271,6 +275,7 @@ export const ui = {
     },
   },
   uk: {
+    photos: { eyebrow: 'Фото й контент', title: 'Фото, які працюють на бренд', more: 'Дивитися фото', strip: 'Приклади фото' },
     process: {
       eyebrow: 'Шість кроків від дзвінка до запуску',
       title: 'Як ми працюємо',
