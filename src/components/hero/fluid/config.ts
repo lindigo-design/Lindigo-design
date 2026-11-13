@@ -54,4 +54,8 @@ export const config = {
   /** Якщо кадрів менше MIN_FPS довше LOW_FPS_TIME, спершу зменшуємо роздільність, потім вимикаємо */
   MIN_FPS: 30,
   LOW_FPS_TIME: 2,
+
+  /** Під відкритим меню: якщо кадрів менше MENU_MIN_FPS довше MENU_LOW_FPS_TIME — пауза */
+  MENU_MIN_FPS: 40,
+  MENU_LOW_FPS_TIME: 1,
 } as const;
