@@ -42,6 +42,8 @@ interface ImageLayer {
   texture: WebGLTexture;
   box: [number, number, number, number];
   scale: [number, number];
+  /** object-position картинки (0–1, y знизу) */
+  pos: [number, number];
 }
 
 let started = false;
@@ -294,7 +296,14 @@ export function initHeroFluid(): void {
   }
 
   /** Рамка <img> у координатах полотна (y знизу) і масштаб object-fit: cover. */
-  function measure(img: HTMLImageElement): Pick<ImageLayer, 'box' | 'scale'> {
+  /** object-position у частках 0–1 (y знизу, як у текстурі). Підтримуються відсотки, як у Hero.astro */
+  function objectPosition(img: HTMLImageElement): ImageLayer['pos'] {
+    const [x = '50%', y = '50%'] = getComputedStyle(img).objectPosition.split(/\s+/);
+    const part = (v: string) => (v.endsWith('%') ? parseFloat(v) / 100 : 0.5);
+    return [part(x), 1 - part(y)];
+  }
+
+  function measure(img: HTMLImageElement): Pick<ImageLayer, 'box' | 'scale' | 'pos'> {
     const c = canvasEl.getBoundingClientRect();
     const r = img.getBoundingClientRect();
     const box: ImageLayer['box'] = [
@@ -306,7 +315,7 @@ export function initHeroFluid(): void {
     const boxRatio = r.width / r.height;
     const imgRatio = img.naturalWidth / img.naturalHeight;
     const scale: ImageLayer['scale'] = boxRatio > imgRatio ? [1, imgRatio / boxRatio] : [boxRatio / imgRatio, 1];
-    return { box, scale };
+    return { box, scale, pos: objectPosition(img) };
   }
 
   let image: ImageLayer | null = null;
@@ -504,12 +513,14 @@ export function initHeroFluid(): void {
     glc.uniform1i(u.uImage, 1);
     glc.uniform4f(u.uBox, ...image.box);
     glc.uniform2f(u.uScale, ...image.scale);
+    glc.uniform2f(u.uPos, ...image.pos);
     const prev = prevImage ?? image;
     glc.activeTexture(glc.TEXTURE2);
     glc.bindTexture(glc.TEXTURE_2D, prev.texture);
     glc.uniform1i(u.uPrevImage, 2);
     glc.uniform4f(u.uPrevBox, ...prev.box);
     glc.uniform2f(u.uPrevScale, ...prev.scale);
+    glc.uniform2f(u.uPrevPos, ...prev.pos);
     glc.uniform1f(u.uMix, mix);
     blit(null);
 
