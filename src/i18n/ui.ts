@@ -60,7 +60,8 @@ export const ui = {
     },
     hero: {
       title: ['D’abord la stratégie.', 'Ensuite un design', 'qui fonctionne.'],
-      lead: `Chaque choix dans la maquette a une raison${NBSP}: vos clients, vos concurrents, votre objectif. C’est ainsi que nous concevons des services web, des sites et des marques pour les startups et les${NBSP}PME.`,
+      // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
+      lead: `Votre entreprise a son histoire et ses objectifs. Nous les étudions et créons des sites, des interfaces et des marques qui répondent à vos enjeux, pas à des modèles tout${NBSP}faits.`,
       leadWidth: '680px',
       primary: 'Parler de votre projet',
       secondary: 'Voir les réalisations',
@@ -98,8 +99,9 @@ export const ui = {
     },
     hero: {
       title: ['Strategy first.', 'Then a design', 'that works.'],
-      lead: `Every choice in the mockup has a reason: your clients, your competitors, your goal. That’s how we design web services, websites and brands for startups and small and medium-sized${NBSP}businesses.`,
-      leadWidth: '680px',
+      // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
+      lead: `Your business has its own story and goals. We study them and create websites, interfaces and brands that fit your needs, not${NBSP}templates.`,
+      leadWidth: '665px',
       primary: 'Discuss your project',
       secondary: 'See our work',
       latest: 'Latest project',
@@ -136,8 +138,8 @@ export const ui = {
     },
     hero: {
       title: ['Спочатку стратегія.', 'Потім дизайн,', 'який працює.'],
-      lead: `Кожне рішення в макеті має причину: ваші клієнти, ваші конкуренти, ваша ціль. Так ми проєктуємо вебсервіси, сайти й бренди для стартапів, малого й середнього${NBSP}бізнесу.`,
-      leadWidth: '620px',
+      lead: `Ваш бізнес має власну історію та цілі. Ми вивчаємо їх та створюємо сайти, інтерфейси та бренди, які відповідають вашим задачам, а не${NBSP}шаблонам.`,
+      leadWidth: '665px',
       primary: 'Обговорити проєкт',
       secondary: 'Дивитися роботи',
       latest: 'Остання робота',
