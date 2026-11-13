@@ -694,20 +694,23 @@ const current = (p: string) => here === localePath(locale, p);
       placeCircle();
       window.clearTimeout(openingTimer);
       menu!.classList.remove('is-open', 'is-opening');
-      root.classList.remove('menu-open');
-      outside().forEach((el) => (el.inert = false));
       burger!.setAttribute('aria-expanded', 'false');
       burger!.setAttribute('aria-label', burger!.dataset.labelOpen ?? '');
-      burger!.focus({ preventScroll: true });
-      // Після закриття меню недоступне для фокуса й читалок
+      // Усе, що змушує браузер перемалювати сторінку під склом (смуга прокрутки, inert, фокус,
+      // запуск рідини), робимо після того, як коло стиснулося. Інакше скло з розмиттям на весь
+      // екран на мить перераховується — це видно як мерехтіння на початку закриття.
       hideTimer = window.setTimeout(
         () => {
+          root.classList.remove('menu-open');
+          outside().forEach((el) => (el.inert = false));
+          burger!.focus({ preventScroll: true });
+          // Після закриття меню недоступне для фокуса й читалок
           menu!.inert = true;
           menu!.hidden = true;
+          window.dispatchEvent(new CustomEvent('lindigo:menu', { detail: { open: false } }));
         },
         reduceMotion.matches ? 200 : 500,
       );
-      window.dispatchEvent(new CustomEvent('lindigo:menu', { detail: { open: false } }));
     }
 
     menu.inert = true;
