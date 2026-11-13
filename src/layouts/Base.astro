@@ -40,6 +40,7 @@ const canonical = new URL(localePath(locale, path), site);
         } catch (e) {}
         var theme = saved === 'light' ? 'light' : 'dark';
         document.documentElement.dataset.theme = theme;
+        document.documentElement.classList.add('js');
         if (theme === 'light') {
           var m = document.querySelector('meta[name="theme-color"]');
           if (m) m.setAttribute('content', '#f8eedd');

@@ -2,8 +2,10 @@
 /**
  * Кнопка-посилання. Дві форми (Figma, «Кнопки: стани»):
  *  - primary   — залита, зі стрілкою в колі. Наведення: коло від курсора відкриває градієнт
- *                (темна тема Orchid → Orange, світла Indigo 600 → Orchid Deep), стрілка повертається
- *                вправо й зсувається на 4 px. Градієнт лежить на всю кнопку, коло лише відкриває його,
+ *                (темна тема Orchid → Orange, світла Indigo 600 → Orchid Deep). Коло зі стрілкою
+ *                зсувається вправо на 6 px, стрілка всередині повертається вправо, текст стоїть.
+ *                Текст і коло завжди стоять поруч по центру кнопки, між ними 12 px — і у вузькій,
+ *                і в кнопці на всю ширину. Відступи до країв однакові: 32 px. Градієнт лежить на всю кнопку, коло лише відкриває його,
  *                тому в кінці наведення кнопка точно така, як у Figma.
  *  - secondary — з обводкою. Наведення: обводка 2 px стає градієнтною, колір біжить по контуру.
  * Розмір md — 56 px (перший екран), sm — 48 px (шапка).
@@ -75,9 +77,10 @@ const { href, variant = 'primary', size = 'md', class: className } = Astro.props
   }
 
   /* ---------- Головна ---------- */
+  /* Відступи симетричні (32 px з обох боків): текст, 12 px і коло — один блок по центру.
+     Ширина росте за вмістом; коло ніколи не ближче 24 px до краю, навіть із зсувом 6 px при наведенні. */
   .btn--primary {
     overflow: hidden;
-    padding-right: 10px;
     background: var(--btn-primary-bg);
     color: var(--btn-primary-fg);
   }
@@ -104,6 +107,7 @@ const { href, variant = 'primary', size = 'md', class: className } = Astro.props
     border-radius: 50%;
   }
 
+  .btn__arrow,
   .btn__arrow img {
     transition: transform var(--dur-btn) var(--ease-out-in);
   }
@@ -121,8 +125,11 @@ const { href, variant = 'primary', size = 'md', class: className } = Astro.props
     .btn--primary:hover .btn__fill {
       clip-path: circle(var(--r) at var(--x) var(--y));
     }
+    .btn--primary:hover .btn__arrow {
+      transform: translateX(6px);
+    }
     .btn--primary:hover .btn__arrow img {
-      transform: translateX(4px) rotate(45deg);
+      transform: rotate(45deg);
     }
   }
 
@@ -130,8 +137,11 @@ const { href, variant = 'primary', size = 'md', class: className } = Astro.props
   .btn--primary:focus-visible .btn__fill {
     clip-path: circle(var(--r) at var(--x) var(--y));
   }
+  .btn--primary:focus-visible .btn__arrow {
+    transform: translateX(6px);
+  }
   .btn--primary:focus-visible .btn__arrow img {
-    transform: translateX(4px) rotate(45deg);
+    transform: rotate(45deg);
   }
 
   /* Натискання (і короткий спалах на телефоні, клас ставить скрипт) */
@@ -149,10 +159,13 @@ const { href, variant = 'primary', size = 'md', class: className } = Astro.props
   @media (prefers-reduced-motion: reduce) {
     .btn,
     .btn__fill,
+    .btn__arrow,
     .btn__arrow img {
       transition: none !important;
       animation: none !important;
     }
+    .btn--primary:hover .btn__arrow,
+    .btn--primary:focus-visible .btn__arrow,
     .btn--primary:hover .btn__arrow img,
     .btn--primary:focus-visible .btn__arrow img {
       transform: none;

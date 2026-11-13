@@ -34,6 +34,7 @@
   /* ---------- Темна тема (основна) ---------- */
   --bg: var(--indigo-950);
   --fg: var(--beige-50);
+  --text-muted: var(--muted-dark);
   --accent-text: var(--orchid);
   --glass-bg: rgba(21, 11, 46, 0.55);
   --glass-border: rgba(248, 238, 221, 0.2);
@@ -53,6 +54,7 @@
 :root[data-theme='light'] {
   --bg: var(--beige-50);
   --fg: var(--indigo-950);
+  --text-muted: var(--muted-light);
   --accent-text: var(--orchid-deep);
   --glass-bg: rgba(248, 238, 221, 0.6);
   --glass-border: rgba(21, 11, 46, 0.16);
@@ -77,6 +79,13 @@
 
 html {
   -webkit-text-size-adjust: 100%;
+  /* Місце під смугу прокрутки завжди зарезервоване: коли меню блокує прокрутку, сторінка не стрибає вбік */
+  scrollbar-gutter: stable;
+}
+
+/* Меню відкрите: сторінка під ним не прокручується */
+html.menu-open {
+  overflow: hidden;
 }
 
 body {

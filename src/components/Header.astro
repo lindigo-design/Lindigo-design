@@ -1,12 +1,15 @@
 ---
 /**
  * Шапка: скляна смуга, прилипає вгорі й їде разом зі сторінкою.
- * Логотип зліва; справа мови, «Записатися на дзвінок» (друга кнопка) і бургер у колі.
- * Перемикача теми тут немає: він у футері й у меню (див. hero-animation-lindigo.md, 3.5).
+ * Логотип зліва; справа мова, перемикач теми, «Записатися на дзвінок» (друга кнопка) і бургер у колі.
+ *  - від 720 px: усе;
+ *  - 600–719 px: без кнопки дзвінка (не влазить; вона є в меню бургера);
+ *  - до 599 px: лише логотип і бургер, мова й тема — у меню бургера.
  */
 import { Image } from 'astro:assets';
 import Button from './Button.astro';
-import LangSwitch from './LangSwitch.astro';
+import LangMenu from './LangMenu.astro';
+import ThemeSwitch from './ThemeSwitch.astro';
 import logoLight from '../assets/hero/logo-light.png';
 import logoDark from '../assets/hero/logo-dark.png';
 import { localePath, ui, type Locale } from '../i18n/ui';
@@ -28,14 +31,25 @@ const t = ui[locale].header;
     </a>
 
     <div class="header__actions">
-      <LangSwitch locale={locale} path={path} />
+      <div class="header__lang"><LangMenu locale={locale} path={path} /></div>
+      <div class="header__theme"><ThemeSwitch locale={locale} /></div>
 
       <Button href={localePath(locale, '/contact/')} variant="secondary" size="sm" class="header__call">
         {t.bookCall}
       </Button>
 
       <!-- Наведення як у другої кнопки: спільний клас .ring-hover. data-btn — короткий спалах кільця від дотику -->
-      <button class="header__burger ring-hover" type="button" aria-label={t.menu} aria-expanded="false" data-btn>
+      <button
+        class="header__burger ring-hover"
+        type="button"
+        aria-label={t.menu}
+        aria-expanded="false"
+        aria-controls="menu"
+        data-label-open={t.menu}
+        data-label-close={ui[locale].menu.close}
+        data-menu-open
+        data-btn
+      >
         <span></span>
         <span></span>
       </button>
@@ -52,15 +66,28 @@ const t = ui[locale].header;
   }
 
   .header__bar {
+    position: relative;
+    isolation: isolate;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 16px 24px;
     border: 1px solid var(--glass-border);
     border-radius: 999px;
+  }
+
+  /* Скло — окремим шаром. Якщо розмиття стоїть на самій смузі, вкладене скло (панель мов)
+     розмиває лише вміст смуги, а не сторінку під нею. */
+  .header__bar::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    z-index: -1;
+    border-radius: inherit;
     background: var(--glass-bg);
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
+    pointer-events: none;
   }
 
   .header__logo {
@@ -121,22 +148,38 @@ const t = ui[locale].header;
     }
   }
 
-  /* Мобільний макет ще не намальовано: поки ховаємо кнопку дзвінка, лишаємо мови й бургер */
-  @media (max-width: 900px) {
+  .header__lang,
+  .header__theme {
+    display: flex;
+    align-items: center;
+  }
+
+  /* Планшет (Figma, 834): зовнішні відступи 24 px */
+  @media (max-width: 1199px) {
     .header {
-      padding: 12px 16px;
+      padding: 16px 24px;
+    }
+  }
+
+  /* Кнопка дзвінка не влазить: ховаємо, вона є в меню бургера.
+     Межу виміряно для найдовшого підпису («Записатися на дзвінок»), щоб до логотипа лишалось ≥ 24 px.
+  */
+  @media (max-width: 719px) {
+    .header__actions :global(.header__call) {
+      display: none;
+    }
+  }
+
+  /* Телефон (Figma, 390): лише логотип і бургер */
+  @media (max-width: 599px) {
+    .header {
+      padding: 12px;
     }
     .header__bar {
-      padding: 8px 8px 8px 20px;
+      padding: 10px 10px 10px 16px;
     }
-    .header__logo :global(img) {
-      width: 113px;
-      height: 36px;
-    }
-    .header__actions {
-      gap: 16px;
-    }
-    .header__actions :global(.header__call) {
+    .header__lang,
+    .header__theme {
       display: none;
     }
   }

@@ -10,6 +10,13 @@ export function localePath(locale: Locale, path = '/'): string {
 
 const NBSP = ' ';
 
+/** Назви мов завжди їхньою мовою, не перекладаються */
+export const languageNames: Record<Locale, string> = {
+  fr: 'Français',
+  en: 'English',
+  uk: 'Українська',
+};
+
 /**
  * Тексти першого екрана.
  * FR і UK — з макетів Figma (рішення Яни, 12.11.2026).
@@ -18,6 +25,15 @@ const NBSP = ' ';
  */
 export const ui = {
   fr: {
+    menu: {
+      label: 'Menu',
+      close: 'Fermer le menu',
+      nav: ['Réalisations', 'Services', 'Studio', 'Contact'],
+      contactTitle: 'Nous joindre',
+      call: 'Réserver un appel',
+      message: 'Envoyer un message',
+      socialTitle: 'Réseaux',
+    },
     theme: {
       label: 'Thème sombre',
     },
@@ -32,6 +48,7 @@ export const ui = {
     header: {
       bookCall: 'Réserver un appel',
       menu: 'Ouvrir le menu',
+      langButton: `Langue${NBSP}: français. Changer de langue`,
       languages: 'Langue du site',
       home: 'Lindigo Design Studio, accueil',
     },
@@ -46,6 +63,15 @@ export const ui = {
     },
   },
   en: {
+    menu: {
+      label: 'Menu',
+      close: 'Close menu',
+      nav: ['Work', 'Services', 'Studio', 'Contact'],
+      contactTitle: 'Get in touch',
+      call: 'Book a call',
+      message: 'Send a message',
+      socialTitle: 'Social',
+    },
     theme: {
       label: 'Dark theme',
     },
@@ -60,6 +86,7 @@ export const ui = {
     header: {
       bookCall: 'Book a call',
       menu: 'Open menu',
+      langButton: 'Language: English. Change language',
       languages: 'Site language',
       home: 'Lindigo Design Studio, home',
     },
@@ -74,6 +101,15 @@ export const ui = {
     },
   },
   uk: {
+    menu: {
+      label: 'Меню',
+      close: 'Закрити меню',
+      nav: ['Роботи', 'Послуги', 'Студія', 'Контакт'],
+      contactTitle: 'Зв’язок',
+      call: 'Записатися на дзвінок',
+      message: 'Надіслати повідомлення',
+      socialTitle: 'Соцмережі',
+    },
     theme: {
       label: 'Темна тема',
     },
@@ -88,6 +124,7 @@ export const ui = {
     header: {
       bookCall: 'Записатися на дзвінок',
       menu: 'Відкрити меню',
+      langButton: 'Мова: українська. Змінити мову',
       languages: 'Мова сайту',
       home: 'Lindigo Design Studio, головна',
     },
@@ -104,3 +141,12 @@ export const ui = {
 } satisfies Record<Locale, unknown>;
 
 export type UI = (typeof ui)[Locale];
+
+/** Адреси пунктів меню: однакові для всіх мов, лише з мовним префіксом */
+export const menuPaths = ['/realisations/', '/services/', '/studio/', '/contact/'] as const;
+
+export const socialLinks = [
+  { name: 'LinkedIn', href: 'https://www.linkedin.com/in/yana-levchenko-ua/' },
+  { name: 'Behance', href: 'https://www.behance.net/lindigo-design' },
+  { name: 'Instagram', href: 'https://www.instagram.com/lindigo_webstudio' },
+] as const;

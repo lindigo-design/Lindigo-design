@@ -369,7 +369,8 @@ export function initHeroFluid(): void {
   let lastPointer: { x: number; y: number } | null = null;
 
   function move(clientX: number, clientY: number) {
-    if (!running) return;
+    // Під відкритим меню рідина не реагує на мишку й дотик
+    if (!running || menuOpen) return;
     const p = toUv(clientX, clientY);
     if (lastPointer) push(p.x, p.y, p.x - lastPointer.x, p.y - lastPointer.y);
     lastPointer = p;
@@ -530,6 +531,11 @@ export function initHeroFluid(): void {
   let warmup = 1;
   let degraded = false;
   let destroyed = false;
+  /* Меню бургера: рідина під склом не реагує на мишку; на комп'ютері дихає далі,
+     на телефоні, слабкому пристрої або при < 40 к/с — пауза (нерухомий кадр під склом) */
+  let menuOpen = false;
+  let menuPaused = false;
+  let menuLowFps = 0;
 
   function currentRestore(now: number) {
     const sinceMove = (now - lastMove) / 1000;
@@ -564,6 +570,15 @@ export function initHeroFluid(): void {
       return;
     }
     smoothFps = smoothFps * 0.9 + (1 / Math.max(realDt, 0.001)) * 0.1;
+    if (menuOpen) {
+      // Під меню розмиття на весь екран дороге: не знижуємо якість, а ставимо на паузу
+      menuLowFps = smoothFps < C.MENU_MIN_FPS ? menuLowFps + realDt : 0;
+      if (menuLowFps > C.MENU_LOW_FPS_TIME) {
+        menuPaused = true;
+        updateRunning();
+      }
+      return;
+    }
     lowFpsTime = smoothFps < C.MIN_FPS ? lowFpsTime + realDt : 0;
     if (lowFpsTime < C.LOW_FPS_TIME) return;
     lowFpsTime = 0;
@@ -600,7 +615,7 @@ export function initHeroFluid(): void {
   }
 
   function updateRunning() {
-    const should = !destroyed && image !== null && inView && !document.hidden;
+    const should = !destroyed && image !== null && inView && !document.hidden && !menuPaused;
     if (should === running) return;
     running = should;
     if (running) {
@@ -625,6 +640,15 @@ export function initHeroFluid(): void {
     updateRunning();
   }).observe(heroEl);
   document.addEventListener('visibilitychange', updateRunning);
+  window.addEventListener('lindigo:menu', (event) => {
+    menuOpen = (event as CustomEvent<{ open: boolean }>).detail.open;
+    lastPointer = null;
+    menuLowFps = 0;
+    warmup = 0.5; // перші кадри відкриття не рахуємо
+    const weak = noHover.matches || window.innerWidth < 768 || degraded;
+    menuPaused = menuOpen && weak;
+    updateRunning();
+  });
   reduceMotion.addEventListener('change', (e) => e.matches && destroy());
   canvasEl.addEventListener('webglcontextlost', (e) => {
     e.preventDefault();
