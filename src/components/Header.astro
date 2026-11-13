@@ -6,12 +6,10 @@
  *  - 600–719 px: без кнопки дзвінка (не влазить; вона є в меню бургера);
  *  - до 599 px: лише логотип і бургер, мова й тема — у меню бургера.
  */
-import { Image } from 'astro:assets';
 import Button from './Button.astro';
 import LangMenu from './LangMenu.astro';
 import ThemeSwitch from './ThemeSwitch.astro';
-import logoLight from '../assets/hero/logo-light.png';
-import logoDark from '../assets/hero/logo-dark.png';
+import Logo from './Logo.astro';
 import { localePath, ui, type Locale } from '../i18n/ui';
 
 interface Props {
@@ -26,8 +24,7 @@ const t = ui[locale].header;
 <header class="header">
   <div class="header__bar">
     <a class="header__logo" href={localePath(locale)} aria-label={t.home}>
-      <Image src={logoLight} width={151} height={48} densities={[1, 2]} alt="" loading="eager" data-theme-only="dark" />
-      <Image src={logoDark} width={151} height={48} densities={[1, 2]} alt="" loading="eager" data-theme-only="light" />
+      <Logo />
     </a>
 
     <div class="header__actions">
@@ -96,10 +93,7 @@ const t = ui[locale].header;
     border-radius: 8px;
   }
 
-  .header__logo :global(img) {
-    width: 151px;
-    height: 48px;
-  }
+  
 
   .header__actions {
     display: flex;

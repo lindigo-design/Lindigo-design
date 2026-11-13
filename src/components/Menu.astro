@@ -5,12 +5,10 @@
  * і стовпчик 360 px (зв'язок, соцмережі). Телефон: один стовпчик, мова/тема/соцмережі притиснуті до низу.
  * Верхній рядок стоїть точно там, де шапка: логотип і хрестик не стрибають відносно логотипа й бургера.
  */
-import { Image } from 'astro:assets';
 import Button from './Button.astro';
 import LangSwitch from './LangSwitch.astro';
 import ThemeSwitch from './ThemeSwitch.astro';
-import logoLight from '../assets/hero/logo-light.png';
-import logoDark from '../assets/hero/logo-dark.png';
+import Logo from './Logo.astro';
 import arrow from '../assets/menu/arrow.svg';
 import glassDark from '../assets/menu/menu-glass-dark.jpg';
 import glassLight from '../assets/menu/menu-glass-light.jpg';
@@ -44,8 +42,7 @@ const current = (p: string) => here === localePath(locale, p);
   <div class="menu__inner">
     <div class="menu__top">
       <a class="menu__logo" href={localePath(locale)} aria-label={t.header.home}>
-        <Image src={logoLight} width={151} height={48} densities={[1, 2]} alt="" data-theme-only="dark" />
-        <Image src={logoDark} width={151} height={48} densities={[1, 2]} alt="" data-theme-only="light" />
+      <Logo />
       </a>
       <div class="menu__top-right">
         <div class="menu__settings menu__settings--top">
@@ -231,10 +228,7 @@ const current = (p: string) => here === localePath(locale, p);
     border-radius: 8px;
   }
 
-  .menu__logo :global(img) {
-    width: 151px;
-    height: 48px;
-  }
+  
 
   .menu__top-right {
     display: flex;
