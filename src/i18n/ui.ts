@@ -31,6 +31,39 @@ export const languageNames: Record<Locale, string> = {
  */
 export const ui = {
   fr: {
+    // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
+    directions: {
+      eyebrow: 'Ce que nous faisons',
+      title: 'Nos expertises',
+      more: 'En savoir plus',
+      items: [
+        {
+          title: 'UI/UX et prototypes',
+          tags: ['UX', 'UI', 'Prototype'],
+          text: 'Pour qu’une application ou un service web soit compréhensible dès le premier écran. Nous découvrons d’abord qui sont les utilisateurs et ce dont ils ont besoin, puis nous concevons.',
+        },
+        {
+          title: 'Sites clés en main',
+          tags: ['Design', 'Développement', 'Lancement'],
+          text: 'Un site qui présente clairement votre activité et guide le client vers l’étape suivante. De la structure à la mise en ligne sur votre domaine.',
+        },
+        {
+          title: 'Boutiques en ligne',
+          tags: ['Shopify', 'Code sur mesure'],
+          text: 'Une boutique où le client trouve facilement un produit et passe commande, et où vous gérez simplement le catalogue et les commandes.',
+        },
+        {
+          title: 'Branding et logos',
+          tags: ['Logo', 'Identité', 'Charte graphique'],
+          text: 'Un logo et une identité qui traduisent le caractère de votre marque et la rendent reconnaissable. Nous partons de votre secteur et de votre public.',
+        },
+        {
+          title: 'Photo et contenu',
+          tags: ['Fashion', 'Contenu pour les réseaux sociaux'],
+          text: 'Des photos et vidéos qui montrent le caractère de votre marque et aident à raconter son histoire. Nous planifions le tournage selon votre objectif.',
+        },
+      ],
+    },
     menu: {
       label: 'Menu',
       close: 'Fermer le menu',
@@ -70,6 +103,39 @@ export const ui = {
     },
   },
   en: {
+    // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
+    directions: {
+      eyebrow: 'What we do',
+      title: 'Expertise',
+      more: 'Learn more',
+      items: [
+        {
+          title: 'UI/UX & prototypes',
+          tags: ['UX', 'UI', 'Prototype'],
+          text: 'So your app or web service makes sense from the very first screen. First we find out who your users are and what they need, then we design.',
+        },
+        {
+          title: 'Turnkey websites',
+          tags: ['Design', 'Development', 'Launch'],
+          text: 'A website that clearly explains your business and leads clients to the next step. From structure to launch on your domain.',
+        },
+        {
+          title: 'Online stores',
+          tags: ['Shopify', 'Custom code'],
+          text: 'A store where customers easily find a product and place an order, and where you can manage your catalog and orders with ease.',
+        },
+        {
+          title: 'Branding & logos',
+          tags: ['Logo', 'Visual identity', 'Brand book'],
+          text: 'A logo and identity that convey your brand’s character and make it recognizable. We start with your niche and audience.',
+        },
+        {
+          title: 'Photo & content',
+          tags: ['Fashion', 'Social media content'],
+          text: 'Photos and videos that show your brand’s character and help tell its story. We plan each shoot around your goal.',
+        },
+      ],
+    },
     menu: {
       label: 'Menu',
       close: 'Close menu',
@@ -109,6 +175,38 @@ export const ui = {
     },
   },
   uk: {
+    directions: {
+      eyebrow: 'Що ми робимо',
+      title: 'Напрями',
+      more: 'Детальніше',
+      items: [
+        {
+          title: 'UI/UX і прототипи',
+          tags: ['UX', 'UI', 'Прототип'],
+          text: 'Щоб застосунок чи вебсервіс був зрозумілий з першого екрана. Спершу з’ясовуємо, хто користувачі й що їм потрібно, потім проєктуємо.',
+        },
+        {
+          title: 'Сайти під ключ',
+          tags: ['Дизайн', 'Розробка', 'Запуск'],
+          text: 'Сайт, який зрозуміло розповідає про ваш бізнес і веде клієнта до наступного кроку. Від структури до запуску на вашому домені.',
+        },
+        {
+          title: 'Інтернет-магазини',
+          tags: ['Shopify', 'Власний код'],
+          text: 'Магазин, де покупцю легко знайти товар і оформити замовлення, а вам зручно керувати каталогом і замовленнями.',
+        },
+        {
+          title: 'Брендинг і логотипи',
+          tags: ['Логотип', 'Стиль', 'Брендбук'],
+          text: 'Логотип і стиль, які передають характер вашого бренду й роблять його впізнаваним. Починаємо з вашої ніші та аудиторії.',
+        },
+        {
+          title: 'Фото й контент',
+          tags: ['Fashion', 'Контент для соцмереж'],
+          text: 'Фото та відео, які показують характер вашого бренду й допомагають розповісти його історію. Зйомку плануємо під вашу задачу.',
+        },
+      ],
+    },
     menu: {
       label: 'Меню',
       close: 'Закрити меню',
@@ -152,6 +250,15 @@ export type UI = (typeof ui)[Locale];
 
 /** Адреси пунктів меню: однакові для всіх мов, лише з мовним префіксом */
 export const menuPaths = ['/realisations/', '/services/', '/studio/', '/contact/'] as const;
+
+/**
+ * Сторінки напрямів (Figma «Варіант 2», блок «Напрями»). Сайти й магазини ведуть на одну сторінку (план, розділ 3).
+ * Адреси попередні: сторінок послуг ще немає.
+ */
+export const directionPaths = ['/services/ui-ux/', '/services/sites/', '/services/sites/', '/services/branding/', '/services/photo/'] as const;
+
+/** Нерозривний пробіл між двома останніми словами: на рядку не лишається одне слово */
+export const keepLastWords = (text: string) => text.replace(/ (\S+)$/, '\u00A0$1');
 
 export const socialLinks = [
   { name: 'LinkedIn', href: 'https://www.linkedin.com/in/yana-levchenko-ua/' },

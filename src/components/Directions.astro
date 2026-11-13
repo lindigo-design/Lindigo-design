@@ -1,0 +1,286 @@
+---
+/**
+ * Блок «02 Напрями» (Figma «Головна · Варіант 2», темна й світла тема).
+ * П'ять карток на скляній підкладці: номер, назва, мітки, опис, «Детальніше» і зображення робіт напряму.
+ * Фон блоку — шари з Figma (Color Dodge / Screen у темній, звичайний / Soft Light у світлій),
+ * складені в одну картинку на тему (src/assets/directions/bg-*.jpg).
+ */
+import { Image } from 'astro:assets';
+import Button from './Button.astro';
+import bgDark from '../assets/directions/bg-dark.jpg';
+import bgLight from '../assets/directions/bg-light.jpg';
+import work1 from '../assets/directions/work-1.jpg';
+import work2 from '../assets/directions/work-2.jpg';
+import work3 from '../assets/directions/work-3.jpg';
+import work4 from '../assets/directions/work-4.jpg';
+import work5 from '../assets/directions/work-5.jpg';
+import { directionPaths, keepLastWords, localePath, ui, type Locale } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = ui[locale].directions;
+
+/** Кадрування як у Figma: яку частину зображення видно (object-position) і висота на комп'ютері */
+const media = [
+  { src: work1, position: '50% 26%', height: 360 },
+  { src: work2, position: '50% 75%', height: 360 },
+  { src: work3, position: '50% 62%', height: 360 },
+  { src: work4, position: '50% 50%', height: 360 },
+  { src: work5, position: '95% 65%', height: 328 },
+];
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<section class="directions" aria-labelledby="directions-title">
+  <div class="directions__bg" aria-hidden="true">
+    <Image src={bgDark} alt="" widths={[760, 1512]} sizes="100vw" data-theme-only="dark" />
+    <Image src={bgLight} alt="" widths={[760, 1512]} sizes="100vw" data-theme-only="light" />
+  </div>
+
+  <header class="directions__head">
+    <p class="directions__eyebrow">{t.eyebrow}</p>
+    <h2 class="directions__title" id="directions-title">{t.title}</h2>
+  </header>
+
+  <ol class="directions__list">
+    {
+      t.items.map((item, i) => (
+        <li class="direction">
+          <div class="direction__text">
+            <p class="direction__num" aria-hidden="true">{pad(i + 1)}</p>
+            <h3 class="direction__title">{item.title}</h3>
+            <ul class="direction__tags">
+              {item.tags.map((tag) => <li>{tag}</li>)}
+            </ul>
+            <p class="direction__desc">{keepLastWords(item.text)}</p>
+            <Button href={localePath(locale, directionPaths[i])} variant="secondary" class="direction__more">
+              {t.more}
+              <span class="visually-hidden">: {item.title}</span>
+            </Button>
+          </div>
+          <div class="direction__media" style={`--h: ${media[i].height}px`}>
+            <Image
+              src={media[i].src}
+              alt=""
+              widths={[480, 800, 1200]}
+              sizes="(max-width: 760px) 100vw, 640px"
+              style={`object-position: ${media[i].position}`}
+            />
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .directions {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+    padding: 120px clamp(40px, 5.29vw, 80px);
+    background: var(--section-bg);
+    overflow: hidden;
+  }
+
+  .directions__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .directions__bg :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 0;
+  }
+
+  /* Заголовок блоку: підпис 14 моно, 16 px, назва 56 */
+  .directions__head {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .directions__eyebrow,
+  .direction__num {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .directions__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 56px;
+    line-height: 68px;
+  }
+
+  .directions__list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Картка: скло, радіус 32, відступи 32 / 32 / 32 / 48 */
+  .direction {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+    padding: 32px 32px 32px 48px;
+    border: 1px solid var(--card-border);
+    border-radius: 32px;
+    background: var(--card-bg);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  .direction__text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    flex: 0 1 617px;
+    min-width: 0;
+  }
+
+  .direction__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 40px;
+    line-height: 48px;
+  }
+
+  .direction__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .direction__tags li {
+    padding: 8px 16px;
+    border: 1px solid var(--tag-border);
+    border-radius: 20px;
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .direction__desc {
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 30px;
+    color: color-mix(in srgb, var(--fg) 90%, transparent);
+  }
+
+  /* «Детальніше»: друга кнопка, обводка м'якша (60 % / 48 %), 28 px з боків */
+  .direction__text :global(.direction__more) {
+    height: 54px;
+    padding-inline: 28px;
+    border-color: var(--more-border);
+  }
+
+  .direction__media {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+    height: var(--h);
+    overflow: hidden;
+    border-radius: 20px;
+  }
+
+  .direction__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Вужчий комп'ютер і планшет: менші заголовки й відступи */
+  @media (max-width: 1100px) {
+    .direction {
+      gap: 32px;
+      padding: 32px;
+    }
+    /* Текст і зображення — рівні половини */
+    .direction__text {
+      flex: 1 1 0;
+    }
+    .direction__media {
+      height: 300px;
+    }
+    .direction__title {
+      font-size: 32px;
+      line-height: 40px;
+    }
+    .direction__desc {
+      font-size: 18px;
+      line-height: 28px;
+    }
+  }
+
+  /* Картка в стовпчик: текст, під ним зображення на всю ширину (на планшеті 834 ще поруч) */
+  @media (max-width: 760px) {
+    .direction {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .direction__text {
+      flex-basis: auto;
+    }
+    .direction__media {
+      flex: none;
+      height: auto;
+      aspect-ratio: 16 / 10;
+    }
+  }
+
+  /* Телефон: відступи й розміри за правилами верстки (план, розділ 10) */
+  @media (max-width: 640px) {
+    .directions {
+      gap: 24px;
+      padding: 96px 20px;
+    }
+    .directions__title {
+      font-size: 32px;
+      line-height: 40px;
+    }
+    .direction {
+      gap: 24px;
+      padding: 24px;
+      border-radius: 24px;
+    }
+    .direction__text {
+      gap: 16px;
+    }
+    .direction__title {
+      font-size: 26px;
+      line-height: 32px;
+    }
+    .direction__desc {
+      font-size: 16px;
+      line-height: 24px;
+    }
+    .direction__text :global(.direction__more) {
+      height: 50px;
+    }
+    .direction__media {
+      border-radius: 16px;
+    }
+  }
+</style>

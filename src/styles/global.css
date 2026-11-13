@@ -17,6 +17,9 @@
   --beige-300: #d9c4a5;
   --muted-dark: #b8a8cc;
   --muted-light: #6b5673;
+  /* Нові кольори з макета «Варіант 2» */
+  --night: #0c081c; /* Figma: background-dark (темна тема) */
+  --grey-supplement: #8a8394; /* Figma: second-supplement */
 
   /* Шрифти */
   --font-display: 'Unbounded Variable', system-ui, sans-serif;
@@ -38,6 +41,12 @@
   --accent-text: var(--orchid);
   /* Перемикач теми (Figma, шапка): у темній обводка бежева, у світлій — Orchid Deep */
   --switch-border: var(--beige-50);
+  /* Блоки «Варіанта 2» */
+  --section-bg: var(--night);
+  --card-bg: rgba(54, 54, 54, 0.2);
+  --card-border: rgba(54, 54, 54, 0.2);
+  --tag-border: color-mix(in srgb, var(--fg) 28%, transparent);
+  --more-border: color-mix(in srgb, var(--fg) 60%, transparent);
   --glass-bg: rgba(21, 11, 46, 0.55);
   --glass-border: rgba(248, 238, 221, 0.2);
   --track: rgba(248, 238, 221, 0.3);
@@ -59,6 +68,11 @@
   --text-muted: var(--muted-light);
   --accent-text: var(--orchid-deep);
   --switch-border: var(--orchid-deep);
+  --section-bg: var(--beige-50);
+  --card-bg: rgba(255, 255, 255, 0.25);
+  --card-border: rgba(54, 54, 54, 0.2);
+  --tag-border: color-mix(in srgb, var(--fg) 22%, transparent);
+  --more-border: color-mix(in srgb, var(--fg) 48%, transparent);
   --glass-bg: rgba(248, 238, 221, 0.6);
   --glass-border: rgba(21, 11, 46, 0.16);
   --track: rgba(21, 11, 46, 0.25);
