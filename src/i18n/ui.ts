@@ -32,6 +32,20 @@ export const languageNames: Record<Locale, string> = {
 export const ui = {
   fr: {
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
+    principles: {
+      eyebrow: 'Nos principes',
+      leadMuted: 'Les solutions universelles n’existent pas.',
+      lead: 'Votre entreprise n’a pas à se plier à un modèle.',
+      body: 'Chaque projet a son contexte, ses défis et son public. Ce qui fonctionne pour une marque ne fonctionnera pas forcément pour une autre.',
+      bodyMuted: 'C’est pourquoi nous partons du fond, pas de la forme. Nous cherchons à comprendre ce qui compte pour vous et à le traduire en un design réfléchi.',
+      items: [
+        { title: 'D’abord comprendre', text: 'Avant de proposer une solution, nous étudions votre activité, votre public et votre environnement concurrentiel.' },
+        { title: 'Chaque choix a une raison', text: 'La structure, les fonctionnalités et le langage visuel doivent répondre à des besoins concrets, pas seulement aux tendances du design.' },
+        { title: 'Le dialogue plutôt que les suppositions', text: 'Vous connaissez votre activité. Nous vous aidons à transformer vos connaissances, vos objectifs et vos idées en une solution de design claire.' },
+        { title: 'Un design tourné vers l’avenir', text: 'Nous créons des solutions qui tiennent compte des besoins actuels, mais aussi des possibilités de développement.' },
+      ],
+    },
+    // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     directions: {
       eyebrow: 'Ce que nous faisons',
       title: 'Nos expertises',
@@ -104,6 +118,20 @@ export const ui = {
   },
   en: {
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
+    principles: {
+      eyebrow: 'Our principles',
+      leadMuted: 'There are no universal solutions.',
+      lead: 'Your business shouldn’t have to fit a template.',
+      body: 'Every project has its own context, challenges and audience. What works for one brand won’t necessarily work for another.',
+      bodyMuted: 'That’s why we start with substance, not form. We aim to understand what matters to you and turn that understanding into thoughtful design.',
+      items: [
+        { title: 'Understanding first', text: 'Before proposing a solution, we study your business, your audience and your competitive landscape.' },
+        { title: 'Every decision has a reason', text: 'Structure, functionality and visual language should meet real needs, not just design trends.' },
+        { title: 'Dialogue, not guesswork', text: 'You know your business. We help turn your knowledge, goals and ideas into a clear design solution.' },
+        { title: 'Design with the future in mind', text: 'We create solutions that consider not only today’s tasks but also room to grow.' },
+      ],
+    },
+    // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     directions: {
       eyebrow: 'What we do',
       title: 'Expertise',
@@ -175,6 +203,19 @@ export const ui = {
     },
   },
   uk: {
+    principles: {
+      eyebrow: 'Наші принципи',
+      leadMuted: 'Універсальних рішень не існує.',
+      lead: 'Ваш бізнес не повинен підлаштовуватися під шаблон.',
+      body: 'У кожного проєкту свій контекст, свої виклики та своя аудиторія. Те, що працює для одного бренду, не обов’язково спрацює для іншого.',
+      bodyMuted: 'Тому ми починаємо зі змісту, а не з форми. Прагнемо зрозуміти, що важливо саме для вас, і перетворити це розуміння на продуманий дизайн.',
+      items: [
+        { title: 'Спочатку розуміння', text: 'Перш ніж пропонувати рішення, ми досліджуємо ваш бізнес, аудиторію та конкурентне середовище.' },
+        { title: 'Кожне рішення має причину', text: 'Структура, функціональність і візуальна мова повинні відповідати конкретним потребам, а не лише дизайнерським трендам.' },
+        { title: 'Діалог замість здогадок', text: 'Ви знаєте свій бізнес. Ми допомагаємо перетворити ваші знання, цілі та ідеї на зрозуміле дизайнерське рішення.' },
+        { title: 'Дизайн із перспективою', text: 'Створюємо рішення, які враховують не лише поточні завдання, а й можливості подальшого розвитку.' },
+      ],
+    },
     directions: {
       eyebrow: 'Що ми робимо',
       title: 'Напрями',
