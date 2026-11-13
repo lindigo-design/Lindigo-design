@@ -26,7 +26,8 @@ const { locale, path = '/' } = Astro.props;
 <style>
   .langs {
     display: flex;
-    gap: 4px;
+    /* 12 + 2 × 4 px внутрішнього відступу = 20 px між кодами, як у Figma */
+    gap: 12px;
     font-family: var(--font-mono);
     font-weight: 500;
     font-size: 14px;

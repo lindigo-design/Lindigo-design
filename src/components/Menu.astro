@@ -1,0 +1,533 @@
+---
+/**
+ * Меню бургера: скло на весь екран у кольорах поточної теми (Figma, «ОБРАНО · Меню відкрите · скло»).
+ * Комп'ютер і планшет (від 600 px): верхній рядок (логотип; мови, тема, хрестик), унизу навігація
+ * і стовпчик 360 px (зв'язок, соцмережі). Телефон: один стовпчик, мова/тема/соцмережі притиснуті до низу.
+ * Верхній рядок стоїть точно там, де шапка: логотип і хрестик не стрибають відносно логотипа й бургера.
+ */
+import { Image } from 'astro:assets';
+import Button from './Button.astro';
+import LangSwitch from './LangSwitch.astro';
+import ThemeSwitch from './ThemeSwitch.astro';
+import logoLight from '../assets/hero/logo-light.png';
+import logoDark from '../assets/hero/logo-dark.png';
+import arrow from '../assets/menu/arrow.svg';
+import { localePath, menuPaths, socialLinks, ui, type Locale } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+  path?: string;
+}
+
+const { locale, path = '/' } = Astro.props;
+const t = ui[locale];
+const pad = (n: number) => String(n).padStart(2, '0');
+const current = (p: string) => path === p;
+---
+
+<div
+  id="menu"
+  class="menu"
+  role="dialog"
+  aria-modal="true"
+  aria-label={t.menu.label}
+  hidden
+  data-menu
+  style={`--arrow: url(${arrow.src})`}
+>
+  <div class="menu__inner">
+    <div class="menu__top">
+      <a class="menu__logo" href={localePath(locale)} aria-label={t.header.home}>
+        <Image src={logoLight} width={151} height={48} densities={[1, 2]} alt="" data-theme-only="dark" />
+        <Image src={logoDark} width={151} height={48} densities={[1, 2]} alt="" data-theme-only="light" />
+      </a>
+      <div class="menu__top-right">
+        <div class="menu__settings menu__settings--top">
+          <LangSwitch locale={locale} path={path} />
+          <ThemeSwitch locale={locale} />
+        </div>
+        <button class="menu__close ring-hover" type="button" aria-label={t.menu.close} data-menu-close data-btn>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+
+    <div class="menu__body">
+      <nav class="menu__nav" aria-label={t.menu.label}>
+        <ul>
+          {
+            menuPaths.map((p, i) => (
+              <li style={`--i: ${i}`}>
+                <a href={localePath(locale, p)} aria-current={current(p) ? 'page' : undefined} data-menu-link>
+                  <span class="menu__num">{pad(i + 1)}</span>
+                  <span class="menu__word">{t.menu.nav[i]}</span>
+                  <span class="menu__go" aria-hidden="true"></span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </nav>
+
+      <div class="menu__aside">
+        <div class="menu__group menu__group--contact">
+          <p class="menu__label">{t.menu.contactTitle}</p>
+          <Button href={localePath(locale, '/contact/')} variant="primary" class="menu__btn">{t.menu.call}</Button>
+          <Button href={localePath(locale, '/contact/#message')} variant="secondary" class="menu__btn">{t.menu.message}</Button>
+        </div>
+
+        <div class="menu__group menu__group--social">
+          <p class="menu__label">{t.menu.socialTitle}</p>
+          <ul class="menu__social">
+            {
+              socialLinks.map((s) => (
+                <li>
+                  <a href={s.href} target="_blank" rel="noopener noreferrer" data-menu-link>
+                    {s.name}
+                    <span class="menu__icon" aria-hidden="true"></span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+
+        <p class="menu__place">France · Working worldwide</p>
+      </div>
+    </div>
+
+    <!-- Телефон: мова й тема, під ними соцмережі; притиснуто до низу -->
+    <div class="menu__bottom">
+      <div class="menu__settings menu__settings--bottom">
+        <LangSwitch locale={locale} path={path} />
+        <ThemeSwitch locale={locale} />
+      </div>
+      <ul class="menu__social-row">
+        {
+          socialLinks.map((s) => (
+            <li>
+              <a href={s.href} target="_blank" rel="noopener noreferrer" data-menu-link>
+                {s.name}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* ---------- Скло ---------- */
+  .menu {
+    /* Ті самі відступи, що в шапці: логотип і хрестик стоять точно на місці логотипа й бургера */
+    --top-x: 81px; /* 56 + 1 рамка + 24 */
+    --top-y: 33px; /* 16 + 1 + 16 */
+    --side: 80px;
+
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: color-mix(in srgb, var(--bg) 72%, transparent);
+    -webkit-backdrop-filter: blur(40px);
+    backdrop-filter: blur(40px);
+    color: var(--fg);
+  }
+
+  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+    .menu {
+      background: color-mix(in srgb, var(--bg) 94%, transparent);
+    }
+  }
+
+  .menu[hidden] {
+    display: none;
+  }
+
+  .menu__inner {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* ---------- Верхній рядок ---------- */
+  .menu__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--top-y) var(--top-x);
+  }
+
+  .menu__logo {
+    display: block;
+    border-radius: 8px;
+  }
+
+  .menu__logo :global(img) {
+    width: 151px;
+    height: 48px;
+  }
+
+  .menu__top-right {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+
+  .menu__settings {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  /* Коди мов стоять по лінії (у посилань є внутрішній відступ 4 px для зони натискання) */
+  .menu__settings--bottom :global(.langs) {
+    margin-left: -4px;
+  }
+
+  .menu__close {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Хрестик: дві лінії 2 px, як у Figma (20 px, кінці заокруглені) */
+  .menu__close span {
+    position: absolute;
+    width: 14px;
+    height: 2px;
+    border-radius: 1px;
+    background: currentColor;
+  }
+  .menu__close span:first-child {
+    transform: rotate(45deg);
+  }
+  .menu__close span:last-child {
+    transform: rotate(-45deg);
+  }
+
+  /* ---------- Нижня частина: навігація і стовпчик ---------- */
+  .menu__body {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 48px;
+    margin-top: auto;
+    padding: 48px var(--side) 64px;
+  }
+
+  .menu__nav ul,
+  .menu__social,
+  .menu__social-row {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .menu__nav ul {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .menu__nav a {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    color: var(--fg);
+    text-decoration: none;
+    transition:
+      color 0.3s var(--ease-out-in),
+      opacity 0.3s var(--ease-out-in);
+  }
+
+  .menu__num {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--text-muted);
+  }
+
+  .menu__word {
+    font-family: var(--font-display);
+    font-weight: 600;
+    /* як заголовок hero: 86 px на 1512 */
+    font-size: clamp(40px, 5.69vw, 86px);
+    line-height: 1.2;
+    white-space: nowrap;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.18em;
+  }
+
+  .menu__nav a[aria-current='page'] .menu__word {
+    text-decoration-line: underline;
+  }
+
+  /* Стрілка в колі 56 px: з'являється при наведенні */
+  .menu__go {
+    position: relative;
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    opacity: 0;
+    transform: translateX(-12px);
+    transition:
+      opacity 0.3s var(--ease-out-in),
+      transform 0.3s var(--ease-out-in);
+  }
+
+  .menu__go::after,
+  .menu__icon {
+    content: '';
+    display: block;
+    width: 20px;
+    height: 20px;
+    background: currentColor;
+    -webkit-mask: var(--arrow) center / contain no-repeat;
+    mask: var(--arrow) center / contain no-repeat;
+  }
+
+  .menu__go::after {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+  }
+
+  @media (hover: hover) {
+    .menu__nav ul:hover a:not(:hover) {
+      opacity: 0.45;
+    }
+    .menu__nav a:hover {
+      color: var(--accent-text);
+    }
+    .menu__nav a:hover .menu__go {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .menu__nav ul:has(a:focus-visible) a:not(:focus-visible) {
+    opacity: 0.45;
+  }
+  .menu__nav a:focus-visible {
+    color: var(--accent-text);
+    opacity: 1;
+  }
+  .menu__nav a:focus-visible .menu__go {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Стовпчик 360 px */
+  .menu__aside {
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    width: 360px;
+    flex-shrink: 0;
+  }
+
+  .menu__group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .menu__group--contact {
+    gap: 16px;
+  }
+
+  .menu__group--social {
+    gap: 12px;
+  }
+
+  .menu__label {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 11px;
+    line-height: 17px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .menu__group :global(.menu__btn) {
+    width: 100%;
+  }
+
+  .menu__social {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .menu__social a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--glass-border);
+    color: var(--fg);
+    font-size: 20px;
+    line-height: 28px;
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .menu__social a:hover {
+    color: var(--accent-text);
+  }
+
+  .menu__place {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    color: var(--text-muted);
+  }
+
+  .menu__bottom {
+    display: none;
+  }
+
+  /* ---------- Планшет: ті самі відступи, що в шапці (24 + 1 + 24) ---------- */
+  @media (max-width: 1199px) {
+    .menu {
+      --top-x: 49px;
+      --side: 48px;
+    }
+  }
+
+  @media (max-width: 899px) {
+    .menu__body {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .menu__aside {
+      width: 100%;
+      max-width: 360px;
+    }
+  }
+
+  /* ---------- Телефон (Figma, 390) ---------- */
+  @media (max-width: 599px) {
+    .menu {
+      --top-y: 23px; /* 12 + 1 + 10 */
+      --side: 20px;
+    }
+    .menu__top {
+      padding: var(--top-y) 23px var(--top-y) 29px; /* як шапка: 12 + 1 + 10 справа, 12 + 1 + 16 зліва */
+    }
+    .menu__settings--top {
+      display: none;
+    }
+    /* Знизу 16 px (у Figma 32): нижній блок має вміститися без прокрутки на висоті 667 px */
+    .menu__body {
+      margin-top: 0;
+      padding: 8px var(--side) 16px;
+      gap: 32px;
+    }
+    .menu__nav ul {
+      gap: 4px;
+    }
+    .menu__nav a {
+      justify-content: space-between;
+      gap: 16px;
+      padding: 8px 0;
+    }
+    .menu__num {
+      font-size: 12px;
+      line-height: 18px;
+      order: 0;
+    }
+    .menu__word {
+      flex: 1;
+      font-size: 32px;
+      line-height: 40px;
+    }
+    /* На телефоні стрілка завжди видна, без кола */
+    .menu__go {
+      width: 20px;
+      height: 20px;
+      border: 0;
+      opacity: 1;
+      transform: none;
+    }
+    .menu__group--contact {
+      gap: 12px;
+    }
+    .menu__label,
+    .menu__group--social,
+    .menu__place {
+      display: none;
+    }
+    .menu__aside {
+      max-width: none;
+    }
+    .menu__group :global(.menu__btn) {
+      height: 50px;
+      font-size: 15px;
+    }
+    .menu__bottom {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: auto;
+      padding: 0 var(--side) 32px;
+    }
+    .menu__settings--bottom {
+      justify-content: space-between;
+      padding: 16px 0;
+      border-top: 1px solid var(--glass-border);
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .menu__social-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .menu__social-row a {
+      display: inline-block;
+      padding: 6px 0;
+      color: var(--fg);
+      font-size: 16px;
+      line-height: 24px;
+      text-decoration: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .menu__nav a,
+    .menu__go {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const menu = document.querySelector<HTMLElement>('[data-menu]');
+  const burger = document.querySelector<HTMLButtonElement>('[data-menu-open]');
+  if (menu && burger) {
+    const open = () => {
+      menu.hidden = false;
+      burger.setAttribute('aria-expanded', 'true');
+    };
+    const close = () => {
+      menu.hidden = true;
+      burger.setAttribute('aria-expanded', 'false');
+    };
+    burger.addEventListener('click', open);
+    menu.querySelector('[data-menu-close]')?.addEventListener('click', close);
+  }
+</script>

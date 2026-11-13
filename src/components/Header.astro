@@ -39,7 +39,17 @@ const t = ui[locale].header;
       </Button>
 
       <!-- Наведення як у другої кнопки: спільний клас .ring-hover. data-btn — короткий спалах кільця від дотику -->
-      <button class="header__burger ring-hover" type="button" aria-label={t.menu} aria-expanded="false" data-btn>
+      <button
+        class="header__burger ring-hover"
+        type="button"
+        aria-label={t.menu}
+        aria-expanded="false"
+        aria-controls="menu"
+        data-label-open={t.menu}
+        data-label-close={ui[locale].menu.close}
+        data-menu-open
+        data-btn
+      >
         <span></span>
         <span></span>
       </button>
