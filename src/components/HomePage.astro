@@ -6,6 +6,7 @@ import Footer from './Footer.astro';
 import Menu from './Menu.astro';
 import Directions from './Directions.astro';
 import Principles from './Principles.astro';
+import Works from './Works.astro';
 import { ui, type Locale } from '../i18n/ui';
 
 interface Props {
@@ -23,6 +24,7 @@ const t = ui[locale];
     <Hero locale={locale} />
     <Directions locale={locale} />
     <Principles locale={locale} />
+    <Works locale={locale} />
   </main>
   <Footer locale={locale} />
 </Base>

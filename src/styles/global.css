@@ -49,6 +49,8 @@
   --more-border: color-mix(in srgb, var(--fg) 60%, transparent);
   --text-supplement: var(--grey-supplement);
   --rule: color-mix(in srgb, var(--fg) 30%, transparent);
+  /* Підписи «Задача клієнта», номери неактивних вкладок */
+  --label-muted: var(--grey-supplement);
   --glass-bg: rgba(21, 11, 46, 0.55);
   --glass-border: rgba(248, 238, 221, 0.2);
   --track: rgba(248, 238, 221, 0.3);
@@ -77,6 +79,7 @@
   --more-border: color-mix(in srgb, var(--fg) 48%, transparent);
   --text-supplement: var(--grey-supplement);
   --rule: color-mix(in srgb, var(--fg) 24%, transparent);
+  --label-muted: var(--indigo-800);
   --glass-bg: rgba(248, 238, 221, 0.6);
   --glass-border: rgba(21, 11, 46, 0.16);
   --track: rgba(21, 11, 46, 0.25);

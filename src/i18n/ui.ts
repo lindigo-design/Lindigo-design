@@ -32,6 +32,27 @@ export const languageNames: Record<Locale, string> = {
 export const ui = {
   fr: {
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
+    works: {
+      eyebrow: 'Réalisations',
+      title: 'Projets choisis',
+      all: 'Toutes les réalisations',
+      caseLabel: 'Projet',
+      view: 'Voir le projet',
+      taskLabel: 'La demande du client',
+      foundLabel: 'Ce que nous avons appris avant le design',
+      prev: 'Projet précédent',
+      next: 'Projet suivant',
+      items: [
+        {
+          slug: 'datatixx',
+          name: 'DataTixx',
+          tags: ['Branding', 'Site web', 'Design de service web'],
+          task: 'Présenter clairement un système qui, à partir des données des marchés publics, évalue la direction de l’économie dans différents secteurs.',
+          found: `Qui utilise la plateforme et ce que chacun veut voir en premier${NBSP}: dirigeant de petite entreprise, analyste ou banque.`,
+        },
+      ],
+    },
+    // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     principles: {
       eyebrow: 'Nos principes',
       leadMuted: 'Les solutions universelles n’existent pas.',
@@ -118,6 +139,27 @@ export const ui = {
   },
   en: {
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
+    works: {
+      eyebrow: 'Work',
+      title: 'Selected work',
+      all: 'All work',
+      caseLabel: 'Case',
+      view: 'View case',
+      taskLabel: 'Client’s goal',
+      foundLabel: 'What we learned before designing',
+      prev: 'Previous case',
+      next: 'Next case',
+      items: [
+        {
+          slug: 'datatixx',
+          name: 'DataTixx',
+          tags: ['Branding', 'Website', 'Web service design'],
+          task: 'Clearly present a system that uses public contract data to assess where the economy is heading across sectors.',
+          found: 'Who uses the platform and what each of them wants to see first: a small business owner, an analyst or a bank.',
+        },
+      ],
+    },
+    // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     principles: {
       eyebrow: 'Our principles',
       leadMuted: 'There are no universal solutions.',
@@ -203,6 +245,27 @@ export const ui = {
     },
   },
   uk: {
+    works: {
+      eyebrow: 'Роботи',
+      title: 'Вибрані роботи',
+      all: 'Усі роботи',
+      caseLabel: 'Кейс',
+      view: 'Дивитися кейс',
+      taskLabel: 'Задача клієнта',
+      foundLabel: 'Що з’ясували до дизайну',
+      prev: 'Попередній кейс',
+      next: 'Наступний кейс',
+      // Кейси Luigi Contessi, «Логотипи» й Frelia є в макеті лише назвами на вкладках — чекаємо на зміст
+      items: [
+        {
+          slug: 'datatixx',
+          name: 'DataTixx',
+          tags: ['Брендинг', 'Сайт', 'Дизайн вебсервісу'],
+          task: 'Показати зрозуміло систему, яка за даними публічних контрактів оцінює, куди рухається економіка в різних секторах.',
+          found: 'Хто користується платформою і що кожен хоче побачити першим: власник малого бізнесу, аналітик чи банк.',
+        },
+      ],
+    },
     principles: {
       eyebrow: 'Наші принципи',
       leadMuted: 'Універсальних рішень не існує.',
