@@ -159,12 +159,13 @@ const current = (p: string) => here === localePath(locale, p);
     clip-path: circle(0 at var(--cx) var(--cy));
     visibility: hidden;
     transition:
-      clip-path 0.5s var(--ease-out-in) 0.1s,
-      visibility 0s 0.6s;
+      clip-path 0.5s var(--ease-out-in),
+      visibility 0s 0.5s;
   }
 
   .menu.is-open {
-    clip-path: circle(150vmax at var(--cx) var(--cy));
+    /* --r — відстань від бургера до найдальшого кута (рахує скрипт): рух кола видно від першого кадру */
+    clip-path: circle(var(--r, 150vmax) at var(--cx) var(--cy));
     visibility: visible;
     transition:
       clip-path 0.7s var(--ease-out-in),
@@ -264,19 +265,38 @@ const current = (p: string) => here === localePath(locale, p);
     height: 2px;
     border-radius: 1px;
     background: currentColor;
-    transition: transform 0.4s var(--ease-out-in);
+    /* Закриття: спершу поворот назад, потім лінії розходяться */
+    transition:
+      rotate 0.2s var(--ease-out-in),
+      scale 0.2s var(--ease-out-in),
+      translate 0.2s var(--ease-out-in) 0.2s;
   }
   .menu__close span:first-child {
-    transform: translateY(-4px);
+    translate: 0 -4px;
   }
   .menu__close span:last-child {
-    transform: translateY(4px);
+    translate: 0 4px;
+  }
+  /* Відкриття: спершу лінії сходяться до центру, потім повертаються на ±45° (разом 0,4 с) */
+  .menu.is-open .menu__close span {
+    translate: 0 0;
+    scale: 0.7 1;
+    transition:
+      translate 0.2s var(--ease-out-in),
+      rotate 0.2s var(--ease-out-in) 0.2s,
+      scale 0.2s var(--ease-out-in) 0.2s;
   }
   .menu.is-open .menu__close span:first-child {
-    transform: rotate(45deg) scaleX(0.7);
+    rotate: 45deg;
   }
   .menu.is-open .menu__close span:last-child {
-    transform: rotate(-45deg) scaleX(0.7);
+    rotate: -45deg;
+  }
+
+  /* Поки меню відкривається, хрестик стоїть над бургером: кільце від наведення не проявляється вдруге */
+  .menu.is-opening .menu__close,
+  .menu.is-opening .menu__close::before {
+    transition: none;
   }
 
   /* ---------- Нижня частина: навігація і стовпчик ---------- */
@@ -603,11 +623,15 @@ const current = (p: string) => here === localePath(locale, p);
     .menu__nav a {
       transition: none;
     }
+    .menu .menu__close span {
+      translate: 0 0;
+      scale: 0.7 1;
+    }
     .menu .menu__close span:first-child {
-      transform: rotate(45deg) scaleX(0.7);
+      rotate: 45deg;
     }
     .menu .menu__close span:last-child {
-      transform: rotate(-45deg) scaleX(0.7);
+      rotate: -45deg;
     }
   }
 </style>
@@ -622,6 +646,7 @@ const current = (p: string) => here === localePath(locale, p);
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let isOpen = false;
     let hideTimer = 0;
+    let openingTimer = 0;
 
     // Решта сторінки (усе, крім меню), яку робимо inert, поки меню відкрите
     const outside = () => Array.from(document.body.children).filter((el) => el !== menu && el.tagName !== 'SCRIPT') as HTMLElement[];
@@ -629,8 +654,13 @@ const current = (p: string) => here === localePath(locale, p);
     // Центр кола — центр бургера
     function placeCircle() {
       const r = burger!.getBoundingClientRect();
-      menu!.style.setProperty('--cx', `${r.left + r.width / 2}px`);
-      menu!.style.setProperty('--cy', `${r.top + r.height / 2}px`);
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      // Радіус — до найдальшого кута вікна, щоб коло не росло марно за межами екрана
+      const radius = Math.hypot(Math.max(cx, window.innerWidth - cx), Math.max(cy, window.innerHeight - cy));
+      menu!.style.setProperty('--cx', `${cx}px`);
+      menu!.style.setProperty('--cy', `${cy}px`);
+      menu!.style.setProperty('--r', `${Math.ceil(radius) + 2}px`);
     }
 
     function focusables() {
@@ -647,7 +677,9 @@ const current = (p: string) => here === localePath(locale, p);
       menu!.hidden = false;
       menu!.inert = false;
       void menu!.offsetWidth; // щоб перехід стартував
-      menu!.classList.add('is-open');
+      menu!.classList.add('is-open', 'is-opening');
+      window.clearTimeout(openingTimer);
+      openingTimer = window.setTimeout(() => menu!.classList.remove('is-opening'), 700);
       root.classList.add('menu-open');
       outside().forEach((el) => (el.inert = true));
       burger!.setAttribute('aria-expanded', 'true');
@@ -660,7 +692,8 @@ const current = (p: string) => here === localePath(locale, p);
       if (!isOpen) return;
       isOpen = false;
       placeCircle();
-      menu!.classList.remove('is-open');
+      window.clearTimeout(openingTimer);
+      menu!.classList.remove('is-open', 'is-opening');
       root.classList.remove('menu-open');
       outside().forEach((el) => (el.inert = false));
       burger!.setAttribute('aria-expanded', 'false');
@@ -672,7 +705,7 @@ const current = (p: string) => here === localePath(locale, p);
           menu!.inert = true;
           menu!.hidden = true;
         },
-        reduceMotion.matches ? 200 : 600,
+        reduceMotion.matches ? 200 : 500,
       );
       window.dispatchEvent(new CustomEvent('lindigo:menu', { detail: { open: false } }));
     }
