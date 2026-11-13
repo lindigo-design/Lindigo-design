@@ -28,8 +28,11 @@ const t = ui[locale].header;
     </a>
 
     <div class="header__actions">
-      <div class="header__lang"><LangMenu locale={locale} path={path} /></div>
-      <div class="header__theme"><ThemeSwitch locale={locale} /></div>
+      <!-- Мова й тема — одна група, між ними 16 px (Figma, «навігація») -->
+      <div class="header__settings">
+        <div class="header__lang"><LangMenu locale={locale} path={path} /></div>
+        <div class="header__theme"><ThemeSwitch locale={locale} /></div>
+      </div>
 
       <Button href={localePath(locale, '/contact/')} variant="secondary" size="sm" class="header__call">
         {t.bookCall}
@@ -149,10 +152,31 @@ const t = ui[locale].header;
     transition: none !important;
   }
 
+  .header__settings,
   .header__lang,
   .header__theme {
     display: flex;
     align-items: center;
+  }
+
+  .header__settings {
+    gap: 16px;
+  }
+
+  /* Кнопка дзвінка (Figma): заливка акцентом 20 %, обводка акцентом.
+     Темна тема — Orchid, світла — Orchid Deep (--accent-text). Наведення — те саме кільце, що й скрізь. */
+  .header__actions :global(.header__call) {
+    border-color: var(--accent-text);
+    background-color: color-mix(in srgb, var(--accent-text) 20%, transparent);
+  }
+
+  @media (hover: hover) {
+    .header__actions :global(.header__call:hover) {
+      border-color: transparent;
+    }
+  }
+  .header__actions :global(.header__call:focus-visible) {
+    border-color: transparent;
   }
 
   /* Планшет (Figma, 834): зовнішні відступи 24 px */
@@ -179,8 +203,7 @@ const t = ui[locale].header;
     .header__bar {
       padding: 10px 10px 10px 16px;
     }
-    .header__lang,
-    .header__theme {
+    .header__settings {
       display: none;
     }
   }

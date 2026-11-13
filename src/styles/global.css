@@ -36,6 +36,8 @@
   --fg: var(--beige-50);
   --text-muted: var(--muted-dark);
   --accent-text: var(--orchid);
+  /* Перемикач теми (Figma, шапка): у темній обводка бежева, у світлій — Orchid Deep */
+  --switch-border: var(--beige-50);
   --glass-bg: rgba(21, 11, 46, 0.55);
   --glass-border: rgba(248, 238, 221, 0.2);
   --track: rgba(248, 238, 221, 0.3);
@@ -56,6 +58,7 @@
   --fg: var(--indigo-950);
   --text-muted: var(--muted-light);
   --accent-text: var(--orchid-deep);
+  --switch-border: var(--orchid-deep);
   --glass-bg: rgba(248, 238, 221, 0.6);
   --glass-border: rgba(21, 11, 46, 0.16);
   --track: rgba(21, 11, 46, 0.25);
