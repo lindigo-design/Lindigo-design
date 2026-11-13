@@ -15,6 +15,8 @@ const site = Astro.site ?? new URL(Astro.url.origin);
 const canonical = new URL(localePath(locale, path), site);
 // Тимчасова копія на GitHub Pages не має потрапляти в пошук
 const isPreview = import.meta.env.PUBLIC_PREVIEW === 'true';
+// Файли з public/ — разом із base сайту (/Lindigo-design на тимчасовій копії)
+const asset = (file: string) => `${(import.meta.env.BASE_URL ?? '/').replace(/\/+$/, '')}/${file}`;
 ---
 
 <!doctype html>
@@ -32,6 +34,10 @@ const isPreview = import.meta.env.PUBLIC_PREVIEW === 'true';
       ))
     }
     <link rel="alternate" hreflang="x-default" href={new URL(localePath('fr', path), site)} />
+    <!-- Favicon: знак логотипа (Figma «Logo + icon»). SVG міняє колір під тему браузера; PNG — для Safari й iOS -->
+    <link rel="icon" href={asset('favicon.svg')} type="image/svg+xml" />
+    <link rel="icon" href={asset('favicon-32.png')} type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href={asset('apple-touch-icon.png')} />
     <meta name="theme-color" content="#150b2e" />
     <meta name="color-scheme" content="dark light" />
     <!-- Тема до першого малювання, щоб сторінка не блимала. Перше відвідування — темна (системну тему не читаємо). -->
