@@ -32,6 +32,18 @@ export const languageNames: Record<Locale, string> = {
 export const ui = {
   fr: {
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
+    about: {
+      eyebrow: 'Le studio',
+      leadMuted: 'Un beau design attire l’attention.',
+      lead: 'Un design réfléchi fait la différence.',
+      intro: 'Votre entreprise est plus qu’un produit ou un service. C’est une idée, des ambitions, des personnes et une histoire qui mérite d’être racontée.',
+      text: [
+        'Nous cherchons à comprendre cette histoire avant de lui donner une forme visuelle. Nous étudions, remettons en question l’évidence et cherchons le lien entre ce dont votre entreprise a besoin et ce qu’attendent vos clients.',
+        'C’est pourquoi chaque choix a une raison. Et chaque projet, sa propre logique, son caractère et son objectif.',
+      ],
+      more: 'Le studio',
+    },
+    // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     reviews: {
       eyebrow: 'Avis',
       title: 'Ce que disent nos clients',
@@ -170,6 +182,18 @@ export const ui = {
   },
   en: {
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
+    about: {
+      eyebrow: 'About the studio',
+      leadMuted: 'Beautiful design gets attention.',
+      lead: 'Thoughtful design makes a difference.',
+      intro: 'Your business is more than a product or a service. It’s an idea, ambitions, people and a story worth telling.',
+      text: [
+        'We aim to understand that story before giving it visual form. We research, question the obvious and look for the link between what your business needs and what your clients expect.',
+        'That’s why every decision has a reason. And every project has its own logic, character and purpose.',
+      ],
+      more: 'About the studio',
+    },
+    // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     reviews: {
       eyebrow: 'Testimonials',
       title: 'What clients say',
@@ -307,6 +331,17 @@ export const ui = {
     },
   },
   uk: {
+    about: {
+      eyebrow: 'Про студію',
+      leadMuted: 'Красивий дизайн привертає увагу.',
+      lead: 'Продуманий — має значення.',
+      intro: 'Ваш бізнес — це більше, ніж продукт чи послуга. Це ідея, амбіції, люди та історія, яку варто розповісти.',
+      text: [
+        'Ми прагнемо зрозуміти цю історію, перш ніж надати їй візуальної форми. Досліджуємо, ставимо під сумнів очевидне, шукаємо зв’язок між тим, що потрібно вашому бізнесу, і тим, чого очікують ваші клієнти.',
+        'Тому кожне рішення має свою причину. А кожен проєкт — власну логіку, характер і мету.',
+      ],
+      more: 'Про студію',
+    },
     reviews: {
       eyebrow: 'Відгуки',
       title: 'Що кажуть клієнти',

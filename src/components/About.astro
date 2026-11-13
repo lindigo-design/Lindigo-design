@@ -1,0 +1,209 @@
+---
+/**
+ * Блок «07 Про студію» (Figma «Головна · Варіант 2», темна й світла тема).
+ * Та сама сітка, що в «Принципах»: відступ 156 px, колонка підпису 238, між колонками 40.
+ * Друга частина: ліворуч (738) великий сірий вступ, лінія, текст і «Про студію»; праворуч фото 418 × 446.
+ */
+import { Image } from 'astro:assets';
+import portrait from '../assets/about/portrait.jpg';
+import allDark from '../assets/works/all-dark.svg';
+import allLight from '../assets/works/all-light.svg';
+import { keepLastWords, localePath, ui, type Locale } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = ui[locale].about;
+---
+
+<section class="about" aria-labelledby="about-title">
+  <div class="about__grid">
+    <p class="about__eyebrow">{t.eyebrow}</p>
+    <h2 class="about__lead" id="about-title">
+      <span class="about__muted">{t.leadMuted}</span>
+      <span class="about__strong">{t.lead}</span>
+    </h2>
+
+    <div class="about__main">
+      <p class="about__intro">{keepLastWords(t.intro)}</p>
+      <div class="about__text">
+        {t.text.map((p) => <p>{keepLastWords(p)}</p>)}
+      </div>
+      <a class="about__more" href={localePath(locale, '/studio/')}>
+        {t.more}
+        <span class="about__more-icon" aria-hidden="true">
+          <img src={allDark.src} width="36" height="36" alt="" data-theme-only="dark" />
+          <img src={allLight.src} width="36" height="36" alt="" data-theme-only="light" />
+        </span>
+      </a>
+    </div>
+
+    <div class="about__photo">
+      <Image src={portrait} alt="" widths={[420, 840]} sizes="(max-width: 760px) 100vw, 418px" loading="lazy" />
+    </div>
+  </div>
+</section>
+
+<style>
+  .about {
+    padding: 120px clamp(40px, 5.29vw, 80px);
+    background: var(--section-bg);
+  }
+
+  /* Сітка 238 | 460 | 418 (разом 1196 з проміжками 40), відступ зліва 156 */
+  .about__grid {
+    display: grid;
+    grid-template-columns: 238px minmax(0, 1fr) 418px;
+    column-gap: 40px;
+    padding-left: clamp(0px, 10.3vw, 156px);
+  }
+
+  .about__eyebrow {
+    grid-area: 1 / 1;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .about__lead {
+    grid-area: 1 / 2 / 2 / 4;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(24px, 2.65vw, 40px);
+    line-height: clamp(32px, 4.1vw, 62px);
+  }
+
+  /* Два рядки заголовка, кожен в один рядок (як у Figma); шрифт масштабується з екраном */
+  @media (min-width: 1280px) {
+    .about__muted,
+    .about__strong {
+      white-space: nowrap;
+    }
+  }
+
+  .about__muted,
+  .about__intro {
+    color: var(--text-supplement);
+  }
+
+  .about__main {
+    grid-area: 2 / 1 / 3 / 3;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 40px;
+  }
+
+  .about__intro {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(20px, 2.12vw, 32px);
+    line-height: clamp(32px, 4.1vw, 62px);
+  }
+
+  /* Текст: лінія згори, ширина 493 (738 − 40 − 205) */
+  .about__text {
+    max-width: 493px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+    font-size: 18px;
+    line-height: 28px;
+    color: color-mix(in srgb, var(--fg) 85%, transparent);
+  }
+
+  .about__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 22px;
+    text-decoration: none;
+    border-radius: 999px;
+  }
+
+  .about__more-icon img {
+    display: block;
+    transition: transform var(--dur-btn) var(--ease-out-in);
+  }
+
+  @media (hover: hover) {
+    .about__more:hover .about__more-icon img {
+      transform: rotate(45deg);
+    }
+  }
+  .about__more:focus-visible .about__more-icon img {
+    transform: rotate(45deg);
+  }
+
+  .about__photo {
+    grid-area: 2 / 3;
+    margin-top: 41px;
+    height: 446px;
+    overflow: hidden;
+    border-radius: 20px;
+  }
+
+  .about__photo :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  @media (max-width: 1100px) {
+    .about__grid {
+      grid-template-columns: minmax(0, 1fr) 300px;
+      row-gap: 16px;
+      padding-left: 0;
+    }
+    .about__eyebrow {
+      grid-area: 1 / 1 / 2 / 3;
+    }
+    .about__lead {
+      grid-area: 2 / 1 / 3 / 3;
+    }
+    .about__main {
+      grid-area: 3 / 1;
+      gap: 32px;
+    }
+    .about__photo {
+      grid-area: 3 / 2;
+      margin-top: 8px;
+      height: 360px;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .about__grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .about__photo {
+      grid-area: 4 / 1;
+      height: auto;
+      aspect-ratio: 1;
+      max-width: 420px;
+      margin-top: 16px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .about {
+      padding: 96px 20px;
+    }
+    .about__text {
+      font-size: 16px;
+      line-height: 24px;
+    }
+    .about__photo {
+      border-radius: 16px;
+    }
+  }
+</style>
