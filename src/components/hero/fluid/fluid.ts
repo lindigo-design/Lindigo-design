@@ -531,11 +531,9 @@ export function initHeroFluid(): void {
   let warmup = 1;
   let degraded = false;
   let destroyed = false;
-  /* Меню бургера: рідина під склом не реагує на мишку; на комп'ютері дихає далі,
-     на телефоні, слабкому пристрої або при < 40 к/с — пауза (нерухомий кадр під склом) */
+  /* Меню бургера закриває екран готовим розмитим фоном: рідину під ним не видно,
+     тож поки меню відкрите, симуляція на паузі й не реагує на мишку */
   let menuOpen = false;
-  let menuPaused = false;
-  let menuLowFps = 0;
 
   function currentRestore(now: number) {
     const sinceMove = (now - lastMove) / 1000;
@@ -570,15 +568,6 @@ export function initHeroFluid(): void {
       return;
     }
     smoothFps = smoothFps * 0.9 + (1 / Math.max(realDt, 0.001)) * 0.1;
-    if (menuOpen) {
-      // Під меню розмиття на весь екран дороге: не знижуємо якість, а ставимо на паузу
-      menuLowFps = smoothFps < C.MENU_MIN_FPS ? menuLowFps + realDt : 0;
-      if (menuLowFps > C.MENU_LOW_FPS_TIME) {
-        menuPaused = true;
-        updateRunning();
-      }
-      return;
-    }
     lowFpsTime = smoothFps < C.MIN_FPS ? lowFpsTime + realDt : 0;
     if (lowFpsTime < C.LOW_FPS_TIME) return;
     lowFpsTime = 0;
@@ -615,7 +604,7 @@ export function initHeroFluid(): void {
   }
 
   function updateRunning() {
-    const should = !destroyed && image !== null && inView && !document.hidden && !menuPaused;
+    const should = !destroyed && image !== null && inView && !document.hidden && !menuOpen;
     if (should === running) return;
     running = should;
     if (running) {
@@ -643,10 +632,7 @@ export function initHeroFluid(): void {
   window.addEventListener('lindigo:menu', (event) => {
     menuOpen = (event as CustomEvent<{ open: boolean }>).detail.open;
     lastPointer = null;
-    menuLowFps = 0;
-    warmup = 0.5; // перші кадри відкриття не рахуємо
-    const weak = noHover.matches || window.innerWidth < 768 || degraded;
-    menuPaused = menuOpen && weak;
+    warmup = 0.5; // перші кадри після паузи не рахуємо
     updateRunning();
   });
   reduceMotion.addEventListener('change', (e) => e.matches && destroy());

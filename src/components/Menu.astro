@@ -12,6 +12,8 @@ import ThemeSwitch from './ThemeSwitch.astro';
 import logoLight from '../assets/hero/logo-light.png';
 import logoDark from '../assets/hero/logo-dark.png';
 import arrow from '../assets/menu/arrow.svg';
+import glassDark from '../assets/menu/menu-glass-dark.jpg';
+import glassLight from '../assets/menu/menu-glass-light.jpg';
 import { localePath, menuPaths, socialLinks, ui, type Locale } from '../i18n/ui';
 
 interface Props {
@@ -35,7 +37,9 @@ const current = (p: string) => here === localePath(locale, p);
   aria-label={t.menu.label}
   hidden
   data-menu
-  style={`--arrow: url(${arrow.src})`}
+  style={`--arrow: url(${arrow.src}); --glass-dark: url(${glassDark.src}); --glass-light: url(${glassLight.src})`}
+  data-glass-dark={glassDark.src}
+  data-glass-light={glassLight.src}
 >
   <div class="menu__inner">
     <div class="menu__top">
@@ -133,16 +137,18 @@ const current = (p: string) => here === localePath(locale, p);
     z-index: 100;
     overflow-y: auto;
     overscroll-behavior: contain;
-    background: color-mix(in srgb, var(--bg) 72%, transparent);
-    -webkit-backdrop-filter: blur(40px);
-    backdrop-filter: blur(40px);
+    /* Скло — готова розмита картинка рідини (своя для кожної теми) під кольором теми 72 %.
+       Живий backdrop-filter поверх WebGL давав спалах наприкінці закриття на Windows. */
+    --glass-img: var(--glass-dark);
+    background:
+      linear-gradient(color-mix(in srgb, var(--bg) 72%, transparent), color-mix(in srgb, var(--bg) 72%, transparent)),
+      var(--glass-img) center / cover no-repeat,
+      var(--bg);
     color: var(--fg);
   }
 
-  @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-    .menu {
-      background: color-mix(in srgb, var(--bg) 94%, transparent);
-    }
+  :global(:root[data-theme='light']) .menu {
+    --glass-img: var(--glass-light);
   }
 
   .menu[hidden] {
@@ -150,24 +156,26 @@ const current = (p: string) => here === localePath(locale, p);
   }
 
   /* ---------- Анімація ----------
-     Відкриття: коло з центру бургера 0,7 с; пункти знизу по черзі (через 0,25 с, крок 0,06 с);
+     Відкриття: коло з центру бургера 0,9 с; пункти знизу по черзі (через 0,25 с, крок 0,06 с);
      стовпчик і верхній рядок — прозорістю 0,4 с через 0,4 с; лінії бургера стають хрестиком за 0,4 с.
-     Закриття швидше: вміст зникає за 0,2 с, коло стискається до бургера за 0,5 с. */
+     Закриття: вміст зникає за 0,2 с, коло стискається до бургера за 0,7 с.
+     (У завданні 0,7 і 0,5 с — сповільнено на прохання Яни: так рух спокійніший.) */
   .menu {
     --cx: calc(100% - 81px);
     --cy: 57px;
     clip-path: circle(0 at var(--cx) var(--cy));
     visibility: hidden;
     transition:
-      clip-path 0.5s var(--ease-out-in) 0.1s,
-      visibility 0s 0.6s;
+      clip-path 0.7s var(--ease-out-in),
+      visibility 0s 0.7s;
   }
 
   .menu.is-open {
-    clip-path: circle(150vmax at var(--cx) var(--cy));
+    /* --r — відстань від бургера до найдальшого кута (рахує скрипт): рух кола видно від першого кадру */
+    clip-path: circle(var(--r, 150vmax) at var(--cx) var(--cy));
     visibility: visible;
     transition:
-      clip-path 0.7s var(--ease-out-in),
+      clip-path 0.9s var(--ease-out-in),
       visibility 0s;
   }
 
@@ -264,19 +272,38 @@ const current = (p: string) => here === localePath(locale, p);
     height: 2px;
     border-radius: 1px;
     background: currentColor;
-    transition: transform 0.4s var(--ease-out-in);
+    /* Закриття: спершу поворот назад, потім лінії розходяться */
+    transition:
+      rotate 0.2s var(--ease-out-in),
+      scale 0.2s var(--ease-out-in),
+      translate 0.2s var(--ease-out-in) 0.2s;
   }
   .menu__close span:first-child {
-    transform: translateY(-4px);
+    translate: 0 -4px;
   }
   .menu__close span:last-child {
-    transform: translateY(4px);
+    translate: 0 4px;
+  }
+  /* Відкриття: спершу лінії сходяться до центру, потім повертаються на ±45° (разом 0,4 с) */
+  .menu.is-open .menu__close span {
+    translate: 0 0;
+    scale: 0.7 1;
+    transition:
+      translate 0.2s var(--ease-out-in),
+      rotate 0.2s var(--ease-out-in) 0.2s,
+      scale 0.2s var(--ease-out-in) 0.2s;
   }
   .menu.is-open .menu__close span:first-child {
-    transform: rotate(45deg) scaleX(0.7);
+    rotate: 45deg;
   }
   .menu.is-open .menu__close span:last-child {
-    transform: rotate(-45deg) scaleX(0.7);
+    rotate: -45deg;
+  }
+
+  /* Поки меню відкривається, хрестик стоїть над бургером: кільце від наведення не проявляється вдруге */
+  .menu.is-opening .menu__close,
+  .menu.is-opening .menu__close::before {
+    transition: none;
   }
 
   /* ---------- Нижня частина: навігація і стовпчик ---------- */
@@ -603,11 +630,15 @@ const current = (p: string) => here === localePath(locale, p);
     .menu__nav a {
       transition: none;
     }
+    .menu .menu__close span {
+      translate: 0 0;
+      scale: 0.7 1;
+    }
     .menu .menu__close span:first-child {
-      transform: rotate(45deg) scaleX(0.7);
+      rotate: 45deg;
     }
     .menu .menu__close span:last-child {
-      transform: rotate(-45deg) scaleX(0.7);
+      rotate: -45deg;
     }
   }
 </style>
@@ -622,6 +653,8 @@ const current = (p: string) => here === localePath(locale, p);
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let isOpen = false;
     let hideTimer = 0;
+    let openingTimer = 0;
+    let fluidTimer = 0;
 
     // Решта сторінки (усе, крім меню), яку робимо inert, поки меню відкрите
     const outside = () => Array.from(document.body.children).filter((el) => el !== menu && el.tagName !== 'SCRIPT') as HTMLElement[];
@@ -629,8 +662,13 @@ const current = (p: string) => here === localePath(locale, p);
     // Центр кола — центр бургера
     function placeCircle() {
       const r = burger!.getBoundingClientRect();
-      menu!.style.setProperty('--cx', `${r.left + r.width / 2}px`);
-      menu!.style.setProperty('--cy', `${r.top + r.height / 2}px`);
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      // Радіус — до найдальшого кута вікна, щоб коло не росло марно за межами екрана
+      const radius = Math.hypot(Math.max(cx, window.innerWidth - cx), Math.max(cy, window.innerHeight - cy));
+      menu!.style.setProperty('--cx', `${cx}px`);
+      menu!.style.setProperty('--cy', `${cy}px`);
+      menu!.style.setProperty('--r', `${Math.ceil(radius) + 2}px`);
     }
 
     function focusables() {
@@ -643,42 +681,67 @@ const current = (p: string) => here === localePath(locale, p);
       if (isOpen) return;
       isOpen = true;
       window.clearTimeout(hideTimer);
+      root.classList.remove('menu-closing');
       placeCircle();
       menu!.hidden = false;
       menu!.inert = false;
       void menu!.offsetWidth; // щоб перехід стартував
-      menu!.classList.add('is-open');
+      menu!.classList.add('is-open', 'is-opening');
+      window.clearTimeout(openingTimer);
+      openingTimer = window.setTimeout(() => menu!.classList.remove('is-opening'), 900);
       root.classList.add('menu-open');
       outside().forEach((el) => (el.inert = true));
       burger!.setAttribute('aria-expanded', 'true');
       burger!.setAttribute('aria-label', burger!.dataset.labelClose ?? '');
       closeBtn.focus({ preventScroll: true });
-      window.dispatchEvent(new CustomEvent('lindigo:menu', { detail: { open: true } }));
+      // Рідину ставимо на паузу, коли коло вже закрило весь екран — інакше вона застигла б на очах
+      window.clearTimeout(fluidTimer);
+      fluidTimer = window.setTimeout(
+        () => window.dispatchEvent(new CustomEvent('lindigo:menu', { detail: { open: true } })),
+        reduceMotion.matches ? 200 : 900,
+      );
     }
 
     function close() {
       if (!isOpen) return;
       isOpen = false;
       placeCircle();
-      menu!.classList.remove('is-open');
-      root.classList.remove('menu-open');
-      outside().forEach((el) => (el.inert = false));
+      window.clearTimeout(openingTimer);
+      menu!.classList.remove('is-open', 'is-opening');
+      // Бургер з'явиться з-під скла під мишкою: його кільце наведення вмикаємо одразу, без проявлення
+      root.classList.add('menu-closing');
+      // Рідина оживає відразу: коло стискається й відкриває вже рухому картинку
+      window.clearTimeout(fluidTimer);
+      window.dispatchEvent(new CustomEvent('lindigo:menu', { detail: { open: false } }));
       burger!.setAttribute('aria-expanded', 'false');
       burger!.setAttribute('aria-label', burger!.dataset.labelOpen ?? '');
-      burger!.focus({ preventScroll: true });
-      // Після закриття меню недоступне для фокуса й читалок
+      // Смугу прокрутки, inert і фокус повертаємо після того, як коло стиснулося:
+      // поки воно рухається, сторінка під ним не перемальовується.
       hideTimer = window.setTimeout(
         () => {
+          root.classList.remove('menu-open');
+          outside().forEach((el) => (el.inert = false));
+          burger!.focus({ preventScroll: true });
+          // Після закриття меню недоступне для фокуса й читалок
           menu!.inert = true;
           menu!.hidden = true;
+          // Два кадри, щоб бургер уже намалювався у стані наведення, потім повертаємо переходи
+          requestAnimationFrame(() => requestAnimationFrame(() => root.classList.remove('menu-closing')));
         },
-        reduceMotion.matches ? 200 : 600,
+        reduceMotion.matches ? 200 : 700,
       );
-      window.dispatchEvent(new CustomEvent('lindigo:menu', { detail: { open: false } }));
     }
 
     menu.inert = true;
     burger.addEventListener('click', open);
+
+    // Фон меню підвантажуємо заздалегідь, щоб скло було готове вже при першому відкритті
+    const preload = () =>
+      [menu.dataset.glassDark, menu.dataset.glassLight].forEach((src) => {
+        if (src) new Image().src = src;
+      });
+    if ('requestIdleCallback' in window) requestIdleCallback(preload, { timeout: 3000 });
+    else window.setTimeout(preload, 1500);
     closeBtn.addEventListener('click', close);
 
     // Клік по будь-якому посиланню меню закриває його
