@@ -227,16 +227,21 @@ const bgWidths = [768, 1280, 1920, 2752];
     .hero {
       padding-top: 112px;
     }
+    /* Телефон (Figma, 390): поля 20 px; опис і картка на всю ширину між полями */
     .hero__content {
       gap: 32px;
-      padding: 0 16px 32px;
+      padding: 0 20px 32px;
     }
     .hero__text {
       gap: 24px;
     }
     .hero__lead {
+      max-width: none;
       font-size: 16px;
       line-height: 24px;
+    }
+    .hero__content > :global(.work-card) {
+      width: 100%;
     }
     .hero__actions {
       flex-direction: column;
