@@ -22,7 +22,7 @@ const { variant } = Astro.props;
 
 /**
  * «Як ми працюємо» і FAQ: замість градієнтних плям — кулі з фото рідини (Fluid).
- * Кожна куля — круг, вирізаний з місця, де змішуються кольори, і розмитий (як у Figma, layer blur).
+ * Чотири кулі на блок (менше — щоб не перевантажувати вміст). Кожна куля — круг, вирізаний з місця, де змішуються кольори, і розмитий (як у Figma, layer blur).
  * Картинки запечені заздалегідь: круг 256 px + поле 96 px під розмиття з кожного боку (448 × 448),
  * тож елемент у 1,75 раза більший за видимий круг. Кулі не рухаються: лише світяться,
  * непрозорість 10 % → 100 % → 10 %, у кожної свій темп.
@@ -32,28 +32,22 @@ import ball1 from '../assets/liquid/ball-1.webp'; // орхідея з пома�
 import ball2 from '../assets/liquid/ball-2.webp'; // фіолет з орхідеєю
 import ball3 from '../assets/liquid/ball-3.webp'; // золото
 import ball4 from '../assets/liquid/ball-4.webp'; // фіолет з помаранчем
-import ball5 from '../assets/liquid/ball-5.webp'; // глибоке індиго
-import ball6 from '../assets/liquid/ball-6.webp'; // рожева орхідея
 
-type Ball = { src: ImageMetadata; x: number; y: number; d: number; dur: number; delay: number };
+type Ball = { src: ImageMetadata; x: number; y: number; d: number; dur: number; delay: number; peak?: number };
 const ballSets: Partial<Record<Props['variant'], Ball[]>> = {
   // блок 1512 × 1344
   process: [
     { src: ball1, x: 75.4, y: 29.9, d: 37.3, dur: 9, delay: 0 },
     { src: ball2, x: 23.2, y: 61.2, d: 32.5, dur: 11, delay: -4 },
-    { src: ball3, x: 10.8, y: 41.4, d: 16.9, dur: 7, delay: -2 },
+    { src: ball3, x: 10.8, y: 41.4, d: 16.9, dur: 7, delay: -2, peak: 0.7 },
     { src: ball4, x: 90, y: 84, d: 23.8, dur: 10, delay: -6 },
-    { src: ball5, x: 47.6, y: 92.3, d: 19.8, dur: 8, delay: -3 },
-    { src: ball6, x: 92.6, y: 8.2, d: 14.6, dur: 12, delay: -8 },
   ],
   // блок 1512 × 1123
   faq: [
     { src: ball1, x: 74.4, y: 29.7, d: 37.3, dur: 9, delay: -1 },
     { src: ball2, x: 22.2, y: 64.8, d: 32.5, dur: 11, delay: -5 },
-    { src: ball3, x: 11.7, y: 52, d: 16.9, dur: 7, delay: -3 },
+    { src: ball3, x: 11.7, y: 52, d: 16.9, dur: 7, delay: -3, peak: 0.7 },
     { src: ball4, x: 88, y: 85.5, d: 23.8, dur: 10, delay: -7 },
-    { src: ball5, x: 49, y: 94.4, d: 19.8, dur: 8, delay: -2 },
-    { src: ball6, x: 13.2, y: 10.7, d: 14.6, dur: 12, delay: -9 },
   ],
 };
 const balls = ballSets[variant];
@@ -95,7 +89,7 @@ const glowBg = glowLayers
           alt=""
           loading="lazy"
           decoding="async"
-          style={`--x: ${b.x}%; --y: ${b.y}%; --d: ${b.d}; --dur: ${b.dur}s; --delay: ${b.delay}s`}
+          style={`--x: ${b.x}%; --y: ${b.y}%; --d: ${b.d}; --dur: ${b.dur}s; --delay: ${b.delay}s; --peak: ${b.peak ?? 1}`}
         />
       ))
     ) : (
@@ -165,12 +159,12 @@ const glowBg = glowLayers
 
   @keyframes breath-glow {
     0%, 100% { opacity: 0.1; }
-    50% { opacity: var(--peak, 1); }
+    50% { opacity: calc(var(--peak, 1) * var(--tone, 1)); }
   }
 
-  /* На бежевому темний фон фото дає сірий відтінок — у світлій темі пік світіння 60 % */
+  /* На бежевому темний фон фото дає сірий відтінок — у світлій темі світіння 60 % від піку кулі */
   :global(:root[data-theme='light']) .breath__ball {
-    --peak: 0.6;
+    --tone: 0.6;
   }
 
   /* Три різні шляхи: зсув у межах ~12 % власного розміру, легке стискання й розширення */
