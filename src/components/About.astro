@@ -21,9 +21,11 @@ const t = ui[locale].about;
 <section class="about" aria-labelledby="about-title">
   <div class="about__grid">
     <p class="about__eyebrow">{t.eyebrow}</p>
-    <h2 class="about__lead" id="about-title">
-      <span class="about__muted">{t.leadMuted}</span>
-      <span class="about__strong">{t.lead}</span>
+    <h2 class="about__lead" id="about-title" data-fit-lead>
+      <span class="fit-lead__box">
+        <span class="about__muted">{t.leadMuted}</span>
+        <span class="about__strong">{t.lead}</span>
+      </span>
     </h2>
 
     <div class="about__main">
@@ -81,13 +83,7 @@ const t = ui[locale].about;
     line-height: clamp(32px, 4.1vw, 62px);
   }
 
-  /* Два рядки заголовка, кожен в один рядок (як у Figma); шрифт масштабується з екраном */
-  @media (min-width: 1280px) {
-    .about__muted,
-    .about__strong {
-      white-space: nowrap;
-    }
-  }
+  /* Два рядки заголовка, кожен в один рядок, — див. scripts/fit-lead.ts і global.css */
 
   .about__muted,
   .about__intro {
@@ -209,3 +205,8 @@ const t = ui[locale].about;
     }
   }
 </style>
+
+<script>
+  // Заголовок з двох рядків: найдовший рядок — по правому краю фото
+  import '../scripts/fit-lead';
+</script>

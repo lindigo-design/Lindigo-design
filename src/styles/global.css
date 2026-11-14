@@ -280,3 +280,24 @@ a {
     color 0.4s ease,
     border-color 0.4s ease !important;
 }
+
+/* ---------- Заголовок з двох рядків, притиснутий праворуч (scripts/fit-lead.ts) ----------
+   Широкий екран: кожне речення — окремий рядок без переносів; блок стоїть праворуч,
+   тож найдовший рядок закінчується по правому краю колонки (фото під ним). */
+@media (min-width: 1101px) {
+  [data-fit-lead]:not(.is-wrapped) .fit-lead__box {
+    display: block;
+    width: max-content;
+    max-width: none;
+    margin-left: auto;
+  }
+  [data-fit-lead]:not(.is-wrapped) .fit-lead__box > span {
+    display: block;
+    white-space: nowrap;
+  }
+  /* з переносами: блок завширшки з найдовший рядок (ставить скрипт), притиснутий праворуч */
+  [data-fit-lead].is-wrapped .fit-lead__box {
+    display: block;
+    margin-left: auto;
+  }
+}

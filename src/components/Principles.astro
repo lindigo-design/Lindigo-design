@@ -21,9 +21,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
 <section class="principles" aria-labelledby="principles-title">
   <div class="principles__quote">
     <p class="principles__eyebrow">{t.eyebrow}</p>
-    <h2 class="principles__lead" id="principles-title">
-      <span class="principles__muted">{t.leadMuted}</span>
-      {' '}{keepLastWords(t.lead)}
+    <h2 class="principles__lead" id="principles-title" data-fit-lead>
+      <span class="fit-lead__box">
+        <span class="principles__muted">{t.leadMuted}</span>
+        {' '}<span>{keepLastWords(t.lead)}</span>
+      </span>
     </h2>
     <p class="principles__body">
       {t.body}{' '}
@@ -232,3 +234,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     }
   }
 </style>
+
+<script>
+  // Заголовок з двох рядків: найдовший рядок — по правому краю фото
+  import '../scripts/fit-lead';
+</script>
