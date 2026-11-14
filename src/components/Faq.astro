@@ -236,9 +236,9 @@ const t = ui[locale].faq;
     flex-shrink: 0;
     width: 40px;
     height: 40px;
-    border: 1px solid color-mix(in srgb, var(--fg) 30%, transparent);
+    border: 1px solid var(--rule);
     border-radius: 50%;
-    color: color-mix(in srgb, var(--fg) 90%, transparent);
+    color: var(--text-soft);
     transition: border-color 0.2s ease;
   }
 
@@ -271,9 +271,10 @@ const t = ui[locale].faq;
 
   .faq__a {
     padding: 0 64px 28px 0;
+    font-weight: 500;
     font-size: 20px;
     line-height: 30px;
-    color: color-mix(in srgb, var(--fg) 85%, transparent);
+    color: var(--text-soft);
   }
 
   @media (max-width: 1100px) {

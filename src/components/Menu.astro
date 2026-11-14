@@ -259,7 +259,7 @@ const current = (p: string) => here === localePath(locale, p);
   }
 
   /* Хрестик: дві лінії 2 px, як у Figma (14 px по діагоналі поля 20 px, кінці заокруглені).
-     Закрите меню: лінії стоять як у бургера (20 px, 6 px між ними); відкриття повертає їх на ±45°. */
+     Закрите меню: лінії стоять як у бургера (20 px, 8 px між ними); відкриття повертає їх на ±45°. */
   .menu__close span {
     position: absolute;
     width: 20px;
@@ -273,10 +273,10 @@ const current = (p: string) => here === localePath(locale, p);
       translate 0.2s var(--ease-out-in) 0.2s;
   }
   .menu__close span:first-child {
-    translate: 0 -4px;
+    translate: 0 -5px;
   }
   .menu__close span:last-child {
-    translate: 0 4px;
+    translate: 0 5px;
   }
   /* Відкриття: спершу лінії сходяться до центру, потім повертаються на ±45° (разом 0,4 с) */
   .menu.is-open .menu__close span {
@@ -440,8 +440,8 @@ const current = (p: string) => here === localePath(locale, p);
   .menu__label {
     font-family: var(--font-mono);
     font-weight: 500;
-    font-size: 11px;
-    line-height: 17px;
+    font-size: 12px;
+    line-height: 16px;
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--text-muted);
@@ -508,11 +508,11 @@ const current = (p: string) => here === localePath(locale, p);
   /* ---------- Телефон (Figma, 390) ---------- */
   @media (max-width: 599px) {
     .menu {
-      --top-y: 23px; /* 12 + 1 + 10 */
+      --top-y: 21px; /* 12 + 1 + 8 */
       --side: 20px;
     }
     .menu__top {
-      padding: var(--top-y) 23px var(--top-y) 29px; /* як шапка: 12 + 1 + 10 справа, 12 + 1 + 16 зліва */
+      padding: var(--top-y) 21px var(--top-y) 29px; /* як шапка: 12 + 1 + 8 справа, 12 + 1 + 16 зліва */
     }
     .menu__settings--top {
       display: none;
@@ -562,7 +562,7 @@ const current = (p: string) => here === localePath(locale, p);
     }
     .menu__group :global(.menu__btn) {
       height: 50px;
-      font-size: 15px;
+      font-size: 16px;
     }
     .menu__bottom {
       display: flex;
@@ -584,7 +584,7 @@ const current = (p: string) => here === localePath(locale, p);
     }
     .menu__social-row a {
       display: inline-block;
-      padding: 6px 0;
+      padding: 4px 0;
       color: var(--fg);
       font-size: 16px;
       line-height: 24px;

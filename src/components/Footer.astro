@@ -90,7 +90,7 @@ const contact = [
     position: relative;
     isolation: isolate;
     overflow: hidden;
-    padding: 96px max(clamp(20px, 5.29vw, 80px), calc((100% - 1800px) / 2)) 48px;
+    padding: 96px var(--gutter) 48px;
     background: var(--section-bg-alt);
   }
 
@@ -116,7 +116,7 @@ const contact = [
     content: '';
     position: absolute;
     inset: 0;
-    background: rgba(21, 11, 46, 0.5);
+    background: var(--overlay-dark);
   }
 
   :global(:root[data-theme='light']) .footer__bg::after {
@@ -215,7 +215,7 @@ const contact = [
   .footer__legal {
     font-size: 14px;
     line-height: 20px;
-    color: color-mix(in srgb, var(--fg) 80%, transparent);
+    color: var(--text-soft);
   }
 
   .footer__controls {
@@ -238,6 +238,10 @@ const contact = [
   }
 
   @media (max-width: 640px) {
+    /* Телефон: бічні поля 20 px, як в інших блоках */
+    .footer {
+      padding-inline: 20px;
+    }
     .footer__logo :global(.logo) {
       --logo-w: 220px !important;
     }

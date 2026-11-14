@@ -77,10 +77,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
     /* темна (макет «-new»): радіальний градієнт із центром угорі праворуч (1029, 337 на 1512 × 1298) */
     background: radial-gradient(
       ellipse 78% 100% at 68% 26%,
-      #2a3265 0%,
-      #1a203f 31%,
-      #0e0b23 65%,
-      #070415 100%
+      var(--dusk-600) 0%,
+      var(--dusk-800) 31%,
+      var(--night-800) 65%,
+      var(--night-950) 100%
     );
     overflow: hidden;
   }
@@ -227,7 +227,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .step__text {
     font-size: 18px;
     line-height: 28px;
-    color: color-mix(in srgb, var(--fg) 90%, transparent);
+    color: var(--text-soft);
   }
 
   .step--6 .step__text {
