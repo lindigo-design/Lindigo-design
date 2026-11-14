@@ -62,7 +62,8 @@ const photos = [
 
 <style>
   .photos {
-    --side: clamp(40px, 5.29vw, 80px);
+    /* як --gutter, але від ширини вікна: --side використовується й у вкладених елементах */
+    --side: max(clamp(40px, 5.29vw, 80px), calc((100vw - 1352px) / 2));
 
     display: flex;
     flex-direction: column;

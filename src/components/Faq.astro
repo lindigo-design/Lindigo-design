@@ -6,9 +6,7 @@
  * Акордеон на <details>/<summary>: працює з клавіатури й без JavaScript.
  * Скрипт лише робить так, що відкрите одне питання за раз (як у макеті).
  */
-import { Image } from 'astro:assets';
-import bgDark from '../assets/faq/bg-dark.jpg';
-import bgLight from '../assets/faq/bg-light.jpg';
+import Breath from './Breath.astro';
 import { keepLastWords, ui, type Locale } from '../i18n/ui';
 
 interface Props {
@@ -20,10 +18,7 @@ const t = ui[locale].faq;
 ---
 
 <section class="faq" aria-labelledby="faq-title" data-faq>
-  <div class="faq__bg" aria-hidden="true">
-    <Image src={bgDark} alt="" widths={[760, 1512]} sizes="100vw" data-theme-only="dark" />
-    <Image src={bgLight} alt="" widths={[760, 1512]} sizes="100vw" data-theme-only="light" />
-  </div>
+  <Breath variant="faq" />
 
   <header class="faq__head">
     <p class="faq__eyebrow">{t.eyebrow}</p>
@@ -53,23 +48,11 @@ const t = ui[locale].faq;
     grid-template-columns: 380px minmax(0, 1fr);
     column-gap: 80px;
     align-items: start;
-    padding: 120px clamp(40px, 5.29vw, 80px);
+    padding: 120px var(--gutter);
     background: var(--section-bg);
     overflow: hidden;
   }
 
-  .faq__bg {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-  }
-
-  .faq__bg :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
 
   .faq__head {
     display: flex;

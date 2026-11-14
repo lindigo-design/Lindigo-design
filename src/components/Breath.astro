@@ -8,10 +8,13 @@
  * (у кожної свій шлях і своя тривалість, тож рух не повторюється синхронно).
  * Поза екраном анімація на паузі; з «зменшити рух» у системі плями стоять.
  *
+ * Пляма за мишкою: ще одна пляма м'яко пливе за курсором, поки він над блоком
+ * (з невеликим запізненням, як у рідині). На дотикових екранах і з «зменшити рух» її немає.
+ *
  * Розмітку ставимо першою дитиною секції з position: relative; isolation: isolate.
  */
 interface Props {
-  variant: 'works' | 'reviews' | 'cta';
+  variant: 'works' | 'reviews' | 'cta' | 'directions' | 'process' | 'faq';
 }
 
 const { variant } = Astro.props;
@@ -21,6 +24,8 @@ const { variant } = Astro.props;
   <span class="breath__blob breath__blob--1"></span>
   <span class="breath__blob breath__blob--2"></span>
   <span class="breath__blob breath__blob--3"></span>
+  <span class="breath__blob breath__blob--4"></span>
+  <span class="breath__cursor" data-breathe-cursor></span>
 </div>
 
 <style>
@@ -40,7 +45,7 @@ const { variant } = Astro.props;
     width: var(--w);
     height: var(--h);
     border-radius: 50%;
-    background: radial-gradient(closest-side, var(--c), transparent);
+    background: radial-gradient(closest-side, var(--c, transparent), transparent);
     translate: -50% -50%;
     will-change: transform;
     animation: var(--anim) var(--dur) ease-in-out infinite alternate;
@@ -54,6 +59,7 @@ const { variant } = Astro.props;
   .breath__blob--1 { --anim: breath-a; --dur: 19s; }
   .breath__blob--2 { --anim: breath-b; --dur: 23s; }
   .breath__blob--3 { --anim: breath-c; --dur: 27s; }
+  .breath__blob--4 { --anim: breath-b; --dur: 31s; animation-direction: alternate-reverse; }
 
   /* Три різні шляхи: зсув у межах ~12 % власного розміру, легке стискання й розширення */
   @keyframes breath-a {
@@ -75,9 +81,43 @@ const { variant } = Astro.props;
     100% { transform: translate(3%, -7%) scale(1.09); }
   }
 
+  /* Пляма за мишкою: 36vw (не більше 640 px), центр — у точці курсора; рух веде скрипт */
+  .breath__cursor {
+    --size: min(36vw, 640px);
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: var(--size);
+    height: var(--size);
+    margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+    border-radius: 50%;
+    background: radial-gradient(closest-side, var(--cursor-c, rgba(221, 163, 247, 0.22)), transparent);
+    opacity: 0;
+    transition: opacity 0.8s ease;
+    will-change: transform, opacity;
+  }
+
+  .breath.is-pointer .breath__cursor {
+    opacity: 1;
+  }
+
+  :global(:root[data-theme='light']) .breath__cursor {
+    --cursor-c: rgba(165, 52, 196, 0.2);
+  }
+
+  .breath--cta .breath__cursor {
+    --cursor-c: rgba(242, 99, 42, 0.22);
+  }
+  :global(:root[data-theme='light']) .breath--cta .breath__cursor {
+    --cursor-c: rgba(242, 99, 42, 0.28);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .breath__blob {
       animation: none;
+    }
+    .breath__cursor {
+      display: none;
     }
   }
 
@@ -125,6 +165,44 @@ const { variant } = Astro.props;
   :global(:root[data-theme='light']) .breath--cta .breath__blob--1 { --x: 0%; --y: 80%; --w: 70%; --h: 160%; --c: rgba(124, 86, 164, 0.95); }
   :global(:root[data-theme='light']) .breath--cta .breath__blob--2 { --x: 66%; --y: 105%; --w: 56%; --h: 110%; --c: rgba(252, 150, 155, 0.95); }
   :global(:root[data-theme='light']) .breath--cta .breath__blob--3 { --x: 100%; --y: 40%; --w: 38%; --h: 120%; --c: rgba(212, 180, 225, 0.75); }
+  /* ---------- 02 Напрями: світіння внизу блоку ---------- */
+  .breath--directions { --breath-base: var(--night); }
+  .breath--directions .breath__blob--1 { --x: 45%; --y: 95%; --w: 75%; --h: 26%; --c: rgba(82, 48, 201, 0.45); }
+  .breath--directions .breath__blob--2 { --x: 22%; --y: 88%; --w: 42%; --h: 18%; --c: rgba(150, 60, 170, 0.3); }
+  .breath--directions .breath__blob--3 { --x: 62%; --y: 98%; --w: 40%; --h: 14%; --c: rgba(242, 99, 42, 0.12); }
+  .breath--directions .breath__blob--4 { --x: 95%; --y: 3%; --w: 36%; --h: 14%; --c: rgba(82, 48, 201, 0.12); }
+
+  :global(:root[data-theme='light']) .breath--directions { --breath-base: var(--beige-50); }
+  :global(:root[data-theme='light']) .breath--directions .breath__blob--1 { --x: 5%; --y: 90%; --w: 48%; --h: 24%; --c: rgba(165, 52, 196, 0.48); }
+  :global(:root[data-theme='light']) .breath--directions .breath__blob--2 { --x: 55%; --y: 97%; --w: 58%; --h: 16%; --c: rgba(252, 150, 140, 0.6); }
+  :global(:root[data-theme='light']) .breath--directions .breath__blob--3 { --x: 95%; --y: 88%; --w: 32%; --h: 16%; --c: rgba(221, 163, 247, 0.38); }
+  :global(:root[data-theme='light']) .breath--directions .breath__blob--4 { --x: 96%; --y: 2%; --w: 30%; --h: 10%; --c: rgba(221, 163, 247, 0.25); }
+
+  /* ---------- 04 Як ми працюємо: плями з Figma (місця з макета 1512 × 1344) ---------- */
+  .breath--process { --breath-base: var(--night); }
+  .breath--process .breath__blob--1 { --x: 75%; --y: 27%; --w: 43%; --h: 48%; --c: rgba(110, 60, 200, 0.5); }
+  .breath--process .breath__blob--2 { --x: 76%; --y: 40%; --w: 28%; --h: 30%; --c: rgba(200, 70, 40, 0.32); }
+  .breath--process .breath__blob--3 { --x: 23%; --y: 61%; --w: 40%; --h: 45%; --c: rgba(150, 60, 170, 0.45); }
+  .breath--process .breath__blob--4 { --x: 11%; --y: 42%; --w: 26%; --h: 30%; --c: rgba(190, 50, 70, 0.32); }
+
+  :global(:root[data-theme='light']) .breath--process { --breath-base: var(--beige-50); }
+  :global(:root[data-theme='light']) .breath--process .breath__blob--1 { --x: 75%; --y: 27%; --w: 43%; --h: 48%; --c: rgba(190, 120, 230, 0.55); }
+  :global(:root[data-theme='light']) .breath--process .breath__blob--2 { --x: 76%; --y: 40%; --w: 28%; --h: 30%; --c: rgba(240, 110, 150, 0.45); }
+  :global(:root[data-theme='light']) .breath--process .breath__blob--3 { --x: 23%; --y: 61%; --w: 40%; --h: 45%; --c: rgba(200, 90, 190, 0.5); }
+  :global(:root[data-theme='light']) .breath--process .breath__blob--4 { --x: 11%; --y: 41%; --w: 26%; --h: 30%; --c: rgba(240, 120, 150, 0.45); }
+
+  /* ---------- 08 FAQ: ті самі плями в інших місцях (макет 1512 × 1123) ---------- */
+  .breath--faq { --breath-base: var(--night); }
+  .breath--faq .breath__blob--1 { --x: 74%; --y: 29%; --w: 43%; --h: 58%; --c: rgba(110, 60, 200, 0.5); }
+  .breath--faq .breath__blob--2 { --x: 75%; --y: 44%; --w: 28%; --h: 36%; --c: rgba(200, 70, 40, 0.3); }
+  .breath--faq .breath__blob--3 { --x: 22%; --y: 65%; --w: 40%; --h: 54%; --c: rgba(150, 60, 170, 0.45); }
+  .breath--faq .breath__blob--4 { --x: 12%; --y: 52%; --w: 26%; --h: 36%; --c: rgba(190, 50, 70, 0.32); }
+
+  :global(:root[data-theme='light']) .breath--faq { --breath-base: var(--beige-50); }
+  :global(:root[data-theme='light']) .breath--faq .breath__blob--1 { --x: 74%; --y: 29%; --w: 43%; --h: 58%; --c: rgba(190, 120, 230, 0.5); }
+  :global(:root[data-theme='light']) .breath--faq .breath__blob--2 { --x: 75%; --y: 44%; --w: 28%; --h: 36%; --c: rgba(240, 110, 150, 0.42); }
+  :global(:root[data-theme='light']) .breath--faq .breath__blob--3 { --x: 22%; --y: 65%; --w: 40%; --h: 54%; --c: rgba(200, 90, 190, 0.48); }
+  :global(:root[data-theme='light']) .breath--faq .breath__blob--4 { --x: 12%; --y: 52%; --w: 26%; --h: 36%; --c: rgba(240, 120, 150, 0.42); }
 </style>
 
 <script>
@@ -134,4 +212,43 @@ const { variant } = Astro.props;
     { rootMargin: '100px 0px' },
   );
   document.querySelectorAll('[data-breathe]').forEach((el) => observer.observe(el));
+
+  // Пляма за мишкою: лише для миші й без «зменшити рух»
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  document.querySelectorAll<HTMLElement>('[data-breathe]').forEach((layer) => {
+    const blob = layer.querySelector<HTMLElement>('[data-breathe-cursor]');
+    const section = layer.parentElement;
+    if (!blob || !section) return;
+
+    let tx = 0, ty = 0, x = 0, y = 0, raf = 0, placed = false;
+
+    const tick = () => {
+      // м'яке наздоганяння курсора (≈ 8 % відстані за кадр)
+      x += (tx - x) * 0.08;
+      y += (ty - y) * 0.08;
+      blob.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.5 ? requestAnimationFrame(tick) : 0;
+    };
+
+    section.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse' || !finePointer.matches || reduceMotion.matches) return;
+      const r = layer.getBoundingClientRect();
+      tx = e.clientX - r.left;
+      ty = e.clientY - r.top;
+      if (!placed) {
+        // перша поява — одразу під курсором, без перельоту з кута
+        x = tx; y = ty; placed = true;
+        blob.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      }
+      layer.classList.add('is-pointer');
+      if (!raf) raf = requestAnimationFrame(tick);
+    });
+
+    section.addEventListener('pointerleave', () => {
+      layer.classList.remove('is-pointer');
+      placed = false;
+    });
+  });
 </script>

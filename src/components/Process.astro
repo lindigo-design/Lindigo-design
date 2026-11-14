@@ -4,12 +4,10 @@
  * Шість кроків сходинками: ряд 1 — 01, 02; ряд 2 — порожньо, 03, 04; ряд 3 — 05 і широка 06 з кнопками.
  * Кроки читаються зліва направо, зверху вниз (план, «Варіант A після правок Яни»).
  * Сітка: три колонки по 435 px на 1512, між ними 24 px. Перший крок — щільна картка.
- * Фон блоку (база, шар Color Dodge і три розмиті плями) складено в одну картинку на тему.
+ * Фон блоку — векторні плями, що «дихають» (Breath.astro), у місцях плям із Figma.
  */
-import { Image } from 'astro:assets';
+import Breath from './Breath.astro';
 import Button from './Button.astro';
-import bgDark from '../assets/process/bg-dark.jpg';
-import bgLight from '../assets/process/bg-light.jpg';
 import { keepLastWords, localePath, ui, type Locale } from '../i18n/ui';
 
 interface Props {
@@ -23,10 +21,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
 <section class="process" aria-labelledby="process-title">
-  <div class="process__bg" aria-hidden="true">
-    <Image src={bgDark} alt="" widths={[760, 1512]} sizes="100vw" data-theme-only="dark" />
-    <Image src={bgLight} alt="" widths={[760, 1512]} sizes="100vw" data-theme-only="light" />
-  </div>
+  <Breath variant="process" />
 
   <header class="process__head">
     <p class="process__eyebrow">{t.eyebrow}</p>
@@ -61,23 +56,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
     display: flex;
     flex-direction: column;
     gap: 56px;
-    padding: 120px clamp(40px, 5.29vw, 80px);
+    padding: 120px var(--gutter);
     background: var(--section-bg);
     overflow: hidden;
   }
 
-  .process__bg {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-  }
-
-  .process__bg :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
 
   .process__head {
     display: flex;
