@@ -4,9 +4,13 @@
  * Шість кроків сходинками: ряд 1 — 01, 02; ряд 2 — порожньо, 03, 04; ряд 3 — 05 і широка 06 з кнопками.
  * Кроки читаються зліва направо, зверху вниз (план, «Варіант A після правок Яни»).
  * Сітка: три колонки по 435 px на 1512, між ними 24 px. Перший крок — щільна картка.
- * Фон блоку — векторні плями, що «дихають» (Breath.astro), у місцях плям із Figma.
+ * Фон блоку — медуза (фото з макета, своє для кожної теми) угорі на всю ширину: 1512 × 932
+ * на блоці 1512 × 1344; низ фото м'яко розчиняється у фон блоку. Картки — скло з розмиттям 24 px,
+ * тож крізь них видно розмиту медузу.
  */
-import Breath from './Breath.astro';
+import { Image } from 'astro:assets';
+import jellyDark from '../assets/process/jellyfish-dark.jpg';
+import jellyLight from '../assets/process/jellyfish-light.jpg';
 import Button from './Button.astro';
 import { keepLastWords, localePath, ui, type Locale } from '../i18n/ui';
 
@@ -21,7 +25,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
 <section class="process" aria-labelledby="process-title">
-  <Breath variant="process" />
+  <div class="process__bg" aria-hidden="true">
+    <Image src={jellyDark} alt="" widths={[800, 1200, 1600, 2048, 2752]} sizes="100vw" loading="lazy" data-theme-only="dark" />
+    <Image src={jellyLight} alt="" widths={[800, 1200, 1600, 2048, 2752]} sizes="100vw" loading="lazy" data-theme-only="light" />
+  </div>
 
   <header class="process__head">
     <p class="process__eyebrow">{t.eyebrow}</p>
@@ -57,8 +64,32 @@ const pad = (n: number) => String(n).padStart(2, '0');
     flex-direction: column;
     gap: 56px;
     padding: 120px var(--gutter);
-    background: var(--section-bg);
+    /* колір блоку з макета (трохи темніший / тепліший за загальний фон) */
+    background: #060412;
     overflow: hidden;
+  }
+
+  :global(:root[data-theme='light']) .process {
+    background: #fae6ce;
+  }
+
+  /* Медуза: угорі на всю ширину, пропорція рамки з макета 1512 × 932 */
+  .process__bg {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: -1;
+    aspect-ratio: 1512 / 932;
+    max-height: 100%;
+    /* низ фото розчиняється у фон блоку — без видимої межі */
+    -webkit-mask-image: linear-gradient(#000 70%, transparent);
+    mask-image: linear-gradient(#000 70%, transparent);
+  }
+
+  .process__bg :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 50%;
   }
 
 
@@ -111,8 +142,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     border: 1px solid var(--step-border);
     border-radius: 28px;
     background: var(--step-bg);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
   }
 
   .step--1 {
