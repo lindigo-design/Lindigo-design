@@ -19,6 +19,9 @@ interface Props {
 
 const { variant } = Astro.props;
 
+/** «Як ми працюємо» і FAQ: фон — розмите фото рідини, тож тут ще чотири кулі в його кольорах */
+const liquid = variant === 'process' || variant === 'faq';
+
 /**
  * Пляма за мишкою — компонент Figma «Підсвітка миші · градієнт» (564 × 564, шість еліпсів).
  * Поле плями 640 одиниць: макет 564 + запас 38 з кожного боку, бо еліпси виходять за рамку.
@@ -49,6 +52,10 @@ const glowBg = glowLayers
   <span class="breath__blob breath__blob--2"></span>
   <span class="breath__blob breath__blob--3"></span>
   <span class="breath__blob breath__blob--4"></span>
+  {
+    liquid &&
+      [5, 6, 7, 8].map((n) => <span class={`breath__blob breath__blob--${n}`} />)
+  }
   <span class="breath__cursor" data-breathe-cursor style={`background: ${glowBg}`}></span>
 </div>
 
@@ -85,11 +92,55 @@ const glowBg = glowLayers
   .breath__blob--3 { --anim: breath-c; --dur: 27s; }
   .breath__blob--4 { --anim: breath-b; --dur: 31s; animation-direction: alternate-reverse; }
 
-  /* «Як ми працюємо» і FAQ: кулі різного розміру з розмитого фото рідини — рухаються трохи швидше (≈ 1,5×) */
-  :is(.breath--process, .breath--faq) .breath__blob--1 { --dur: 13s; }
-  :is(.breath--process, .breath--faq) .breath__blob--2 { --dur: 15s; }
-  :is(.breath--process, .breath--faq) .breath__blob--3 { --dur: 18s; }
-  :is(.breath--process, .breath--faq) .breath__blob--4 { --dur: 21s; }
+  /* «Як ми працюємо» і FAQ: кулі різного розміру з розмитого фото рідини.
+     Кожна безперервно обходить шестикутник або восьмикутник (вершини — на колі ~16–20 % власного
+     розміру). Перша куля йде за годинниковою стрілкою, решта — проти. Від'ємна затримка
+     ставить кожну в іншу точку шляху, щоб вони не рухались хором. */
+  :is(.breath--process, .breath--faq) .breath__blob {
+    animation-name: var(--anim);
+    animation-duration: var(--dur);
+    animation-timing-function: linear;
+    animation-direction: normal;
+    animation-delay: var(--delay, 0s);
+  }
+  :is(.breath--process, .breath--faq) .breath__blob--1 { --anim: hex-cw; --dur: 16s; }
+  :is(.breath--process, .breath--faq) .breath__blob--2 { --anim: oct-ccw; --dur: 18s; --delay: -5s; }
+  :is(.breath--process, .breath--faq) .breath__blob--3 { --anim: hex-ccw; --dur: 20s; --delay: -11s; }
+  :is(.breath--process, .breath--faq) .breath__blob--4 { --anim: oct-ccw; --dur: 22s; --delay: -3s; }
+  :is(.breath--process, .breath--faq) .breath__blob--5 { --anim: oct-ccw; --dur: 26s; --delay: -14s; }
+  :is(.breath--process, .breath--faq) .breath__blob--6 { --anim: hex-ccw; --dur: 15s; --delay: -7s; }
+  :is(.breath--process, .breath--faq) .breath__blob--7 { --anim: oct-ccw; --dur: 19s; --delay: -9s; }
+  :is(.breath--process, .breath--faq) .breath__blob--8 { --anim: hex-ccw; --dur: 17s; --delay: -2s; }
+
+  /* Шестикутник, радіус 20 %: за стрілкою (на екрані y росте вниз, тож кут збільшується) */
+  @keyframes hex-cw {
+    0%, 100% { transform: translate(20%, 0) scale(1); }
+    16.667% { transform: translate(10%, 17.3%) scale(1.06); }
+    33.333% { transform: translate(-10%, 17.3%) scale(0.96); }
+    50% { transform: translate(-20%, 0) scale(1.04); }
+    66.667% { transform: translate(-10%, -17.3%) scale(0.95); }
+    83.333% { transform: translate(10%, -17.3%) scale(1.05); }
+  }
+  /* Той самий шестикутник проти стрілки */
+  @keyframes hex-ccw {
+    0%, 100% { transform: translate(20%, 0) scale(1); }
+    16.667% { transform: translate(10%, -17.3%) scale(1.05); }
+    33.333% { transform: translate(-10%, -17.3%) scale(0.95); }
+    50% { transform: translate(-20%, 0) scale(1.04); }
+    66.667% { transform: translate(-10%, 17.3%) scale(0.96); }
+    83.333% { transform: translate(10%, 17.3%) scale(1.06); }
+  }
+  /* Восьмикутник, радіус 16 %, проти стрілки */
+  @keyframes oct-ccw {
+    0%, 100% { transform: translate(16%, 0) scale(1); }
+    12.5% { transform: translate(11.3%, -11.3%) scale(1.04); }
+    25% { transform: translate(0, -16%) scale(1.07); }
+    37.5% { transform: translate(-11.3%, -11.3%) scale(1.02); }
+    50% { transform: translate(-16%, 0) scale(0.96); }
+    62.5% { transform: translate(-11.3%, 11.3%) scale(0.94); }
+    75% { transform: translate(0, 16%) scale(0.98); }
+    87.5% { transform: translate(11.3%, 11.3%) scale(1.02); }
+  }
 
   /* Три різні шляхи: зсув у межах ~12 % власного розміру, легке стискання й розширення */
   @keyframes breath-a {
@@ -138,7 +189,8 @@ const glowBg = glowLayers
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .breath__blob {
+    .breath__blob,
+    :is(.breath--process, .breath--faq) .breath__blob {
       animation: none;
     }
     .breath__cursor {
@@ -215,6 +267,18 @@ const glowBg = glowLayers
   :global(:root[data-theme='light']) .breath--process .breath__blob--2 { --x: 76%; --y: 40%; --w: 28%; --h: 30%; --c: rgba(240, 110, 150, 0.45); }
   :global(:root[data-theme='light']) .breath--process .breath__blob--3 { --x: 23%; --y: 61%; --w: 40%; --h: 45%; --c: rgba(200, 90, 190, 0.5); }
   :global(:root[data-theme='light']) .breath--process .breath__blob--4 { --x: 11%; --y: 41%; --w: 26%; --h: 30%; --c: rgba(240, 120, 150, 0.45); }
+
+  /* Кольори фото рідини (однакові для «Як ми працюємо» і FAQ): глибоке індиго згори праворуч,
+     рожева орхідея в центрі праворуч, помаранч знизу, золото в правому нижньому куті */
+  :is(.breath--process, .breath--faq) .breath__blob--5 { --x: 88%; --y: 12%; --w: 48%; --h: 42%; --c: rgba(40, 28, 120, 0.6); }
+  :is(.breath--process, .breath--faq) .breath__blob--6 { --x: 84%; --y: 56%; --w: 24%; --h: 26%; --c: rgba(214, 120, 226, 0.34); }
+  :is(.breath--process, .breath--faq) .breath__blob--7 { --x: 70%; --y: 86%; --w: 32%; --h: 30%; --c: rgba(232, 102, 36, 0.32); }
+  :is(.breath--process, .breath--faq) .breath__blob--8 { --x: 96%; --y: 96%; --w: 26%; --h: 28%; --c: rgba(255, 186, 60, 0.36); }
+
+  :global(:root[data-theme='light']) :is(.breath--process, .breath--faq) .breath__blob--5 { --c: rgba(130, 110, 230, 0.32); }
+  :global(:root[data-theme='light']) :is(.breath--process, .breath--faq) .breath__blob--6 { --c: rgba(236, 150, 226, 0.4); }
+  :global(:root[data-theme='light']) :is(.breath--process, .breath--faq) .breath__blob--7 { --c: rgba(250, 140, 80, 0.32); }
+  :global(:root[data-theme='light']) :is(.breath--process, .breath--faq) .breath__blob--8 { --c: rgba(255, 196, 80, 0.42); }
 
   /* ---------- 08 FAQ: ті самі плями в інших місцях (макет 1512 × 1123) ---------- */
   .breath--faq { --breath-base: var(--night); }
