@@ -31,20 +31,24 @@ const { variant } = Astro.props;
 import ball1 from '../assets/liquid/ball-1.webp'; // орхідея з помаранчем
 import ball2 from '../assets/liquid/ball-2.webp'; // фіолет з орхідеєю
 import ball4 from '../assets/liquid/ball-4.webp'; // фіолет з помаранчем
+// Світла тема: ті самі кулі з світлого фото рідини (кремовий фон), запечені так само
+import ball1Light from '../assets/liquid/ball-1-light.webp'; // пурпур з помаранчем
+import ball2Light from '../assets/liquid/ball-2-light.webp'; // фіолет з пурпуром
+import ball4Light from '../assets/liquid/ball-4-light.webp'; // рожевий пурпур з фіолетом
 
-type Ball = { src: ImageMetadata; x: number; y: number; d: number; dur: number; delay: number; peak?: number };
+type Ball = { src: ImageMetadata; light: ImageMetadata; x: number; y: number; d: number; dur: number; delay: number; peak?: number };
 const ballSets: Partial<Record<Props['variant'], Ball[]>> = {
   // блок 1512 × 1344
   process: [
-    { src: ball1, x: 75.4, y: 29.9, d: 26.1, dur: 18, delay: 0 },
-    { src: ball2, x: 23.2, y: 61.2, d: 32.5, dur: 22, delay: -8 },
-    { src: ball4, x: 90, y: 84, d: 23.8, dur: 20, delay: -12 },
+    { src: ball1, light: ball1Light, x: 75.4, y: 29.9, d: 26.1, dur: 18, delay: 0 },
+    { src: ball2, light: ball2Light, x: 23.2, y: 61.2, d: 32.5, dur: 22, delay: -8 },
+    { src: ball4, light: ball4Light, x: 90, y: 84, d: 23.8, dur: 20, delay: -12 },
   ],
   // блок 1512 × 1123
   faq: [
-    { src: ball1, x: 74.4, y: 29.7, d: 26.1, dur: 18, delay: -2 },
-    { src: ball2, x: 22.2, y: 64.8, d: 32.5, dur: 22, delay: -10 },
-    { src: ball4, x: 88, y: 85.5, d: 23.8, dur: 20, delay: -14 },
+    { src: ball1, light: ball1Light, x: 74.4, y: 29.7, d: 26.1, dur: 18, delay: -2 },
+    { src: ball2, light: ball2Light, x: 22.2, y: 64.8, d: 32.5, dur: 22, delay: -10 },
+    { src: ball4, light: ball4Light, x: 88, y: 85.5, d: 23.8, dur: 20, delay: -14 },
   ],
 };
 const balls = ballSets[variant];
@@ -88,18 +92,21 @@ const glowStyle = `--glow-dark: ${toBg(glowDark)}; --glow-light: ${toBg(glowLigh
 <div class:list={['breath', `breath--${variant}`]} aria-hidden="true" data-breathe>
   {
     balls ? (
-      balls.map((b) => (
-        <img
-          class="breath__ball"
-          src={b.src.src}
-          width="448"
-          height="448"
-          alt=""
-          loading="lazy"
-          decoding="async"
-          style={`--x: ${b.x}%; --y: ${b.y}%; --d: ${b.d}; --dur: ${b.dur}s; --delay: ${b.delay}s; --peak: ${b.peak ?? 1}`}
-        />
-      ))
+      balls.flatMap((b) =>
+        (['dark', 'light'] as const).map((theme) => (
+          <img
+            class="breath__ball"
+            src={(theme === 'dark' ? b.src : b.light).src}
+            width="448"
+            height="448"
+            alt=""
+            loading="lazy"
+            decoding="async"
+            data-theme-only={theme}
+            style={`--x: ${b.x}%; --y: ${b.y}%; --d: ${b.d}; --dur: ${b.dur}s; --delay: ${b.delay}s; --peak: ${b.peak ?? 1}`}
+          />
+        )),
+      )
     ) : (
       <>
         <span class="breath__blob breath__blob--1" />
@@ -170,7 +177,7 @@ const glowStyle = `--glow-dark: ${toBg(glowDark)}; --glow-light: ${toBg(glowLigh
     50% { opacity: calc(var(--peak, 1) * var(--tone, 1)); }
   }
 
-  /* На бежевому темний фон фото дає сірий відтінок — у світлій темі світіння 60 % від піку кулі */
+  /* Світле фото рідини дуже насичене — на бежевому світіння 60 % від піку кулі, щоб не перебивати текст */
   :global(:root[data-theme='light']) .breath__ball {
     --tone: 0.6;
   }
