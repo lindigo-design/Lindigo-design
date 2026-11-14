@@ -1,0 +1,117 @@
+---
+/**
+ * Блок «09 Заклик до дії» (Figma «Головна · Варіант 2», темна й світла тема).
+ * Панель із радіусом 48: розмита картинка рідини під кольором теми (складено з Figma в одну картинку),
+ * заголовок 72, підпис 24 і дві кнопки по центру.
+ */
+import { Image } from 'astro:assets';
+import Button from './Button.astro';
+import bgDark from '../assets/cta/bg-dark.jpg';
+import bgLight from '../assets/cta/bg-light.jpg';
+import { keepLastWords, localePath, ui, type Locale } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = ui[locale].cta;
+const menu = ui[locale].menu;
+---
+
+<section class="cta" aria-labelledby="cta-title">
+  <div class="cta__panel">
+    <div class="cta__bg" aria-hidden="true">
+      <Image src={bgDark} alt="" widths={[700, 1352]} sizes="100vw" data-theme-only="dark" />
+      <Image src={bgLight} alt="" widths={[700, 1352]} sizes="100vw" data-theme-only="light" />
+    </div>
+    <div class="cta__text">
+      <h2 class="cta__title" id="cta-title">{t.title}</h2>
+      <p class="cta__lead">{keepLastWords(t.text)}</p>
+    </div>
+    <div class="cta__actions">
+      <Button href={localePath(locale, '/contact/')} variant="primary">{menu.call}</Button>
+      <Button href={localePath(locale, '/contact/#message')} variant="secondary">{menu.message}</Button>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta {
+    padding: 120px clamp(40px, 5.29vw, 80px);
+    background: var(--section-bg);
+  }
+
+  .cta__panel {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+    padding: 120px clamp(24px, 5.29vw, 80px);
+    overflow: hidden;
+    border-radius: 48px;
+    text-align: center;
+  }
+
+  .cta__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .cta__bg :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .cta__text {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .cta__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    /* 72 на макеті; з невеликим запасом, щоб заголовок лишався в один рядок попри смугу прокрутки */
+    font-size: clamp(32px, 4.6vw, 72px);
+    line-height: 1.2;
+  }
+
+  .cta__lead {
+    font-size: 24px;
+    line-height: 34px;
+  }
+
+  .cta__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+  }
+
+  @media (max-width: 640px) {
+    .cta {
+      padding: 96px 20px;
+    }
+    .cta__panel {
+      gap: 32px;
+      padding: 64px 20px;
+      border-radius: 24px;
+    }
+    .cta__lead {
+      font-size: 18px;
+      line-height: 28px;
+    }
+    .cta__actions {
+      flex-direction: column;
+      align-self: stretch;
+    }
+    .cta__actions :global(.btn) {
+      height: 50px;
+    }
+  }
+</style>

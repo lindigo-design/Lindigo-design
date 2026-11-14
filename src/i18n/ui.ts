@@ -31,6 +31,9 @@ export const languageNames: Record<Locale, string> = {
  */
 export const ui = {
   fr: {
+    // ЧЕРНЕТКА перекладу — на вичитку
+    cta: { title: 'Parlez-nous de votre projet', text: 'Le premier appel est gratuit. Nous commencerons par des questions sur votre activité.' },
+    footerNav: { site: 'Site', social: 'Réseaux', contact: 'Nous joindre', email: 'E-mail', messenger: 'Messagerie', legal: 'Mentions légales', privacy: 'Confidentialité' },
     // ЧЕРНЕТКА перекладу — на вичитку (відповіді 2–8 з рішень у плані)
     faq: {
       eyebrow: 'FAQ',
@@ -196,6 +199,9 @@ export const ui = {
     },
   },
   en: {
+    // ЧЕРНЕТКА перекладу — на вичитку
+    cta: { title: 'Tell us about your project', text: 'The first call is free. We’ll start with questions about your business.' },
+    footerNav: { site: 'Site', social: 'Social', contact: 'Get in touch', email: 'Email', messenger: 'Messenger', legal: 'Legal notice', privacy: 'Privacy' },
     // ЧЕРНЕТКА перекладу — на вичитку (відповіді 2–8 з рішень у плані)
     faq: {
       eyebrow: 'FAQ',
@@ -361,6 +367,8 @@ export const ui = {
     },
   },
   uk: {
+    cta: { title: 'Розкажіть про свій проєкт', text: 'Перший дзвінок безкоштовний. Почнемо з питань про ваш бізнес.' },
+    footerNav: { site: 'Сайт', social: 'Соцмережі', contact: 'Зв’язок', email: 'Email', messenger: 'Месенджер', legal: 'Mentions légales', privacy: 'Confidentialité' },
     // Відповідь 1 — з макета (без цін «від [XX €]»: їх ще не визначено). Відповіді 2–8 — ЧЕРНЕТКА з рішень у плані (розділи 11, 13)
     faq: {
       eyebrow: 'FAQ',
