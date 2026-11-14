@@ -85,6 +85,12 @@ const glowBg = glowLayers
   .breath__blob--3 { --anim: breath-c; --dur: 27s; }
   .breath__blob--4 { --anim: breath-b; --dur: 31s; animation-direction: alternate-reverse; }
 
+  /* «Як ми працюємо» і FAQ: кулі різного розміру з розмитого фото рідини — рухаються трохи швидше (≈ 1,5×) */
+  :is(.breath--process, .breath--faq) .breath__blob--1 { --dur: 13s; }
+  :is(.breath--process, .breath--faq) .breath__blob--2 { --dur: 15s; }
+  :is(.breath--process, .breath--faq) .breath__blob--3 { --dur: 18s; }
+  :is(.breath--process, .breath--faq) .breath__blob--4 { --dur: 21s; }
+
   /* Три різні шляхи: зсув у межах ~12 % власного розміру, легке стискання й розширення */
   @keyframes breath-a {
     0% { transform: translate(0, 0) scale(1); }
