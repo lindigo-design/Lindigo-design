@@ -6,7 +6,10 @@
  * (--ring-from → --ring-to, кольори повільно обертаються), навколо м'яка аура.
  * У центрі крапка 8 px, залита тим самим градієнтом, з легким світінням.
  * Обидва стоять точно в точці курсора, без запізнення й без власного руху.
- * Над посиланнями й кнопками кільце більшає до 52 px. Системний курсор лишається.
+ * Над посиланнями й кнопками кільце більшає до 52 px.
+ * Системну стрілку ховаємо (клас has-custom-cursor на <html>, його ставить скрипт, коли кільце
+ * з'явилось): точку кліку показує крапка. У полях введення лишається звичайний текстовий курсор.
+ * Якщо скрипт не спрацює — звичайний курсор лишиться.
  *
  * Лише для миші (на дотикових екранах курсора немає).
  * З «зменшити рух» — без обертання кольорів обводки.
@@ -109,6 +112,16 @@
       animation: none;
     }
   }
+
+  /* Системна стрілка схована, поки працює кільце */
+  :global(html.has-custom-cursor),
+  :global(html.has-custom-cursor *) {
+    cursor: none !important;
+  }
+  /* У полях введення — звичайний текстовий курсор */
+  :global(html.has-custom-cursor :is(input:not([type='checkbox'], [type='radio'], [type='range'], [type='button'], [type='submit']), textarea, [contenteditable='true'])) {
+    cursor: text !important;
+  }
 </style>
 
 <script>
@@ -125,6 +138,7 @@
         // точно під курсором, без запізнення
         ring.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
         ring.classList.add('is-visible');
+        document.documentElement.classList.add('has-custom-cursor');
         const target = e.target instanceof Element ? e.target : null;
         ring.classList.toggle('is-hover', !!target?.closest(INTERACTIVE));
       },
@@ -133,5 +147,13 @@
 
     // курсор вийшов за межі вікна — ховаємо кільце
     document.documentElement.addEventListener('mouseleave', () => ring.classList.remove('is-visible'));
+
+    // дотик або перо — повертаємо звичайну поведінку
+    window.addEventListener('pointerdown', (e) => {
+      if (e.pointerType !== 'mouse') {
+        ring.classList.remove('is-visible');
+        document.documentElement.classList.remove('has-custom-cursor');
+      }
+    });
   }
 </script>
