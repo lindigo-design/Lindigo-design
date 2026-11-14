@@ -3,6 +3,15 @@
  * Блок «02 Напрями» (Figma «Головна · Варіант 2», темна й світла тема).
  * П'ять карток на скляній підкладці: номер, назва, мітки, опис, «Детальніше» і зображення робіт напряму.
  * Фон блоку — векторні плями, що «дихають» (Breath.astro); кольори зняті з фону Figma.
+ *
+ * Стопка карток (макет «02 Напрями», фрейм 114:4973; поведінка як у Kota Creative):
+ * блок заввишки з екран стоїть на місці, поки його гортають. Перша картка піднімається під шапку
+ * й накриває заголовок блоку (він згасає), далі кожна наступна виїжджає з-під нижнього краю
+ * й наїжджає на попередню; накрита трохи меншає (до 95 %) і темнішає, від неї лишається смужка 16 px.
+ * Висота карток залежить від екрана: картка займає місце від шапки до низу з відступом,
+ * фото тягнеться на всю висоту картки (від потрібної тексту висоти до 800 px).
+ * Вмикає скрипт (клас is-stacked) від ширини 761 px, якщо стопка вміщується, і без «зменшити рух»;
+ * інакше — звичайний список карток.
  */
 import { Image } from 'astro:assets';
 import Breath from './Breath.astro';
@@ -21,18 +30,22 @@ interface Props {
 const { locale } = Astro.props;
 const t = ui[locale].directions;
 
-/** Кадрування як у Figma: яку частину зображення видно (object-position) і висота на комп'ютері */
+/**
+ * Кадрування як у Figma (рамка фото 605 × 520): яку частину зображення видно (object-position)
+ * і наближення (zoom) навколо точки origin — з imageTransform шарів макета.
+ */
 const media = [
-  { src: work1, position: '50% 26%', height: 360 },
-  { src: work2, position: '50% 75%', height: 360 },
-  { src: work3, position: '50% 62%', height: 360 },
-  { src: work4, position: '50% 50%', height: 360 },
-  { src: work5, position: '95% 65%', height: 328 },
+  { src: work1, position: '48.9% 50%', zoom: 1.062, origin: '50% 47.9%' },
+  { src: work2, position: '50% 50%' },
+  { src: work3, position: '24.4% 50%' },
+  { src: work4, position: '50% 50%' },
+  { src: work5, position: '50% 50%' },
 ];
 const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
-<section class="directions" aria-labelledby="directions-title">
+<section class="directions" aria-labelledby="directions-title" data-directions>
+  <div class="directions__stage">
   <Breath variant="directions" />
 
   <header class="directions__head">
@@ -43,7 +56,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   <ol class="directions__list">
     {
       t.items.map((item, i) => (
-        <li class="direction">
+        <li class="direction" style={`--i: ${i}`} data-stack-card>
           <div class="direction__text">
             <p class="direction__num" aria-hidden="true">{pad(i + 1)}</p>
             <h3 class="direction__title">{item.title}</h3>
@@ -56,30 +69,36 @@ const pad = (n: number) => String(n).padStart(2, '0');
               <span class="visually-hidden">: {item.title}</span>
             </Button>
           </div>
-          <div class="direction__media" style={`--h: ${media[i].height}px`}>
+          <div class="direction__media">
             <Image
               src={media[i].src}
               alt=""
               widths={[480, 800, 1200]}
               sizes="(max-width: 760px) 100vw, 640px"
-              style={`object-position: ${media[i].position}`}
+              style={`object-position: ${media[i].position}` + (media[i].zoom ? `; scale: ${media[i].zoom}; transform-origin: ${media[i].origin}` : '')}
             />
           </div>
         </li>
       ))
     }
   </ol>
+  </div>
 </section>
 
 <style>
   .directions {
+    position: relative;
+    background: var(--section-bg);
+  }
+
+  /* Сцена: заголовок, картки й фон. У режимі стопки — заввишки з екран і стоїть на місці */
+  .directions__stage {
     position: relative;
     isolation: isolate;
     display: flex;
     flex-direction: column;
     gap: 56px;
     padding: 120px var(--gutter);
-    background: var(--section-bg);
     overflow: hidden;
   }
 
@@ -127,8 +146,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     border: 1px solid var(--card-border);
     border-radius: 32px;
     background: var(--card-bg);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
   }
 
   .direction__text {
@@ -182,7 +201,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     position: relative;
     flex: 1 1 0;
     min-width: 0;
-    height: var(--h);
+    /* картка 586 px у макеті: фото 520 + поля 32 + рамка */
+    height: 520px;
     overflow: hidden;
     border-radius: 20px;
   }
@@ -191,6 +211,45 @@ const pad = (n: number) => String(n).padStart(2, '0');
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  /* ---------- Стопка карток (клас ставить скрипт) ---------- */
+  .directions.is-stacked .directions__stage {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+  }
+  .directions.is-stacked .directions__list {
+    position: relative;
+    /* висоту картки під екран задає скрипт */
+    height: var(--card-h);
+  }
+  .directions.is-stacked .direction {
+    position: absolute;
+    inset: 0 0 auto;
+    height: var(--card-h);
+    /* скло на майже непрозорій підкладці (90 %): світіння ледь просвічує, а попередня картка — ні */
+    background:
+      linear-gradient(var(--card-bg), var(--card-bg)),
+      color-mix(in srgb, var(--section-bg) 90%, transparent);
+    transform-origin: 50% 0;
+    will-change: transform;
+  }
+  /* фото на всю висоту картки */
+  .directions.is-stacked .direction__media {
+    align-self: stretch;
+    height: auto;
+  }
+  /* Затемнення накритої картки (--cover від 0 до 1 задає скрипт); під склом наступної вона ледь видна */
+  .directions.is-stacked .direction::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: var(--section-bg);
+    opacity: calc(var(--cover, 0) * 0.8);
+    pointer-events: none;
   }
 
   /* Вужчий комп'ютер і планшет: менші заголовки й відступи */
@@ -204,7 +263,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       flex: 1 1 0;
     }
     .direction__media {
-      height: 300px;
+      height: 420px;
     }
     .direction__title {
       font-size: 32px;
@@ -234,7 +293,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
   /* Телефон: відступи й розміри за правилами верстки (план, розділ 10) */
   @media (max-width: 640px) {
-    .directions {
+    .directions__stage {
       gap: 24px;
       padding: 96px 20px;
     }
@@ -266,3 +325,106 @@ const pad = (n: number) => String(n).padStart(2, '0');
     }
   }
 </style>
+
+<script>
+  /*
+   * Стопка. Позиції — від верху сцени (екрана):
+   *   L — де список стоїть у звичайному порядку (під заголовком), T — під шапкою сайту;
+   *   картка 0 піднімається з L до T, накриваючи заголовок;
+   *   картка k у звичайному порядку стояла б на L + k × (H + 24) і піднімається до T + k × 16.
+   * Сцена стоїть на місці, поки блок гортають на весь цей шлях (+ невелика пауза в кінці).
+   */
+  const T = 128; // під шапкою: 16 + 72 + 16 + 24
+  const GAP = 24;
+  const PEEK = 16;
+  const BOTTOM = 40; // відступ картки від низу екрана
+  const MAX_H = 800;
+  const HOLD = 160;
+
+  document.querySelectorAll<HTMLElement>('[data-directions]').forEach((section) => {
+    const stage = section.querySelector<HTMLElement>('.directions__stage');
+    const head = section.querySelector<HTMLElement>('.directions__head');
+    const list = section.querySelector<HTMLElement>('.directions__list');
+    const cards = Array.from(section.querySelectorAll<HTMLElement>('[data-stack-card]'));
+    if (!stage || !head || !list || cards.length < 2) return;
+    const n = cards.length;
+
+    const wide = window.matchMedia('(min-width: 761px)');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let L = 0, H = 0, travel = 0, raf = 0, stacked = false;
+
+    const reset = () => {
+      section.classList.remove('is-stacked');
+      section.style.height = '';
+      list.style.removeProperty('--card-h');
+      head.style.opacity = '';
+      cards.forEach((c) => {
+        c.style.transform = '';
+        c.style.removeProperty('--cover');
+      });
+    };
+
+    const layout = () => {
+      reset();
+      stacked = false;
+      if (!wide.matches || reduceMotion.matches) return;
+      // найменша висота картки — щоб уліз текст (поля 32 + рамка)
+      const textH = Math.max(...cards.map((c) => (c.querySelector('.direction__text') as HTMLElement).offsetHeight));
+      const minH = textH + 66;
+      const room = window.innerHeight - T - (n - 1) * PEEK - BOTTOM;
+      if (room < minH) return;
+      H = Math.min(MAX_H, room);
+      L = list.getBoundingClientRect().top - stage.getBoundingClientRect().top;
+      travel = L + (n - 1) * (H + GAP) - (T + (n - 1) * PEEK) + HOLD;
+      section.classList.add('is-stacked');
+      list.style.setProperty('--card-h', `${H}px`);
+      // сцена = екран; блок довший на шлях прокрутки
+      section.style.height = `${window.innerHeight + travel}px`;
+      stacked = true;
+      update();
+    };
+
+    // позиція картки k від верху сцени при прокрутці s
+    const posAt = (k: number, s: number) => Math.max(T + k * PEEK, L + k * (H + GAP) - s);
+
+    const update = () => {
+      raf = 0;
+      if (!stacked) return;
+      const s = Math.min(travel, Math.max(0, -section.getBoundingClientRect().top));
+      const pos = cards.map((_, k) => posAt(k, s));
+      cards.forEach((card, k) => {
+        // скільки наступна картка вже накрила цю: 0 — ще внизу, 1 — стала на своє місце
+        const next = pos[k + 1];
+        const cover = next === undefined ? 0 : Math.min(1, Math.max(0, 1 - (next - (T + (k + 1) * PEEK)) / H));
+        card.style.transform = `translate3d(0, ${pos[k] - L}px, 0)` + (cover ? ` scale(${1 - 0.05 * cover})` : '');
+        card.style.setProperty('--cover', cover.toFixed(3));
+      });
+      // заголовок згасає, поки перша картка піднімається на його місце
+      const lift = L - T > 0 ? (L - pos[0]) / (L - T) : 1;
+      head.style.opacity = String(1 - Math.min(1, Math.max(0, lift)));
+    };
+
+    const request = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+
+    // Клавіатура: фокус на кнопці схованої картки — гортаємо сторінку так, щоб картка стала на місце
+    cards.forEach((card, k) =>
+      card.addEventListener('focusin', () => {
+        if (!stacked) return;
+        stage.scrollTop = 0;
+        const top = section.getBoundingClientRect().top + window.scrollY;
+        const s = L + k * (H + GAP) - (T + k * PEEK);
+        window.scrollTo({ top: top + Math.max(0, Math.min(travel, s)), behavior: 'instant' as ScrollBehavior });
+      }),
+    );
+
+    window.addEventListener('scroll', request, { passive: true });
+    window.addEventListener('resize', () => requestAnimationFrame(layout));
+    wide.addEventListener('change', layout);
+    reduceMotion.addEventListener('change', layout);
+    // після завантаження шрифтів висота тексту уточнюється
+    document.fonts?.ready.then(layout);
+    layout();
+  });
+</script>

@@ -7,9 +7,7 @@
  * Дихання: поки блок на екрані, плями повільно й хаотично пливуть і змінюють розмір
  * (у кожної свій шлях і своя тривалість, тож рух не повторюється синхронно).
  * Поза екраном анімація на паузі; з «зменшити рух» у системі плями стоять.
- *
- * Пляма за мишкою: ще одна пляма м'яко пливе за курсором, поки він над блоком
- * (з невеликим запізненням, як у рідині). На дотикових екранах і з «зменшити рух» її немає.
+ * Виняток — «Як ми працюємо» і FAQ: там кулі з фото рідини, що лише світяться (див. нижче).
  *
  * Розмітку ставимо першою дитиною секції з position: relative; isolation: isolate.
  */
@@ -20,36 +18,61 @@ interface Props {
 const { variant } = Astro.props;
 
 /**
- * Пляма за мишкою — компонент Figma «Підсвітка миші · градієнт» (564 × 564, шість еліпсів).
- * Поле плями 640 одиниць: макет 564 + запас 38 з кожного боку, бо еліпси виходять за рамку.
- * Для кожного еліпса: центр і півосі в одиницях поля, колір (RGB) і непрозорість у центрі.
- * Спад непрозорості в кожному еліпсі як у Figma: 100 / 85 / 55 / 27 / 8 / 0 % на 0 / 25 / 50 / 70 / 88 / 100 %.
- * Порядок: верхній шар першим (у CSS перший фон — зверху).
+ * FAQ: замість градієнтних плям — кулі з фото рідини (Fluid). («Як ми працюємо» тепер має фон-медузу.)
+ * Три кулі на блок (менше — щоб не перевантажувати вміст). Кожна куля — круг, вирізаний з місця, де змішуються кольори, і розмитий (як у Figma, layer blur).
+ * Картинки запечені заздалегідь: круг 256 px + поле 96 px під розмиття з кожного боку (448 × 448),
+ * тож елемент у 1,75 раза більший за видимий круг. Кулі не рухаються: лише світяться,
+ * непрозорість 10 % → 75 % → 10 %, повільно (16–22 с на цикл), у кожної свій темп.
+ * x, y — центр у % блоку; d — видимий діаметр у % ширини блоку: усі різні, права нижня найменша.
  */
-const glowLayers = [
-  { name: 'золото ліворуч', cx: 189, cy: 328.5, rx: 145, ry: 195, rgb: '178 137 2', a: 0.4 },
-  { name: 'темне тепло', cx: 318, cy: 458, rx: 200, ry: 140, rgb: '138 47 16', a: 0.4 },
-  { name: 'тепло знизу', cx: 328, cy: 438, rx: 260, ry: 190, rgb: '242 99 42', a: 0.36 },
-  { name: 'орхідея', cx: 398, cy: 308, rx: 160, ry: 150, rgb: '165 52 196', a: 0.28 },
-  { name: 'слива', cx: 388, cy: 328, rx: 250, ry: 230, rgb: '122 58 143', a: 0.6 },
-  { name: 'індиго згори', cx: 288, cy: 238, rx: 260, ry: 230, rgb: '33 19 74', a: 0.95 },
-];
-const falloff: [number, number][] = [[0, 1], [25, 0.85], [50, 0.55], [70, 0.27], [88, 0.08], [100, 0]];
-const pct = (v: number) => `${+((v / 640) * 100).toFixed(2)}%`;
-const glowBg = glowLayers
-  .map(({ cx, cy, rx, ry, rgb, a }) => {
-    const stops = falloff.map(([p, k]) => `rgb(${rgb} / calc(var(--a) * ${+(a * k).toFixed(3)})) ${p}%`).join(', ');
-    return `radial-gradient(${pct(rx)} ${pct(ry)} at ${pct(cx)} ${pct(cy)}, ${stops})`;
-  })
-  .join(', ');
+import ball1 from '../assets/liquid/ball-1.webp'; // орхідея з помаранчем
+import ball2 from '../assets/liquid/ball-2.webp'; // фіолет з орхідеєю
+import ball4 from '../assets/liquid/ball-4.webp'; // фіолет з помаранчем
+// Світла тема: ті самі кулі з світлого фото рідини (кремовий фон), запечені так само
+import ball1Light from '../assets/liquid/ball-1-light.webp'; // пурпур з помаранчем
+import ball2Light from '../assets/liquid/ball-2-light.webp'; // фіолет з пурпуром
+import ball4Light from '../assets/liquid/ball-4-light.webp'; // рожевий пурпур з фіолетом
+
+type Ball = { src: ImageMetadata; light: ImageMetadata; x: number; y: number; d: number; dur: number; delay: number; peak?: number };
+const ballSets: Partial<Record<Props['variant'], Ball[]>> = {
+  // блок 1512 × 1123
+  faq: [
+    { src: ball1, light: ball1Light, x: 74.4, y: 29.7, d: 21, dur: 18, delay: -2 },
+    { src: ball2, light: ball2Light, x: 22.2, y: 64.8, d: 26, dur: 22, delay: -10 },
+    { src: ball4, light: ball4Light, x: 88, y: 85.5, d: 14, dur: 20, delay: -14 },
+  ],
+};
+const balls = ballSets[variant];
+
 ---
 
 <div class:list={['breath', `breath--${variant}`]} aria-hidden="true" data-breathe>
-  <span class="breath__blob breath__blob--1"></span>
-  <span class="breath__blob breath__blob--2"></span>
-  <span class="breath__blob breath__blob--3"></span>
-  <span class="breath__blob breath__blob--4"></span>
-  <span class="breath__cursor" data-breathe-cursor style={`background: ${glowBg}`}></span>
+  {
+    balls ? (
+      balls.flatMap((b) =>
+        (['dark', 'light'] as const).map((theme) => (
+          <img
+            class="breath__ball"
+            src={(theme === 'dark' ? b.src : b.light).src}
+            width="448"
+            height="448"
+            alt=""
+            loading="lazy"
+            decoding="async"
+            data-theme-only={theme}
+            style={`--x: ${b.x}%; --y: ${b.y}%; --d: ${b.d}; --dur: ${b.dur}s; --delay: ${b.delay}s; --peak: ${b.peak ?? 1}`}
+          />
+        )),
+      )
+    ) : (
+      <>
+        <span class="breath__blob breath__blob--1" />
+        <span class="breath__blob breath__blob--2" />
+        <span class="breath__blob breath__blob--3" />
+        <span class="breath__blob breath__blob--4" />
+      </>
+    )
+  }
 </div>
 
 <style>
@@ -85,11 +108,36 @@ const glowBg = glowLayers
   .breath__blob--3 { --anim: breath-c; --dur: 27s; }
   .breath__blob--4 { --anim: breath-b; --dur: 31s; animation-direction: alternate-reverse; }
 
-  /* «Як ми працюємо» і FAQ: кулі різного розміру з розмитого фото рідини — рухаються трохи швидше (≈ 1,5×) */
-  :is(.breath--process, .breath--faq) .breath__blob--1 { --dur: 13s; }
-  :is(.breath--process, .breath--faq) .breath__blob--2 { --dur: 15s; }
-  :is(.breath--process, .breath--faq) .breath__blob--3 { --dur: 18s; }
-  :is(.breath--process, .breath--faq) .breath__blob--4 { --dur: 21s; }
+  /* «Як ми працюємо» і FAQ: кулі з фото рідини. Стоять на місці, лише світяться:
+     непрозорість 10 % → 100 % → 10 %. Видимий круг займає 256 / 448 картинки, тож ширина × 1,75. */
+  .breath__ball {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    /* d — % ширини блоку, але не більше, ніж на макеті 1512 (15,12 px за 1 %) */
+    width: min(calc(var(--d) * 1.75%), calc(var(--d) * 1.75 * 15.12px));
+    height: auto;
+    max-width: none;
+    translate: -50% -50%;
+    opacity: 0.1;
+    will-change: opacity;
+    animation: breath-glow var(--dur) ease-in-out var(--delay) infinite;
+    animation-play-state: paused;
+  }
+
+  .breath.is-breathing .breath__ball {
+    animation-play-state: running;
+  }
+
+  @keyframes breath-glow {
+    0%, 100% { opacity: 0.1; }
+    50% { opacity: calc(var(--peak, 1) * var(--tone, 1) * 0.75); }
+  }
+
+  /* Світле фото рідини дуже насичене — на бежевому світіння 60 % від піку кулі, щоб не перебивати текст */
+  :global(:root[data-theme='light']) .breath__ball {
+    --tone: 0.8; /* 75 % × 0,8 = 60 % */
+  }
 
   /* Три різні шляхи: зсув у межах ~12 % власного розміру, легке стискання й розширення */
   @keyframes breath-a {
@@ -111,38 +159,13 @@ const glowBg = glowLayers
     100% { transform: translate(3%, -7%) scale(1.09); }
   }
 
-  /* Пляма за мишкою: компонент Figma «Підсвітка миші · градієнт» — шість м'яких еліпсів
-     (індиго згори, слива й орхідея в центрі, тепло знизу, золото ліворуч); фон задано в розмітці.
-     Поле 640 одиниць ≈ 42vw (на 1512 — як макет 564 px), центр — у точці курсора; рух веде скрипт. */
-  .breath__cursor {
-    --size: clamp(420px, 42vw, 760px);
-    --a: 1; /* загальна сила кольорів; у світлій темі менша */
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: var(--size);
-    height: var(--size);
-    margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
-    opacity: 0;
-    transition: opacity 0.8s ease;
-    will-change: transform, opacity;
-  }
-
-  .breath.is-pointer .breath__cursor {
-    opacity: 1;
-  }
-
-  /* На бежевому кольори насиченіші на око — трохи стримуємо */
-  :global(:root[data-theme='light']) .breath__cursor {
-    --a: 0.75;
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .breath__blob {
       animation: none;
     }
-    .breath__cursor {
-      display: none;
+    .breath__ball {
+      animation: none;
+      opacity: 0.6;
     }
   }
 
@@ -203,31 +226,10 @@ const glowBg = glowLayers
   :global(:root[data-theme='light']) .breath--directions .breath__blob--3 { --x: 95%; --y: 88%; --w: 32%; --h: 16%; --c: rgba(221, 163, 247, 0.38); }
   :global(:root[data-theme='light']) .breath--directions .breath__blob--4 { --x: 96%; --y: 2%; --w: 30%; --h: 10%; --c: rgba(221, 163, 247, 0.25); }
 
-  /* ---------- 04 Як ми працюємо: плями з Figma (місця з макета 1512 × 1344) ---------- */
-  .breath--process { --breath-base: var(--night); }
-  .breath--process .breath__blob--1 { --x: 75%; --y: 27%; --w: 43%; --h: 48%; --c: rgba(110, 60, 200, 0.5); }
-  .breath--process .breath__blob--2 { --x: 76%; --y: 40%; --w: 28%; --h: 30%; --c: rgba(200, 70, 40, 0.32); }
-  .breath--process .breath__blob--3 { --x: 23%; --y: 61%; --w: 40%; --h: 45%; --c: rgba(150, 60, 170, 0.45); }
-  .breath--process .breath__blob--4 { --x: 11%; --y: 42%; --w: 26%; --h: 30%; --c: rgba(190, 50, 70, 0.32); }
-
-  :global(:root[data-theme='light']) .breath--process { --breath-base: var(--beige-50); }
-  :global(:root[data-theme='light']) .breath--process .breath__blob--1 { --x: 75%; --y: 27%; --w: 43%; --h: 48%; --c: rgba(190, 120, 230, 0.55); }
-  :global(:root[data-theme='light']) .breath--process .breath__blob--2 { --x: 76%; --y: 40%; --w: 28%; --h: 30%; --c: rgba(240, 110, 150, 0.45); }
-  :global(:root[data-theme='light']) .breath--process .breath__blob--3 { --x: 23%; --y: 61%; --w: 40%; --h: 45%; --c: rgba(200, 90, 190, 0.5); }
-  :global(:root[data-theme='light']) .breath--process .breath__blob--4 { --x: 11%; --y: 41%; --w: 26%; --h: 30%; --c: rgba(240, 120, 150, 0.45); }
-
-  /* ---------- 08 FAQ: ті самі плями в інших місцях (макет 1512 × 1123) ---------- */
+  /* ---------- 04 Як ми працюємо і 08 FAQ: кулі з фото рідини (див. .breath__ball) ---------- */
+  .breath--process,
   .breath--faq { --breath-base: var(--night); }
-  .breath--faq .breath__blob--1 { --x: 74%; --y: 29%; --w: 43%; --h: 58%; --c: rgba(110, 60, 200, 0.5); }
-  .breath--faq .breath__blob--2 { --x: 75%; --y: 44%; --w: 28%; --h: 36%; --c: rgba(200, 70, 40, 0.3); }
-  .breath--faq .breath__blob--3 { --x: 22%; --y: 65%; --w: 40%; --h: 54%; --c: rgba(150, 60, 170, 0.45); }
-  .breath--faq .breath__blob--4 { --x: 12%; --y: 52%; --w: 26%; --h: 36%; --c: rgba(190, 50, 70, 0.32); }
-
-  :global(:root[data-theme='light']) .breath--faq { --breath-base: var(--beige-50); }
-  :global(:root[data-theme='light']) .breath--faq .breath__blob--1 { --x: 74%; --y: 29%; --w: 43%; --h: 58%; --c: rgba(190, 120, 230, 0.5); }
-  :global(:root[data-theme='light']) .breath--faq .breath__blob--2 { --x: 75%; --y: 44%; --w: 28%; --h: 36%; --c: rgba(240, 110, 150, 0.42); }
-  :global(:root[data-theme='light']) .breath--faq .breath__blob--3 { --x: 22%; --y: 65%; --w: 40%; --h: 54%; --c: rgba(200, 90, 190, 0.48); }
-  :global(:root[data-theme='light']) .breath--faq .breath__blob--4 { --x: 12%; --y: 52%; --w: 26%; --h: 36%; --c: rgba(240, 120, 150, 0.42); }
+  :global(:root[data-theme='light']) :is(.breath--process, .breath--faq) { --breath-base: var(--beige-50); }
 </style>
 
 <script>
@@ -237,43 +239,4 @@ const glowBg = glowLayers
     { rootMargin: '100px 0px' },
   );
   document.querySelectorAll('[data-breathe]').forEach((el) => observer.observe(el));
-
-  // Пляма за мишкою: лише для миші й без «зменшити рух»
-  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-  document.querySelectorAll<HTMLElement>('[data-breathe]').forEach((layer) => {
-    const blob = layer.querySelector<HTMLElement>('[data-breathe-cursor]');
-    const section = layer.parentElement;
-    if (!blob || !section) return;
-
-    let tx = 0, ty = 0, x = 0, y = 0, raf = 0, placed = false;
-
-    const tick = () => {
-      // м'яке наздоганяння курсора (≈ 8 % відстані за кадр)
-      x += (tx - x) * 0.08;
-      y += (ty - y) * 0.08;
-      blob.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-      raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.5 ? requestAnimationFrame(tick) : 0;
-    };
-
-    section.addEventListener('pointermove', (e) => {
-      if (e.pointerType !== 'mouse' || !finePointer.matches || reduceMotion.matches) return;
-      const r = layer.getBoundingClientRect();
-      tx = e.clientX - r.left;
-      ty = e.clientY - r.top;
-      if (!placed) {
-        // перша поява — одразу під курсором, без перельоту з кута
-        x = tx; y = ty; placed = true;
-        blob.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-      }
-      layer.classList.add('is-pointer');
-      if (!raf) raf = requestAnimationFrame(tick);
-    });
-
-    section.addEventListener('pointerleave', () => {
-      layer.classList.remove('is-pointer');
-      placed = false;
-    });
-  });
 </script>

@@ -1,0 +1,159 @@
+---
+/**
+ * Курсор сайту: кільце з крапкою в центрі (як у DataTixx), у фірмовому градієнті.
+ *
+ * Кільце 40 px з обводкою 1,5 px — той самий градієнт, що й у кнопок на hover
+ * (--ring-from → --ring-to, кольори повільно обертаються), навколо м'яка аура.
+ * У центрі крапка 8 px, залита тим самим градієнтом, з легким світінням.
+ * Обидва стоять точно в точці курсора, без запізнення й без власного руху.
+ * Над посиланнями й кнопками кільце більшає до 52 px.
+ * Системну стрілку ховаємо (клас has-custom-cursor на <html>, його ставить скрипт, коли кільце
+ * з'явилось): точку кліку показує крапка. У полях введення лишається звичайний текстовий курсор.
+ * Якщо скрипт не спрацює — звичайний курсор лишиться.
+ *
+ * Лише для миші (на дотикових екранах курсора немає).
+ * З «зменшити рух» — без обертання кольорів обводки.
+ */
+---
+
+<div class="cursor-ring" aria-hidden="true" data-cursor-ring>
+  <span class="cursor-ring__dot"></span>
+</div>
+
+<style>
+  @property --cursor-angle {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+  }
+
+  .cursor-ring {
+    --size: 40px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 200;
+    width: var(--size);
+    height: var(--size);
+    margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    /* аура: м'яке світіння кольором обводки */
+    box-shadow:
+      0 0 10px color-mix(in srgb, var(--ring-from) 30%, transparent),
+      inset 0 0 6px color-mix(in srgb, var(--ring-from) 16%, transparent);
+    transition:
+      opacity 0.3s ease,
+      width 0.25s var(--ease-out-in),
+      height 0.25s var(--ease-out-in),
+      margin 0.25s var(--ease-out-in),
+      box-shadow 0.25s ease;
+    will-change: transform, opacity;
+  }
+
+  /* Обводка-градієнт 1.5 px, як у .ring-hover */
+  .cursor-ring::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1.5px;
+    border-radius: inherit;
+    background: conic-gradient(from var(--cursor-angle), var(--ring-from), var(--ring-to), var(--ring-from));
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+    animation: cursor-ring-run 4s linear infinite;
+  }
+
+  /* Крапка в центрі: той самий градієнт і легке світіння */
+  .cursor-ring__dot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    margin: -4px 0 0 -4px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ring-from), var(--ring-to));
+    box-shadow: 0 0 8px color-mix(in srgb, var(--ring-from) 55%, transparent);
+  }
+
+  .cursor-ring.is-visible {
+    opacity: 1;
+  }
+
+  /* Над посиланням чи кнопкою */
+  .cursor-ring.is-hover {
+    --size: 52px;
+    box-shadow:
+      0 0 16px color-mix(in srgb, var(--ring-from) 45%, transparent),
+      inset 0 0 8px color-mix(in srgb, var(--ring-from) 22%, transparent);
+  }
+
+  @keyframes cursor-ring-run {
+    to {
+      --cursor-angle: 360deg;
+    }
+  }
+
+  @media not ((hover: hover) and (pointer: fine)) {
+    .cursor-ring {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cursor-ring::before {
+      animation: none;
+    }
+  }
+
+  /* Системна стрілка схована, поки працює кільце */
+  :global(html.has-custom-cursor),
+  :global(html.has-custom-cursor *) {
+    cursor: none !important;
+  }
+  /* У полях введення — звичайний текстовий курсор */
+  :global(html.has-custom-cursor :is(input:not([type='checkbox'], [type='radio'], [type='range'], [type='button'], [type='submit']), textarea, [contenteditable='true'])) {
+    cursor: text !important;
+  }
+</style>
+
+<script>
+  const ring = document.querySelector<HTMLElement>('[data-cursor-ring]');
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+  /** Що вважаємо «посиланням чи кнопкою» — над ними кільце більшає */
+  const INTERACTIVE = 'a, button, summary, label, select, input, textarea, [role="button"], [tabindex]:not([tabindex="-1"])';
+
+  if (ring) {
+    window.addEventListener(
+      'pointermove',
+      (e) => {
+        if (e.pointerType !== 'mouse' || !finePointer.matches) return;
+        // точно під курсором, без запізнення
+        ring.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
+        ring.classList.add('is-visible');
+        document.documentElement.classList.add('has-custom-cursor');
+        const target = e.target instanceof Element ? e.target : null;
+        ring.classList.toggle('is-hover', !!target?.closest(INTERACTIVE));
+      },
+      { passive: true },
+    );
+
+    // курсор вийшов за межі вікна — ховаємо кільце
+    document.documentElement.addEventListener('mouseleave', () => ring.classList.remove('is-visible'));
+
+    // дотик або перо — повертаємо звичайну поведінку
+    window.addEventListener('pointerdown', (e) => {
+      if (e.pointerType !== 'mouse') {
+        ring.classList.remove('is-visible');
+        document.documentElement.classList.remove('has-custom-cursor');
+      }
+    });
+  }
+</script>
