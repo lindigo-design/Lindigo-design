@@ -5,9 +5,8 @@
  * заголовок 72, підпис 24 і дві кнопки по центру.
  */
 import { Image } from 'astro:assets';
+import Breath from './Breath.astro';
 import Button from './Button.astro';
-import bgDark from '../assets/cta/bg-dark.jpg';
-import bgLight from '../assets/cta/bg-light.jpg';
 import { keepLastWords, localePath, ui, type Locale } from '../i18n/ui';
 
 interface Props {
@@ -21,10 +20,7 @@ const menu = ui[locale].menu;
 
 <section class="cta" aria-labelledby="cta-title">
   <div class="cta__panel">
-    <div class="cta__bg" aria-hidden="true">
-      <Image src={bgDark} alt="" widths={[700, 1352]} sizes="100vw" data-theme-only="dark" />
-      <Image src={bgLight} alt="" widths={[700, 1352]} sizes="100vw" data-theme-only="light" />
-    </div>
+    <Breath variant="cta" />
     <div class="cta__text">
       <h2 class="cta__title" id="cta-title">{t.title}</h2>
       <p class="cta__lead">{keepLastWords(t.text)}</p>
@@ -55,17 +51,6 @@ const menu = ui[locale].menu;
     text-align: center;
   }
 
-  .cta__bg {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-  }
-
-  .cta__bg :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
 
   .cta__text {
     display: flex;

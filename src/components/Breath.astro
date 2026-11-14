@@ -1,0 +1,137 @@
+---
+/**
+ * Векторний фон із кольорових плям, що «дихають» (замість растрових картинок, які пікселізувались
+ * на великих екранах). Плями — радіальні градієнти: чіткі на будь-якій ширині й нічого не важать.
+ * Кольори й місця плям зняті з фонів Figma для кожного блоку й теми.
+ *
+ * Дихання: поки блок на екрані, плями повільно й хаотично пливуть і змінюють розмір
+ * (у кожної свій шлях і своя тривалість, тож рух не повторюється синхронно).
+ * Поза екраном анімація на паузі; з «зменшити рух» у системі плями стоять.
+ *
+ * Розмітку ставимо першою дитиною секції з position: relative; isolation: isolate.
+ */
+interface Props {
+  variant: 'works' | 'reviews' | 'cta';
+}
+
+const { variant } = Astro.props;
+---
+
+<div class:list={['breath', `breath--${variant}`]} aria-hidden="true" data-breathe>
+  <span class="breath__blob breath__blob--1"></span>
+  <span class="breath__blob breath__blob--2"></span>
+  <span class="breath__blob breath__blob--3"></span>
+</div>
+
+<style>
+  .breath {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    overflow: hidden;
+    pointer-events: none;
+    background: var(--breath-base);
+  }
+
+  .breath__blob {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--w);
+    height: var(--h);
+    border-radius: 50%;
+    background: radial-gradient(closest-side, var(--c), transparent);
+    translate: -50% -50%;
+    will-change: transform;
+    animation: var(--anim) var(--dur) ease-in-out infinite alternate;
+    animation-play-state: paused;
+  }
+
+  .breath.is-breathing .breath__blob {
+    animation-play-state: running;
+  }
+
+  .breath__blob--1 { --anim: breath-a; --dur: 19s; }
+  .breath__blob--2 { --anim: breath-b; --dur: 23s; }
+  .breath__blob--3 { --anim: breath-c; --dur: 27s; }
+
+  /* Три різні шляхи: зсув у межах ~12 % власного розміру, легке стискання й розширення */
+  @keyframes breath-a {
+    0% { transform: translate(0, 0) scale(1); }
+    30% { transform: translate(9%, -6%) scale(1.08); }
+    65% { transform: translate(-6%, 5%) scale(0.94); }
+    100% { transform: translate(5%, 8%) scale(1.05); }
+  }
+  @keyframes breath-b {
+    0% { transform: translate(0, 0) scale(1.04); }
+    40% { transform: translate(-10%, -4%) scale(0.95); }
+    75% { transform: translate(6%, -9%) scale(1.1); }
+    100% { transform: translate(-4%, 6%) scale(1); }
+  }
+  @keyframes breath-c {
+    0% { transform: translate(0, 0) scale(0.96); }
+    35% { transform: translate(7%, 9%) scale(1.06); }
+    70% { transform: translate(-9%, 3%) scale(1); }
+    100% { transform: translate(3%, -7%) scale(1.09); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .breath__blob {
+      animation: none;
+    }
+  }
+
+  /* ---------- 03 Вибрані роботи ---------- */
+  .breath--works {
+    --breath-base: var(--night);
+  }
+  .breath--works .breath__blob--1 { --x: 35%; --y: 105%; --w: 75%; --h: 65%; --c: rgba(82, 48, 201, 0.38); }
+  .breath--works .breath__blob--2 { --x: 62%; --y: 100%; --w: 50%; --h: 45%; --c: rgba(242, 99, 42, 0.16); }
+  .breath--works .breath__blob--3 { --x: 92%; --y: 70%; --w: 38%; --h: 55%; --c: rgba(165, 52, 196, 0.2); }
+
+  :global(:root[data-theme='light']) .breath--works {
+    --breath-base: var(--beige-50);
+  }
+  :global(:root[data-theme='light']) .breath--works .breath__blob--1 { --x: 4%; --y: 95%; --w: 52%; --h: 70%; --c: rgba(165, 52, 196, 0.42); }
+  :global(:root[data-theme='light']) .breath--works .breath__blob--2 { --x: 48%; --y: 108%; --w: 60%; --h: 42%; --c: rgba(242, 99, 42, 0.15); }
+  :global(:root[data-theme='light']) .breath--works .breath__blob--3 { --x: 96%; --y: 100%; --w: 36%; --h: 38%; --c: rgba(221, 163, 247, 0.28); }
+
+  /* ---------- 06 Відгуки ---------- */
+  .breath--reviews {
+    --breath-base: var(--night);
+  }
+  .breath--reviews .breath__blob--1 { --x: 40%; --y: 110%; --w: 75%; --h: 60%; --c: rgba(124, 82, 201, 0.6); }
+  .breath--reviews .breath__blob--2 { --x: 66%; --y: 95%; --w: 46%; --h: 42%; --c: rgba(242, 99, 42, 0.2); }
+  .breath--reviews .breath__blob--3 { --x: 93%; --y: 100%; --w: 36%; --h: 48%; --c: rgba(165, 52, 196, 0.32); }
+
+  :global(:root[data-theme='light']) .breath--reviews {
+    --breath-base: var(--beige-50);
+  }
+  :global(:root[data-theme='light']) .breath--reviews .breath__blob--1 { --x: 8%; --y: 98%; --w: 55%; --h: 72%; --c: rgba(165, 52, 196, 0.48); }
+  :global(:root[data-theme='light']) .breath--reviews .breath__blob--2 { --x: 52%; --y: 106%; --w: 64%; --h: 52%; --c: rgba(242, 99, 42, 0.3); }
+  :global(:root[data-theme='light']) .breath--reviews .breath__blob--3 { --x: 92%; --y: 102%; --w: 38%; --h: 40%; --c: rgba(221, 163, 247, 0.32); }
+
+  /* ---------- 09 Заклик до дії (панель) ---------- */
+  .breath--cta {
+    --breath-base: #24143a;
+  }
+  .breath--cta .breath__blob--1 { --x: 40%; --y: 100%; --w: 75%; --h: 110%; --c: rgba(98, 70, 170, 0.65); }
+  .breath--cta .breath__blob--2 { --x: 68%; --y: 78%; --w: 48%; --h: 95%; --c: rgba(176, 82, 92, 0.42); }
+  .breath--cta .breath__blob--3 { --x: 8%; --y: 0%; --w: 55%; --h: 80%; --c: rgba(21, 11, 46, 0.55); }
+
+  :global(:root[data-theme='light']) .breath--cta {
+    --breath-base: #fbf4e7;
+  }
+  :global(:root[data-theme='light']) .breath--cta .breath__blob--1 { --x: 0%; --y: 80%; --w: 70%; --h: 160%; --c: rgba(124, 86, 164, 0.95); }
+  :global(:root[data-theme='light']) .breath--cta .breath__blob--2 { --x: 66%; --y: 105%; --w: 56%; --h: 110%; --c: rgba(252, 150, 155, 0.95); }
+  :global(:root[data-theme='light']) .breath--cta .breath__blob--3 { --x: 100%; --y: 40%; --w: 38%; --h: 120%; --c: rgba(212, 180, 225, 0.75); }
+</style>
+
+<script>
+  // Дихання лише поки блок на екрані
+  const observer = new IntersectionObserver(
+    (entries) => entries.forEach((e) => e.target.classList.toggle('is-breathing', e.isIntersecting)),
+    { rootMargin: '100px 0px' },
+  );
+  document.querySelectorAll('[data-breathe]').forEach((el) => observer.observe(el));
+</script>

@@ -6,9 +6,8 @@
  * Відгуки беруться з ui[locale].reviews.items; лічильник рахується сам.
  */
 import { Image } from 'astro:assets';
+import Breath from './Breath.astro';
 import SliderNav from './SliderNav.astro';
-import bgDark from '../assets/reviews/bg-dark.jpg';
-import bgLight from '../assets/reviews/bg-light.jpg';
 import allDark from '../assets/works/all-dark.svg';
 import allLight from '../assets/works/all-light.svg';
 import datatixx from '../assets/works/datatixx.jpg';
@@ -24,10 +23,7 @@ const images: Record<string, ImageMetadata> = { datatixx };
 ---
 
 <section class="reviews" aria-labelledby="reviews-title" data-reviews>
-  <div class="reviews__bg" aria-hidden="true">
-    <Image src={bgDark} alt="" widths={[760, 1512]} sizes="100vw" data-theme-only="dark" />
-    <Image src={bgLight} alt="" widths={[760, 1512]} sizes="100vw" data-theme-only="light" />
-  </div>
+  <Breath variant="reviews" />
 
   <header class="reviews__head">
     <p class="reviews__eyebrow">{t.eyebrow}</p>
@@ -85,18 +81,6 @@ const images: Record<string, ImageMetadata> = { datatixx };
     overflow: hidden;
   }
 
-  .reviews__bg {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-  }
-
-  .reviews__bg :global(img) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
 
   .reviews__head {
     display: flex;
