@@ -123,7 +123,7 @@ export const ui = {
       items: [
         { title: 'D’abord comprendre', text: 'Avant de proposer une solution, nous étudions votre activité, votre public et votre environnement concurrentiel.' },
         { title: 'Chaque choix a une raison', text: 'La structure, les fonctionnalités et le langage visuel doivent répondre à des besoins concrets, pas seulement aux tendances du design.' },
-        { title: 'Le dialogue plutôt que les suppositions', text: 'Vous connaissez votre activité. Nous vous aidons à transformer vos connaissances, vos objectifs et vos idées en une solution de design claire.' },
+        { title: 'Le dialogue avant tout', text: 'Vous connaissez votre activité. Nous vous aidons à transformer vos connaissances, vos objectifs et vos idées en une solution de design claire.' },
         { title: 'Un design tourné vers l’avenir', text: 'Nous créons des solutions qui tiennent compte des besoins actuels, mais aussi des possibilités de développement.' },
       ],
     },

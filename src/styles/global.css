@@ -61,7 +61,7 @@
   /* «Як ми працюємо»: перший крок виділений щільною карткою */
   --step-bg: var(--card-bg);
   --step-border: var(--card-border);
-  --step-first-bg: var(--indigo-950);
+  --step-first-bg: var(--night); /* background dark (макет) */
   --step-first-border: rgba(248, 238, 221, 0.16);
   --glass-bg: rgba(21, 11, 46, 0.55);
   --glass-border: rgba(248, 238, 221, 0.2);
@@ -85,7 +85,7 @@
   --accent-text: var(--orchid-deep);
   --switch-border: var(--orchid-deep);
   --section-bg: var(--cream-50);
-  /* «Відгуки», FAQ, «Заклик», футер — бежеві (макет) */
+  /* «Фото-стрічка», «Про студію», футер — бежеві (макет) */
   --section-bg-alt: var(--beige-50);
   --card-bg: rgba(255, 255, 255, 0.25);
   --card-border: rgba(54, 54, 54, 0.2);
@@ -279,4 +279,25 @@ a {
     background-color 0.4s ease,
     color 0.4s ease,
     border-color 0.4s ease !important;
+}
+
+/* ---------- Заголовок з двох рядків, притиснутий праворуч (scripts/fit-lead.ts) ----------
+   Широкий екран: кожне речення — окремий рядок без переносів; блок стоїть праворуч,
+   тож найдовший рядок закінчується по правому краю колонки (фото під ним). */
+@media (min-width: 1101px) {
+  [data-fit-lead]:not(.is-wrapped) .fit-lead__box {
+    display: block;
+    width: max-content;
+    max-width: none;
+    margin-left: auto;
+  }
+  [data-fit-lead]:not(.is-wrapped) .fit-lead__box > span {
+    display: block;
+    white-space: nowrap;
+  }
+  /* з переносами: блок завширшки з найдовший рядок (ставить скрипт), притиснутий праворуч */
+  [data-fit-lead].is-wrapped .fit-lead__box {
+    display: block;
+    margin-left: auto;
+  }
 }

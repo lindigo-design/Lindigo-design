@@ -10,15 +10,57 @@
  *
  * Розмітку ставимо першою дитиною секції з position: relative; isolation: isolate.
  */
+import { Image } from 'astro:assets';
+
 interface Props {
   variant: 'works' | 'reviews' | 'cta' | 'directions';
+  /**
+   * Світла тема: фон-градієнт із макета замість плям — притиснутий донизу блоку,
+   * 50 % непрозорості, режим Multiply (як у Figma). Плями у світлій темі тоді не показуємо.
+   */
+  lightImage?: ImageMetadata;
+  /**
+   * Темна тема: фон-градієнт із макета замість плям (на весь блок). Непрозорість і режим
+   * накладання — за макетом для кожного блоку (див. стилі нижче). Плями тоді не показуємо.
+   */
+  darkImage?: ImageMetadata;
 }
 
-const { variant } = Astro.props;
+const { variant, lightImage, darkImage } = Astro.props;
 
 ---
 
-<div class:list={['breath', `breath--${variant}`]} aria-hidden="true" data-breathe>
+<div
+  class:list={['breath', `breath--${variant}`, lightImage && 'breath--has-photo', darkImage && 'breath--has-dark']}
+  aria-hidden="true"
+  data-breathe
+>
+  {
+    darkImage && (
+      <Image
+        class="breath__photo breath__photo--dark"
+        src={darkImage}
+        alt=""
+        widths={[960, 1600, 2048, 2752]}
+        sizes="100vw"
+        loading="lazy"
+        data-theme-only="dark"
+      />
+    )
+  }
+  {
+    lightImage && (
+      <Image
+        class="breath__photo"
+        src={lightImage}
+        alt=""
+        widths={[960, 1600, 2048, 2752]}
+        sizes="100vw"
+        loading="lazy"
+        data-theme-only="light"
+      />
+    )
+  }
   <span class="breath__blob breath__blob--1"></span>
   <span class="breath__blob breath__blob--2"></span>
   <span class="breath__blob breath__blob--3"></span>
@@ -33,6 +75,50 @@ const { variant } = Astro.props;
     overflow: hidden;
     pointer-events: none;
     background: var(--breath-base);
+  }
+
+  /* Фон-градієнт світлої теми: на всю ширину, притиснутий донизу, 50 % Multiply */
+  .breath__photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 100%;
+    opacity: 0.5;
+    mix-blend-mode: multiply;
+  }
+
+  /* Темна тема: фон-градієнт на весь блок; за замовчуванням 20 % Normal */
+  .breath__photo--dark {
+    object-position: 50% 50%;
+    opacity: 0.2;
+    mix-blend-mode: normal;
+  }
+  /* «Роботи», «Відгуки»: 20 % Color Dodge (макет) */
+  :is(.breath--works, .breath--reviews) .breath__photo--dark {
+    mix-blend-mode: color-dodge;
+  }
+  /* «Заклик»: кадр уже під панель — на всю, 100 %, а поверх #150b2e 50 % (макет) */
+  .breath--cta .breath__photo--dark {
+    object-fit: fill;
+    opacity: 1;
+  }
+  :global(:root:not([data-theme='light'])) .breath--cta.breath--has-dark::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(21, 11, 46, 0.5);
+  }
+
+  /* Темна тема: де є фон-градієнт — плями не показуємо */
+  :global(:root:not([data-theme='light'])) .breath--has-dark .breath__blob {
+    display: none;
+  }
+
+  /* Світла тема: де є фон-градієнт або макет без фону — плями не показуємо */
+  :global(:root[data-theme='light']) :is(.breath--has-photo, .breath--reviews) .breath__blob {
+    display: none;
   }
 
   .breath__blob {
@@ -108,7 +194,7 @@ const { variant } = Astro.props;
   .breath--reviews .breath__blob--3 { --x: 93%; --y: 100%; --w: 36%; --h: 48%; --c: rgba(165, 52, 196, 0.32); }
 
   :global(:root[data-theme='light']) .breath--reviews {
-    --breath-base: var(--beige-50);
+    --breath-base: var(--section-bg);
   }
   :global(:root[data-theme='light']) .breath--reviews .breath__blob--1 { --x: 8%; --y: 98%; --w: 55%; --h: 72%; --c: rgba(165, 52, 196, 0.48); }
   :global(:root[data-theme='light']) .breath--reviews .breath__blob--2 { --x: 52%; --y: 106%; --w: 64%; --h: 52%; --c: rgba(242, 99, 42, 0.3); }
@@ -123,13 +209,21 @@ const { variant } = Astro.props;
   .breath--cta .breath__blob--3 { --x: 8%; --y: 0%; --w: 55%; --h: 80%; --c: rgba(21, 11, 46, 0.55); }
 
   :global(:root[data-theme='light']) .breath--cta {
-    --breath-base: #fbf4e7;
+    --breath-base: var(--orchid);
+  }
+  /* Панель «Заклику» у світлій темі: фон уже скадрований під панель — розтягуємо на всю, 70 %, Normal */
+  .breath--cta .breath__photo {
+    object-fit: fill;
+    opacity: 0.7;
+    mix-blend-mode: normal;
   }
   :global(:root[data-theme='light']) .breath--cta .breath__blob--1 { --x: 0%; --y: 80%; --w: 70%; --h: 160%; --c: rgba(124, 86, 164, 0.95); }
   :global(:root[data-theme='light']) .breath--cta .breath__blob--2 { --x: 66%; --y: 105%; --w: 56%; --h: 110%; --c: rgba(252, 150, 155, 0.95); }
   :global(:root[data-theme='light']) .breath--cta .breath__blob--3 { --x: 100%; --y: 40%; --w: 38%; --h: 120%; --c: rgba(212, 180, 225, 0.75); }
   /* ---------- 02 Напрями: світіння внизу блоку ---------- */
-  .breath--directions { --breath-base: var(--night); }
+  /* Темна: фон-градієнт лежить на самому блоці (Directions.astro), тут — прозоро й без плям */
+  .breath--directions { --breath-base: transparent; }
+  :global(:root:not([data-theme='light'])) .breath--directions .breath__blob { display: none; }
   .breath--directions .breath__blob--1 { --x: 45%; --y: 95%; --w: 75%; --h: 26%; --c: rgba(82, 48, 201, 0.45); }
   .breath--directions .breath__blob--2 { --x: 22%; --y: 88%; --w: 42%; --h: 18%; --c: rgba(150, 60, 170, 0.3); }
   .breath--directions .breath__blob--3 { --x: 62%; --y: 98%; --w: 40%; --h: 14%; --c: rgba(242, 99, 42, 0.12); }

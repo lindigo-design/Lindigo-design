@@ -21,9 +21,11 @@ const t = ui[locale].about;
 <section class="about" aria-labelledby="about-title">
   <div class="about__grid">
     <p class="about__eyebrow">{t.eyebrow}</p>
-    <h2 class="about__lead" id="about-title">
-      <span class="about__muted">{t.leadMuted}</span>
-      <span class="about__strong">{t.lead}</span>
+    <h2 class="about__lead" id="about-title" data-fit-lead>
+      <span class="fit-lead__box">
+        <span class="about__muted">{t.leadMuted}</span>
+        <span class="about__strong">{t.lead}</span>
+      </span>
     </h2>
 
     <div class="about__main">
@@ -49,7 +51,16 @@ const t = ui[locale].about;
 <style>
   .about {
     padding: 120px var(--gutter);
-    background: var(--section-bg);
+    background: var(--section-bg-alt);
+  }
+
+  /* Темна тема: світіння «Light» з макета — індиго й помаранч ліворуч; радіус ×0,7 і
+     непрозорість ×0,75 від макета (м'якше), на широких екранах не більше, ніж на 1512 */
+  :global(:root:not([data-theme='light'])) .about {
+    background:
+      radial-gradient(min(28.7vw, 434px) min(18.8vw, 285px) at 17.89% 47.18%, rgb(82 48 201 / 0.22) 0%, rgb(82 48 201 / 0.19) 20%, rgb(82 48 201 / 0.13) 40%, rgb(82 48 201 / 0.07) 60%, rgb(82 48 201 / 0.02) 80%, rgb(82 48 201 / 0) 100%),
+      radial-gradient(min(18.6vw, 281px) min(12.3vw, 186px) at 20.83% 70.45%, rgb(242 99 42 / 0.15) 0%, rgb(242 99 42 / 0.13) 20%, rgb(242 99 42 / 0.09) 40%, rgb(242 99 42 / 0.045) 60%, rgb(242 99 42 / 0.015) 80%, rgb(242 99 42 / 0) 100%),
+      var(--section-bg-alt);
   }
 
   /* Сітка 238 | 460 | 418 (разом 1196 з проміжками 40), відступ зліва 156 */
@@ -81,13 +92,7 @@ const t = ui[locale].about;
     line-height: clamp(32px, 4.1vw, 62px);
   }
 
-  /* Два рядки заголовка, кожен в один рядок (як у Figma); шрифт масштабується з екраном */
-  @media (min-width: 1280px) {
-    .about__muted,
-    .about__strong {
-      white-space: nowrap;
-    }
-  }
+  /* Два рядки заголовка, кожен в один рядок, — див. scripts/fit-lead.ts і global.css */
 
   .about__muted,
   .about__intro {
@@ -146,7 +151,9 @@ const t = ui[locale].about;
 
   .about__photo {
     grid-area: 2 / 3;
-    margin-top: 41px;
+    /* верх фото — по верху великих літер 2-го рядка тексту поруч (там починається друге речення):
+       1 рядок + половина інтерліньяжу + відступ від верху шрифту до верху великої літери (Unbounded) */
+    margin-top: calc(1.5 * clamp(32px, 4.1vw, 62px) - 0.405 * clamp(20px, 2.12vw, 32px));
     height: 446px;
     overflow: hidden;
     border-radius: 20px;
@@ -207,3 +214,8 @@ const t = ui[locale].about;
     }
   }
 </style>
+
+<script>
+  // Заголовок з двох рядків: найдовший рядок — по правому краю фото
+  import '../scripts/fit-lead';
+</script>
