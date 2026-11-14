@@ -4,10 +4,12 @@
  * П'ять карток на скляній підкладці: номер, назва, мітки, опис, «Детальніше» і зображення робіт напряму.
  * Фон блоку — векторні плями, що «дихають» (Breath.astro); кольори зняті з фону Figma.
  *
- * Стопка карток (як у Kota Creative): під час прокрутки заголовок блоку й кожна картка прилипають
- * під шапкою, наступна картка наїжджає знизу; верхні картки видно смужками по 16 px.
- * Те, що накривають, трохи зменшується (до 95 %) і темнішає (заголовок блякне до нуля) — веде скрипт.
- * Лише на комп'ютері й планшеті з достатньою висотою екрана: на телефоні картки вищі за екран.
+ * Стопка карток (макет «02 Напрями», фрейм 114:4973): блок заввишки з екран стоїть на місці,
+ * поки його гортають. Угорі заголовок, знизу градієнтне світіння; картки виїжджають з-під нижнього
+ * краю (невидима зона) і наїжджають на попередню. Накрита картка трохи меншає (до 95 %) і темнішає,
+ * від неї лишається смужка 16 px. Після п'ятої картки блок відпускає прокрутку.
+ * Вмикає скрипт (клас is-stacked) лише коли стопка вміщується в екран, ширина від 761 px і без
+ * «зменшити рух»; інакше — звичайний список карток.
  */
 import { Image } from 'astro:assets';
 import Breath from './Breath.astro';
@@ -40,10 +42,11 @@ const media = [
 const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
-<section class="directions" aria-labelledby="directions-title">
+<section class="directions" aria-labelledby="directions-title" data-directions>
+  <div class="directions__stage">
   <Breath variant="directions" />
 
-  <header class="directions__head" data-stack-head>
+  <header class="directions__head">
     <p class="directions__eyebrow">{t.eyebrow}</p>
     <h2 class="directions__title" id="directions-title">{t.title}</h2>
   </header>
@@ -77,19 +80,24 @@ const pad = (n: number) => String(n).padStart(2, '0');
       ))
     }
   </ol>
+  </div>
 </section>
 
 <style>
   .directions {
+    position: relative;
+    background: var(--section-bg);
+  }
+
+  /* Сцена: заголовок, картки й фон. У режимі стопки — заввишки з екран і стоїть на місці */
+  .directions__stage {
     position: relative;
     isolation: isolate;
     display: flex;
     flex-direction: column;
     gap: 56px;
     padding: 120px var(--gutter);
-    background: var(--section-bg);
-    /* clip, а не hidden: hidden робить блок контейнером прокрутки, і sticky у картках не працює */
-    overflow: clip;
+    overflow: hidden;
   }
 
 
@@ -136,8 +144,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     border: 1px solid var(--card-border);
     border-radius: 32px;
     background: var(--card-bg);
-    -webkit-backdrop-filter: blur(12px);
-    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
   }
 
   .direction__text {
@@ -203,34 +211,37 @@ const pad = (n: number) => String(n).padStart(2, '0');
     object-fit: cover;
   }
 
-  /* ---------- Стопка карток ---------- */
-  @media (min-width: 761px) and (min-height: 760px) {
-    .directions__head {
-      position: sticky;
-      top: 128px;
-      transform-origin: 0 0;
-    }
-    .direction {
-      position: sticky;
-      /* під шапкою (≈ 104 px) + 24; кожна наступна на 16 px нижче — верхні видно смужками */
-      top: calc(128px + var(--i) * 16px);
-      transform-origin: 50% 0;
-      /* непрозорий фон: скло тих самих кольорів, але картки не просвічують одна крізь одну */
-      background: linear-gradient(var(--card-bg), var(--card-bg)), var(--section-bg);
-      -webkit-backdrop-filter: none;
-      backdrop-filter: none;
-      will-change: transform;
-    }
-    /* Затемнення картки, яку накривають (сила — --cover від 0 до 1, задає скрипт) */
-    .direction::after {
-      content: '';
-      position: absolute;
-      inset: -1px;
-      border-radius: inherit;
-      background: var(--section-bg);
-      opacity: calc(var(--cover, 0) * 0.45);
-      pointer-events: none;
-    }
+  /* ---------- Стопка карток (клас ставить скрипт) ---------- */
+  .directions.is-stacked .directions__stage {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    height: 100svh;
+  }
+  .directions.is-stacked .directions__list {
+    position: relative;
+    /* висоту (картка + смужки) задає скрипт */
+    height: var(--stack-h);
+  }
+  .directions.is-stacked .direction {
+    position: absolute;
+    inset: 0 0 auto;
+    /* скло на майже непрозорій підкладці (90 %): світіння ледь просвічує, а попередня картка — ні */
+    background:
+      linear-gradient(var(--card-bg), var(--card-bg)),
+      color-mix(in srgb, var(--section-bg) 90%, transparent);
+    transform-origin: 50% 0;
+    will-change: transform;
+  }
+  /* Затемнення накритої картки (--cover від 0 до 1 задає скрипт); під склом наступної вона ледь видна */
+  .directions.is-stacked .direction::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: var(--section-bg);
+    opacity: calc(var(--cover, 0) * 0.8);
+    pointer-events: none;
   }
 
   /* Вужчий комп'ютер і планшет: менші заголовки й відступи */
@@ -274,7 +285,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
   /* Телефон: відступи й розміри за правилами верстки (план, розділ 10) */
   @media (max-width: 640px) {
-    .directions {
+    .directions__stage {
       gap: 24px;
       padding: 96px 20px;
     }
@@ -308,52 +319,86 @@ const pad = (n: number) => String(n).padStart(2, '0');
 </style>
 
 <script>
-  // Стопка: картка, яку накриває наступна, зменшується до 95 % і темнішає
-  const head = document.querySelector<HTMLElement>('[data-stack-head]');
-  const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-stack-card]'));
-  const stackMode = window.matchMedia('(min-width: 761px) and (min-height: 760px)');
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  let raf = 0;
+  /*
+   * Стопка: сцена стоїть на місці, поки блок гортають на (n − 1) × крок (+ невелика пауза в кінці).
+   * Картка k у звичайному порядку стояла б на k × (висота + 24) нижче першої; під час прокрутки вона
+   * піднімається, доки не стане на k × 16 (смужка попередньої лишається видно).
+   */
+  const GAP = 24;
+  const PEEK = 16;
+  const HOLD = 160;
 
-  const update = () => {
-    raf = 0;
-    const on = stackMode.matches && !reduceMotion.matches;
-    cards.forEach((card, i) => {
-      const next = cards[i + 1];
-      let p = 0;
-      if (on && next) {
+  document.querySelectorAll<HTMLElement>('[data-directions]').forEach((section) => {
+    const stage = section.querySelector<HTMLElement>('.directions__stage');
+    const list = section.querySelector<HTMLElement>('.directions__list');
+    const cards = Array.from(section.querySelectorAll<HTMLElement>('[data-stack-card]'));
+    if (!stage || !list || cards.length < 2) return;
+
+    const wide = window.matchMedia('(min-width: 761px)');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let cardH = 0, step = 0, travel = 0, raf = 0, stacked = false;
+
+    const reset = () => {
+      section.classList.remove('is-stacked');
+      section.style.height = '';
+      list.style.removeProperty('--stack-h');
+      cards.forEach((c) => {
+        c.style.transform = '';
+        c.style.removeProperty('--cover');
+      });
+    };
+
+    const layout = () => {
+      reset();
+      if (!wide.matches || reduceMotion.matches) return (stacked = false);
+      cardH = Math.max(...cards.map((c) => c.offsetHeight));
+      // чи вміщується стопка: від верху списку до низу екрана
+      const listTop = list.getBoundingClientRect().top - stage.getBoundingClientRect().top;
+      const need = listTop + cardH + (cards.length - 1) * PEEK + 24;
+      if (need > window.innerHeight) return (stacked = false);
+      step = cardH + GAP;
+      travel = (cards.length - 1) * (step - PEEK) + HOLD;
+      section.classList.add('is-stacked');
+      list.style.setProperty('--stack-h', `${cardH + (cards.length - 1) * PEEK}px`);
+      section.style.height = `${stage.offsetHeight + travel}px`;
+      stacked = true;
+      update();
+    };
+
+    const update = () => {
+      raf = 0;
+      if (!stacked) return;
+      const s = Math.min(travel, Math.max(0, -section.getBoundingClientRect().top));
+      const pos = cards.map((_, k) => (k === 0 ? 0 : Math.max(k * PEEK, k * step - s)));
+      cards.forEach((card, k) => {
         // скільки наступна картка вже накрила цю: 0 — ще внизу, 1 — стала на своє місце
-        const stickTop = parseFloat(getComputedStyle(next).top) || 0;
-        const dist = next.getBoundingClientRect().top - stickTop;
-        p = Math.min(1, Math.max(0, 1 - dist / card.offsetHeight));
-      }
-      card.style.transform = p ? `scale(${1 - 0.05 * p})` : '';
-      card.style.setProperty('--cover', p.toFixed(3));
-    });
+        const next = pos[k + 1];
+        const cover = next === undefined ? 0 : Math.min(1, Math.max(0, 1 - (next - (k + 1) * PEEK) / cardH));
+        card.style.transform = `translate3d(0, ${pos[k]}px, 0)` + (cover ? ` scale(${1 - 0.05 * cover})` : '');
+        card.style.setProperty('--cover', cover.toFixed(3));
+      });
+    };
 
-    // Заголовок блоку: перша картка наїжджає на нього — він блякне й трохи меншає
-    if (head && cards[0]) {
-      let p = 0;
-      if (on) {
-        const stickTop = parseFloat(getComputedStyle(cards[0]).top) || 0;
-        const dist = cards[0].getBoundingClientRect().top - stickTop;
-        // починає блякнути, коли картка підходить до заголовка (висота заголовка + відступ 56)
-        p = Math.min(1, Math.max(0, 1 - dist / (head.offsetHeight + 56)));
-      }
-      head.style.transform = p ? `scale(${1 - 0.05 * p})` : '';
-      // повністю згасає: інакше його край видно з-під зменшеної першої картки
-      head.style.opacity = p ? String(1 - p) : '';
-    }
-  };
+    const request = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
 
-  const request = () => {
-    if (!raf) raf = requestAnimationFrame(update);
-  };
-  if (cards.length > 1) {
+    // Клавіатура: фокус на кнопці схованої картки — гортаємо сторінку так, щоб картка стала на місце
+    cards.forEach((card, k) =>
+      card.addEventListener('focusin', () => {
+        if (!stacked) return;
+        stage.scrollTop = 0;
+        const top = section.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top: top + Math.min(travel, k * (step - PEEK)), behavior: 'instant' as ScrollBehavior });
+      }),
+    );
+
     window.addEventListener('scroll', request, { passive: true });
-    window.addEventListener('resize', request);
-    stackMode.addEventListener('change', request);
-    reduceMotion.addEventListener('change', request);
-    update();
-  }
+    window.addEventListener('resize', () => requestAnimationFrame(layout));
+    wide.addEventListener('change', layout);
+    reduceMotion.addEventListener('change', layout);
+    // після завантаження шрифтів висота карток уточнюється
+    document.fonts?.ready.then(layout);
+    layout();
+  });
 </script>
