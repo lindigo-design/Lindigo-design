@@ -125,6 +125,8 @@
   const TAIL_ALPHA = 0.6;
   /** Скільки живе слід, мс (хвости тануть за цей час після зупинки) */
   const LIFE = 500;
+  /** Найбільша довжина сліду, px — і при швидкому русі хвіст не тягнеться через екран */
+  const MAX_LEN = 140;
   /** Три хвостики: товщина біля кільця (px) і зсув убік від шляху (px; росте до кінця — віяло) */
   const TAILS = [
     { width: 3.2, offset: 0 },
@@ -162,38 +164,83 @@
 
     const allowed = () => visible && !reduceMotion.matches && !menuOpen && !overHero;
 
+    /*
+     * Слід малюємо плавно:
+     * 1) точки курсора (від найновішої) згладжуємо кривою Catmull-Rom і беремо кожні 3 px;
+     * 2) обрізаємо слід до MAX_LEN px і LIFE мс;
+     * 3) кожен хвостик — одна залита стрічка, що звужується до кінця, з одним градієнтом
+     *    (без окремих відрізків, тож на стиках немає крапок і зламів).
+     */
+    const sample = (now: number) => {
+      // від найновішої точки (там, де курсор) до найстарішої
+      const pts = path.slice().reverse();
+      const out: { x: number; y: number; age: number; s: number }[] = [];
+      const at = (i: number) => pts[Math.max(0, Math.min(pts.length - 1, i))];
+      let s = 0;
+      let prev: { x: number; y: number } | null = null;
+      for (let i = 0; i < pts.length - 1; i++) {
+        const p0 = at(i - 1), p1 = at(i), p2 = at(i + 1), p3 = at(i + 2);
+        const n = Math.max(1, Math.ceil(Math.hypot(p2.x - p1.x, p2.y - p1.y) / 3));
+        for (let j = 0; j < n; j++) {
+          const u = j / n, u2 = u * u, u3 = u2 * u;
+          const x = 0.5 * (2 * p1.x + (-p0.x + p2.x) * u + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * u2 + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * u3);
+          const y = 0.5 * (2 * p1.y + (-p0.y + p2.y) * u + (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * u2 + (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * u3);
+          if (prev) s += Math.hypot(x - prev.x, y - prev.y);
+          const age = Math.min(1, (now - (p1.t + (p2.t - p1.t) * u)) / LIFE);
+          if (s > MAX_LEN || age >= 1) return out;
+          out.push({ x, y, age, s });
+          prev = { x, y };
+        }
+      }
+      return out;
+    };
+
     const draw = (now: number) => {
       if (!ctx) return;
       ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
       while (path.length && now - path[0].t > LIFE) path.shift();
-      if (path.length < 2) return;
+      if (!path.length) return;
+      const pts = sample(now);
+      if (pts.length < 3) return;
 
-      ctx.lineCap = 'round';
-      // від найновішої точки (біля кільця) до найстарішої
-      for (const tail of TAILS) {
-        for (let i = path.length - 1; i > 0; i--) {
-          const a = path[i];
-          const b = path[i - 1];
-          const age = Math.min(1, (now - b.t) / LIFE);
-          // напрямок шляху й перпендикуляр до нього — для зсуву хвостика вбік
-          const dx = a.x - b.x;
-          const dy = a.y - b.y;
-          const d = Math.hypot(dx, dy) || 1;
-          const nx = -dy / d;
-          const ny = dx / d;
-          const ageA = Math.min(1, (now - a.t) / LIFE);
-          const offA = tail.offset * (0.35 + 0.65 * ageA);
-          const offB = tail.offset * (0.35 + 0.65 * age);
-          ctx.strokeStyle = `rgb(${mix(age)})`;
-          ctx.globalAlpha = TAIL_ALPHA * Math.pow(1 - age, 1.2);
-          ctx.lineWidth = Math.max(0.3, tail.width * (1 - age * 0.8));
-          ctx.beginPath();
-          ctx.moveTo(a.x + nx * offA, a.y + ny * offA);
-          ctx.lineTo(b.x + nx * offB, b.y + ny * offB);
-          ctx.stroke();
-        }
+      // нормалі до шляху (згладжені — від сусідніх точок)
+      const normals = pts.map((_, i) => {
+        const a = pts[Math.max(0, i - 2)];
+        const b = pts[Math.min(pts.length - 1, i + 2)];
+        const dx = b.x - a.x, dy = b.y - a.y;
+        const d = Math.hypot(dx, dy) || 1;
+        return { x: -dy / d, y: dx / d };
+      });
+      const head = pts[0];
+      const tail = pts[pts.length - 1];
+      // наскільки слід «живий»: тане і з часом, і до кінця довжини
+      const fadeAt = (p: { age: number; s: number }) => Math.max(0, Math.min(1 - p.age, 1 - p.s / MAX_LEN));
+
+      for (const t of TAILS) {
+        const left: [number, number][] = [];
+        const right: [number, number][] = [];
+        pts.forEach((p, i) => {
+          const f = fadeAt(p);
+          const k = p.s / MAX_LEN;
+          const off = t.offset * (0.3 + 0.7 * k); // віяло: хвостики розходяться до кінця
+          const half = (t.width * (0.25 + 0.75 * f)) / 2;
+          const n = normals[i];
+          left.push([p.x + n.x * (off + half), p.y + n.y * (off + half)]);
+          right.push([p.x + n.x * (off - half), p.y + n.y * (off - half)]);
+        });
+        const g = ctx.createLinearGradient(head.x, head.y, tail.x, tail.y);
+        const fHead = fadeAt(head);
+        g.addColorStop(0, `rgb(${mix(0)} / ${TAIL_ALPHA * fHead})`);
+        g.addColorStop(0.5, `rgb(${mix(0.5)} / ${TAIL_ALPHA * fHead * 0.45})`);
+        g.addColorStop(1, `rgb(${mix(1)} / 0)`);
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.moveTo(left[0][0], left[0][1]);
+        for (let i = 1; i < left.length; i++) ctx.lineTo(left[i][0], left[i][1]);
+        for (let i = right.length - 1; i >= 0; i--) ctx.lineTo(right[i][0], right[i][1]);
+        ctx.closePath();
+        ctx.fill();
       }
-      ctx.globalAlpha = 1;
 
       // хвости починаються від краю кільця: усередині кільця стираємо
       ctx.globalCompositeOperation = 'destination-out';
