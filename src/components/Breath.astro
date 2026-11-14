@@ -7,72 +7,22 @@
  * Дихання: поки блок на екрані, плями повільно й хаотично пливуть і змінюють розмір
  * (у кожної свій шлях і своя тривалість, тож рух не повторюється синхронно).
  * Поза екраном анімація на паузі; з «зменшити рух» у системі плями стоять.
- * Виняток — «Як ми працюємо» і FAQ: там кулі з фото рідини, що лише світяться (див. нижче).
  *
  * Розмітку ставимо першою дитиною секції з position: relative; isolation: isolate.
  */
 interface Props {
-  variant: 'works' | 'reviews' | 'cta' | 'directions' | 'process' | 'faq';
+  variant: 'works' | 'reviews' | 'cta' | 'directions';
 }
 
 const { variant } = Astro.props;
 
-/**
- * FAQ: замість градієнтних плям — кулі з фото рідини (Fluid). («Як ми працюємо» тепер має фон-медузу.)
- * Три кулі на блок (менше — щоб не перевантажувати вміст). Кожна куля — круг, вирізаний з місця, де змішуються кольори, і розмитий (як у Figma, layer blur).
- * Картинки запечені заздалегідь: круг 256 px + поле 96 px під розмиття з кожного боку (448 × 448),
- * тож елемент у 1,75 раза більший за видимий круг. Кулі не рухаються: лише світяться,
- * непрозорість 10 % → 75 % → 10 %, повільно (16–22 с на цикл), у кожної свій темп.
- * x, y — центр у % блоку; d — видимий діаметр у % ширини блоку: усі різні, права нижня найменша.
- */
-import ball1 from '../assets/liquid/ball-1.webp'; // орхідея з помаранчем
-import ball2 from '../assets/liquid/ball-2.webp'; // фіолет з орхідеєю
-import ball4 from '../assets/liquid/ball-4.webp'; // фіолет з помаранчем
-// Світла тема: ті самі кулі з світлого фото рідини (кремовий фон), запечені так само
-import ball1Light from '../assets/liquid/ball-1-light.webp'; // пурпур з помаранчем
-import ball2Light from '../assets/liquid/ball-2-light.webp'; // фіолет з пурпуром
-import ball4Light from '../assets/liquid/ball-4-light.webp'; // рожевий пурпур з фіолетом
-
-type Ball = { src: ImageMetadata; light: ImageMetadata; x: number; y: number; d: number; dur: number; delay: number; peak?: number };
-const ballSets: Partial<Record<Props['variant'], Ball[]>> = {
-  // блок 1512 × 1123
-  faq: [
-    { src: ball1, light: ball1Light, x: 74.4, y: 29.7, d: 21, dur: 18, delay: -2 },
-    { src: ball2, light: ball2Light, x: 22.2, y: 64.8, d: 26, dur: 22, delay: -10 },
-    { src: ball4, light: ball4Light, x: 88, y: 85.5, d: 14, dur: 20, delay: -14 },
-  ],
-};
-const balls = ballSets[variant];
-
 ---
 
 <div class:list={['breath', `breath--${variant}`]} aria-hidden="true" data-breathe>
-  {
-    balls ? (
-      balls.flatMap((b) =>
-        (['dark', 'light'] as const).map((theme) => (
-          <img
-            class="breath__ball"
-            src={(theme === 'dark' ? b.src : b.light).src}
-            width="448"
-            height="448"
-            alt=""
-            loading="lazy"
-            decoding="async"
-            data-theme-only={theme}
-            style={`--x: ${b.x}%; --y: ${b.y}%; --d: ${b.d}; --dur: ${b.dur}s; --delay: ${b.delay}s; --peak: ${b.peak ?? 1}`}
-          />
-        )),
-      )
-    ) : (
-      <>
-        <span class="breath__blob breath__blob--1" />
-        <span class="breath__blob breath__blob--2" />
-        <span class="breath__blob breath__blob--3" />
-        <span class="breath__blob breath__blob--4" />
-      </>
-    )
-  }
+  <span class="breath__blob breath__blob--1"></span>
+  <span class="breath__blob breath__blob--2"></span>
+  <span class="breath__blob breath__blob--3"></span>
+  <span class="breath__blob breath__blob--4"></span>
 </div>
 
 <style>
@@ -108,37 +58,6 @@ const balls = ballSets[variant];
   .breath__blob--3 { --anim: breath-c; --dur: 27s; }
   .breath__blob--4 { --anim: breath-b; --dur: 31s; animation-direction: alternate-reverse; }
 
-  /* «Як ми працюємо» і FAQ: кулі з фото рідини. Стоять на місці, лише світяться:
-     непрозорість 10 % → 100 % → 10 %. Видимий круг займає 256 / 448 картинки, тож ширина × 1,75. */
-  .breath__ball {
-    position: absolute;
-    left: var(--x);
-    top: var(--y);
-    /* d — % ширини блоку, але не більше, ніж на макеті 1512 (15,12 px за 1 %) */
-    width: min(calc(var(--d) * 1.75%), calc(var(--d) * 1.75 * 15.12px));
-    height: auto;
-    max-width: none;
-    translate: -50% -50%;
-    opacity: 0.1;
-    will-change: opacity;
-    animation: breath-glow var(--dur) ease-in-out var(--delay) infinite;
-    animation-play-state: paused;
-  }
-
-  .breath.is-breathing .breath__ball {
-    animation-play-state: running;
-  }
-
-  @keyframes breath-glow {
-    0%, 100% { opacity: 0.1; }
-    50% { opacity: calc(var(--peak, 1) * var(--tone, 1) * 0.75); }
-  }
-
-  /* Світле фото рідини дуже насичене — на бежевому світіння 60 % від піку кулі, щоб не перебивати текст */
-  :global(:root[data-theme='light']) .breath__ball {
-    --tone: 0.8; /* 75 % × 0,8 = 60 % */
-  }
-
   /* Три різні шляхи: зсув у межах ~12 % власного розміру, легке стискання й розширення */
   @keyframes breath-a {
     0% { transform: translate(0, 0) scale(1); }
@@ -163,10 +82,6 @@ const balls = ballSets[variant];
     .breath__blob {
       animation: none;
     }
-    .breath__ball {
-      animation: none;
-      opacity: 0.6;
-    }
   }
 
   /* ---------- 03 Вибрані роботи ---------- */
@@ -178,7 +93,7 @@ const balls = ballSets[variant];
   .breath--works .breath__blob--3 { --x: 92%; --y: 70%; --w: 38%; --h: 55%; --c: rgba(165, 52, 196, 0.2); }
 
   :global(:root[data-theme='light']) .breath--works {
-    --breath-base: var(--beige-50);
+    --breath-base: var(--section-bg);
   }
   :global(:root[data-theme='light']) .breath--works .breath__blob--1 { --x: 4%; --y: 95%; --w: 52%; --h: 70%; --c: rgba(165, 52, 196, 0.42); }
   :global(:root[data-theme='light']) .breath--works .breath__blob--2 { --x: 48%; --y: 108%; --w: 60%; --h: 42%; --c: rgba(242, 99, 42, 0.15); }
@@ -220,16 +135,12 @@ const balls = ballSets[variant];
   .breath--directions .breath__blob--3 { --x: 62%; --y: 98%; --w: 40%; --h: 14%; --c: rgba(242, 99, 42, 0.12); }
   .breath--directions .breath__blob--4 { --x: 95%; --y: 3%; --w: 36%; --h: 14%; --c: rgba(82, 48, 201, 0.12); }
 
-  :global(:root[data-theme='light']) .breath--directions { --breath-base: var(--beige-50); }
+  :global(:root[data-theme='light']) .breath--directions { --breath-base: var(--section-bg); }
   :global(:root[data-theme='light']) .breath--directions .breath__blob--1 { --x: 5%; --y: 90%; --w: 48%; --h: 24%; --c: rgba(165, 52, 196, 0.48); }
   :global(:root[data-theme='light']) .breath--directions .breath__blob--2 { --x: 55%; --y: 97%; --w: 58%; --h: 16%; --c: rgba(252, 150, 140, 0.6); }
   :global(:root[data-theme='light']) .breath--directions .breath__blob--3 { --x: 95%; --y: 88%; --w: 32%; --h: 16%; --c: rgba(221, 163, 247, 0.38); }
   :global(:root[data-theme='light']) .breath--directions .breath__blob--4 { --x: 96%; --y: 2%; --w: 30%; --h: 10%; --c: rgba(221, 163, 247, 0.25); }
 
-  /* ---------- 04 Як ми працюємо і 08 FAQ: кулі з фото рідини (див. .breath__ball) ---------- */
-  .breath--process,
-  .breath--faq { --breath-base: var(--night); }
-  :global(:root[data-theme='light']) :is(.breath--process, .breath--faq) { --breath-base: var(--beige-50); }
 </style>
 
 <script>

@@ -4,7 +4,12 @@
  * Верх: логотип 300 px і «France · Working worldwide»; праворуч три колонки посилань (Сайт, Соцмережі, Зв'язок).
  * Низ під лінією: копірайт, мови з перемикачем теми, юридичні посилання.
  * Email і месенджер поки ведуть на сторінку «Контакт»: адреси ще не визначені.
+ * Фон (макет): фото диму на всю ширину, поверх — напівпрозорий шар кольору теми
+ * (темна: #150b2e 50 %, світла: #f8eedd 55 %). Фото з запасом для ретіни (до 2752 px).
  */
+import { Image } from 'astro:assets';
+import smokeDark from '../assets/footer/smoke-dark.jpg';
+import smokeLight from '../assets/footer/smoke-light.jpg';
 import LangSwitch from './LangSwitch.astro';
 import Logo from './Logo.astro';
 import ThemeSwitch from './ThemeSwitch.astro';
@@ -29,6 +34,10 @@ const contact = [
 ---
 
 <footer class="footer">
+  <div class="footer__bg" aria-hidden="true">
+    <Image src={smokeDark} alt="" widths={[800, 1200, 1600, 2048, 2752]} sizes="100vw" loading="lazy" data-theme-only="dark" class="footer__bg-img footer__bg-img--dark" />
+    <Image src={smokeLight} alt="" widths={[800, 1200, 1600, 2048, 2752]} sizes="100vw" loading="lazy" data-theme-only="light" class="footer__bg-img" />
+  </div>
   <div class="footer__top">
     <div class="footer__brand">
       <a class="footer__logo" href={localePath(locale)} aria-label={t.header.home}>
@@ -78,8 +87,40 @@ const contact = [
     display: flex;
     flex-direction: column;
     gap: 80px;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     padding: 96px max(clamp(20px, 5.29vw, 80px), calc((100% - 1800px) / 2)) 48px;
-    background: var(--section-bg);
+    background: var(--section-bg-alt);
+  }
+
+  .footer__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+  }
+
+  .footer__bg :global(.footer__bg-img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* темна: у макеті видно середню смугу фото трохи нижче центру */
+  .footer__bg :global(.footer__bg-img--dark) {
+    object-position: 50% 58.5%;
+  }
+
+  /* шар кольору теми поверх фото */
+  .footer__bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(21, 11, 46, 0.5);
+  }
+
+  :global(:root[data-theme='light']) .footer__bg::after {
+    background: rgba(248, 238, 221, 0.55);
   }
 
   .footer__top {

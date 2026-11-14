@@ -10,7 +10,7 @@
  */
 import { Image } from 'astro:assets';
 import jellyDark from '../assets/process/jellyfish-dark.jpg';
-import jellyLight from '../assets/process/jellyfish-light.jpg';
+import jellyLight from '../assets/process/jellyfish-light.webp'; // прозорий фон (макет)
 import Button from './Button.astro';
 import { keepLastWords, localePath, ui, type Locale } from '../i18n/ui';
 
@@ -70,7 +70,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
 
   :global(:root[data-theme='light']) .process {
-    background: #fae6ce;
+    background: var(--section-bg);
+  }
+
+  /* Світла тема: медуза на 30 px нижче (макет), фон у неї прозорий */
+  :global(:root[data-theme='light']) .process__bg {
+    top: 1.98vw;
   }
 
   /* Медуза: угорі на всю ширину, пропорція рамки з макета 1512 × 932 */
