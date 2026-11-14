@@ -81,9 +81,12 @@ const { variant } = Astro.props;
     100% { transform: translate(3%, -7%) scale(1.09); }
   }
 
-  /* Пляма за мишкою: 36vw (не більше 640 px), центр — у точці курсора; рух веде скрипт */
+  /* Пляма за мишкою: чотири кольори палітри, як фарба у воді (зразок Яни):
+     Indigo 600 угорі, Orchid Deep у центрі, Orange знизу і маленьке золоте ядро.
+     44vw (не більше 760 px), центр — у точці курсора; рух веде скрипт. */
   .breath__cursor {
-    --size: min(36vw, 640px);
+    --size: min(44vw, 760px);
+    --a: 1; /* загальна сила кольорів; у світлій темі менша */
     position: absolute;
     left: 0;
     top: 0;
@@ -91,7 +94,14 @@ const { variant } = Astro.props;
     height: var(--size);
     margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
     border-radius: 50%;
-    background: radial-gradient(closest-side, var(--cursor-c, rgba(221, 163, 247, 0.22)), transparent);
+    background:
+      radial-gradient(22% 16% at 50% 76%, color-mix(in srgb, var(--gold) calc(var(--a) * 22%), transparent), transparent 75%),
+      radial-gradient(42% 32% at 48% 72%, color-mix(in srgb, var(--orange) calc(var(--a) * 50%), transparent), transparent 75%),
+      radial-gradient(42% 38% at 58% 44%, color-mix(in srgb, var(--orchid-deep) calc(var(--a) * 52%), transparent), transparent 75%),
+      radial-gradient(56% 44% at 42% 26%, color-mix(in srgb, var(--indigo-600) calc(var(--a) * 50%), transparent), transparent 75%);
+    /* краї розчиняються: жодного видимого кола */
+    -webkit-mask-image: radial-gradient(closest-side, #000 45%, transparent);
+    mask-image: radial-gradient(closest-side, #000 45%, transparent);
     opacity: 0;
     transition: opacity 0.8s ease;
     will-change: transform, opacity;
@@ -101,15 +111,9 @@ const { variant } = Astro.props;
     opacity: 1;
   }
 
+  /* На бежевому кольори насиченіші на око — трохи стримуємо */
   :global(:root[data-theme='light']) .breath__cursor {
-    --cursor-c: rgba(165, 52, 196, 0.2);
-  }
-
-  .breath--cta .breath__cursor {
-    --cursor-c: rgba(242, 99, 42, 0.22);
-  }
-  :global(:root[data-theme='light']) .breath--cta .breath__cursor {
-    --cursor-c: rgba(242, 99, 42, 0.28);
+    --a: 0.75;
   }
 
   @media (prefers-reduced-motion: reduce) {
