@@ -99,7 +99,7 @@ const { variant, lightImage, darkImage } = Astro.props;
   :is(.breath--works, .breath--reviews) .breath__photo--dark {
     mix-blend-mode: color-dodge;
   }
-  /* «Заклик»: кадр уже під панель — на всю, 100 %, а поверх #150b2e 50 % (макет) */
+  /* «Заклик»: кадр уже під панель — на всю, 100 %, а поверх --overlay-dark (#150b2e 50 %, макет) */
   .breath--cta .breath__photo--dark {
     object-fit: fill;
     opacity: 1;
@@ -108,7 +108,7 @@ const { variant, lightImage, darkImage } = Astro.props;
     content: '';
     position: absolute;
     inset: 0;
-    background: rgba(21, 11, 46, 0.5);
+    background: var(--overlay-dark);
   }
 
   /* Темна тема: де є фон-градієнт — плями не показуємо */
@@ -189,7 +189,7 @@ const { variant, lightImage, darkImage } = Astro.props;
   .breath--reviews {
     --breath-base: var(--night);
   }
-  .breath--reviews .breath__blob--1 { --x: 40%; --y: 110%; --w: 75%; --h: 60%; --c: rgba(124, 82, 201, 0.6); }
+  .breath--reviews .breath__blob--1 { --x: 40%; --y: 110%; --w: 75%; --h: 60%; --c: color-mix(in srgb, var(--violet-500) 60%, transparent); }
   .breath--reviews .breath__blob--2 { --x: 66%; --y: 95%; --w: 46%; --h: 42%; --c: rgba(242, 99, 42, 0.2); }
   .breath--reviews .breath__blob--3 { --x: 93%; --y: 100%; --w: 36%; --h: 48%; --c: rgba(165, 52, 196, 0.32); }
 
@@ -202,11 +202,11 @@ const { variant, lightImage, darkImage } = Astro.props;
 
   /* ---------- 09 Заклик до дії (панель) ---------- */
   .breath--cta {
-    --breath-base: #24143a;
+    --breath-base: var(--indigo-900);
   }
-  .breath--cta .breath__blob--1 { --x: 40%; --y: 100%; --w: 75%; --h: 110%; --c: rgba(98, 70, 170, 0.65); }
+  .breath--cta .breath__blob--1 { --x: 40%; --y: 100%; --w: 75%; --h: 110%; --c: color-mix(in srgb, var(--violet-600) 65%, transparent); }
   .breath--cta .breath__blob--2 { --x: 68%; --y: 78%; --w: 48%; --h: 95%; --c: rgba(176, 82, 92, 0.42); }
-  .breath--cta .breath__blob--3 { --x: 8%; --y: 0%; --w: 55%; --h: 80%; --c: rgba(21, 11, 46, 0.55); }
+  .breath--cta .breath__blob--3 { --x: 8%; --y: 0%; --w: 55%; --h: 80%; --c: var(--overlay-dark); }
 
   :global(:root[data-theme='light']) .breath--cta {
     --breath-base: var(--orchid);
@@ -217,7 +217,7 @@ const { variant, lightImage, darkImage } = Astro.props;
     opacity: 0.7;
     mix-blend-mode: normal;
   }
-  :global(:root[data-theme='light']) .breath--cta .breath__blob--1 { --x: 0%; --y: 80%; --w: 70%; --h: 160%; --c: rgba(124, 86, 164, 0.95); }
+  :global(:root[data-theme='light']) .breath--cta .breath__blob--1 { --x: 0%; --y: 80%; --w: 70%; --h: 160%; --c: color-mix(in srgb, var(--violet-dusty) 95%, transparent); }
   :global(:root[data-theme='light']) .breath--cta .breath__blob--2 { --x: 66%; --y: 105%; --w: 56%; --h: 110%; --c: rgba(252, 150, 155, 0.95); }
   :global(:root[data-theme='light']) .breath--cta .breath__blob--3 { --x: 100%; --y: 40%; --w: 38%; --h: 120%; --c: rgba(212, 180, 225, 0.75); }
   /* ---------- 02 Напрями: світіння внизу блоку ---------- */

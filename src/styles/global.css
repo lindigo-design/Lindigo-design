@@ -21,6 +21,15 @@
   /* Нові кольори з макета «Варіант 2» */
   --night: #0c081c; /* Figma: background-dark (темна тема) */
   --grey-supplement: #8a8394; /* Figma: second-supplement */
+  /* Нічні відтінки фонів (градієнт «Як ми працюємо», темна тема) */
+  --dusk-600: #2a3265;
+  --dusk-800: #1a203f;
+  --night-800: #0e0b23;
+  --night-950: #070415;
+  /* Фіолетові плями світіння (Breath) */
+  --violet-500: #7c52c9;
+  --violet-600: #6246aa;
+  --violet-dusty: #7c56a4;
 
   /* Шрифти */
   --font-display: 'Unbounded Variable', system-ui, sans-serif;
@@ -52,10 +61,15 @@
   --section-bg-alt: var(--night);
   --card-bg: rgba(54, 54, 54, 0.2);
   --card-border: rgba(54, 54, 54, 0.2);
-  --tag-border: color-mix(in srgb, var(--fg) 28%, transparent);
+  /* Основний текст абзаців: --fg на 85 % (одне значення для всіх блоків) */
+  --text-soft: color-mix(in srgb, var(--fg) 85%, transparent);
+  /* Тонкі обводки й лінії: теги, розділювачі, іконка Faq — одне значення на тему */
+  --rule: color-mix(in srgb, var(--fg) 30%, transparent);
+  --tag-border: var(--rule);
   --more-border: color-mix(in srgb, var(--fg) 60%, transparent);
   --text-supplement: var(--grey-supplement);
-  --rule: color-mix(in srgb, var(--fg) 30%, transparent);
+  /* Затемнення кольором Indigo 950 поверх фото й плям (футер, заклик, «скло» шапки) */
+  --overlay-dark: rgba(21, 11, 46, 0.5);
   /* Підписи «Задача клієнта», номери неактивних вкладок */
   --label-muted: var(--grey-supplement);
   /* «Як ми працюємо»: перший крок виділений щільною карткою */
@@ -63,7 +77,7 @@
   --step-border: var(--card-border);
   --step-first-bg: var(--night); /* background dark (макет) */
   --step-first-border: rgba(248, 238, 221, 0.16);
-  --glass-bg: rgba(21, 11, 46, 0.55);
+  --glass-bg: var(--overlay-dark);
   --glass-border: rgba(248, 238, 221, 0.2);
   --track: rgba(248, 238, 221, 0.3);
 
@@ -89,15 +103,14 @@
   --section-bg-alt: var(--beige-50);
   --card-bg: rgba(255, 255, 255, 0.25);
   --card-border: rgba(54, 54, 54, 0.2);
-  --tag-border: color-mix(in srgb, var(--fg) 22%, transparent);
   --more-border: color-mix(in srgb, var(--fg) 48%, transparent);
   --text-supplement: var(--grey-supplement);
   --rule: color-mix(in srgb, var(--fg) 24%, transparent);
   --label-muted: var(--indigo-800);
   --step-bg: rgba(21, 11, 46, 0.03);
-  --step-border: rgba(21, 11, 46, 0.13);
+  --step-border: rgba(21, 11, 46, 0.16);
   --step-first-bg: var(--beige-50);
-  --step-first-border: rgba(21, 11, 46, 0.13);
+  --step-first-border: rgba(21, 11, 46, 0.16);
   --glass-bg: rgba(248, 238, 221, 0.6);
   --glass-border: rgba(21, 11, 46, 0.16);
   --track: rgba(21, 11, 46, 0.25);
