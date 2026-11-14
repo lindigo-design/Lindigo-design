@@ -15,6 +15,7 @@
  */
 import { Image } from 'astro:assets';
 import Breath from './Breath.astro';
+import bgLight from '../assets/backgrounds/directions-light.jpg';
 import Button from './Button.astro';
 import work1 from '../assets/directions/work-1.jpg';
 import work2 from '../assets/directions/work-2.jpg';
@@ -46,7 +47,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
 <section class="directions" aria-labelledby="directions-title" data-directions>
   <div class="directions__stage">
-  <Breath variant="directions" />
+  <Breath variant="directions" lightImage={bgLight} />
 
   <header class="directions__head">
     <p class="directions__eyebrow">{t.eyebrow}</p>

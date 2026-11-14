@@ -10,15 +10,35 @@
  *
  * Розмітку ставимо першою дитиною секції з position: relative; isolation: isolate.
  */
+import { Image } from 'astro:assets';
+
 interface Props {
   variant: 'works' | 'reviews' | 'cta' | 'directions';
+  /**
+   * Світла тема: фон-градієнт із макета замість плям — притиснутий донизу блоку,
+   * 50 % непрозорості, режим Multiply (як у Figma). Плями у світлій темі тоді не показуємо.
+   */
+  lightImage?: ImageMetadata;
 }
 
-const { variant } = Astro.props;
+const { variant, lightImage } = Astro.props;
 
 ---
 
-<div class:list={['breath', `breath--${variant}`]} aria-hidden="true" data-breathe>
+<div class:list={['breath', `breath--${variant}`, lightImage && 'breath--has-photo']} aria-hidden="true" data-breathe>
+  {
+    lightImage && (
+      <Image
+        class="breath__photo"
+        src={lightImage}
+        alt=""
+        widths={[960, 1600, 2048, 2752]}
+        sizes="100vw"
+        loading="lazy"
+        data-theme-only="light"
+      />
+    )
+  }
   <span class="breath__blob breath__blob--1"></span>
   <span class="breath__blob breath__blob--2"></span>
   <span class="breath__blob breath__blob--3"></span>
@@ -33,6 +53,23 @@ const { variant } = Astro.props;
     overflow: hidden;
     pointer-events: none;
     background: var(--breath-base);
+  }
+
+  /* Фон-градієнт світлої теми: на всю ширину, притиснутий донизу, 50 % Multiply */
+  .breath__photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 100%;
+    opacity: 0.5;
+    mix-blend-mode: multiply;
+  }
+
+  /* Світла тема: де є фон-градієнт або макет без фону — плями не показуємо */
+  :global(:root[data-theme='light']) :is(.breath--has-photo, .breath--reviews) .breath__blob {
+    display: none;
   }
 
   .breath__blob {
@@ -108,7 +145,7 @@ const { variant } = Astro.props;
   .breath--reviews .breath__blob--3 { --x: 93%; --y: 100%; --w: 36%; --h: 48%; --c: rgba(165, 52, 196, 0.32); }
 
   :global(:root[data-theme='light']) .breath--reviews {
-    --breath-base: var(--beige-50);
+    --breath-base: var(--section-bg);
   }
   :global(:root[data-theme='light']) .breath--reviews .breath__blob--1 { --x: 8%; --y: 98%; --w: 55%; --h: 72%; --c: rgba(165, 52, 196, 0.48); }
   :global(:root[data-theme='light']) .breath--reviews .breath__blob--2 { --x: 52%; --y: 106%; --w: 64%; --h: 52%; --c: rgba(242, 99, 42, 0.3); }
