@@ -1,38 +1,113 @@
 ---
 /**
- * Кільце за мишкою: мале коло з обводкою Orchid Deep (#a534c4), що йде за курсором по всьому сайту.
- * Системний курсор лишається — кільце лише супроводжує його.
- * У блоках з градієнтним фоном під кільцем ще й градієнтне світіння (Breath.astro);
- * на чистому фоні — лише кільце.
- * Лише для миші (дотикові екрани без нього). З «зменшити рух» кільце йде за курсором без запізнення.
+ * Курсор сайту: кільце з аурою й легкий слід-«комета».
+ *
+ * Кільце 32 px іде за курсором по всьому сайту. Обводка — той самий градієнт, що й у кнопок
+ * на hover (--ring-from → --ring-to, повільно обертається), навколо м'яка аура. Над посиланнями
+ * й кнопками кільце трохи більшає, аура яскравішає. Системний курсор лишається.
+ *
+ * Слід: під час руху за кільцем тягнеться короткий хвіст розмитих крапель фарби в кольорах
+ * палітри (орхідея, індиго, помаранч). Краплі меншають і гаснуть за ≈ 0,5 с; коли мишка стоїть —
+ * хвоста немає. Ледь помітний (сила — TRAIL_ALPHA у скрипті). На першому екрані хвоста немає:
+ * там рідина сама реагує на мишку.
+ *
+ * Лише для миші. З «зменшити рух» — тільки кільце, без хвоста й обертання. Поки відкрите меню —
+ * хвіст на паузі.
  */
 ---
 
+<canvas class="cursor-trail" aria-hidden="true" data-cursor-trail></canvas>
 <div class="cursor-ring" aria-hidden="true" data-cursor-ring></div>
 
 <style>
+  @property --cursor-angle {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+  }
+
+  .cursor-trail {
+    position: fixed;
+    inset: 0;
+    z-index: 199;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+
   .cursor-ring {
+    --size: 32px;
     position: fixed;
     left: 0;
     top: 0;
     z-index: 200;
-    width: 32px;
-    height: 32px;
-    margin: -16px 0 0 -16px;
-    border: 1.5px solid var(--orchid-deep);
+    width: var(--size);
+    height: var(--size);
+    margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
     border-radius: 50%;
     pointer-events: none;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    /* аура: м'яке світіння кольором обводки */
+    box-shadow:
+      0 0 10px color-mix(in srgb, var(--ring-from) 30%, transparent),
+      inset 0 0 6px color-mix(in srgb, var(--ring-from) 18%, transparent);
+    transition:
+      opacity 0.3s ease,
+      width 0.25s var(--ease-out-in),
+      height 0.25s var(--ease-out-in),
+      margin 0.25s var(--ease-out-in),
+      box-shadow 0.25s ease;
     will-change: transform, opacity;
+  }
+
+  /* Обводка-градієнт 1.5 px, як у .ring-hover */
+  .cursor-ring::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    padding: 1.5px;
+    border-radius: inherit;
+    background: conic-gradient(from var(--cursor-angle), var(--ring-from), var(--ring-to), var(--ring-from));
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask:
+      linear-gradient(#000 0 0) content-box exclude,
+      linear-gradient(#000 0 0);
+    animation: cursor-ring-run 4s linear infinite;
   }
 
   .cursor-ring.is-visible {
     opacity: 1;
   }
 
+  /* Над посиланням чи кнопкою */
+  .cursor-ring.is-hover {
+    --size: 44px;
+    box-shadow:
+      0 0 16px color-mix(in srgb, var(--ring-from) 45%, transparent),
+      inset 0 0 8px color-mix(in srgb, var(--ring-from) 24%, transparent);
+  }
+
+  @keyframes cursor-ring-run {
+    to {
+      --cursor-angle: 360deg;
+    }
+  }
+
   @media not ((hover: hover) and (pointer: fine)) {
-    .cursor-ring {
+    .cursor-ring,
+    .cursor-trail {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cursor-ring::before {
+      animation: none;
+    }
+    .cursor-trail {
       display: none;
     }
   }
@@ -40,24 +115,115 @@
 
 <script>
   const ring = document.querySelector<HTMLElement>('[data-cursor-ring]');
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-cursor-trail]');
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  if (ring) {
-    let tx = 0, ty = 0, x = 0, y = 0, raf = 0, placed = false;
+  /** Сила хвоста: непрозорість найсвіжішої краплі (0–1). Підсилити — збільшити. */
+  const TRAIL_ALPHA = 0.3;
+  /** Скільки живе крапля, мс */
+  const LIFE = 520;
+  /** Крок між краплями вздовж шляху, px */
+  const SPACING = 7;
+  /** Що вважаємо «посиланням чи кнопкою» — над ними кільце більшає */
+  const INTERACTIVE = 'a, button, summary, label, select, input, textarea, [role="button"], [tabindex]:not([tabindex="-1"])';
 
-    const draw = () => {
+  if (ring && canvas) {
+    const ctx = canvas.getContext('2d');
+    let tx = 0, ty = 0, x = 0, y = 0, ringRaf = 0, placed = false;
+    let lastX = 0, lastY = 0, hasLast = false;
+    let trailRaf = 0, menuOpen = false, overHero = false, colorIndex = 0;
+    // кожен колір — пара: суцільний і той самий прозорий (край краплі без темної облямівки)
+    let palette: [string, string][] = [];
+    type Drop = { x: number; y: number; r: number; born: number; color: [string, string] };
+    const drops: Drop[] = [];
+
+    // ---------- Кільце ----------
+    const drawRing = () => {
       ring.style.transform = `translate3d(${x}px, ${y}px, 0)`;
     };
-
-    const tick = () => {
+    const ringTick = () => {
       // легке запізнення (≈ 35 % відстані за кадр), щоб кільце рухалось м'яко
       x += (tx - x) * 0.35;
       y += (ty - y) * 0.35;
-      draw();
-      raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.3 ? requestAnimationFrame(tick) : 0;
+      drawRing();
+      ringRaf = Math.abs(tx - x) + Math.abs(ty - y) > 0.3 ? requestAnimationFrame(ringTick) : 0;
     };
 
+    // ---------- Хвіст ----------
+    const readPalette = () => {
+      const css = getComputedStyle(document.documentElement);
+      const v = (name: string): [string, string] => {
+        const hex = css.getPropertyValue(name).trim().replace('#', '');
+        const [r, g, b] = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16));
+        return [`rgb(${r} ${g} ${b})`, `rgb(${r} ${g} ${b} / 0)`];
+      };
+      const light = document.documentElement.dataset.theme === 'light';
+      palette = light
+        ? [v('--orchid-deep'), v('--indigo-600'), v('--orange')]
+        : [v('--orchid'), v('--indigo-600'), v('--orange')];
+    };
+
+    const resize = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      canvas.width = Math.round(window.innerWidth * dpr);
+      canvas.height = Math.round(window.innerHeight * dpr);
+      ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+
+    const trailOn = () => !reduceMotion.matches && !menuOpen && !overHero;
+
+    const addDrops = (fromX: number, fromY: number, toX: number, toY: number) => {
+      const dist = Math.hypot(toX - fromX, toY - fromY);
+      const steps = Math.min(12, Math.floor(dist / SPACING));
+      const now = performance.now();
+      for (let i = 1; i <= steps; i++) {
+        const t = i / steps;
+        drops.push({
+          x: fromX + (toX - fromX) * t + (Math.random() - 0.5) * 3,
+          y: fromY + (toY - fromY) * t + (Math.random() - 0.5) * 3,
+          r: 7 + Math.random() * 5,
+          born: now - (1 - t) * 16,
+          // кольори змінюються плавно вздовж хвоста, як фарба, що змішується
+          color: palette[Math.floor(colorIndex++ / 6) % palette.length],
+        });
+      }
+      if (drops.length > 160) drops.splice(0, drops.length - 160);
+    };
+
+    const trailTick = () => {
+      if (!ctx) return;
+      const now = performance.now();
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      for (let i = drops.length - 1; i >= 0; i--) {
+        const d = drops[i];
+        const age = (now - d.born) / LIFE;
+        if (age >= 1) {
+          drops.splice(i, 1);
+          continue;
+        }
+        const life = 1 - age;
+        // «комета»: свіжі краплі більші й щільніші, старі — малі й прозорі
+        const r = d.r * (0.35 + 0.65 * life);
+        const g = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, r);
+        g.addColorStop(0, d.color[0]);
+        g.addColorStop(1, d.color[1]);
+        ctx.globalAlpha = TRAIL_ALPHA * life * life;
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(d.x, d.y, r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      trailRaf = drops.length ? requestAnimationFrame(trailTick) : 0;
+    };
+
+    const clearTrail = () => {
+      drops.length = 0;
+      ctx?.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    };
+
+    // ---------- Події ----------
     window.addEventListener(
       'pointermove',
       (e) => {
@@ -68,16 +234,44 @@
           x = tx;
           y = ty;
           placed = true;
-          draw();
-        } else if (!raf) {
-          raf = requestAnimationFrame(tick);
+          drawRing();
+        } else if (!ringRaf) {
+          ringRaf = requestAnimationFrame(ringTick);
         }
         ring.classList.add('is-visible');
+
+        const target = e.target instanceof Element ? e.target : null;
+        ring.classList.toggle('is-hover', !!target?.closest(INTERACTIVE));
+        overHero = !!target?.closest('[data-hero]');
+
+        if (trailOn()) {
+          if (hasLast) addDrops(lastX, lastY, tx, ty);
+          if (!trailRaf && drops.length) trailRaf = requestAnimationFrame(trailTick);
+        }
+        lastX = tx;
+        lastY = ty;
+        hasLast = true;
       },
       { passive: true },
     );
 
-    // курсор вийшов за межі вікна — ховаємо кільце
-    document.documentElement.addEventListener('mouseleave', () => ring.classList.remove('is-visible'));
+    // курсор вийшов за межі вікна — ховаємо кільце, хвіст доживає сам
+    document.documentElement.addEventListener('mouseleave', () => {
+      ring.classList.remove('is-visible');
+      hasLast = false;
+    });
+
+    // меню: хвіст на паузі
+    window.addEventListener('lindigo:menu', (e) => {
+      menuOpen = !!(e as CustomEvent<{ open: boolean }>).detail?.open;
+      if (menuOpen) clearTrail();
+    });
+
+    // тема змінилась — нові кольори хвоста
+    new MutationObserver(readPalette).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+    window.addEventListener('resize', resize);
+    readPalette();
+    resize();
   }
 </script>

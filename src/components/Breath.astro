@@ -9,9 +9,6 @@
  * Поза екраном анімація на паузі; з «зменшити рух» у системі плями стоять.
  * Виняток — «Як ми працюємо» і FAQ: там кулі з фото рідини, що лише світяться (див. нижче).
  *
- * Пляма за мишкою: ще одна пляма м'яко пливе за курсором, поки він над блоком
- * (з невеликим запізненням, як у рідині). На дотикових екранах і з «зменшити рух» її немає.
- *
  * Розмітку ставимо першою дитиною секції з position: relative; isolation: isolate.
  */
 interface Props {
@@ -53,40 +50,6 @@ const ballSets: Partial<Record<Props['variant'], Ball[]>> = {
 };
 const balls = ballSets[variant];
 
-/**
- * Пляма за мишкою — компонент Figma «Підсвітка миші · градієнт»: темна (564 × 564, шість еліпсів)
- * і світла (компонент «с» поруч, п'ять еліпсів тих самих місць і розмірів, світліші кольори).
- * Поле плями 640 одиниць: макет 564 + запас 38 з кожного боку, бо еліпси виходять за рамку.
- * Для кожного еліпса: центр і півосі в одиницях поля, колір (RGB) і непрозорість у центрі.
- * Спад непрозорості в кожному еліпсі як у Figma: 100 / 85 / 55 / 27 / 8 / 0 % на 0 / 25 / 50 / 70 / 88 / 100 %.
- * Порядок: верхній шар першим (у CSS перший фон — зверху).
- */
-type GlowLayer = { name: string; cx: number; cy: number; rx: number; ry: number; rgb: string; a: number };
-const glowDark: GlowLayer[] = [
-  { name: 'золото ліворуч', cx: 189, cy: 328.5, rx: 145, ry: 195, rgb: '178 137 2', a: 0.4 },
-  { name: 'темне тепло', cx: 318, cy: 458, rx: 200, ry: 140, rgb: '138 47 16', a: 0.4 },
-  { name: 'тепло знизу', cx: 328, cy: 438, rx: 260, ry: 190, rgb: '242 99 42', a: 0.36 },
-  { name: 'орхідея', cx: 398, cy: 308, rx: 160, ry: 150, rgb: '165 52 196', a: 0.28 },
-  { name: 'слива', cx: 388, cy: 328, rx: 250, ry: 230, rgb: '122 58 143', a: 0.6 },
-  { name: 'індиго згори', cx: 288, cy: 238, rx: 260, ry: 230, rgb: '33 19 74', a: 0.95 },
-];
-const glowLight: GlowLayer[] = [
-  { name: 'золото м’яке', cx: 318, cy: 458, rx: 200, ry: 140, rgb: '255 200 61', a: 0.3 },
-  { name: 'тепло знизу', cx: 328, cy: 438, rx: 260, ry: 190, rgb: '242 99 42', a: 0.34 },
-  { name: 'орхідея глибока', cx: 398, cy: 308, rx: 160, ry: 150, rgb: '165 52 196', a: 0.22 },
-  { name: 'орхідея · центр праворуч', cx: 388, cy: 328, rx: 250, ry: 230, rgb: '221 163 247', a: 0.7 },
-  { name: 'лаванда згори', cx: 288, cy: 238, rx: 260, ry: 230, rgb: '154 140 218', a: 0.6 },
-];
-const falloff: [number, number][] = [[0, 1], [25, 0.85], [50, 0.55], [70, 0.27], [88, 0.08], [100, 0]];
-const pct = (v: number) => `${+((v / 640) * 100).toFixed(2)}%`;
-const toBg = (layers: GlowLayer[]) =>
-  layers
-    .map(({ cx, cy, rx, ry, rgb, a }) => {
-      const stops = falloff.map(([p, k]) => `rgb(${rgb} / ${+(a * k).toFixed(3)}) ${p}%`).join(', ');
-      return `radial-gradient(${pct(rx)} ${pct(ry)} at ${pct(cx)} ${pct(cy)}, ${stops})`;
-    })
-    .join(', ');
-const glowStyle = `--glow-dark: ${toBg(glowDark)}; --glow-light: ${toBg(glowLight)}`;
 ---
 
 <div class:list={['breath', `breath--${variant}`]} aria-hidden="true" data-breathe>
@@ -116,7 +79,6 @@ const glowStyle = `--glow-dark: ${toBg(glowDark)}; --glow-light: ${toBg(glowLigh
       </>
     )
   }
-  <span class="breath__cursor" data-breathe-cursor style={glowStyle}></span>
 </div>
 
 <style>
@@ -203,33 +165,6 @@ const glowStyle = `--glow-dark: ${toBg(glowDark)}; --glow-light: ${toBg(glowLigh
     100% { transform: translate(3%, -7%) scale(1.09); }
   }
 
-  /* Пляма за мишкою: компонент Figma «Підсвітка миші · градієнт» — шість м'яких еліпсів
-     (індиго згори, слива й орхідея в центрі, тепло знизу, золото ліворуч); фон задано в розмітці.
-     Поле 640 одиниць ≈ 25vw, центр — у точці курсора; рух веде скрипт. */
-  .breath__cursor {
-    /* на 40 % менше за попередні 420–760 px (42vw); у центрі — кільце курсора (CursorRing.astro) */
-    --size: clamp(252px, 25.2vw, 456px);
-    background: var(--glow-dark);
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: var(--size);
-    height: var(--size);
-    margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
-    opacity: 0;
-    transition: opacity 0.8s ease;
-    will-change: transform, opacity;
-  }
-
-  .breath.is-pointer .breath__cursor {
-    opacity: 1;
-  }
-
-  /* Світла тема — свій варіант з макета (лаванда, орхідея, помаранч, золото) */
-  :global(:root[data-theme='light']) .breath__cursor {
-    background: var(--glow-light);
-  }
-
   @media (prefers-reduced-motion: reduce) {
     .breath__blob {
       animation: none;
@@ -237,9 +172,6 @@ const glowStyle = `--glow-dark: ${toBg(glowDark)}; --glow-light: ${toBg(glowLigh
     .breath__ball {
       animation: none;
       opacity: 0.6;
-    }
-    .breath__cursor {
-      display: none;
     }
   }
 
@@ -313,43 +245,4 @@ const glowStyle = `--glow-dark: ${toBg(glowDark)}; --glow-light: ${toBg(glowLigh
     { rootMargin: '100px 0px' },
   );
   document.querySelectorAll('[data-breathe]').forEach((el) => observer.observe(el));
-
-  // Пляма за мишкою: лише для миші й без «зменшити рух»
-  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-  document.querySelectorAll<HTMLElement>('[data-breathe]').forEach((layer) => {
-    const blob = layer.querySelector<HTMLElement>('[data-breathe-cursor]');
-    const section = layer.parentElement;
-    if (!blob || !section) return;
-
-    let tx = 0, ty = 0, x = 0, y = 0, raf = 0, placed = false;
-
-    const tick = () => {
-      // м’яке наздоганяння курсора (≈ 16 % відстані за кадр), щоб кільце було майже в центрі
-      x += (tx - x) * 0.16;
-      y += (ty - y) * 0.16;
-      blob.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-      raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.5 ? requestAnimationFrame(tick) : 0;
-    };
-
-    section.addEventListener('pointermove', (e) => {
-      if (e.pointerType !== 'mouse' || !finePointer.matches || reduceMotion.matches) return;
-      const r = layer.getBoundingClientRect();
-      tx = e.clientX - r.left;
-      ty = e.clientY - r.top;
-      if (!placed) {
-        // перша поява — одразу під курсором, без перельоту з кута
-        x = tx; y = ty; placed = true;
-        blob.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-      }
-      layer.classList.add('is-pointer');
-      if (!raf) raf = requestAnimationFrame(tick);
-    });
-
-    section.addEventListener('pointerleave', () => {
-      layer.classList.remove('is-pointer');
-      placed = false;
-    });
-  });
 </script>
