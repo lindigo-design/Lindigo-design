@@ -1,0 +1,230 @@
+---
+/**
+ * Блок «02б Принципи» (Figma «Головна · Варіант 2», темна й світла тема).
+ * Велика цитата: частина тексту сіра (--text-supplement), частина кольором теми; фото праворуч;
+ * під нею чотири принципи з лінією згори.
+ * Сітка цитати на 1512: 238 | 568 | 310, між колонками 40 px (238 — колонка підпису «Наші принципи»).
+ */
+import { Image } from 'astro:assets';
+import laptop from '../assets/principles/laptop.jpg';
+import { keepLastWords, ui, type Locale } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = ui[locale].principles;
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<section class="principles" aria-labelledby="principles-title">
+  <div class="principles__quote">
+    <p class="principles__eyebrow">{t.eyebrow}</p>
+    <h2 class="principles__lead" id="principles-title">
+      <span class="principles__muted">{t.leadMuted}</span>
+      {' '}{keepLastWords(t.lead)}
+    </h2>
+    <p class="principles__body">
+      {t.body}{' '}
+      <span class="principles__muted">{keepLastWords(t.bodyMuted)}</span>
+    </p>
+    <div class="principles__media">
+      <Image src={laptop} alt="" widths={[400, 640, 960]} sizes="(max-width: 760px) 100vw, 320px" />
+    </div>
+  </div>
+
+  <ol class="principles__list">
+    {
+      t.items.map((item, i) => (
+        <li class="principle">
+          <p class="principle__num" aria-hidden="true">{pad(i + 1)}</p>
+          <h3 class="principle__title">{item.title}</h3>
+          <p class="principle__text">{keepLastWords(item.text)}</p>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .principles {
+    display: flex;
+    flex-direction: column;
+    gap: 96px;
+    padding: 120px var(--gutter);
+    background: var(--section-bg);
+  }
+
+  /* Цитата: відступ зліва 156 px, далі сітка 238 | 568 | 310 */
+  .principles__quote {
+    display: grid;
+    grid-template-columns: 238px minmax(0, 1fr) 310px;
+    column-gap: 40px;
+    align-items: start;
+    padding-left: clamp(0px, 10.3vw, 156px);
+  }
+
+  .principles__eyebrow {
+    grid-column: 1;
+    grid-row: 1;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .principles__lead,
+  .principles__body {
+    font-family: var(--font-display);
+    font-weight: 600;
+    /* рядок 62 px на 1512 */
+    line-height: clamp(32px, 4.1vw, 62px);
+  }
+
+  .principles__lead {
+    grid-column: 2 / 4;
+    grid-row: 1;
+    font-size: clamp(24px, 2.65vw, 40px);
+  }
+
+  .principles__body {
+    grid-column: 1 / 3;
+    grid-row: 2;
+    font-size: clamp(20px, 2.12vw, 32px);
+  }
+
+  .principles__muted {
+    color: var(--text-supplement);
+  }
+
+  .principles__media {
+    grid-column: 3;
+    grid-row: 2;
+    height: 263px;
+    overflow: hidden;
+    border-radius: 20px;
+  }
+
+  .principles__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Чотири принципи, між ними 48 px, лінія згори */
+  .principles__list {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 48px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .principle {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-top: 16px;
+    border-top: 1px solid var(--rule);
+  }
+
+  .principle__num,
+  .principle__title {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+  }
+
+  .principle__num {
+    line-height: 16px;
+    color: var(--accent-text);
+  }
+
+  .principle__title {
+    line-height: 18px;
+    text-transform: uppercase;
+  }
+
+  .principle__text {
+    font-weight: 500;
+    font-size: 13px;
+    line-height: 18px;
+  }
+
+  /* Вужчий комп'ютер і планшет: підпис над цитатою, фото поруч з текстом */
+  @media (max-width: 1100px) {
+    .principles__quote {
+      grid-template-columns: minmax(0, 1fr) 280px;
+      row-gap: 16px;
+      padding-left: 0;
+    }
+    .principles__eyebrow {
+      grid-column: 1 / -1;
+    }
+    .principles__lead {
+      grid-column: 1 / -1;
+      grid-row: 2;
+    }
+    .principles__body {
+      grid-column: 1;
+      grid-row: 3;
+    }
+    .principles__media {
+      grid-column: 2;
+      grid-row: 3;
+      height: 240px;
+    }
+    .principles__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 32px 48px;
+    }
+  }
+
+  /* Один стовпчик: фото під текстом */
+  @media (max-width: 760px) {
+    .principles {
+      gap: 64px;
+    }
+    .principles__quote {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .principles__body {
+      grid-row: 3;
+    }
+    .principles__media {
+      grid-column: 1;
+      grid-row: 4;
+      height: auto;
+      aspect-ratio: 16 / 10;
+      margin-top: 8px;
+    }
+  }
+
+  /* Телефон */
+  @media (max-width: 640px) {
+    .principles {
+      gap: 48px;
+      padding: 96px 20px;
+    }
+    .principles__media {
+      border-radius: 16px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .principles__list {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 24px;
+    }
+    .principle__text {
+      font-size: 14px;
+      line-height: 20px;
+    }
+  }
+</style>

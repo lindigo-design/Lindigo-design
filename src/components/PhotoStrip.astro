@@ -1,0 +1,191 @@
+---
+/**
+ * Блок «05 Фото-стрічка» (Figma «Головна · Варіант 2», темна й світла тема).
+ * Горизонтальна стрічка фото різної висоти (540 / 440 px), вирівняних по центру; стрічка заходить
+ * за правий край екрана й гортається вбік (тачпад, палець, клавіатура).
+ * Фон: колір теми і м'яка золота пляма 12 % (радіальний градієнт з Figma).
+ * Фото 6 і 7 у макеті — заглушки (картинка першого екрана з підписом «ФОТО 6/7»), їх не беремо.
+ */
+import { Image } from 'astro:assets';
+import photo1 from '../assets/photos/photo-1.jpg';
+import photo2 from '../assets/photos/photo-2.jpg';
+import photo3 from '../assets/photos/photo-3.jpg';
+import photo4 from '../assets/photos/photo-4.jpg';
+import photo5 from '../assets/photos/photo-5.jpg';
+import allDark from '../assets/works/all-dark.svg';
+import allLight from '../assets/works/all-light.svg';
+import { localePath, ui, type Locale } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = ui[locale].photos;
+
+/** Порядок і кадрування як у Figma: ширина, висота, object-position */
+const photos = [
+  { src: photo1, w: 360, h: 540, pos: '50% 50%' },
+  { src: photo3, w: 300, h: 440, pos: '39% 50%' },
+  { src: photo2, w: 300, h: 440, pos: '0% 50%' },
+  { src: photo4, w: 300, h: 440, pos: '50% 50%' },
+  { src: photo5, w: 300, h: 440, pos: '50% 50%' },
+];
+---
+
+<section class="photos" aria-labelledby="photos-title">
+  <header class="photos__head">
+    <div class="photos__heading">
+      <p class="photos__eyebrow">{t.eyebrow}</p>
+      <h2 class="photos__title" id="photos-title">{t.title}</h2>
+    </div>
+    <a class="photos__more" href={localePath(locale, '/services/photo/')}>
+      {t.more}
+      <span class="photos__more-icon" aria-hidden="true">
+        <img src={allDark.src} width="36" height="36" alt="" data-theme-only="dark" />
+        <img src={allLight.src} width="36" height="36" alt="" data-theme-only="light" />
+      </span>
+    </a>
+  </header>
+
+  <!-- Стрічка гортається; tabindex — щоб її можна було гортати стрілками з клавіатури -->
+  <ul class="photos__strip" aria-label={t.strip} tabindex="0">
+    {
+      photos.map((p) => (
+        <li class="photos__item" style={`--w: ${p.w}px; --h: ${p.h}px`}>
+          <Image src={p.src} alt="" widths={[360, 720]} sizes={`${p.w}px`} loading="lazy" style={`object-position: ${p.pos}`} />
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .photos {
+    /* як --gutter, але від ширини вікна: --side використовується й у вкладених елементах */
+    --side: max(clamp(40px, 5.29vw, 80px), calc((100vw - 1352px) / 2));
+
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+    padding: 120px 0 120px var(--side);
+    background:
+      radial-gradient(1210px 376px at 70% 30%, color-mix(in srgb, var(--gold) 12%, transparent), transparent),
+      var(--section-bg);
+    overflow: hidden;
+  }
+
+  .photos__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    padding-right: var(--side);
+  }
+
+  .photos__heading {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .photos__eyebrow {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .photos__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 56px;
+    line-height: 68px;
+  }
+
+  .photos__more {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 22px;
+    text-decoration: none;
+    border-radius: 999px;
+  }
+
+  .photos__more-icon img {
+    display: block;
+    transition: transform var(--dur-btn) var(--ease-out-in);
+  }
+
+  @media (hover: hover) {
+    .photos__more:hover .photos__more-icon img {
+      transform: rotate(45deg);
+    }
+  }
+  .photos__more:focus-visible .photos__more-icon img {
+    transform: rotate(45deg);
+  }
+
+  /* Стрічка: 20 px між фото, по центру по вертикалі, гортається вбік */
+  .photos__strip {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    height: 540px;
+    margin: 0;
+    padding: 0 var(--side) 0 0;
+    list-style: none;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    border-radius: 24px 0 0 24px;
+  }
+
+  .photos__strip::-webkit-scrollbar {
+    display: none;
+  }
+
+  .photos__item {
+    flex: 0 0 var(--w);
+    height: var(--h);
+    overflow: hidden;
+    border-radius: 24px;
+    scroll-snap-align: start;
+  }
+
+  .photos__item :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Телефон: фото менші, пропорції ті самі */
+  @media (max-width: 640px) {
+    .photos {
+      --side: 20px;
+      gap: 24px;
+      padding-block: 96px;
+    }
+    .photos__title {
+      font-size: 32px;
+      line-height: 40px;
+    }
+    .photos__strip {
+      gap: 12px;
+      height: 360px;
+      scroll-snap-type: x mandatory;
+    }
+    .photos__item {
+      flex-basis: calc(var(--w) * 0.66);
+      height: calc(var(--h) * 0.66);
+      border-radius: 16px;
+    }
+  }
+</style>

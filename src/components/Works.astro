@@ -1,0 +1,467 @@
+---
+/**
+ * Блок «03 Вибрані роботи» (Figma «Головна · Варіант 2», темна й світла тема).
+ * Слайдер кейсів: картка на склі (обкладинка, назва, мітки, задача й що з'ясували до дизайну, кнопка),
+ * під нею вкладки з назвами кейсів і навігація (SliderNav).
+ * Кейси беруться з ui[locale].works.items: вкладки й лічильник рахуються самі.
+ * Фон блоку — векторні плями, що «дихають» (Breath.astro).
+ */
+import { Image } from 'astro:assets';
+import Breath from './Breath.astro';
+import Button from './Button.astro';
+import SliderNav from './SliderNav.astro';
+import allDark from '../assets/works/all-dark.svg';
+import allLight from '../assets/works/all-light.svg';
+import datatixx from '../assets/works/datatixx.jpg';
+import { keepLastWords, localePath, ui, type Locale } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = ui[locale].works;
+const covers: Record<string, ImageMetadata> = { datatixx };
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<section class="works" aria-labelledby="works-title" data-works>
+  <Breath variant="works" />
+
+  <header class="works__head">
+    <div class="works__heading">
+      <p class="works__eyebrow">{t.eyebrow}</p>
+      <h2 class="works__title" id="works-title">{t.title}</h2>
+    </div>
+    <a class="works__all" href={localePath(locale, '/realisations/')}>
+      {t.all}
+      <span class="works__all-icon" aria-hidden="true">
+        <img src={allDark.src} width="36" height="36" alt="" data-theme-only="dark" />
+        <img src={allLight.src} width="36" height="36" alt="" data-theme-only="light" />
+      </span>
+    </a>
+  </header>
+
+  <div class="works__slides">
+    {
+      t.items.map((item, i) => (
+        <article
+          class="case"
+          id={`case-${item.slug}`}
+          role="tabpanel"
+          aria-labelledby={`case-tab-${item.slug}`}
+          hidden={i !== 0}
+          data-slide
+        >
+          <div class="case__cover">
+            <Image src={covers[item.slug]} alt="" widths={[600, 900, 1200]} sizes="(max-width: 760px) 100vw, 584px" loading="lazy" />
+          </div>
+          <div class="case__about">
+            <div class="case__head">
+              <p class="case__label">
+                {t.caseLabel} {pad(i + 1)}
+              </p>
+              <h3 class="case__name">{item.name}</h3>
+              <ul class="case__tags">
+                {item.tags.map((tag) => <li>{tag}</li>)}
+              </ul>
+            </div>
+            <dl class="case__desc">
+              <div>
+                <dt>{t.taskLabel}</dt>
+                <dd>{keepLastWords(item.task)}</dd>
+              </div>
+              <div>
+                <dt>{t.foundLabel}</dt>
+                <dd>{keepLastWords(item.found)}</dd>
+              </div>
+            </dl>
+            <Button href={localePath(locale, `/realisations/${item.slug}/`)} variant="secondary">
+              {t.view}
+              <span class="visually-hidden">: {item.name}</span>
+            </Button>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+
+  <div class="works__controls">
+    <div class="works__tabs" role="tablist" aria-label={t.title}>
+      {
+        t.items.map((item, i) => (
+          <button
+            class="works__tab"
+            type="button"
+            role="tab"
+            id={`case-tab-${item.slug}`}
+            aria-controls={`case-${item.slug}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            tabindex={i === 0 ? 0 : -1}
+            data-tab
+          >
+            <span class="works__tab-num">{pad(i + 1)}</span>
+            <span class="works__tab-name">{item.name}</span>
+          </button>
+        ))
+      }
+    </div>
+    <SliderNav prevLabel={t.prev} nextLabel={t.next} total={t.items.length} />
+  </div>
+</section>
+
+<style>
+  .works {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+    padding: 120px var(--gutter);
+    background: var(--section-bg);
+    overflow: hidden;
+  }
+
+
+  /* ---------- Заголовок і «Усі роботи» ---------- */
+  .works__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .works__heading {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .works__eyebrow,
+  .case__label {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .works__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 56px;
+    line-height: 68px;
+  }
+
+  .works__all {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 22px;
+    text-decoration: none;
+    border-radius: 999px;
+  }
+
+  .works__all-icon img {
+    display: block;
+    transition: transform var(--dur-btn) var(--ease-out-in);
+  }
+
+  @media (hover: hover) {
+    .works__all:hover .works__all-icon img {
+      transform: rotate(45deg);
+    }
+  }
+  .works__all:focus-visible .works__all-icon img {
+    transform: rotate(45deg);
+  }
+
+  /* ---------- Картка кейса ---------- */
+  .case {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+    padding: 32px 48px 32px 32px;
+    border: 1px solid var(--card-border);
+    border-radius: 32px;
+    background: var(--card-bg);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  .case[hidden] {
+    display: none;
+  }
+
+  .case.is-entering {
+    animation: case-in 0.5s var(--ease-out-in);
+  }
+
+  @keyframes case-in {
+    from {
+      opacity: 0;
+    }
+  }
+
+  .case__cover {
+    flex: 0 0 584px;
+    height: 480px;
+    overflow: hidden;
+    border-radius: 24px;
+  }
+
+  .case__cover :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 50%;
+  }
+
+  .case__about {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 40px;
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .case__head {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .case__name {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 56px;
+    line-height: 68px;
+  }
+
+  .case__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .case__tags li {
+    padding: 8px 16px;
+    border: 1px solid var(--tag-border);
+    border-radius: 20px;
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .case__desc {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin: 0;
+  }
+
+  .case__desc div {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .case__desc dt,
+  .works__tab-num {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--label-muted);
+  }
+
+  .case__desc dd {
+    margin: 0;
+    font-size: 20px;
+    line-height: 30px;
+    color: color-mix(in srgb, var(--fg) 90%, transparent);
+  }
+
+  /* ---------- Вкладки й навігація ---------- */
+  .works__controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px 40px;
+  }
+
+  .works__tabs {
+    display: flex;
+    gap: 40px;
+    min-width: 0;
+  }
+
+  .works__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 0 10px;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    background: none;
+    color: color-mix(in srgb, var(--fg) 60%, transparent);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 22px;
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      color 0.2s ease,
+      border-color 0.3s var(--ease-out-in);
+  }
+
+  .works__tab:hover {
+    color: var(--fg);
+  }
+
+  .works__tab[aria-selected='true'] {
+    color: var(--fg);
+    border-bottom-color: var(--accent-text);
+  }
+
+  .works__tab[aria-selected='true'] .works__tab-num {
+    color: var(--accent-text);
+  }
+
+  /* ---------- Вужчий комп'ютер і планшет ---------- */
+  @media (max-width: 1100px) {
+    .case {
+      gap: 32px;
+      padding: 32px;
+    }
+    .case__cover {
+      flex: 0 0 46%;
+      height: auto;
+      aspect-ratio: 584 / 480;
+    }
+    .case__about {
+      gap: 32px;
+    }
+    .case__name {
+      font-size: 40px;
+      line-height: 48px;
+    }
+    .case__desc dd {
+      font-size: 18px;
+      line-height: 28px;
+    }
+  }
+
+  /* Картка в стовпчик; вкладки гортаються вбік */
+  @media (max-width: 760px) {
+    .case {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .case__cover {
+      flex: none;
+      width: 100%;
+    }
+    .works__controls {
+      flex-wrap: wrap;
+    }
+    .works__tabs {
+      overflow-x: auto;
+      scrollbar-width: none;
+      flex: 1 1 100%;
+    }
+  }
+
+  /* Телефон */
+  @media (max-width: 640px) {
+    .works {
+      gap: 32px;
+      padding: 96px 20px;
+    }
+    .works__title {
+      font-size: 32px;
+      line-height: 40px;
+    }
+    .case {
+      gap: 24px;
+      padding: 16px 16px 24px;
+      border-radius: 24px;
+    }
+    .case__cover {
+      border-radius: 16px;
+    }
+    .case__about {
+      gap: 24px;
+      padding-inline: 8px;
+    }
+    .case__name {
+      font-size: 32px;
+      line-height: 40px;
+    }
+    .case__desc dd {
+      font-size: 16px;
+      line-height: 24px;
+    }
+    .works__tabs {
+      gap: 24px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .case.is-entering {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-works]').forEach((root) => {
+    const slides = Array.from(root.querySelectorAll<HTMLElement>('[data-slide]'));
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[data-tab]'));
+    const current = root.querySelector<HTMLElement>('[data-slider-current]');
+    let index = 0;
+
+    function show(next: number, focusTab = false) {
+      const n = (next + slides.length) % slides.length;
+      if (n === index) return;
+      slides[index].hidden = true;
+      tabs[index].setAttribute('aria-selected', 'false');
+      tabs[index].tabIndex = -1;
+      index = n;
+      const slide = slides[index];
+      slide.hidden = false;
+      slide.classList.remove('is-entering');
+      void slide.offsetWidth;
+      slide.classList.add('is-entering');
+      tabs[index].setAttribute('aria-selected', 'true');
+      tabs[index].tabIndex = 0;
+      tabs[index].scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      if (focusTab) tabs[index].focus();
+      if (current) current.textContent = String(index + 1).padStart(2, '0');
+    }
+
+    tabs.forEach((tab, i) => tab.addEventListener('click', () => show(i)));
+    root.querySelector('[data-slider-prev]')?.addEventListener('click', () => show(index - 1));
+    root.querySelector('[data-slider-next]')?.addEventListener('click', () => show(index + 1));
+
+    // Клавіатура у вкладках: стрілки, Home, End
+    root.querySelector('[role="tablist"]')?.addEventListener('keydown', (event) => {
+      const e = event as KeyboardEvent;
+      const keys: Record<string, number> = { ArrowRight: index + 1, ArrowLeft: index - 1, Home: 0, End: slides.length - 1 };
+      if (!(e.key in keys)) return;
+      e.preventDefault();
+      show(keys[e.key], true);
+    });
+  });
+</script>

@@ -1,11 +1,14 @@
 ---
 /**
- * ТИМЧАСОВИЙ футер: лише нижній рядок (копірайт, мови, перемикач теми).
- * Повний футер із рідиною й логотипом на всю ширину буде після макета.
+ * Футер (Figma «Головна · Варіант 2», блок «10 Футер»).
+ * Верх: логотип 300 px і «France · Working worldwide»; праворуч три колонки посилань (Сайт, Соцмережі, Зв'язок).
+ * Низ під лінією: копірайт, мови з перемикачем теми, юридичні посилання.
+ * Email і месенджер поки ведуть на сторінку «Контакт»: адреси ще не визначені.
  */
 import LangSwitch from './LangSwitch.astro';
+import Logo from './Logo.astro';
 import ThemeSwitch from './ThemeSwitch.astro';
-import { ui, type Locale } from '../i18n/ui';
+import { localePath, menuPaths, socialLinks, ui, type Locale } from '../i18n/ui';
 
 interface Props {
   locale: Locale;
@@ -13,36 +16,192 @@ interface Props {
 }
 
 const { locale, path = '/' } = Astro.props;
+const t = ui[locale];
+const f = t.footerNav;
 const year = new Date().getFullYear();
+
+const contact = [
+  { label: t.menu.call, href: localePath(locale, '/contact/') },
+  { label: t.menu.message, href: localePath(locale, '/contact/#message') },
+  { label: f.email, href: localePath(locale, '/contact/') },
+  { label: f.messenger, href: localePath(locale, '/contact/') },
+];
 ---
 
 <footer class="footer">
-  <p class="footer__copy">© {year} Lindigo Design Studio. {ui[locale].footer.rights}</p>
-  <div class="footer__controls">
-    <LangSwitch locale={locale} path={path} />
-    <ThemeSwitch locale={locale} />
+  <div class="footer__top">
+    <div class="footer__brand">
+      <a class="footer__logo" href={localePath(locale)} aria-label={t.header.home}>
+        <Logo width={300} />
+      </a>
+      <p class="footer__place">France · Working worldwide</p>
+    </div>
+
+    <nav class="footer__cols" aria-label={f.site}>
+      <div class="footer__col">
+        <p class="footer__label">{f.site}</p>
+        <ul>
+          {menuPaths.map((p, i) => <li><a href={localePath(locale, p)}>{t.menu.nav[i]}</a></li>)}
+        </ul>
+      </div>
+      <div class="footer__col">
+        <p class="footer__label">{f.social}</p>
+        <ul>
+          {socialLinks.map((s) => <li><a href={s.href} target="_blank" rel="noopener noreferrer">{s.name}</a></li>)}
+        </ul>
+      </div>
+      <div class="footer__col">
+        <p class="footer__label">{f.contact}</p>
+        <ul>
+          {contact.map((c) => <li><a href={c.href}>{c.label}</a></li>)}
+        </ul>
+      </div>
+    </nav>
+  </div>
+
+  <div class="footer__bottom">
+    <p class="footer__copy">© {year} Lindigo Design Studio</p>
+    <div class="footer__controls">
+      <LangSwitch locale={locale} path={path} />
+      <ThemeSwitch locale={locale} />
+    </div>
+    <p class="footer__legal">
+      <a href={localePath(locale, '/mentions-legales/')}>{f.legal}</a>
+      <span aria-hidden="true"> · </span>
+      <a href={localePath(locale, '/confidentialite/')}>{f.privacy}</a>
+    </p>
   </div>
 </footer>
 
 <style>
   .footer {
     display: flex;
+    flex-direction: column;
+    gap: 80px;
+    padding: 96px max(clamp(20px, 5.29vw, 80px), calc((100% - 1352px) / 2)) 48px;
+    background: var(--section-bg);
+  }
+
+  .footer__top {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 48px;
+  }
+
+  .footer__brand {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .footer__logo {
+    display: block;
+    border-radius: 8px;
+  }
+
+  .footer__place,
+  .footer__label {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    color: var(--label-muted);
+  }
+
+  .footer__place {
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .footer__cols {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px 96px;
+  }
+
+  .footer__col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .footer__label {
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .footer__col ul {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .footer__col a,
+  .footer__legal a {
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .footer__col a {
+    font-size: 18px;
+    line-height: 26px;
+    white-space: nowrap;
+  }
+
+  @media (hover: hover) {
+    .footer__col a:hover,
+    .footer__legal a:hover {
+      color: var(--accent-text);
+    }
+  }
+
+  .footer__bottom {
+    display: flex;
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 16px 24px;
-    padding: 24px clamp(16px, 5.29vw, 80px);
+    padding-top: 32px;
     border-top: 1px solid var(--glass-border);
   }
 
-  .footer__copy {
+  .footer__copy,
+  .footer__legal {
     font-size: 14px;
     line-height: 20px;
+    color: color-mix(in srgb, var(--fg) 80%, transparent);
   }
 
   .footer__controls {
     display: flex;
     align-items: center;
     gap: 24px;
+  }
+
+  @media (max-width: 760px) {
+    .footer {
+      gap: 56px;
+    }
+    .footer__bottom {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .footer__controls {
+      order: -1;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .footer__logo :global(.logo) {
+      --logo-w: 220px !important;
+    }
+    .footer__cols {
+      gap: 32px 48px;
+    }
   }
 </style>

@@ -1,0 +1,225 @@
+---
+/**
+ * Блок «08 FAQ» (Figma «Головна · Варіант 2», темна й світла тема).
+ * Ліворуч заголовок (380 px), праворуч акордеон: питання 24 px, кругла кнопка «+» / «−» 40 px,
+ * відкрите питання кольором акценту, відповідь 20 px.
+ * Акордеон на <details>/<summary>: працює з клавіатури й без JavaScript.
+ * Скрипт лише робить так, що відкрите одне питання за раз (як у макеті).
+ */
+import Breath from './Breath.astro';
+import { keepLastWords, ui, type Locale } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = ui[locale].faq;
+---
+
+<section class="faq" aria-labelledby="faq-title" data-faq>
+  <Breath variant="faq" />
+
+  <header class="faq__head">
+    <p class="faq__eyebrow">{t.eyebrow}</p>
+    <h2 class="faq__title" id="faq-title">{t.title}</h2>
+  </header>
+
+  <div class="faq__list">
+    {
+      t.items.map((item, i) => (
+        <details class="faq__item" open={i === 0} name="faq">
+          <summary class="faq__q">
+            <span>{item.q}</span>
+            <span class="faq__icon" aria-hidden="true" />
+          </summary>
+          <p class="faq__a">{keepLastWords(item.a)}</p>
+        </details>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .faq {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: 380px minmax(0, 1fr);
+    column-gap: 80px;
+    align-items: start;
+    padding: 120px var(--gutter);
+    background: var(--section-bg);
+    overflow: hidden;
+  }
+
+
+  .faq__head {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .faq__eyebrow {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .faq__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 56px;
+    line-height: 68px;
+  }
+
+  .faq__list {
+    border-top: 1px solid var(--step-border);
+  }
+
+  .faq__item {
+    border-bottom: 1px solid var(--step-border);
+  }
+
+  .faq__q {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 28px 0;
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 32px;
+    list-style: none;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  .faq__q::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq__q:focus-visible {
+    outline-offset: 4px;
+    border-radius: 8px;
+  }
+
+  .faq__item[open] .faq__q {
+    padding-bottom: 16px;
+    color: var(--accent-text);
+  }
+
+  @media (hover: hover) {
+    .faq__q:hover {
+      color: var(--accent-text);
+    }
+  }
+
+  /* Кругла кнопка 40 px: «+» закрито, «−» відкрито */
+  .faq__icon {
+    position: relative;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border: 1px solid color-mix(in srgb, var(--fg) 30%, transparent);
+    border-radius: 50%;
+    color: color-mix(in srgb, var(--fg) 90%, transparent);
+    transition: border-color 0.2s ease;
+  }
+
+  .faq__icon::before,
+  .faq__icon::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 10px;
+    height: 1.5px;
+    border-radius: 1px;
+    background: currentColor;
+    transform: translate(-50%, -50%);
+    transition: transform var(--dur-btn) var(--ease-out-in);
+  }
+
+  .faq__icon::after {
+    transform: translate(-50%, -50%) rotate(90deg);
+  }
+
+  .faq__item[open] .faq__icon {
+    border-color: var(--accent-text);
+    color: var(--accent-text);
+  }
+
+  .faq__item[open] .faq__icon::after {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+
+  .faq__a {
+    padding: 0 64px 28px 0;
+    font-size: 20px;
+    line-height: 30px;
+    color: color-mix(in srgb, var(--fg) 85%, transparent);
+  }
+
+  @media (max-width: 1100px) {
+    .faq {
+      grid-template-columns: minmax(0, 1fr);
+      row-gap: 40px;
+    }
+    .faq__q {
+      font-size: 20px;
+      line-height: 28px;
+    }
+    .faq__a {
+      font-size: 18px;
+      line-height: 28px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .faq {
+      row-gap: 24px;
+      padding: 96px 20px;
+    }
+    .faq__title {
+      font-size: 32px;
+      line-height: 40px;
+    }
+    .faq__q {
+      padding: 20px 0;
+      font-size: 18px;
+      line-height: 26px;
+    }
+    .faq__item[open] .faq__q {
+      padding-bottom: 12px;
+    }
+    .faq__a {
+      padding: 0 0 20px;
+      font-size: 16px;
+      line-height: 24px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .faq__icon::before,
+    .faq__icon::after {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  // Відкрите одне питання за раз (у браузерах без атрибута name у <details>)
+  document.querySelectorAll<HTMLElement>('[data-faq]').forEach((root) => {
+    const items = Array.from(root.querySelectorAll<HTMLDetailsElement>('details'));
+    items.forEach((d) =>
+      d.addEventListener('toggle', () => {
+        if (d.open) items.forEach((o) => o !== d && (o.open = false));
+      }),
+    );
+  });
+</script>

@@ -1,0 +1,214 @@
+---
+/**
+ * Блок «04 Як ми працюємо» (Figma «Головна · Варіант 2», темна й світла тема).
+ * Шість кроків сходинками: ряд 1 — 01, 02; ряд 2 — порожньо, 03, 04; ряд 3 — 05 і широка 06 з кнопками.
+ * Кроки читаються зліва направо, зверху вниз (план, «Варіант A після правок Яни»).
+ * Сітка: три колонки по 435 px на 1512, між ними 24 px. Перший крок — щільна картка.
+ * Фон блоку — векторні плями, що «дихають» (Breath.astro), у місцях плям із Figma.
+ */
+import Breath from './Breath.astro';
+import Button from './Button.astro';
+import { keepLastWords, localePath, ui, type Locale } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = ui[locale].process;
+const menu = ui[locale].menu;
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<section class="process" aria-labelledby="process-title">
+  <Breath variant="process" />
+
+  <header class="process__head">
+    <p class="process__eyebrow">{t.eyebrow}</p>
+    <h2 class="process__title" id="process-title">{t.title}</h2>
+  </header>
+
+  <ol class="process__steps">
+    {
+      t.steps.map((step, i) => (
+        <li class:list={['step', `step--${i + 1}`]}>
+          <div class="step__head">
+            <p class="step__num" aria-hidden="true">{pad(i + 1)}</p>
+            <h3 class="step__title">{step.title}</h3>
+          </div>
+          <p class="step__text">{keepLastWords(step.text)}</p>
+          {i === t.steps.length - 1 && (
+            <div class="step__actions">
+              <Button href={localePath(locale, '/contact/')} variant="primary">{menu.call}</Button>
+              <Button href={localePath(locale, '/contact/#message')} variant="secondary">{menu.message}</Button>
+            </div>
+          )}
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .process {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    gap: 56px;
+    padding: 120px var(--gutter);
+    background: var(--section-bg);
+    overflow: hidden;
+  }
+
+
+  .process__head {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .process__eyebrow,
+  .step__num {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .process__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 56px;
+    line-height: 68px;
+  }
+
+  /* Сходинки: три колонки, 24 px між ними й між рядами */
+  .process__steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 24px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .step--1 { grid-area: 1 / 1; }
+  .step--2 { grid-area: 1 / 2; }
+  .step--3 { grid-area: 2 / 2; }
+  .step--4 { grid-area: 2 / 3; }
+  .step--5 { grid-area: 3 / 1; }
+  .step--6 { grid-area: 3 / 2 / 4 / 4; }
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 32px;
+    border: 1px solid var(--step-border);
+    border-radius: 28px;
+    background: var(--step-bg);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  .step--1 {
+    border-color: var(--step-first-border);
+    background: var(--step-first-bg);
+  }
+
+  .step__head {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .step__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 26px;
+    line-height: 34px;
+  }
+
+  .step__text {
+    font-size: 18px;
+    line-height: 28px;
+    color: color-mix(in srgb, var(--fg) 90%, transparent);
+  }
+
+  .step--6 .step__text {
+    max-width: 640px;
+  }
+
+  .step__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-top: 12px;
+  }
+
+  /* Вужчий екран: два стовпчики, порядок 01–06 зберігається */
+  @media (max-width: 1100px) {
+    .process__steps {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .step--1 { grid-area: 1 / 1; }
+    .step--2 { grid-area: 1 / 2; }
+    .step--3 { grid-area: 2 / 1; }
+    .step--4 { grid-area: 2 / 2; }
+    .step--5 { grid-area: 3 / 1; }
+    .step--6 { grid-area: 3 / 2; }
+    .step__title {
+      font-size: 22px;
+      line-height: 30px;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .process__steps {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .step--1,
+    .step--2,
+    .step--3,
+    .step--4,
+    .step--5,
+    .step--6 {
+      grid-area: auto;
+    }
+  }
+
+  /* Телефон */
+  @media (max-width: 640px) {
+    .process {
+      gap: 24px;
+      padding: 96px 20px;
+    }
+    .process__title {
+      font-size: 32px;
+      line-height: 40px;
+    }
+    .process__steps {
+      gap: 16px;
+    }
+    .step {
+      gap: 16px;
+      padding: 24px;
+      border-radius: 24px;
+    }
+    .step__text {
+      font-size: 16px;
+      line-height: 24px;
+    }
+    .step__actions {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .step__actions :global(.btn) {
+      height: 50px;
+    }
+  }
+</style>

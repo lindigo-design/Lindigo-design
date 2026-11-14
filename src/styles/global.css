@@ -17,6 +17,9 @@
   --beige-300: #d9c4a5;
   --muted-dark: #b8a8cc;
   --muted-light: #6b5673;
+  /* Нові кольори з макета «Варіант 2» */
+  --night: #0c081c; /* Figma: background-dark (темна тема) */
+  --grey-supplement: #8a8394; /* Figma: second-supplement */
 
   /* Шрифти */
   --font-display: 'Unbounded Variable', system-ui, sans-serif;
@@ -26,6 +29,10 @@
   /* Рух */
   --ease-out-in: cubic-bezier(0.76, 0, 0.24, 1);
   --dur-btn: 0.5s;
+
+  /* Бічні поля блоків: 80 px на 1512, менші на вужчих екранах; на ширших за 1512 вміст стоїть
+     по центру в колонці 1352 px (100 % — ширина блоку, тож працює в padding). */
+  --gutter: max(clamp(40px, 5.29vw, 80px), calc((100% - 1352px) / 2));
 
   /* Скруглення */
   --radius-card: 24px;
@@ -38,6 +45,21 @@
   --accent-text: var(--orchid);
   /* Перемикач теми (Figma, шапка): у темній обводка бежева, у світлій — Orchid Deep */
   --switch-border: var(--beige-50);
+  /* Блоки «Варіанта 2» */
+  --section-bg: var(--night);
+  --card-bg: rgba(54, 54, 54, 0.2);
+  --card-border: rgba(54, 54, 54, 0.2);
+  --tag-border: color-mix(in srgb, var(--fg) 28%, transparent);
+  --more-border: color-mix(in srgb, var(--fg) 60%, transparent);
+  --text-supplement: var(--grey-supplement);
+  --rule: color-mix(in srgb, var(--fg) 30%, transparent);
+  /* Підписи «Задача клієнта», номери неактивних вкладок */
+  --label-muted: var(--grey-supplement);
+  /* «Як ми працюємо»: перший крок виділений щільною карткою */
+  --step-bg: var(--card-bg);
+  --step-border: var(--card-border);
+  --step-first-bg: var(--indigo-950);
+  --step-first-border: rgba(248, 238, 221, 0.16);
   --glass-bg: rgba(21, 11, 46, 0.55);
   --glass-border: rgba(248, 238, 221, 0.2);
   --track: rgba(248, 238, 221, 0.3);
@@ -59,6 +81,18 @@
   --text-muted: var(--muted-light);
   --accent-text: var(--orchid-deep);
   --switch-border: var(--orchid-deep);
+  --section-bg: var(--beige-50);
+  --card-bg: rgba(255, 255, 255, 0.25);
+  --card-border: rgba(54, 54, 54, 0.2);
+  --tag-border: color-mix(in srgb, var(--fg) 22%, transparent);
+  --more-border: color-mix(in srgb, var(--fg) 48%, transparent);
+  --text-supplement: var(--grey-supplement);
+  --rule: color-mix(in srgb, var(--fg) 24%, transparent);
+  --label-muted: var(--indigo-800);
+  --step-bg: rgba(21, 11, 46, 0.03);
+  --step-border: rgba(21, 11, 46, 0.13);
+  --step-first-bg: var(--beige-50);
+  --step-first-border: rgba(21, 11, 46, 0.13);
   --glass-bg: rgba(248, 238, 221, 0.6);
   --glass-border: rgba(21, 11, 46, 0.16);
   --track: rgba(21, 11, 46, 0.25);

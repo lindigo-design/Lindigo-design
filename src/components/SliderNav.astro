@@ -1,0 +1,76 @@
+---
+/**
+ * Навігація слайдера: стрілки в колі 48 × 48 і лічильник «01 / 04» між ними (Figma, «Вибрані роботи»).
+ * Один компонент для «Робіт» і «Відгуків» (план, розділ 10: «Навігація слайдера»).
+ * Стрілки — SVG з Figma (коло й стрілка, своя пара на тему). Наведення — те саме кільце .ring-hover.
+ * Логіку перемикання веде блок, у якому стоїть навігація: кнопки мають data-slider-prev / data-slider-next.
+ */
+import prevDark from '../assets/works/prev-dark.svg';
+import prevLight from '../assets/works/prev-light.svg';
+import nextDark from '../assets/works/next-dark.svg';
+import nextLight from '../assets/works/next-light.svg';
+
+interface Props {
+  prevLabel: string;
+  nextLabel: string;
+  total: number;
+}
+
+const { prevLabel, nextLabel, total } = Astro.props;
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<div class="slider-nav">
+  <button class="slider-nav__btn ring-hover" type="button" aria-label={prevLabel} data-slider-prev disabled={total < 2}>
+    <img src={prevDark.src} width="48" height="48" alt="" data-theme-only="dark" />
+    <img src={prevLight.src} width="48" height="48" alt="" data-theme-only="light" />
+  </button>
+  <p class="slider-nav__count">
+    <span data-slider-current>01</span> / <span>{pad(total)}</span>
+  </p>
+  <button class="slider-nav__btn ring-hover" type="button" aria-label={nextLabel} data-slider-next disabled={total < 2}>
+    <img src={nextDark.src} width="48" height="48" alt="" data-theme-only="dark" />
+    <img src={nextLight.src} width="48" height="48" alt="" data-theme-only="light" />
+  </button>
+</div>
+
+<style>
+  .slider-nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  /* Коло вже намальоване в SVG; власна обводка .ring-hover прозора, кільце з'являється при наведенні */
+  .slider-nav__btn {
+    display: block;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border-color: transparent;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .slider-nav__btn img {
+    display: block;
+  }
+
+  .slider-nav__btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .slider-nav__btn:disabled::before {
+    display: none;
+  }
+
+  .slider-nav__count {
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+  }
+</style>

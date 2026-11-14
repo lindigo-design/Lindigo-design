@@ -4,6 +4,15 @@ import Header from './Header.astro';
 import Hero from './hero/Hero.astro';
 import Footer from './Footer.astro';
 import Menu from './Menu.astro';
+import Directions from './Directions.astro';
+import Principles from './Principles.astro';
+import Works from './Works.astro';
+import Process from './Process.astro';
+import PhotoStrip from './PhotoStrip.astro';
+import Reviews from './Reviews.astro';
+import About from './About.astro';
+import Faq from './Faq.astro';
+import Cta from './Cta.astro';
 import { ui, type Locale } from '../i18n/ui';
 
 interface Props {
@@ -19,6 +28,15 @@ const t = ui[locale];
   <Menu locale={locale} />
   <main>
     <Hero locale={locale} />
+    <Directions locale={locale} />
+    <Principles locale={locale} />
+    <Works locale={locale} />
+    <Process locale={locale} />
+    <PhotoStrip locale={locale} />
+    <Reviews locale={locale} />
+    <About locale={locale} />
+    <Faq locale={locale} />
+    <Cta locale={locale} />
   </main>
   <Footer locale={locale} />
 </Base>
