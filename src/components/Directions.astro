@@ -4,9 +4,9 @@
  * П'ять карток на скляній підкладці: номер, назва, мітки, опис, «Детальніше» і зображення робіт напряму.
  * Фон блоку — векторні плями, що «дихають» (Breath.astro); кольори зняті з фону Figma.
  *
- * Стопка карток (як у Kota Creative): під час прокрутки кожна картка прилипає під шапкою,
- * наступна наїжджає на неї знизу; верхні видно смужками по 16 px. Картка, яку накривають,
- * трохи зменшується (до 95 %) і темнішає — це веде скрипт за прокруткою.
+ * Стопка карток (як у Kota Creative): під час прокрутки заголовок блоку й кожна картка прилипають
+ * під шапкою, наступна картка наїжджає знизу; верхні картки видно смужками по 16 px.
+ * Те, що накривають, трохи зменшується (до 95 %) і темнішає (заголовок блякне до нуля) — веде скрипт.
  * Лише на комп'ютері й планшеті з достатньою висотою екрана: на телефоні картки вищі за екран.
  */
 import { Image } from 'astro:assets';
@@ -26,13 +26,16 @@ interface Props {
 const { locale } = Astro.props;
 const t = ui[locale].directions;
 
-/** Кадрування як у Figma: яку частину зображення видно (object-position) і висота на комп'ютері */
+/**
+ * Кадрування як у Figma (рамка фото 605 × 520): яку частину зображення видно (object-position)
+ * і наближення (zoom) навколо точки origin — з imageTransform шарів макета.
+ */
 const media = [
-  { src: work1, position: '50% 26%', height: 360 },
-  { src: work2, position: '50% 75%', height: 360 },
-  { src: work3, position: '50% 62%', height: 360 },
-  { src: work4, position: '50% 50%', height: 360 },
-  { src: work5, position: '95% 65%', height: 328 },
+  { src: work1, position: '48.9% 50%', zoom: 1.062, origin: '50% 47.9%' },
+  { src: work2, position: '50% 50%' },
+  { src: work3, position: '24.4% 50%' },
+  { src: work4, position: '50% 50%' },
+  { src: work5, position: '50% 50%' },
 ];
 const pad = (n: number) => String(n).padStart(2, '0');
 ---
@@ -40,7 +43,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 <section class="directions" aria-labelledby="directions-title">
   <Breath variant="directions" />
 
-  <header class="directions__head">
+  <header class="directions__head" data-stack-head>
     <p class="directions__eyebrow">{t.eyebrow}</p>
     <h2 class="directions__title" id="directions-title">{t.title}</h2>
   </header>
@@ -61,13 +64,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
               <span class="visually-hidden">: {item.title}</span>
             </Button>
           </div>
-          <div class="direction__media" style={`--h: ${media[i].height}px`}>
+          <div class="direction__media">
             <Image
               src={media[i].src}
               alt=""
               widths={[480, 800, 1200]}
               sizes="(max-width: 760px) 100vw, 640px"
-              style={`object-position: ${media[i].position}`}
+              style={`object-position: ${media[i].position}` + (media[i].zoom ? `; scale: ${media[i].zoom}; transform-origin: ${media[i].origin}` : '')}
             />
           </div>
         </li>
@@ -188,7 +191,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     position: relative;
     flex: 1 1 0;
     min-width: 0;
-    height: var(--h);
+    /* картка 586 px у макеті: фото 520 + поля 32 + рамка */
+    height: 520px;
     overflow: hidden;
     border-radius: 20px;
   }
@@ -200,7 +204,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
 
   /* ---------- Стопка карток ---------- */
-  @media (min-width: 761px) and (min-height: 700px) {
+  @media (min-width: 761px) and (min-height: 760px) {
+    .directions__head {
+      position: sticky;
+      top: 128px;
+      transform-origin: 0 0;
+    }
     .direction {
       position: sticky;
       /* під шапкою (≈ 104 px) + 24; кожна наступна на 16 px нижче — верхні видно смужками */
@@ -235,7 +244,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       flex: 1 1 0;
     }
     .direction__media {
-      height: 300px;
+      height: 420px;
     }
     .direction__title {
       font-size: 32px;
@@ -300,8 +309,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
 <script>
   // Стопка: картка, яку накриває наступна, зменшується до 95 % і темнішає
+  const head = document.querySelector<HTMLElement>('[data-stack-head]');
   const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-stack-card]'));
-  const stackMode = window.matchMedia('(min-width: 761px) and (min-height: 700px)');
+  const stackMode = window.matchMedia('(min-width: 761px) and (min-height: 760px)');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   let raf = 0;
 
@@ -320,6 +330,20 @@ const pad = (n: number) => String(n).padStart(2, '0');
       card.style.transform = p ? `scale(${1 - 0.05 * p})` : '';
       card.style.setProperty('--cover', p.toFixed(3));
     });
+
+    // Заголовок блоку: перша картка наїжджає на нього — він блякне й трохи меншає
+    if (head && cards[0]) {
+      let p = 0;
+      if (on) {
+        const stickTop = parseFloat(getComputedStyle(cards[0]).top) || 0;
+        const dist = cards[0].getBoundingClientRect().top - stickTop;
+        // починає блякнути, коли картка підходить до заголовка (висота заголовка + відступ 56)
+        p = Math.min(1, Math.max(0, 1 - dist / (head.offsetHeight + 56)));
+      }
+      head.style.transform = p ? `scale(${1 - 0.05 * p})` : '';
+      // повністю згасає: інакше його край видно з-під зменшеної першої картки
+      head.style.opacity = p ? String(1 - p) : '';
+    }
   };
 
   const request = () => {
