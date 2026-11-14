@@ -1,24 +1,21 @@
 ---
 /**
- * Курсор сайту: кільце з аурою і слід-«комета» з трьох хвостиків.
+ * Курсор сайту: кільце з крапкою в центрі (як у DataTixx), у фірмовому градієнті.
  *
- * Кільце 32 px стоїть точно в точці курсора, без запізнення й без власного руху (коли мишка
- * стоїть — стоїть і кільце). Обводка — той самий градієнт, що й у кнопок на hover
- * (--ring-from → --ring-to, кольори повільно обертаються), навколо м'яка аура. Над посиланнями
- * й кнопками кільце трохи більшає. Системний курсор лишається.
+ * Кільце 40 px з обводкою 1,5 px — той самий градієнт, що й у кнопок на hover
+ * (--ring-from → --ring-to, кольори повільно обертаються), навколо м'яка аура.
+ * У центрі крапка 8 px, залита тим самим градієнтом, з легким світінням.
+ * Обидва стоять точно в точці курсора, без запізнення й без власного руху.
+ * Над посиланнями й кнопками кільце більшає до 52 px. Системний курсор лишається.
  *
- * Слід: під час руху за кільцем тягнуться 3 хвостики різної товщини (3,2 / 2 / 1,2 px). Вони йдуть
- * точно по шляху курсора, тож однаково виглядають у будь-якому напрямку; трохи розходяться віялом,
- * звужуються, переходять від --ring-from до --ring-to і тануть за ≈ 0,5 с. Починаються від краю
- * кільця. Сила — TAIL_ALPHA. На першому екрані сліду немає: там рідина сама реагує на мишку.
- *
- * Лише для миші. З «зменшити рух» — тільки кільце, без сліду й обертання обводки.
- * Поки відкрите меню — слід схований.
+ * Лише для миші (на дотикових екранах курсора немає).
+ * З «зменшити рух» — без обертання кольорів обводки.
  */
 ---
 
-<canvas class="cursor-trail" aria-hidden="true" data-cursor-trail></canvas>
-<div class="cursor-ring" aria-hidden="true" data-cursor-ring></div>
+<div class="cursor-ring" aria-hidden="true" data-cursor-ring>
+  <span class="cursor-ring__dot"></span>
+</div>
 
 <style>
   @property --cursor-angle {
@@ -27,17 +24,8 @@
     initial-value: 0deg;
   }
 
-  .cursor-trail {
-    position: fixed;
-    inset: 0;
-    z-index: 199;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
-
   .cursor-ring {
-    --size: 32px;
+    --size: 40px;
     position: fixed;
     left: 0;
     top: 0;
@@ -51,7 +39,7 @@
     /* аура: м'яке світіння кольором обводки */
     box-shadow:
       0 0 10px color-mix(in srgb, var(--ring-from) 30%, transparent),
-      inset 0 0 6px color-mix(in srgb, var(--ring-from) 18%, transparent);
+      inset 0 0 6px color-mix(in srgb, var(--ring-from) 16%, transparent);
     transition:
       opacity 0.3s ease,
       width 0.25s var(--ease-out-in),
@@ -79,17 +67,29 @@
     animation: cursor-ring-run 4s linear infinite;
   }
 
+  /* Крапка в центрі: той самий градієнт і легке світіння */
+  .cursor-ring__dot {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    margin: -4px 0 0 -4px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--ring-from), var(--ring-to));
+    box-shadow: 0 0 8px color-mix(in srgb, var(--ring-from) 55%, transparent);
+  }
+
   .cursor-ring.is-visible {
     opacity: 1;
   }
 
-
   /* Над посиланням чи кнопкою */
   .cursor-ring.is-hover {
-    --size: 44px;
+    --size: 52px;
     box-shadow:
       0 0 16px color-mix(in srgb, var(--ring-from) 45%, transparent),
-      inset 0 0 8px color-mix(in srgb, var(--ring-from) 24%, transparent);
+      inset 0 0 8px color-mix(in srgb, var(--ring-from) 22%, transparent);
   }
 
   @keyframes cursor-ring-run {
@@ -99,8 +99,7 @@
   }
 
   @media not ((hover: hover) and (pointer: fine)) {
-    .cursor-ring,
-    .cursor-trail {
+    .cursor-ring {
       display: none;
     }
   }
@@ -109,203 +108,30 @@
     .cursor-ring::before {
       animation: none;
     }
-    .cursor-trail {
-      display: none;
-    }
   }
 </style>
 
 <script>
   const ring = document.querySelector<HTMLElement>('[data-cursor-ring]');
-  const canvas = document.querySelector<HTMLCanvasElement>('[data-cursor-trail]');
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-  /** Непрозорість хвостів біля кільця (0–1); до кінців тануть до нуля. Підсилити — збільшити. */
-  const TAIL_ALPHA = 0.6;
-  /** Скільки живе слід, мс (хвости тануть за цей час після зупинки) */
-  const LIFE = 500;
-  /** Найбільша довжина сліду, px — і при швидкому русі хвіст не тягнеться через екран */
-  const MAX_LEN = 140;
-  /** Три хвостики: товщина біля кільця (px) і зсув убік від шляху (px; росте до кінця — віяло) */
-  const TAILS = [
-    { width: 3.2, offset: 0 },
-    { width: 2, offset: -7 },
-    { width: 1.2, offset: 7 },
-  ];
   /** Що вважаємо «посиланням чи кнопкою» — над ними кільце більшає */
   const INTERACTIVE = 'a, button, summary, label, select, input, textarea, [role="button"], [tabindex]:not([tabindex="-1"])';
 
-  if (ring && canvas) {
-    const ctx = canvas.getContext('2d');
-    let visible = false, raf = 0, menuOpen = false, overHero = false, hover = false;
-    let cx = 0, cy = 0;
-    let colors: [number[], number[]] = [[221, 163, 247], [242, 99, 42]];
-    // шлях курсора за останні LIFE мс
-    const path: { x: number; y: number; t: number }[] = [];
-
-    const toRgb = (value: string, fallback: number[]) => {
-      const hex = value.trim().replace('#', '');
-      if (!/^[0-9a-f]{6}$/i.test(hex)) return fallback;
-      return [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16));
-    };
-    const readColors = () => {
-      const css = getComputedStyle(document.documentElement);
-      colors = [toRgb(css.getPropertyValue('--ring-from'), colors[0]), toRgb(css.getPropertyValue('--ring-to'), colors[1])];
-    };
-    const mix = (t: number) => colors[0].map((c, i) => Math.round(c + (colors[1][i] - c) * t)).join(' ');
-
-    const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      canvas.width = Math.round(window.innerWidth * dpr);
-      canvas.height = Math.round(window.innerHeight * dpr);
-      ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-
-    const allowed = () => visible && !reduceMotion.matches && !menuOpen && !overHero;
-
-    /*
-     * Слід малюємо плавно:
-     * 1) точки курсора (від найновішої) згладжуємо кривою Catmull-Rom і беремо кожні 3 px;
-     * 2) обрізаємо слід до MAX_LEN px і LIFE мс;
-     * 3) кожен хвостик — одна залита стрічка, що звужується до кінця, з одним градієнтом
-     *    (без окремих відрізків, тож на стиках немає крапок і зламів).
-     */
-    const sample = (now: number) => {
-      // від найновішої точки (там, де курсор) до найстарішої
-      const pts = path.slice().reverse();
-      const out: { x: number; y: number; age: number; s: number }[] = [];
-      const at = (i: number) => pts[Math.max(0, Math.min(pts.length - 1, i))];
-      let s = 0;
-      let prev: { x: number; y: number } | null = null;
-      for (let i = 0; i < pts.length - 1; i++) {
-        const p0 = at(i - 1), p1 = at(i), p2 = at(i + 1), p3 = at(i + 2);
-        const n = Math.max(1, Math.ceil(Math.hypot(p2.x - p1.x, p2.y - p1.y) / 3));
-        for (let j = 0; j < n; j++) {
-          const u = j / n, u2 = u * u, u3 = u2 * u;
-          const x = 0.5 * (2 * p1.x + (-p0.x + p2.x) * u + (2 * p0.x - 5 * p1.x + 4 * p2.x - p3.x) * u2 + (-p0.x + 3 * p1.x - 3 * p2.x + p3.x) * u3);
-          const y = 0.5 * (2 * p1.y + (-p0.y + p2.y) * u + (2 * p0.y - 5 * p1.y + 4 * p2.y - p3.y) * u2 + (-p0.y + 3 * p1.y - 3 * p2.y + p3.y) * u3);
-          if (prev) s += Math.hypot(x - prev.x, y - prev.y);
-          const age = Math.min(1, (now - (p1.t + (p2.t - p1.t) * u)) / LIFE);
-          if (s > MAX_LEN || age >= 1) return out;
-          out.push({ x, y, age, s });
-          prev = { x, y };
-        }
-      }
-      return out;
-    };
-
-    const draw = (now: number) => {
-      if (!ctx) return;
-      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      while (path.length && now - path[0].t > LIFE) path.shift();
-      if (!path.length) return;
-      const pts = sample(now);
-      if (pts.length < 3) return;
-
-      // нормалі до шляху (згладжені — від сусідніх точок)
-      const normals = pts.map((_, i) => {
-        const a = pts[Math.max(0, i - 2)];
-        const b = pts[Math.min(pts.length - 1, i + 2)];
-        const dx = b.x - a.x, dy = b.y - a.y;
-        const d = Math.hypot(dx, dy) || 1;
-        return { x: -dy / d, y: dx / d };
-      });
-      const head = pts[0];
-      const tail = pts[pts.length - 1];
-      // наскільки слід «живий»: тане і з часом, і до кінця довжини
-      const fadeAt = (p: { age: number; s: number }) => Math.max(0, Math.min(1 - p.age, 1 - p.s / MAX_LEN));
-
-      for (const t of TAILS) {
-        const left: [number, number][] = [];
-        const right: [number, number][] = [];
-        pts.forEach((p, i) => {
-          const f = fadeAt(p);
-          const k = p.s / MAX_LEN;
-          const off = t.offset * (0.3 + 0.7 * k); // віяло: хвостики розходяться до кінця
-          const half = (t.width * (0.25 + 0.75 * f)) / 2;
-          const n = normals[i];
-          left.push([p.x + n.x * (off + half), p.y + n.y * (off + half)]);
-          right.push([p.x + n.x * (off - half), p.y + n.y * (off - half)]);
-        });
-        const g = ctx.createLinearGradient(head.x, head.y, tail.x, tail.y);
-        const fHead = fadeAt(head);
-        g.addColorStop(0, `rgb(${mix(0)} / ${TAIL_ALPHA * fHead})`);
-        g.addColorStop(0.5, `rgb(${mix(0.5)} / ${TAIL_ALPHA * fHead * 0.45})`);
-        g.addColorStop(1, `rgb(${mix(1)} / 0)`);
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.moveTo(left[0][0], left[0][1]);
-        for (let i = 1; i < left.length; i++) ctx.lineTo(left[i][0], left[i][1]);
-        for (let i = right.length - 1; i >= 0; i--) ctx.lineTo(right[i][0], right[i][1]);
-        ctx.closePath();
-        ctx.fill();
-      }
-
-      // хвости починаються від краю кільця: усередині кільця стираємо
-      ctx.globalCompositeOperation = 'destination-out';
-      ctx.beginPath();
-      ctx.arc(cx, cy, (hover ? 22 : 16) - 0.5, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.globalCompositeOperation = 'source-over';
-    };
-
-    const tick = (now: number) => {
-      draw(now);
-      raf = path.length > 1 ? requestAnimationFrame(tick) : 0;
-      if (!raf) ctx?.clearRect(0, 0, window.innerWidth, window.innerHeight);
-    };
-
-    const start = () => {
-      if (!raf) raf = requestAnimationFrame(tick);
-    };
-
+  if (ring) {
     window.addEventListener(
       'pointermove',
       (e) => {
         if (e.pointerType !== 'mouse' || !finePointer.matches) return;
-        cx = e.clientX;
-        cy = e.clientY;
-        // кільце стоїть точно під курсором, без запізнення
-        ring.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
-        visible = true;
+        // точно під курсором, без запізнення
+        ring.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0)`;
         ring.classList.add('is-visible');
-
         const target = e.target instanceof Element ? e.target : null;
-        hover = !!target?.closest(INTERACTIVE);
-        ring.classList.toggle('is-hover', hover);
-        overHero = !!target?.closest('[data-hero]');
-
-        if (allowed()) {
-          path.push({ x: cx, y: cy, t: performance.now() });
-          if (path.length > 120) path.shift();
-          start();
-        } else {
-          path.length = 0;
-        }
+        ring.classList.toggle('is-hover', !!target?.closest(INTERACTIVE));
       },
       { passive: true },
     );
 
-    // курсор вийшов за межі вікна — ховаємо кільце; хвости тануть самі
-    document.documentElement.addEventListener('mouseleave', () => {
-      visible = false;
-      ring.classList.remove('is-visible');
-    });
-
-    window.addEventListener('lindigo:menu', (e) => {
-      menuOpen = !!(e as CustomEvent<{ open: boolean }>).detail?.open;
-      if (menuOpen) path.length = 0;
-    });
-
-    // тема змінилась — нові кольори хвостів
-    new MutationObserver(readColors).observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['data-theme'],
-    });
-
-    window.addEventListener('resize', resize);
-    readColors();
-    resize();
+    // курсор вийшов за межі вікна — ховаємо кільце
+    document.documentElement.addEventListener('mouseleave', () => ring.classList.remove('is-visible'));
   }
 </script>
