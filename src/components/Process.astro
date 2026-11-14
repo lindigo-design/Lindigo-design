@@ -31,7 +31,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   <!-- Темна тема (макет «-new»): градієнт блоку + фон 20 % Color Dodge + вирізана медуза -->
   <div class="process__dark" aria-hidden="true" data-theme-only="dark">
     <Image class="process__glow" src={glowDark} alt="" widths={[960, 1600, 2048, 2752]} sizes="100vw" loading="lazy" />
-    <Image class="process__jelly" src={jellyDark} alt="" widths={[960, 1600, 2048, 2752]} sizes="108vw" loading="lazy" />
+    <Image class="process__jelly" src={jellyDark} alt="" widths={[960, 1600, 2048, 2752]} sizes="(min-width: 1900px) 2170px, 108vw" loading="lazy" />
   </div>
   <!-- Світла тема -->
   <div class="process__bg" aria-hidden="true" data-theme-only="light">
@@ -101,13 +101,16 @@ const pad = (n: number) => String(n).padStart(2, '0');
     mix-blend-mode: color-dodge;
   }
 
-  /* вирізана медуза: кадр із макета — ширина 107.4 %, зсув ліворуч 5.4 %, угорі;
-     пропорція рамки 1624 × 1019.5 (у макеті трохи розтягнута по висоті) */
+  /* вирізана медуза: розмір і місце — від колонки вмісту (як у макеті 1512: колонка 1352,
+     медуза 1624 = 1,2012 колонки, лівий край на 0,1195 колонки лівіше за колонку), угорі.
+     Так на широкому екрані медуза стоїть відносно карток так само, як на 1512.
+     Пропорція рамки 1624 × 1019.5 (у макеті трохи розтягнута по висоті) */
   .process__dark :global(.process__jelly) {
+    --col: calc(100% - 2 * var(--gutter));
     position: absolute;
     top: 0;
-    left: -5.4%;
-    width: 107.4%;
+    left: calc(var(--gutter) - var(--col) * 0.1195);
+    width: calc(var(--col) * 1.2012);
     height: auto;
     max-width: none;
     aspect-ratio: 1624 / 1019.5;
