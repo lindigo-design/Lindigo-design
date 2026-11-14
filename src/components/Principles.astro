@@ -105,6 +105,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     grid-column: 3;
     grid-row: 2;
     height: 263px;
+    /* фото починається на рівні 3-го рядка тексту поруч (2 рядки по 62 px на 1512) */
+    margin-top: calc(2 * clamp(32px, 4.1vw, 62px));
     overflow: hidden;
     border-radius: 20px;
   }
@@ -153,7 +155,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
   .principle__text {
     font-weight: 500;
-    font-size: 13px;
+    font-size: 14px;
     line-height: 18px;
   }
 
@@ -176,6 +178,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       grid-row: 3;
     }
     .principles__media {
+      margin-top: 0;
       grid-column: 2;
       grid-row: 3;
       height: 240px;

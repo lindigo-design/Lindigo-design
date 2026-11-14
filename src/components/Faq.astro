@@ -5,8 +5,16 @@
  * відкрите питання кольором акценту, відповідь 20 px.
  * Акордеон на <details>/<summary>: працює з клавіатури й без JavaScript.
  * Скрипт лише робить так, що відкрите одне питання за раз (як у макеті).
+ *
+ * Фон: дві медузи з макета (своя картинка для кожної теми, прозорий фон). Велика — праворуч за
+ * питаннями, мала «далеко» — ліворуч, повернута, розмита й напівпрозора. Місця — центри з макета
+ * 1512 × 1123 у %, розмір — % ширини блоку. Картинки — з запасом для ретіни (до 2752 px).
  */
-import Breath from './Breath.astro';
+import { Image } from 'astro:assets';
+import jellyDark from '../assets/faq/jellyfish-dark.webp';
+import jellyLight from '../assets/process/jellyfish-light.webp';
+// світла велика: та сама медуза, поставлена вертикально (як у макеті), прозорий фон
+import jellyLightUpright from '../assets/faq/jellyfish-light-upright.webp';
 import { keepLastWords, ui, type Locale } from '../i18n/ui';
 
 interface Props {
@@ -18,7 +26,22 @@ const t = ui[locale].faq;
 ---
 
 <section class="faq" aria-labelledby="faq-title" data-faq>
-  <Breath variant="faq" />
+  <div class="faq__bg" aria-hidden="true">
+    <!-- Темна тема: вертикальна медуза -->
+    <div class="faq__jelly faq__jelly--big" data-theme-only="dark">
+      <Image src={jellyDark} alt="" widths={[480, 960, 1536]} sizes="(max-width: 760px) 60vw, 31vw" loading="lazy" />
+    </div>
+    <div class="faq__jelly faq__jelly--far" data-theme-only="dark">
+      <Image src={jellyDark} alt="" widths={[240, 480]} sizes="13vw" loading="lazy" />
+    </div>
+    <!-- Світла тема: та сама медуза, що в «Як ми працюємо», поставлена вертикально -->
+    <div class="faq__jelly faq__jelly--big-light" data-theme-only="light">
+      <Image src={jellyLightUpright} alt="" widths={[400, 800, 1200]} sizes="(max-width: 1100px) 46vw, 20vw" loading="lazy" />
+    </div>
+    <div class="faq__jelly faq__jelly--far-light" data-theme-only="light">
+      <Image src={jellyLight} alt="" widths={[480, 960]} sizes="23vw" loading="lazy" />
+    </div>
+  </div>
 
   <header class="faq__head">
     <p class="faq__eyebrow">{t.eyebrow}</p>
@@ -49,8 +72,96 @@ const t = ui[locale].faq;
     column-gap: 80px;
     align-items: start;
     padding: 120px var(--gutter);
-    background: var(--section-bg);
+    background: var(--section-bg-alt);
     overflow: hidden;
+  }
+
+  /* ---------- Медузи (макет 1512 × 1123) ---------- */
+  .faq__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .faq__jelly {
+    position: absolute;
+    left: var(--x);
+    top: var(--y);
+    width: var(--w);
+    aspect-ratio: var(--ratio);
+    translate: -50% -50%;
+    rotate: var(--rot, 0deg);
+    opacity: var(--op, 1);
+    overflow: hidden;
+  }
+
+  .faq__jelly :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Темна: велика 462 × 786 з центром (1126, 672) */
+  .faq__jelly--big {
+    --x: 74.47%;
+    --y: 59.84%;
+    --w: 30.56%;
+    --ratio: 462 / 786;
+  }
+
+  /* Темна: мала 193 × 329, центр (252.6, 702.5), поворот 45°, 40 %, розмиття */
+  .faq__jelly--far {
+    --x: 16.71%;
+    --y: 62.56%;
+    --w: 12.76%;
+    --ratio: 193 / 329;
+    --rot: 45.08deg;
+    --op: 0.4;
+    filter: blur(5.9px);
+  }
+
+  /* Світла: велика вертикальна медуза ≈ 290 × 680 з центром (1185, 685), 80 % */
+  .faq__jelly--big-light {
+    --x: 78.4%;
+    --y: 61%;
+    --w: 19.2%;
+    --ratio: auto;
+    --op: 0.8;
+  }
+
+  .faq__jelly--big-light :global(img) {
+    height: auto;
+    object-fit: contain;
+  }
+
+  /* Світла: мала 344.5 × 329 (картинка вписана цілком), центр (289, 622.8), поворот 7.8°, 50 % */
+  .faq__jelly--far-light {
+    --x: 19.11%;
+    --y: 55.46%;
+    --w: 22.79%;
+    --ratio: 344.5 / 329;
+    --rot: -7.81deg;
+    --op: 0.5;
+    filter: blur(4.15px);
+  }
+
+  .faq__jelly--far-light :global(img) {
+    object-fit: contain;
+  }
+
+  /* Телефон і вузький планшет: мала медуза зайва, велика — тихіше, щоб не заважала читати */
+  @media (max-width: 1100px) {
+    .faq__jelly--far,
+    .faq__jelly--far-light {
+      display: none;
+    }
+    .faq__jelly--big,
+    .faq__jelly--big-light {
+      --w: 46%;
+      --y: 62%;
+      opacity: calc(var(--op, 1) * 0.55);
+    }
   }
 
 

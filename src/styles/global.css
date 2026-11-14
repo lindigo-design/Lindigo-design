@@ -7,6 +7,7 @@
   --indigo-950: #150b2e;
   --indigo-900: #21134a;
   --indigo-800: #36206e;
+  --cream-50: #fffeee; /* фон більшості блоків у світлій темі */
   --indigo-600: #5230c9;
   --gold: #ffc83d;
   --orchid: #dda3f7;
@@ -48,6 +49,7 @@
   --switch-border: var(--beige-50);
   /* Блоки «Варіанта 2» */
   --section-bg: var(--night);
+  --section-bg-alt: var(--night);
   --card-bg: rgba(54, 54, 54, 0.2);
   --card-border: rgba(54, 54, 54, 0.2);
   --tag-border: color-mix(in srgb, var(--fg) 28%, transparent);
@@ -82,7 +84,9 @@
   --text-muted: var(--muted-light);
   --accent-text: var(--orchid-deep);
   --switch-border: var(--orchid-deep);
-  --section-bg: var(--beige-50);
+  --section-bg: var(--cream-50);
+  /* «Відгуки», FAQ, «Заклик», футер — бежеві (макет) */
+  --section-bg-alt: var(--beige-50);
   --card-bg: rgba(255, 255, 255, 0.25);
   --card-border: rgba(54, 54, 54, 0.2);
   --tag-border: color-mix(in srgb, var(--fg) 22%, transparent);
