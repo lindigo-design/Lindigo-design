@@ -1,20 +1,19 @@
 ---
 /**
- * Курсор сайту — «медуза»: кільце-купол з аурою і тонкі щупальця.
+ * Курсор сайту: кільце з аурою і слід-«комета» з трьох хвостиків.
  *
- * Кільце 32 px іде за курсором по всьому сайту. Обводка — той самий градієнт, що й у кнопок
- * на hover (--ring-from → --ring-to, повільно обертається), навколо м'яка аура. Над посиланнями
- * й кнопками кільце трохи більшає, аура яскравішає. Системний курсор лишається.
+ * Кільце 32 px стоїть точно в точці курсора, без запізнення й без власного руху (коли мишка
+ * стоїть — стоїть і кільце). Обводка — той самий градієнт, що й у кнопок на hover
+ * (--ring-from → --ring-to, кольори повільно обертаються), навколо м'яка аура. Над посиланнями
+ * й кнопками кільце трохи більшає. Системний курсор лишається.
  *
- * Кільце стоїть точно в точці курсора, без запізнення й без власного руху: коли мишка стоїть,
- * стоїть і кільце (щоб не здавалось, що з мишкою щось не так).
- * Під час руху з тильного боку кільця віялом тягнуться 5 тонких щупалець (20–45 px),
- * по кожному повільно біжить хвиля, як у воді; градієнт --ring-from → --ring-to, звужуються
- * й тануть до кінчиків. Після зупинки щупальця тануть за ≈ 0,5 с. Сила — TENTACLE_ALPHA.
- * На першому екрані щупалець немає: там рідина сама реагує на мишку.
+ * Слід: під час руху за кільцем тягнуться 3 хвостики різної товщини (3,2 / 2 / 1,2 px). Вони йдуть
+ * точно по шляху курсора, тож однаково виглядають у будь-якому напрямку; трохи розходяться віялом,
+ * звужуються, переходять від --ring-from до --ring-to і тануть за ≈ 0,5 с. Починаються від краю
+ * кільця. Сила — TAIL_ALPHA. На першому екрані сліду немає: там рідина сама реагує на мишку.
  *
- * Лише для миші. З «зменшити рух» — тільки кільце, без щупалець і обертання обводки.
- * Поки відкрите меню — щупальця сховані.
+ * Лише для миші. З «зменшити рух» — тільки кільце, без сліду й обертання обводки.
+ * Поки відкрите меню — слід схований.
  */
 ---
 
@@ -122,42 +121,37 @@
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  /** Непрозорість щупалець біля кільця (0–1); до кінчиків тануть до нуля. Підсилити — збільшити. */
-  const TENTACLE_ALPHA = 0.6;
-  /** Довжини 5 щупалець, px */
-  const LENGTHS = [20, 32, 45, 38, 26];
-  /** Віяло з тильного боку кільця: кути від напрямку «назад», градуси */
-  const SPREAD = [-44, -22, 0, 22, 44];
-  /** Ланок у кожному щупальці */
-  const SEGMENTS = 9;
-  /** За скільки щупальця тануть після зупинки, мс */
-  const FADE_OUT = 500;
-  /** Хвиля: висота (px біля кінчика), довжина (ланок), швидкість (рад/мс) */
-  const WAVE_AMP = 3.2;
-  const WAVE_LEN = 4.5;
-  const WAVE_SPEED = 0.006;
+  /** Непрозорість хвостів біля кільця (0–1); до кінців тануть до нуля. Підсилити — збільшити. */
+  const TAIL_ALPHA = 0.6;
+  /** Скільки живе слід, мс (хвости тануть за цей час після зупинки) */
+  const LIFE = 500;
+  /** Три хвостики: товщина біля кільця (px) і зсув убік від шляху (px; росте до кінця — віяло) */
+  const TAILS = [
+    { width: 3.2, offset: 0 },
+    { width: 2, offset: -7 },
+    { width: 1.2, offset: 7 },
+  ];
   /** Що вважаємо «посиланням чи кнопкою» — над ними кільце більшає */
   const INTERACTIVE = 'a, button, summary, label, select, input, textarea, [role="button"], [tabindex]:not([tabindex="-1"])';
 
   if (ring && canvas) {
     const ctx = canvas.getContext('2d');
-    let tx = 0, ty = 0, x = 0, y = 0, placed = false, visible = false;
-    let raf = 0, menuOpen = false, overHero = false, hover = false;
-    let lastMove = 0, lastTime = 0, fade = 0;
-    // згладжений напрямок руху — щупальця тягнуться в протилежний бік
-    let dirX = 1, dirY = 0;
-    let colors: [string, string] = ['#dda3f7', '#f2632a'];
+    let visible = false, raf = 0, menuOpen = false, overHero = false, hover = false;
+    let cx = 0, cy = 0;
+    let colors: [number[], number[]] = [[221, 163, 247], [242, 99, 42]];
+    // шлях курсора за останні LIFE мс
+    const path: { x: number; y: number; t: number }[] = [];
 
-    type P = { x: number; y: number };
-    const tentacles: P[][] = LENGTHS.map(() => Array.from({ length: SEGMENTS + 1 }, () => ({ x: 0, y: 0 })));
-
+    const toRgb = (value: string, fallback: number[]) => {
+      const hex = value.trim().replace('#', '');
+      if (!/^[0-9a-f]{6}$/i.test(hex)) return fallback;
+      return [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16));
+    };
     const readColors = () => {
       const css = getComputedStyle(document.documentElement);
-      colors = [
-        css.getPropertyValue('--ring-from').trim() || colors[0],
-        css.getPropertyValue('--ring-to').trim() || colors[1],
-      ];
+      colors = [toRgb(css.getPropertyValue('--ring-from'), colors[0]), toRgb(css.getPropertyValue('--ring-to'), colors[1])];
     };
+    const mix = (t: number) => colors[0].map((c, i) => Math.round(c + (colors[1][i] - c) * t)).join(' ');
 
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -168,115 +162,51 @@
 
     const allowed = () => visible && !reduceMotion.matches && !menuOpen && !overHero;
 
-    // точка на краю кільця з тильного боку (кут k-го щупальця у віялі)
-    const anchorOf = (k: number) => {
-      const r = (hover ? 22 : 16) * 0.95;
-      const back = Math.atan2(-dirY, -dirX) + (SPREAD[k] * Math.PI) / 180;
-      return { ax: x + Math.cos(back) * r, ay: y + Math.sin(back) * r, back };
-    };
-
-    const resetTentacles = () => {
-      tentacles.forEach((pts, k) => {
-        const { ax, ay, back } = anchorOf(k);
-        const seg = LENGTHS[k] / SEGMENTS;
-        pts.forEach((p, i) => {
-          p.x = ax + Math.cos(back) * seg * i;
-          p.y = ay + Math.sin(back) * seg * i;
-        });
-      });
-    };
-
-    // кожна точка тягнеться за попередньою (як нитка у воді)
-    const follow = () => {
-      tentacles.forEach((pts, k) => {
-        const { ax, ay } = anchorOf(k);
-        const seg = LENGTHS[k] / SEGMENTS;
-        pts[0].x = ax;
-        pts[0].y = ay;
-        for (let i = 1; i < pts.length; i++) {
-          const a = pts[i - 1];
-          const b = pts[i];
-          const dx = b.x - a.x;
-          const dy = b.y - a.y;
-          const d = Math.hypot(dx, dy) || 1;
-          b.x = a.x + (dx / d) * seg;
-          b.y = a.y + (dy / d) * seg;
-        }
-      });
-    };
-
-    const draw = (time: number) => {
+    const draw = (now: number) => {
       if (!ctx) return;
       ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      if (fade <= 0.01) return;
+      while (path.length && now - path[0].t > LIFE) path.shift();
+      if (path.length < 2) return;
+
       ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      tentacles.forEach((pts, k) => {
-        // хвиля: зсув упоперек нитки, росте до кінчика й біжить від кільця
-        const wavy = pts.map((p, i) => {
-          if (i === 0) return p;
-          const a = pts[i - 1];
-          const dx = p.x - a.x;
-          const dy = p.y - a.y;
+      // від найновішої точки (біля кільця) до найстарішої
+      for (const tail of TAILS) {
+        for (let i = path.length - 1; i > 0; i--) {
+          const a = path[i];
+          const b = path[i - 1];
+          const age = Math.min(1, (now - b.t) / LIFE);
+          // напрямок шляху й перпендикуляр до нього — для зсуву хвостика вбік
+          const dx = a.x - b.x;
+          const dy = a.y - b.y;
           const d = Math.hypot(dx, dy) || 1;
-          const t = i / SEGMENTS;
-          const off = Math.sin(i / WAVE_LEN * Math.PI * 2 - time * WAVE_SPEED + k * 1.3) * WAVE_AMP * t;
-          return { x: p.x + (-dy / d) * off, y: p.y + (dx / d) * off };
-        });
-        const head = wavy[0];
-        const tail = wavy[wavy.length - 1];
-        const g = ctx.createLinearGradient(head.x, head.y, tail.x, tail.y);
-        g.addColorStop(0, colors[0]);
-        g.addColorStop(1, colors[1]);
-        ctx.strokeStyle = g;
-        // плавна крива через середини ланок; нитка звужується й тане до кінчика
-        for (let i = 1; i < wavy.length; i++) {
-          const t = i / SEGMENTS;
-          const p0 = i === 1 ? wavy[0] : { x: (wavy[i - 2].x + wavy[i - 1].x) / 2, y: (wavy[i - 2].y + wavy[i - 1].y) / 2 };
-          const p1 = wavy[i - 1];
-          const p2 = { x: (wavy[i - 1].x + wavy[i].x) / 2, y: (wavy[i - 1].y + wavy[i].y) / 2 };
-          ctx.globalAlpha = TENTACLE_ALPHA * fade * Math.pow(1 - t + 1 / SEGMENTS, 1.3);
-          ctx.lineWidth = 1.6 * (1 - t) + 0.5;
+          const nx = -dy / d;
+          const ny = dx / d;
+          const ageA = Math.min(1, (now - a.t) / LIFE);
+          const offA = tail.offset * (0.35 + 0.65 * ageA);
+          const offB = tail.offset * (0.35 + 0.65 * age);
+          ctx.strokeStyle = `rgb(${mix(age)})`;
+          ctx.globalAlpha = TAIL_ALPHA * Math.pow(1 - age, 1.2);
+          ctx.lineWidth = Math.max(0.3, tail.width * (1 - age * 0.8));
           ctx.beginPath();
-          ctx.moveTo(p0.x, p0.y);
-          ctx.quadraticCurveTo(p1.x, p1.y, p2.x, p2.y);
+          ctx.moveTo(a.x + nx * offA, a.y + ny * offA);
+          ctx.lineTo(b.x + nx * offB, b.y + ny * offB);
           ctx.stroke();
         }
-      });
+      }
       ctx.globalAlpha = 1;
+
+      // хвости починаються від краю кільця: усередині кільця стираємо
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      ctx.arc(cx, cy, (hover ? 22 : 16) - 0.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
     };
 
-    const tick = (time: number) => {
-      const dt = lastTime ? Math.min(50, time - lastTime) : 16;
-      lastTime = time;
-
-      // кільце стоїть точно під курсором; рух між кадрами — лише для напрямку щупалець
-      const vx = tx - x;
-      const vy = ty - y;
-      x = tx;
-      y = ty;
-
-      const speed = Math.hypot(vx, vy);
-      if (speed > 0.4) {
-        // напрямок згладжуємо, щоб віяло не смикалось
-        dirX += (vx / speed - dirX) * 0.2;
-        dirY += (vy / speed - dirY) * 0.2;
-        const n = Math.hypot(dirX, dirY) || 1;
-        dirX /= n;
-        dirY /= n;
-      }
-
-      const moving = time - lastMove < 80;
-
-      // щупальця: з'являються під час руху, тануть за FADE_OUT після зупинки
-      if (allowed() && moving) fade = Math.min(1, fade + dt / 120);
-      else fade = Math.max(0, fade - dt / FADE_OUT);
-
-      if (fade > 0) follow();
-      draw(time);
-
-      raf = fade > 0 || moving ? requestAnimationFrame(tick) : 0;
-      if (!raf) lastTime = 0;
+    const tick = (now: number) => {
+      draw(now);
+      raf = path.length > 1 ? requestAnimationFrame(tick) : 0;
+      if (!raf) ctx?.clearRect(0, 0, window.innerWidth, window.innerHeight);
     };
 
     const start = () => {
@@ -287,17 +217,10 @@
       'pointermove',
       (e) => {
         if (e.pointerType !== 'mouse' || !finePointer.matches) return;
-        tx = e.clientX;
-        ty = e.clientY;
-        lastMove = performance.now();
-        // кільце ставимо одразу в подію — без затримки на кадр
-        ring.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
-        if (!placed) {
-          x = tx;
-          y = ty;
-        }
-        if (!placed || fade <= 0) resetTentacles();
-        placed = true;
+        cx = e.clientX;
+        cy = e.clientY;
+        // кільце стоїть точно під курсором, без запізнення
+        ring.style.transform = `translate3d(${cx}px, ${cy}px, 0)`;
         visible = true;
         ring.classList.add('is-visible');
 
@@ -305,24 +228,30 @@
         hover = !!target?.closest(INTERACTIVE);
         ring.classList.toggle('is-hover', hover);
         overHero = !!target?.closest('[data-hero]');
-        start();
+
+        if (allowed()) {
+          path.push({ x: cx, y: cy, t: performance.now() });
+          if (path.length > 120) path.shift();
+          start();
+        } else {
+          path.length = 0;
+        }
       },
       { passive: true },
     );
 
-    // курсор вийшов за межі вікна — ховаємо кільце; щупальця тануть самі
+    // курсор вийшов за межі вікна — ховаємо кільце; хвости тануть самі
     document.documentElement.addEventListener('mouseleave', () => {
       visible = false;
       ring.classList.remove('is-visible');
-      start();
     });
 
     window.addEventListener('lindigo:menu', (e) => {
       menuOpen = !!(e as CustomEvent<{ open: boolean }>).detail?.open;
-      start();
+      if (menuOpen) path.length = 0;
     });
 
-    // тема змінилась — нові кольори щупалець
+    // тема змінилась — нові кольори хвостів
     new MutationObserver(readColors).observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['data-theme'],
