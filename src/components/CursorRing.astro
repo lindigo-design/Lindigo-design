@@ -6,13 +6,14 @@
  * на hover (--ring-from → --ring-to, повільно обертається), навколо м'яка аура. Над посиланнями
  * й кнопками кільце трохи більшає, аура яскравішає. Системний курсор лишається.
  *
- * Коли мишка стоїть — лише кільце, яке повільно «дихає» (стискається й розширюється, 2,6 с).
+ * Кільце стоїть точно в точці курсора, без запізнення й без власного руху: коли мишка стоїть,
+ * стоїть і кільце (щоб не здавалось, що з мишкою щось не так).
  * Під час руху з тильного боку кільця віялом тягнуться 5 тонких щупалець (20–45 px),
  * по кожному повільно біжить хвиля, як у воді; градієнт --ring-from → --ring-to, звужуються
  * й тануть до кінчиків. Після зупинки щупальця тануть за ≈ 0,5 с. Сила — TENTACLE_ALPHA.
  * На першому екрані щупалець немає: там рідина сама реагує на мишку.
  *
- * Лише для миші. З «зменшити рух» — тільки кільце, без щупалець, обертання й «дихання».
+ * Лише для миші. З «зменшити рух» — тільки кільце, без щупалець і обертання обводки.
  * Поки відкрите меню — щупальця сховані.
  */
 ---
@@ -83,20 +84,6 @@
     opacity: 1;
   }
 
-  /* Мишка стоїть — кільце повільно «дихає», як медуза, що пливе */
-  .cursor-ring.is-idle {
-    animation: cursor-breathe 2.6s ease-in-out infinite;
-  }
-
-  @keyframes cursor-breathe {
-    0%,
-    100% {
-      scale: 1;
-    }
-    50% {
-      scale: 0.9;
-    }
-  }
 
   /* Над посиланням чи кнопкою */
   .cursor-ring.is-hover {
@@ -120,8 +107,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .cursor-ring::before,
-    .cursor-ring.is-idle {
+    .cursor-ring::before {
       animation: none;
     }
     .cursor-trail {
@@ -264,14 +250,11 @@
       const dt = lastTime ? Math.min(50, time - lastTime) : 16;
       lastTime = time;
 
-      // кільце: легке запізнення (≈ 35 % відстані за кадр)
-      const nx = x + (tx - x) * 0.35;
-      const ny = y + (ty - y) * 0.35;
-      const vx = nx - x;
-      const vy = ny - y;
-      x = nx;
-      y = ny;
-      ring.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+      // кільце стоїть точно під курсором; рух між кадрами — лише для напрямку щупалець
+      const vx = tx - x;
+      const vy = ty - y;
+      x = tx;
+      y = ty;
 
       const speed = Math.hypot(vx, vy);
       if (speed > 0.4) {
@@ -284,7 +267,6 @@
       }
 
       const moving = time - lastMove < 80;
-      ring.classList.toggle('is-idle', !moving && speed < 0.3);
 
       // щупальця: з'являються під час руху, тануть за FADE_OUT після зупинки
       if (allowed() && moving) fade = Math.min(1, fade + dt / 120);
@@ -293,7 +275,7 @@
       if (fade > 0) follow();
       draw(time);
 
-      raf = fade > 0 || speed > 0.3 || moving ? requestAnimationFrame(tick) : 0;
+      raf = fade > 0 || moving ? requestAnimationFrame(tick) : 0;
       if (!raf) lastTime = 0;
     };
 
@@ -308,10 +290,11 @@
         tx = e.clientX;
         ty = e.clientY;
         lastMove = performance.now();
-        if (!placed || reduceMotion.matches) {
+        // кільце ставимо одразу в подію — без затримки на кадр
+        ring.style.transform = `translate3d(${tx}px, ${ty}px, 0)`;
+        if (!placed) {
           x = tx;
           y = ty;
-          ring.style.transform = `translate3d(${x}px, ${y}px, 0)`;
         }
         if (!placed || fade <= 0) resetTentacles();
         placed = true;
@@ -330,7 +313,7 @@
     // курсор вийшов за межі вікна — ховаємо кільце; щупальця тануть самі
     document.documentElement.addEventListener('mouseleave', () => {
       visible = false;
-      ring.classList.remove('is-visible', 'is-idle');
+      ring.classList.remove('is-visible');
       start();
     });
 
@@ -348,7 +331,5 @@
     window.addEventListener('resize', resize);
     readColors();
     resize();
-    // кільце, що щойно з'явилось і стоїть, теж «дихає»
-    ring.classList.add('is-idle');
   }
 </script>
