@@ -5,14 +5,14 @@
  * Кроки читаються зліва направо, зверху вниз (план, «Варіант A після правок Яни»).
  * Сітка: три колонки по 435 px на 1512, між ними 24 px. Перший крок — щільна картка.
  * Темна тема — фрейм Figma «04 Як ми працюємо -new»: радіальний градієнт (синій угорі праворуч →
- * майже чорний), поверх темний фон-градієнт 20 % Color Dodge і вирізана від фону медуза
+ * майже чорний) і вирізана від фону медуза (шар фону 20 % Color Dodge вимкнено — було надто світло знизу)
  * (прозорий PNG, тож фон більше не пікселізується разом із нею).
  * Світла тема — медуза зі світлого фото угорі на всю ширину, низ розчиняється у фон блоку.
  * Картки — скло з розмиттям 24 px, тож крізь них видно розмиту медузу.
  */
 import { Image } from 'astro:assets';
 import jellyDark from '../assets/process/jellyfish-dark-cut.webp'; // вирізана медуза, прозорий фон (макет -new)
-import glowDark from '../assets/backgrounds/dark-horizontal.jpg';
+// import glowDark from '../assets/backgrounds/dark-horizontal.jpg'; // шар Color Dodge вимкнено
 import jellyLight from '../assets/process/jellyfish-light.webp'; // прозорий фон (макет)
 import Button from './Button.astro';
 import { keepLastWords, localePath, ui, type Locale } from '../i18n/ui';
@@ -30,7 +30,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
 <section class="process" aria-labelledby="process-title">
   <!-- Темна тема (макет «-new»): градієнт блоку + фон 20 % Color Dodge + вирізана медуза -->
   <div class="process__dark" aria-hidden="true" data-theme-only="dark">
+    <!-- Шар фону 20 % Color Dodge вимкнено (як у макеті): знизу робив блок занадто світлим.
     <Image class="process__glow" src={glowDark} alt="" widths={[960, 1600, 2048, 2752]} sizes="100vw" loading="lazy" />
+    -->
     <Image class="process__jelly" src={jellyDark} alt="" widths={[960, 1600, 2048, 2752]} sizes="(min-width: 1900px) 1900px, 108vw" loading="lazy" />
   </div>
   <!-- Світла тема -->
