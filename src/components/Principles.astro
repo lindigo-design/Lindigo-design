@@ -105,8 +105,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
     grid-column: 3;
     grid-row: 2;
     height: 263px;
-    /* фото починається на рівні 3-го рядка тексту поруч (2 рядки по 62 px на 1512) */
-    margin-top: calc(2 * clamp(32px, 4.1vw, 62px));
+    /* верх фото — по верху великих літер 2-го рядка тексту поруч (там починається друге речення):
+       1 рядок + половина інтерліньяжу + відступ від верху шрифту до верху великої літери (Unbounded) */
+    margin-top: calc(1.5 * clamp(32px, 4.1vw, 62px) - 0.405 * clamp(20px, 2.12vw, 32px));
     overflow: hidden;
     border-radius: 20px;
   }

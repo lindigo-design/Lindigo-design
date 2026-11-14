@@ -146,7 +146,9 @@ const t = ui[locale].about;
 
   .about__photo {
     grid-area: 2 / 3;
-    margin-top: 41px;
+    /* верх фото — по верху великих літер 2-го рядка тексту поруч (там починається друге речення):
+       1 рядок + половина інтерліньяжу + відступ від верху шрифту до верху великої літери (Unbounded) */
+    margin-top: calc(1.5 * clamp(32px, 4.1vw, 62px) - 0.405 * clamp(20px, 2.12vw, 32px));
     height: 446px;
     overflow: hidden;
     border-radius: 20px;
