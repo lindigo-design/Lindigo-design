@@ -160,7 +160,13 @@ const { variant, lightImage } = Astro.props;
   .breath--cta .breath__blob--3 { --x: 8%; --y: 0%; --w: 55%; --h: 80%; --c: rgba(21, 11, 46, 0.55); }
 
   :global(:root[data-theme='light']) .breath--cta {
-    --breath-base: #fbf4e7;
+    --breath-base: var(--orchid);
+  }
+  /* Панель «Заклику» у світлій темі: фон уже скадрований під панель — розтягуємо на всю, 70 %, Normal */
+  .breath--cta .breath__photo {
+    object-fit: fill;
+    opacity: 0.7;
+    mix-blend-mode: normal;
   }
   :global(:root[data-theme='light']) .breath--cta .breath__blob--1 { --x: 0%; --y: 80%; --w: 70%; --h: 160%; --c: rgba(124, 86, 164, 0.95); }
   :global(:root[data-theme='light']) .breath--cta .breath__blob--2 { --x: 66%; --y: 105%; --w: 56%; --h: 110%; --c: rgba(252, 150, 155, 0.95); }
