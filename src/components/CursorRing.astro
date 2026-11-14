@@ -1,18 +1,19 @@
 ---
 /**
- * Курсор сайту: кільце з аурою й легкий слід-«комета».
+ * Курсор сайту — «медуза»: кільце-купол з аурою і тонкі щупальця.
  *
  * Кільце 32 px іде за курсором по всьому сайту. Обводка — той самий градієнт, що й у кнопок
  * на hover (--ring-from → --ring-to, повільно обертається), навколо м'яка аура. Над посиланнями
  * й кнопками кільце трохи більшає, аура яскравішає. Системний курсор лишається.
  *
- * Слід: під час руху за кільцем тягнеться короткий хвіст розмитих крапель фарби в кольорах
- * палітри (орхідея, індиго, помаранч). Краплі меншають і гаснуть за ≈ 0,5 с; коли мишка стоїть —
- * хвоста немає. Ледь помітний (сила — TRAIL_ALPHA у скрипті). На першому екрані хвоста немає:
+ * Щупальця: 4 тонкі нитки звисають з нижнього краю кільця, звужуються й тануть до кінчиків
+ * (градієнт --ring-from → --ring-to, як прожилки медузи з блоку «Як ми працюємо»). Під час руху
+ * відстають і тягнуться за куполом, як у воді; коли мишка стоїть — спокійно звисають і ледь
+ * гойдаються. Сила — TENTACLE_ALPHA у скрипті. На першому екрані щупальця ховаються:
  * там рідина сама реагує на мишку.
  *
- * Лише для миші. З «зменшити рух» — тільки кільце, без хвоста й обертання. Поки відкрите меню —
- * хвіст на паузі.
+ * Лише для миші. З «зменшити рух» — тільки кільце, без щупалець і обертання.
+ * Поки відкрите меню — щупальця сховані.
  */
 ---
 
@@ -119,49 +120,34 @@
   const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-  /** Сила хвоста: непрозорість найсвіжішої краплі (0–1). Підсилити — збільшити. */
-  const TRAIL_ALPHA = 0.3;
-  /** Скільки живе крапля, мс */
-  const LIFE = 520;
-  /** Крок між краплями вздовж шляху, px */
-  const SPACING = 7;
+  /** Непрозорість щупалець біля купола (0–1); до кінчиків тануть до нуля. Підсилити — збільшити. */
+  const TENTACLE_ALPHA = 0.55;
+  /** Звідки ростуть щупальця: кут від низу кільця, градуси */
+  const ANCHORS = [-50, -18, 18, 50];
+  /** Ланок у щупальці й довжина ланки, px (разом ≈ 60 px) */
+  const SEGMENTS = 10;
+  const SEG_LEN = 6;
   /** Що вважаємо «посиланням чи кнопкою» — над ними кільце більшає */
   const INTERACTIVE = 'a, button, summary, label, select, input, textarea, [role="button"], [tabindex]:not([tabindex="-1"])';
 
   if (ring && canvas) {
     const ctx = canvas.getContext('2d');
-    let tx = 0, ty = 0, x = 0, y = 0, ringRaf = 0, placed = false;
-    let lastX = 0, lastY = 0, hasLast = false;
-    let trailRaf = 0, menuOpen = false, overHero = false, colorIndex = 0;
-    // кожен колір — пара: суцільний і той самий прозорий (край краплі без темної облямівки)
-    let palette: [string, string][] = [];
-    type Drop = { x: number; y: number; r: number; born: number; color: [string, string] };
-    const drops: Drop[] = [];
+    let tx = 0, ty = 0, x = 0, y = 0, placed = false, visible = false;
+    let raf = 0, menuOpen = false, overHero = false, hover = false;
+    let fade = 0; // видимість щупалець 0–1, змінюється плавно
+    let colors: [string, string] = ['#dda3f7', '#f2632a'];
 
-    // ---------- Кільце ----------
-    const drawRing = () => {
-      ring.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-    };
-    const ringTick = () => {
-      // легке запізнення (≈ 35 % відстані за кадр), щоб кільце рухалось м'яко
-      x += (tx - x) * 0.35;
-      y += (ty - y) * 0.35;
-      drawRing();
-      ringRaf = Math.abs(tx - x) + Math.abs(ty - y) > 0.3 ? requestAnimationFrame(ringTick) : 0;
-    };
+    type P = { x: number; y: number; px: number; py: number };
+    const tentacles: P[][] = ANCHORS.map(() =>
+      Array.from({ length: SEGMENTS + 1 }, () => ({ x: 0, y: 0, px: 0, py: 0 })),
+    );
 
-    // ---------- Хвіст ----------
-    const readPalette = () => {
+    const readColors = () => {
       const css = getComputedStyle(document.documentElement);
-      const v = (name: string): [string, string] => {
-        const hex = css.getPropertyValue(name).trim().replace('#', '');
-        const [r, g, b] = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16));
-        return [`rgb(${r} ${g} ${b})`, `rgb(${r} ${g} ${b} / 0)`];
-      };
-      const light = document.documentElement.dataset.theme === 'light';
-      palette = light
-        ? [v('--orchid-deep'), v('--indigo-600'), v('--orange')]
-        : [v('--orchid'), v('--indigo-600'), v('--orange')];
+      colors = [
+        css.getPropertyValue('--ring-from').trim() || colors[0],
+        css.getPropertyValue('--ring-to').trim() || colors[1],
+      ];
     };
 
     const resize = () => {
@@ -171,59 +157,102 @@
       ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
 
-    const trailOn = () => !reduceMotion.matches && !menuOpen && !overHero;
+    const wanted = () => visible && !reduceMotion.matches && !menuOpen && !overHero;
 
-    const addDrops = (fromX: number, fromY: number, toX: number, toY: number) => {
-      const dist = Math.hypot(toX - fromX, toY - fromY);
-      const steps = Math.min(12, Math.floor(dist / SPACING));
-      const now = performance.now();
-      for (let i = 1; i <= steps; i++) {
-        const t = i / steps;
-        drops.push({
-          x: fromX + (toX - fromX) * t + (Math.random() - 0.5) * 3,
-          y: fromY + (toY - fromY) * t + (Math.random() - 0.5) * 3,
-          r: 7 + Math.random() * 5,
-          born: now - (1 - t) * 16,
-          // кольори змінюються плавно вздовж хвоста, як фарба, що змішується
-          color: palette[Math.floor(colorIndex++ / 6) % palette.length],
+    // точка кріплення щупальця k на нижньому краї кільця
+    const anchorOf = (k: number) => {
+      const r = (hover ? 22 : 16) * 0.92;
+      const a = (ANCHORS[k] * Math.PI) / 180;
+      return { ax: x + Math.sin(a) * r, ay: y + Math.cos(a) * r };
+    };
+
+    const placeTentacles = () => {
+      tentacles.forEach((pts, k) => {
+        const { ax, ay } = anchorOf(k);
+        pts.forEach((p, i) => {
+          p.x = p.px = ax;
+          p.y = p.py = ay + i * SEG_LEN;
         });
-      }
-      if (drops.length > 160) drops.splice(0, drops.length - 160);
+      });
     };
 
-    const trailTick = () => {
-      if (!ctx) return;
-      const now = performance.now();
-      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
-      for (let i = drops.length - 1; i >= 0; i--) {
-        const d = drops[i];
-        const age = (now - d.born) / LIFE;
-        if (age >= 1) {
-          drops.splice(i, 1);
-          continue;
+    const simulate = (time: number) => {
+      tentacles.forEach((pts, k) => {
+        const { ax, ay } = anchorOf(k);
+        pts[0].x = ax;
+        pts[0].y = ay;
+        for (let i = 1; i < pts.length; i++) {
+          const p = pts[i];
+          // інерція з загасанням (як у воді), легке «падіння» вниз і гойдання
+          const vx = (p.x - p.px) * 0.86;
+          const vy = (p.y - p.py) * 0.86;
+          p.px = p.x;
+          p.py = p.y;
+          const sway = Math.sin(time / 520 + k * 1.7 + i * 0.45) * 0.06 * (i / pts.length);
+          p.x += vx + sway;
+          p.y += vy + 0.22;
         }
-        const life = 1 - age;
-        // «комета»: свіжі краплі більші й щільніші, старі — малі й прозорі
-        const r = d.r * (0.35 + 0.65 * life);
-        const g = ctx.createRadialGradient(d.x, d.y, 0, d.x, d.y, r);
-        g.addColorStop(0, d.color[0]);
-        g.addColorStop(1, d.color[1]);
-        ctx.globalAlpha = TRAIL_ALPHA * life * life;
-        ctx.fillStyle = g;
-        ctx.beginPath();
-        ctx.arc(d.x, d.y, r, 0, Math.PI * 2);
-        ctx.fill();
-      }
+        // ланки тримають свою довжину
+        for (let pass = 0; pass < 2; pass++) {
+          for (let i = 1; i < pts.length; i++) {
+            const a = pts[i - 1];
+            const b = pts[i];
+            const dx = b.x - a.x;
+            const dy = b.y - a.y;
+            const d = Math.hypot(dx, dy) || 1;
+            const f = (d - SEG_LEN) / d;
+            b.x -= dx * f;
+            b.y -= dy * f;
+          }
+        }
+      });
+    };
+
+    const draw = () => {
+      if (!ctx) return;
+      ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      if (fade <= 0.01) return;
+      ctx.lineCap = 'round';
+      tentacles.forEach((pts) => {
+        const head = pts[0];
+        const tail = pts[pts.length - 1];
+        const g = ctx.createLinearGradient(head.x, head.y, tail.x, tail.y);
+        g.addColorStop(0, colors[0]);
+        g.addColorStop(1, colors[1]);
+        ctx.strokeStyle = g;
+        for (let i = 1; i < pts.length; i++) {
+          const t = i / (pts.length - 1);
+          // звужується й тане до кінчика
+          ctx.globalAlpha = TENTACLE_ALPHA * fade * Math.pow(1 - t, 1.4);
+          ctx.lineWidth = 1.8 * (1 - t) + 0.4;
+          ctx.beginPath();
+          ctx.moveTo(pts[i - 1].x, pts[i - 1].y);
+          ctx.lineTo(pts[i].x, pts[i].y);
+          ctx.stroke();
+        }
+      });
       ctx.globalAlpha = 1;
-      trailRaf = drops.length ? requestAnimationFrame(trailTick) : 0;
     };
 
-    const clearTrail = () => {
-      drops.length = 0;
-      ctx?.clearRect(0, 0, window.innerWidth, window.innerHeight);
+    const tick = (time: number) => {
+      // кільце: легке запізнення (≈ 35 % відстані за кадр)
+      x += (tx - x) * 0.35;
+      y += (ty - y) * 0.35;
+      ring.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+
+      fade += ((wanted() ? 1 : 0) - fade) * 0.15;
+      if (fade > 0.01) simulate(time);
+      draw();
+
+      const moving = Math.abs(tx - x) + Math.abs(ty - y) > 0.3;
+      // поки щупальця видимі, вони гойдаються — цикл працює; інакше зупиняється
+      raf = moving || fade > 0.01 || wanted() ? requestAnimationFrame(tick) : 0;
     };
 
-    // ---------- Події ----------
+    const start = () => {
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+
     window.addEventListener(
       'pointermove',
       (e) => {
@@ -233,45 +262,42 @@
         if (!placed || reduceMotion.matches) {
           x = tx;
           y = ty;
+          ring.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+          if (!placed) placeTentacles();
           placed = true;
-          drawRing();
-        } else if (!ringRaf) {
-          ringRaf = requestAnimationFrame(ringTick);
         }
+        visible = true;
         ring.classList.add('is-visible');
 
         const target = e.target instanceof Element ? e.target : null;
-        ring.classList.toggle('is-hover', !!target?.closest(INTERACTIVE));
+        hover = !!target?.closest(INTERACTIVE);
+        ring.classList.toggle('is-hover', hover);
         overHero = !!target?.closest('[data-hero]');
-
-        if (trailOn()) {
-          if (hasLast) addDrops(lastX, lastY, tx, ty);
-          if (!trailRaf && drops.length) trailRaf = requestAnimationFrame(trailTick);
-        }
-        lastX = tx;
-        lastY = ty;
-        hasLast = true;
+        start();
       },
       { passive: true },
     );
 
-    // курсор вийшов за межі вікна — ховаємо кільце, хвіст доживає сам
+    // курсор вийшов за межі вікна — ховаємо кільце й щупальця
     document.documentElement.addEventListener('mouseleave', () => {
+      visible = false;
       ring.classList.remove('is-visible');
-      hasLast = false;
+      start();
     });
 
-    // меню: хвіст на паузі
     window.addEventListener('lindigo:menu', (e) => {
       menuOpen = !!(e as CustomEvent<{ open: boolean }>).detail?.open;
-      if (menuOpen) clearTrail();
+      start();
     });
 
-    // тема змінилась — нові кольори хвоста
-    new MutationObserver(readPalette).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    // тема змінилась — нові кольори щупалець
+    new MutationObserver(readColors).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['data-theme'],
+    });
 
     window.addEventListener('resize', resize);
-    readPalette();
+    readColors();
     resize();
   }
 </script>
