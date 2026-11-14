@@ -7,6 +7,7 @@
  */
 import { Image } from 'astro:assets';
 import Breath from './Breath.astro';
+import bgDark from '../assets/backgrounds/dark-horizontal.jpg';
 import SliderNav from './SliderNav.astro';
 import allDark from '../assets/works/all-dark.svg';
 import allLight from '../assets/works/all-light.svg';
@@ -23,7 +24,7 @@ const images: Record<string, ImageMetadata> = { datatixx };
 ---
 
 <section class="reviews" aria-labelledby="reviews-title" data-reviews>
-  <Breath variant="reviews" />
+  <Breath variant="reviews" darkImage={bgDark} />
 
   <header class="reviews__head">
     <p class="reviews__eyebrow">{t.eyebrow}</p>

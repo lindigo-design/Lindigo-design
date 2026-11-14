@@ -61,7 +61,7 @@
   /* «Як ми працюємо»: перший крок виділений щільною карткою */
   --step-bg: var(--card-bg);
   --step-border: var(--card-border);
-  --step-first-bg: var(--indigo-950);
+  --step-first-bg: var(--night); /* background dark (макет) */
   --step-first-border: rgba(248, 238, 221, 0.16);
   --glass-bg: rgba(21, 11, 46, 0.55);
   --glass-border: rgba(248, 238, 221, 0.2);

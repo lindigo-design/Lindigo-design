@@ -54,6 +54,14 @@ const t = ui[locale].about;
     background: var(--section-bg-alt);
   }
 
+  /* Темна тема: світіння «Light» з макета — індиго й помаранч ліворуч (група 48 %) */
+  :global(:root:not([data-theme='light'])) .about {
+    background:
+      radial-gradient(40.97vw 26.88vw at 17.89% 47.18%, rgb(82 48 201 / 0.3) 0%, rgb(82 48 201 / 0.25) 20%, rgb(82 48 201 / 0.17) 40%, rgb(82 48 201 / 0.09) 60%, rgb(82 48 201 / 0.03) 80%, rgb(82 48 201 / 0) 100%),
+      radial-gradient(26.52vw 17.56vw at 20.83% 70.45%, rgb(242 99 42 / 0.2) 0%, rgb(242 99 42 / 0.17) 20%, rgb(242 99 42 / 0.12) 40%, rgb(242 99 42 / 0.06) 60%, rgb(242 99 42 / 0.02) 80%, rgb(242 99 42 / 0) 100%),
+      var(--section-bg-alt);
+  }
+
   /* Сітка 238 | 460 | 418 (разом 1196 з проміжками 40), відступ зліва 156 */
   .about__grid {
     display: grid;

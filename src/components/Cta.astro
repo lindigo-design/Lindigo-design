@@ -8,6 +8,8 @@ import { Image } from 'astro:assets';
 import Breath from './Breath.astro';
 // Світла тема (макет): фон-градієнт 70 %, Normal, на орхідеї #dda3f7 — смуга з середини фото, повернута на 180°
 import bgLight from '../assets/backgrounds/cta-light.jpg';
+// Темна тема (макет): той самий темний градієнт 100 %, смуга 62–80 % висоти фото, поверх #150b2e 50 %
+import bgDark from '../assets/backgrounds/cta-dark.jpg';
 import Button from './Button.astro';
 import { keepLastWords, localePath, ui, type Locale } from '../i18n/ui';
 
@@ -22,7 +24,7 @@ const menu = ui[locale].menu;
 
 <section class="cta" aria-labelledby="cta-title">
   <div class="cta__panel">
-    <Breath variant="cta" lightImage={bgLight} />
+    <Breath variant="cta" lightImage={bgLight} darkImage={bgDark} />
     <div class="cta__text">
       <h2 class="cta__title" id="cta-title">{t.title}</h2>
       <p class="cta__lead">{keepLastWords(t.text)}</p>
