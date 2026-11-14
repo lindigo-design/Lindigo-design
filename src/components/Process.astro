@@ -4,12 +4,15 @@
  * Шість кроків сходинками: ряд 1 — 01, 02; ряд 2 — порожньо, 03, 04; ряд 3 — 05 і широка 06 з кнопками.
  * Кроки читаються зліва направо, зверху вниз (план, «Варіант A після правок Яни»).
  * Сітка: три колонки по 435 px на 1512, між ними 24 px. Перший крок — щільна картка.
- * Фон блоку — медуза (фото з макета, своє для кожної теми) угорі на всю ширину: 1512 × 932
- * на блоці 1512 × 1344; низ фото м'яко розчиняється у фон блоку. Картки — скло з розмиттям 24 px,
- * тож крізь них видно розмиту медузу.
+ * Темна тема — фрейм Figma «04 Як ми працюємо -new»: радіальний градієнт (синій угорі праворуч →
+ * майже чорний), поверх темний фон-градієнт 20 % Color Dodge і вирізана від фону медуза
+ * (прозорий PNG, тож фон більше не пікселізується разом із нею).
+ * Світла тема — медуза зі світлого фото угорі на всю ширину, низ розчиняється у фон блоку.
+ * Картки — скло з розмиттям 24 px, тож крізь них видно розмиту медузу.
  */
 import { Image } from 'astro:assets';
-import jellyDark from '../assets/process/jellyfish-dark.jpg';
+import jellyDark from '../assets/process/jellyfish-dark-cut.webp'; // вирізана медуза, прозорий фон (макет -new)
+import glowDark from '../assets/backgrounds/dark-horizontal.jpg';
 import jellyLight from '../assets/process/jellyfish-light.webp'; // прозорий фон (макет)
 import Button from './Button.astro';
 import { keepLastWords, localePath, ui, type Locale } from '../i18n/ui';
@@ -25,9 +28,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
 <section class="process" aria-labelledby="process-title">
-  <div class="process__bg" aria-hidden="true">
-    <Image src={jellyDark} alt="" widths={[800, 1200, 1600, 2048, 2752]} sizes="100vw" loading="lazy" data-theme-only="dark" />
-    <Image src={jellyLight} alt="" widths={[800, 1200, 1600, 2048, 2752]} sizes="100vw" loading="lazy" data-theme-only="light" />
+  <!-- Темна тема (макет «-new»): градієнт блоку + фон 20 % Color Dodge + вирізана медуза -->
+  <div class="process__dark" aria-hidden="true" data-theme-only="dark">
+    <Image class="process__glow" src={glowDark} alt="" widths={[960, 1600, 2048, 2752]} sizes="100vw" loading="lazy" />
+    <Image class="process__jelly" src={jellyDark} alt="" widths={[960, 1600, 2048, 2752]} sizes="108vw" loading="lazy" />
+  </div>
+  <!-- Світла тема -->
+  <div class="process__bg" aria-hidden="true" data-theme-only="light">
+    <Image src={jellyLight} alt="" widths={[800, 1200, 1600, 2048, 2752]} sizes="100vw" loading="lazy" />
   </div>
 
   <header class="process__head">
@@ -64,9 +72,46 @@ const pad = (n: number) => String(n).padStart(2, '0');
     flex-direction: column;
     gap: 56px;
     padding: 120px var(--gutter);
-    /* колір блоку з макета (трохи темніший / тепліший за загальний фон) */
-    background: #060412;
+    /* темна (макет «-new»): радіальний градієнт із центром угорі праворуч (1029, 337 на 1512 × 1298) */
+    background: radial-gradient(
+      ellipse 78% 100% at 68% 26%,
+      #2a3265 0%,
+      #1a203f 31%,
+      #0e0b23 65%,
+      #070415 100%
+    );
     overflow: hidden;
+  }
+
+  .process__dark {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  /* темний фон-градієнт поверх градієнта блоку: 20 %, Color Dodge */
+  .process__dark :global(.process__glow) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.2;
+    mix-blend-mode: color-dodge;
+  }
+
+  /* вирізана медуза: кадр із макета — ширина 107.4 %, зсув ліворуч 5.4 %, угорі;
+     пропорція рамки 1624 × 1019.5 (у макеті трохи розтягнута по висоті) */
+  .process__dark :global(.process__jelly) {
+    position: absolute;
+    top: 0;
+    left: -5.4%;
+    width: 107.4%;
+    height: auto;
+    max-width: none;
+    aspect-ratio: 1624 / 1019.5;
+    object-fit: fill;
   }
 
   :global(:root[data-theme='light']) .process {
