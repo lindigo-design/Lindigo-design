@@ -3,6 +3,11 @@
  * Блок «02 Напрями» (Figma «Головна · Варіант 2», темна й світла тема).
  * П'ять карток на скляній підкладці: номер, назва, мітки, опис, «Детальніше» і зображення робіт напряму.
  * Фон блоку — векторні плями, що «дихають» (Breath.astro); кольори зняті з фону Figma.
+ *
+ * Стопка карток (як у Kota Creative): під час прокрутки кожна картка прилипає під шапкою,
+ * наступна наїжджає на неї знизу; верхні видно смужками по 16 px. Картка, яку накривають,
+ * трохи зменшується (до 95 %) і темнішає — це веде скрипт за прокруткою.
+ * Лише на комп'ютері й планшеті з достатньою висотою екрана: на телефоні картки вищі за екран.
  */
 import { Image } from 'astro:assets';
 import Breath from './Breath.astro';
@@ -43,7 +48,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   <ol class="directions__list">
     {
       t.items.map((item, i) => (
-        <li class="direction">
+        <li class="direction" style={`--i: ${i}`} data-stack-card>
           <div class="direction__text">
             <p class="direction__num" aria-hidden="true">{pad(i + 1)}</p>
             <h3 class="direction__title">{item.title}</h3>
@@ -80,7 +85,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     gap: 56px;
     padding: 120px var(--gutter);
     background: var(--section-bg);
-    overflow: hidden;
+    /* clip, а не hidden: hidden робить блок контейнером прокрутки, і sticky у картках не працює */
+    overflow: clip;
   }
 
 
@@ -193,6 +199,31 @@ const pad = (n: number) => String(n).padStart(2, '0');
     object-fit: cover;
   }
 
+  /* ---------- Стопка карток ---------- */
+  @media (min-width: 761px) and (min-height: 700px) {
+    .direction {
+      position: sticky;
+      /* під шапкою (≈ 104 px) + 24; кожна наступна на 16 px нижче — верхні видно смужками */
+      top: calc(128px + var(--i) * 16px);
+      transform-origin: 50% 0;
+      /* непрозорий фон: скло тих самих кольорів, але картки не просвічують одна крізь одну */
+      background: linear-gradient(var(--card-bg), var(--card-bg)), var(--section-bg);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+      will-change: transform;
+    }
+    /* Затемнення картки, яку накривають (сила — --cover від 0 до 1, задає скрипт) */
+    .direction::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: var(--section-bg);
+      opacity: calc(var(--cover, 0) * 0.45);
+      pointer-events: none;
+    }
+  }
+
   /* Вужчий комп'ютер і планшет: менші заголовки й відступи */
   @media (max-width: 1100px) {
     .direction {
@@ -266,3 +297,39 @@ const pad = (n: number) => String(n).padStart(2, '0');
     }
   }
 </style>
+
+<script>
+  // Стопка: картка, яку накриває наступна, зменшується до 95 % і темнішає
+  const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-stack-card]'));
+  const stackMode = window.matchMedia('(min-width: 761px) and (min-height: 700px)');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let raf = 0;
+
+  const update = () => {
+    raf = 0;
+    const on = stackMode.matches && !reduceMotion.matches;
+    cards.forEach((card, i) => {
+      const next = cards[i + 1];
+      let p = 0;
+      if (on && next) {
+        // скільки наступна картка вже накрила цю: 0 — ще внизу, 1 — стала на своє місце
+        const stickTop = parseFloat(getComputedStyle(next).top) || 0;
+        const dist = next.getBoundingClientRect().top - stickTop;
+        p = Math.min(1, Math.max(0, 1 - dist / card.offsetHeight));
+      }
+      card.style.transform = p ? `scale(${1 - 0.05 * p})` : '';
+      card.style.setProperty('--cover', p.toFixed(3));
+    });
+  };
+
+  const request = () => {
+    if (!raf) raf = requestAnimationFrame(update);
+  };
+  if (cards.length > 1) {
+    window.addEventListener('scroll', request, { passive: true });
+    window.addEventListener('resize', request);
+    stackMode.addEventListener('change', request);
+    reduceMotion.addEventListener('change', request);
+    update();
+  }
+</script>
