@@ -1,0 +1,83 @@
+---
+/**
+ * Кільце за мишкою: мале коло з обводкою Orchid Deep (#a534c4), що йде за курсором по всьому сайту.
+ * Системний курсор лишається — кільце лише супроводжує його.
+ * У блоках з градієнтним фоном під кільцем ще й градієнтне світіння (Breath.astro);
+ * на чистому фоні — лише кільце.
+ * Лише для миші (дотикові екрани без нього). З «зменшити рух» кільце йде за курсором без запізнення.
+ */
+---
+
+<div class="cursor-ring" aria-hidden="true" data-cursor-ring></div>
+
+<style>
+  .cursor-ring {
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 200;
+    width: 32px;
+    height: 32px;
+    margin: -16px 0 0 -16px;
+    border: 1.5px solid var(--orchid-deep);
+    border-radius: 50%;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    will-change: transform, opacity;
+  }
+
+  .cursor-ring.is-visible {
+    opacity: 1;
+  }
+
+  @media not ((hover: hover) and (pointer: fine)) {
+    .cursor-ring {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  const ring = document.querySelector<HTMLElement>('[data-cursor-ring]');
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  if (ring) {
+    let tx = 0, ty = 0, x = 0, y = 0, raf = 0, placed = false;
+
+    const draw = () => {
+      ring.style.transform = `translate3d(${x}px, ${y}px, 0)`;
+    };
+
+    const tick = () => {
+      // легке запізнення (≈ 35 % відстані за кадр), щоб кільце рухалось м'яко
+      x += (tx - x) * 0.35;
+      y += (ty - y) * 0.35;
+      draw();
+      raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.3 ? requestAnimationFrame(tick) : 0;
+    };
+
+    window.addEventListener(
+      'pointermove',
+      (e) => {
+        if (e.pointerType !== 'mouse' || !finePointer.matches) return;
+        tx = e.clientX;
+        ty = e.clientY;
+        if (!placed || reduceMotion.matches) {
+          x = tx;
+          y = ty;
+          placed = true;
+          draw();
+        } else if (!raf) {
+          raf = requestAnimationFrame(tick);
+        }
+        ring.classList.add('is-visible');
+      },
+      { passive: true },
+    );
+
+    // курсор вийшов за межі вікна — ховаємо кільце
+    document.documentElement.addEventListener('mouseleave', () => ring.classList.remove('is-visible'));
+  }
+</script>

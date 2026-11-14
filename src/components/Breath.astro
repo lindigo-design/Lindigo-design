@@ -25,8 +25,8 @@ const { variant } = Astro.props;
  * Три кулі на блок (менше — щоб не перевантажувати вміст). Кожна куля — круг, вирізаний з місця, де змішуються кольори, і розмитий (як у Figma, layer blur).
  * Картинки запечені заздалегідь: круг 256 px + поле 96 px під розмиття з кожного боку (448 × 448),
  * тож елемент у 1,75 раза більший за видимий круг. Кулі не рухаються: лише світяться,
- * непрозорість 10 % → 100 % → 10 %, повільно (16–22 с на цикл), у кожної свій темп.
- * x, y — центр у % блоку; d — видимий діаметр у % ширини блоку (з макета 1512).
+ * непрозорість 10 % → 75 % → 10 %, повільно (16–22 с на цикл), у кожної свій темп.
+ * x, y — центр у % блоку; d — видимий діаметр у % ширини блоку: усі різні, права нижня найменша.
  */
 import ball1 from '../assets/liquid/ball-1.webp'; // орхідея з помаранчем
 import ball2 from '../assets/liquid/ball-2.webp'; // фіолет з орхідеєю
@@ -40,15 +40,15 @@ type Ball = { src: ImageMetadata; light: ImageMetadata; x: number; y: number; d:
 const ballSets: Partial<Record<Props['variant'], Ball[]>> = {
   // блок 1512 × 1344
   process: [
-    { src: ball1, light: ball1Light, x: 75.4, y: 29.9, d: 26.1, dur: 18, delay: 0 },
-    { src: ball2, light: ball2Light, x: 23.2, y: 61.2, d: 32.5, dur: 22, delay: -8 },
-    { src: ball4, light: ball4Light, x: 90, y: 84, d: 23.8, dur: 20, delay: -12 },
+    { src: ball1, light: ball1Light, x: 75.4, y: 29.9, d: 21, dur: 18, delay: 0 },
+    { src: ball2, light: ball2Light, x: 23.2, y: 61.2, d: 26, dur: 22, delay: -8 },
+    { src: ball4, light: ball4Light, x: 90, y: 84, d: 14, dur: 20, delay: -12 },
   ],
   // блок 1512 × 1123
   faq: [
-    { src: ball1, light: ball1Light, x: 74.4, y: 29.7, d: 26.1, dur: 18, delay: -2 },
-    { src: ball2, light: ball2Light, x: 22.2, y: 64.8, d: 32.5, dur: 22, delay: -10 },
-    { src: ball4, light: ball4Light, x: 88, y: 85.5, d: 23.8, dur: 20, delay: -14 },
+    { src: ball1, light: ball1Light, x: 74.4, y: 29.7, d: 21, dur: 18, delay: -2 },
+    { src: ball2, light: ball2Light, x: 22.2, y: 64.8, d: 26, dur: 22, delay: -10 },
+    { src: ball4, light: ball4Light, x: 88, y: 85.5, d: 14, dur: 20, delay: -14 },
   ],
 };
 const balls = ballSets[variant];
@@ -158,7 +158,8 @@ const glowStyle = `--glow-dark: ${toBg(glowDark)}; --glow-light: ${toBg(glowLigh
     position: absolute;
     left: var(--x);
     top: var(--y);
-    width: calc(var(--d) * 1.75%);
+    /* d — % ширини блоку, але не більше, ніж на макеті 1512 (15,12 px за 1 %) */
+    width: min(calc(var(--d) * 1.75%), calc(var(--d) * 1.75 * 15.12px));
     height: auto;
     max-width: none;
     translate: -50% -50%;
@@ -174,12 +175,12 @@ const glowStyle = `--glow-dark: ${toBg(glowDark)}; --glow-light: ${toBg(glowLigh
 
   @keyframes breath-glow {
     0%, 100% { opacity: 0.1; }
-    50% { opacity: calc(var(--peak, 1) * var(--tone, 1)); }
+    50% { opacity: calc(var(--peak, 1) * var(--tone, 1) * 0.75); }
   }
 
   /* Світле фото рідини дуже насичене — на бежевому світіння 60 % від піку кулі, щоб не перебивати текст */
   :global(:root[data-theme='light']) .breath__ball {
-    --tone: 0.6;
+    --tone: 0.8; /* 75 % × 0,8 = 60 % */
   }
 
   /* Три різні шляхи: зсув у межах ~12 % власного розміру, легке стискання й розширення */
@@ -204,9 +205,10 @@ const glowStyle = `--glow-dark: ${toBg(glowDark)}; --glow-light: ${toBg(glowLigh
 
   /* Пляма за мишкою: компонент Figma «Підсвітка миші · градієнт» — шість м'яких еліпсів
      (індиго згори, слива й орхідея в центрі, тепло знизу, золото ліворуч); фон задано в розмітці.
-     Поле 640 одиниць ≈ 42vw (на 1512 — як макет 564 px), центр — у точці курсора; рух веде скрипт. */
+     Поле 640 одиниць ≈ 25vw, центр — у точці курсора; рух веде скрипт. */
   .breath__cursor {
-    --size: clamp(420px, 42vw, 760px);
+    /* на 40 % менше за попередні 420–760 px (42vw); у центрі — кільце курсора (CursorRing.astro) */
+    --size: clamp(252px, 25.2vw, 456px);
     background: var(--glow-dark);
     position: absolute;
     left: 0;
@@ -324,9 +326,9 @@ const glowStyle = `--glow-dark: ${toBg(glowDark)}; --glow-light: ${toBg(glowLigh
     let tx = 0, ty = 0, x = 0, y = 0, raf = 0, placed = false;
 
     const tick = () => {
-      // м'яке наздоганяння курсора (≈ 8 % відстані за кадр)
-      x += (tx - x) * 0.08;
-      y += (ty - y) * 0.08;
+      // м’яке наздоганяння курсора (≈ 16 % відстані за кадр), щоб кільце було майже в центрі
+      x += (tx - x) * 0.16;
+      y += (ty - y) * 0.16;
       blob.style.transform = `translate3d(${x}px, ${y}px, 0)`;
       raf = Math.abs(tx - x) + Math.abs(ty - y) > 0.5 ? requestAnimationFrame(tick) : 0;
     };
