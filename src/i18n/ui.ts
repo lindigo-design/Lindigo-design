@@ -31,6 +31,21 @@ export const languageNames: Record<Locale, string> = {
  */
 export const ui = {
   fr: {
+    // ЧЕРНЕТКА перекладу — на вичитку (відповіді 2–8 з рішень у плані)
+    faq: {
+      eyebrow: 'FAQ',
+      title: 'Questions fréquentes',
+      items: [
+        { q: `Combien coûte un projet${NBSP}?`, a: `Le prix dépend du type de projet, de sa complexité et du volume de travail. Nous donnons le prix définitif après le brief${NBSP}: il dépend des besoins de votre projet.` },
+        { q: `Comment se passe le paiement${NBSP}?`, a: `En plusieurs fois. Pour un site${NBSP}: 30${NBSP}% au démarrage, 50${NBSP}% après validation du design et 20${NBSP}% à la livraison. Pour un logo${NBSP}: 70${NBSP}% au démarrage et 30${NBSP}% à la livraison.` },
+        { q: `Combien de corrections sont incluses${NBSP}?`, a: 'Trois séries de corrections à chaque étape. Si vous changez entièrement de concept, il s’agit d’un nouveau travail, facturé séparément.' },
+        { q: `Peut-on s’arrêter après l’analyse${NBSP}?`, a: `Oui. Après l’étape stratégie et structure, vous pouvez vous arrêter. Vous ne payez alors que l’acompte de 30${NBSP}% et repartez avec les résultats de l’analyse${NBSP}: l’arborescence et les maquettes en noir et blanc.` },
+        { q: `Quand le site sera-t-il prêt${NBSP}?`, a: `Le délai est inscrit dans la proposition pour votre projet. Il court à partir du jour où vous nous transmettez tous les éléments${NBSP}: textes, photos et accès.` },
+        { q: `Que se passe-t-il après le lancement${NBSP}?`, a: `Pendant un mois après le lancement, nous corrigeons gratuitement nos erreurs. Ensuite, au choix${NBSP}: une maintenance payante ou 5 heures de formation gratuite pour gérer votre site.` },
+        { q: `De quoi avez-vous besoin pour commencer${NBSP}?`, a: `Pour le premier appel${NBSP}: nous présenter votre activité et ce qui existe déjà. Pour le travail sur le site${NBSP}: vos textes, photos et accès.` },
+        { q: `Sous quel délai répondez-vous${NBSP}?`, a: 'Sous deux jours ouvrés.' },
+      ],
+    },
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     about: {
       eyebrow: 'Le studio',
@@ -181,6 +196,21 @@ export const ui = {
     },
   },
   en: {
+    // ЧЕРНЕТКА перекладу — на вичитку (відповіді 2–8 з рішень у плані)
+    faq: {
+      eyebrow: 'FAQ',
+      title: 'FAQ',
+      items: [
+        { q: 'How much does a project cost?', a: 'The price depends on the type of project, its complexity and the amount of work. We give the final price after the brief: it depends on what your project needs.' },
+        { q: 'How does payment work?', a: `In instalments. For a website: 30${NBSP}% upfront, 50${NBSP}% after the design is approved and 20${NBSP}% on delivery. For a logo: 70${NBSP}% upfront and 30${NBSP}% on delivery.` },
+        { q: 'How many revisions are included?', a: 'Three rounds of revisions at each stage. If you change the concept entirely, that’s new work and is billed separately.' },
+        { q: 'Can I stop after the analysis?', a: `Yes. After the strategy and structure stage you can stop. You then pay only the 30${NBSP}% deposit and keep the results of the analysis: the sitemap and black-and-white wireframes.` },
+        { q: 'When will the website be ready?', a: 'The timeline is set in the proposal for your project. It starts from the day you send us all the materials: texts, photos and access details.' },
+        { q: 'What happens after launch?', a: 'For one month after launch we fix our own errors free of charge. After that, your choice: paid website support or 5 hours of free training on how to manage it.' },
+        { q: 'What do you need from me to get started?', a: 'For the first call: tell us about your business and show what you already have. For the website work: texts, photos and access details.' },
+        { q: 'How quickly do you reply?', a: 'Within two business days.' },
+      ],
+    },
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     about: {
       eyebrow: 'About the studio',
@@ -331,6 +361,21 @@ export const ui = {
     },
   },
   uk: {
+    // Відповідь 1 — з макета (без цін «від [XX €]»: їх ще не визначено). Відповіді 2–8 — ЧЕРНЕТКА з рішень у плані (розділи 11, 13)
+    faq: {
+      eyebrow: 'FAQ',
+      title: 'Часті питання',
+      items: [
+        { q: 'Скільки коштує проєкт?', a: 'Вартість залежить від типу проєкту, його складності й обсягу роботи. Остаточну вартість називаємо після брифінгу: вона залежить від потреб вашого проєкту.' },
+        { q: 'Як проходить оплата?', a: `Частинами. Для сайту: 30${NBSP}% на старті, 50${NBSP}% після погодження дизайну і 20${NBSP}% під час здачі. Для логотипа: 70${NBSP}% на старті і 30${NBSP}% під час здачі.` },
+        { q: 'Скільки правок входить у вартість?', a: 'Три кола правок на кожному етапі. Якщо ви повністю міняєте концепцію, це вже нова робота, і вона оплачується окремо.' },
+        { q: 'Чи можна зупинитися після аналізу?', a: `Так. Після етапу стратегії й структури ви можете зупинитись. Тоді ви платите лише передоплату 30${NBSP}% і забираєте результати аналізу: карту сайту й чорно-білі макети.` },
+        { q: 'Коли сайт буде готовий?', a: 'Строк записуємо в пропозиції для вашого проєкту. Він рахується від дня, коли ви передали всі матеріали: тексти, фото й доступи.' },
+        { q: 'Що буде після запуску?', a: 'Місяць після запуску безкоштовно виправляємо свої помилки. Далі на вибір: платна підтримка сайту або 5 годин безкоштовного навчання, як із ним працювати.' },
+        { q: 'Що потрібно від мене для початку роботи?', a: 'Для першого дзвінка — розповісти про бізнес і показати, що вже є. Для роботи над сайтом — тексти, фото й доступи.' },
+        { q: 'Як швидко ви відповідаєте?', a: 'Протягом двох робочих днів.' },
+      ],
+    },
     about: {
       eyebrow: 'Про студію',
       leadMuted: 'Красивий дизайн привертає увагу.',
