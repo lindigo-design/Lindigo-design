@@ -31,7 +31,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   <!-- Темна тема (макет «-new»): градієнт блоку + фон 20 % Color Dodge + вирізана медуза -->
   <div class="process__dark" aria-hidden="true" data-theme-only="dark">
     <Image class="process__glow" src={glowDark} alt="" widths={[960, 1600, 2048, 2752]} sizes="100vw" loading="lazy" />
-    <Image class="process__jelly" src={jellyDark} alt="" widths={[960, 1600, 2048, 2752]} sizes="(min-width: 1900px) 2170px, 108vw" loading="lazy" />
+    <Image class="process__jelly" src={jellyDark} alt="" widths={[960, 1600, 2048, 2752]} sizes="(min-width: 1900px) 1900px, 108vw" loading="lazy" />
   </div>
   <!-- Світла тема -->
   <div class="process__bg" aria-hidden="true" data-theme-only="light">
@@ -107,10 +107,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
      Пропорція рамки 1624 × 1019.5 (у макеті трохи розтягнута по висоті) */
   .process__dark :global(.process__jelly) {
     --col: calc(100% - 2 * var(--gutter));
+    /* ширша за макет колонка — медуза росте повільніше (на 1800 це ≈ 87 % від пропорційного) */
+    --jelly-w: min(calc(var(--col) * 1.2012), calc(1624px + (var(--col) - 1352px) * 0.6));
     position: absolute;
     top: 0;
-    left: calc(var(--gutter) - var(--col) * 0.1195);
-    width: calc(var(--col) * 1.2012);
+    /* правий край прив'язаний як у макеті (на 0,0817 колонки правіше за колонку), щоб купол
+       лишався над картками 02 і 04 */
+    left: calc(var(--gutter) + var(--col) * 1.0817 - var(--jelly-w));
+    width: var(--jelly-w);
     height: auto;
     max-width: none;
     aspect-ratio: 1624 / 1019.5;
