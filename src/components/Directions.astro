@@ -10,7 +10,8 @@
  * й наїжджає на попередню; накрита трохи меншає (до 95 %) і темнішає, від неї лишається смужка 16 px.
  * Висота карток залежить від екрана: картка займає місце від шапки до низу з відступом,
  * фото тягнеться на всю висоту картки (від потрібної тексту висоти до 800 px).
- * Вмикає скрипт (клас is-stacked) від ширини 761 px, якщо стопка вміщується, і без «зменшити рух»;
+ * На телефоні так само (як у Kota): картка в стовпчик — текст згори, фото забирає решту висоти.
+ * Вмикає скрипт (клас is-stacked), якщо стопка вміщується в екран, і без «зменшити рух»;
  * інакше — звичайний список карток.
  */
 import { Image } from 'astro:assets';
@@ -341,6 +342,25 @@ const pad = (n: number) => String(n).padStart(2, '0');
       border-radius: 16px;
     }
   }
+
+  /* Стопка на телефоні й вузькому планшеті: висота картки під екран, тож фото забирає лишок висоти
+     замість пропорції 16:10. Розмиття вимкнене, щоб не гальмувало, тому підкладка повністю непрозора:
+     інакше крізь нову картку просвічує попередня */
+  @media (max-width: 760px) {
+    .directions.is-stacked .direction__text {
+      flex: none;
+    }
+    .directions.is-stacked .direction__media {
+      flex: 1 1 0;
+      min-height: 0;
+      aspect-ratio: auto;
+    }
+    .directions.is-stacked .direction {
+      background: linear-gradient(var(--card-bg), var(--card-bg)), var(--section-bg);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
 </style>
 
 <script>
@@ -351,11 +371,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
    *   картка k у звичайному порядку стояла б на L + k × (H + 24) і піднімається до T + k × 16.
    * Сцена стоїть на місці, поки блок гортають на весь цей шлях (+ невелика пауза в кінці).
    */
-  const T = 128; // під шапкою: 16 + 72 + 16 + 24
+  const T_WIDE = 128; // під шапкою: 16 + 72 + 16 + 24
+  const T_PHONE = 94; // під шапкою телефона (до 599 px): 12 + 66 + 16
   const GAP = 24;
   const PEEK = 16;
-  const BOTTOM = 40; // відступ картки від низу екрана
+  const BOTTOM_WIDE = 40; // відступ картки від низу екрана
+  const BOTTOM_PHONE = 20;
   const MAX_H = 800;
+  const MIN_MEDIA = 140; // картка в стовпчик: фото не нижче за це, інакше стопка не вмикається
   const HOLD = 160;
 
   document.querySelectorAll<HTMLElement>('[data-directions]').forEach((section) => {
@@ -366,9 +389,15 @@ const pad = (n: number) => String(n).padStart(2, '0');
     if (!stage || !head || !list || cards.length < 2) return;
     const n = cards.length;
 
-    const wide = window.matchMedia('(min-width: 761px)');
+    const phone = window.matchMedia('(max-width: 599px)');
+    const column = window.matchMedia('(max-width: 760px)'); // картка в стовпчик
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    let L = 0, H = 0, travel = 0, raf = 0, stacked = false;
+    // Висота екрана без адресного рядка (100svh): на телефоні рядок ховається під час гортання,
+    // і window.innerHeight змінюється — від svh стопка не перебудовується і не смикається
+    const probe = document.createElement('div');
+    probe.style.cssText = 'position:fixed;top:0;left:0;width:0;height:100vh;height:100svh;visibility:hidden;pointer-events:none';
+    document.body.append(probe);
+    let T = T_WIDE, L = 0, H = 0, travel = 0, raf = 0, stacked = false, lastW = 0, lastVh = 0;
 
     const reset = () => {
       section.classList.remove('is-stacked');
@@ -384,11 +413,17 @@ const pad = (n: number) => String(n).padStart(2, '0');
     const layout = () => {
       reset();
       stacked = false;
-      if (!wide.matches || reduceMotion.matches) return;
-      // найменша висота картки — щоб уліз текст (поля 32 + рамка)
+      lastW = window.innerWidth;
+      lastVh = probe.offsetHeight || window.innerHeight;
+      if (reduceMotion.matches) return;
+      T = phone.matches ? T_PHONE : T_WIDE;
+      const bottom = phone.matches ? BOTTOM_PHONE : BOTTOM_WIDE;
+      // найменша висота картки: текст + поля й рамка; у стовпчик — ще проміжок і фото не нижче MIN_MEDIA
       const textH = Math.max(...cards.map((c) => (c.querySelector('.direction__text') as HTMLElement).offsetHeight));
-      const minH = textH + 66;
-      const room = window.innerHeight - T - (n - 1) * PEEK - BOTTOM;
+      const cs = getComputedStyle(cards[0]);
+      const frame = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom) + 2;
+      const minH = column.matches ? textH + frame + parseFloat(cs.rowGap || '0') + MIN_MEDIA : textH + frame;
+      const room = lastVh - T - (n - 1) * PEEK - bottom;
       if (room < minH) return;
       H = Math.min(MAX_H, room);
       L = list.getBoundingClientRect().top - stage.getBoundingClientRect().top;
@@ -396,7 +431,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       section.classList.add('is-stacked');
       list.style.setProperty('--card-h', `${H}px`);
       // сцена = екран; блок довший на шлях прокрутки
-      section.style.height = `${window.innerHeight + travel}px`;
+      section.style.height = `${lastVh + travel}px`;
       stacked = true;
       update();
     };
@@ -437,8 +472,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
     );
 
     window.addEventListener('scroll', request, { passive: true });
-    window.addEventListener('resize', () => requestAnimationFrame(layout));
-    wide.addEventListener('change', layout);
+    // перебудовуємо лише тоді, коли справді змінився розмір (а не сховався адресний рядок)
+    window.addEventListener('resize', () =>
+      requestAnimationFrame(() => {
+        if (window.innerWidth !== lastW || (probe.offsetHeight || window.innerHeight) !== lastVh) layout();
+      }),
+    );
+    phone.addEventListener('change', layout);
+    column.addEventListener('change', layout);
     reduceMotion.addEventListener('change', layout);
     // після завантаження шрифтів висота тексту уточнюється
     document.fonts?.ready.then(layout);

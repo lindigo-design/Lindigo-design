@@ -104,7 +104,8 @@
   --card-bg: rgba(255, 255, 255, 0.25);
   --card-border: rgba(54, 54, 54, 0.2);
   --more-border: color-mix(in srgb, var(--fg) 48%, transparent);
-  --text-supplement: var(--grey-supplement);
+  /* Сіра частина великих цитат («Принципи», «Про студію»): Figma «text/muted-light», контраст 5,7 на бежевому */
+  --text-supplement: var(--muted-light);
   --rule: color-mix(in srgb, var(--fg) 24%, transparent);
   --label-muted: var(--indigo-800);
   --step-bg: rgba(21, 11, 46, 0.03);
@@ -294,23 +295,12 @@ a {
     border-color 0.4s ease !important;
 }
 
-/* ---------- Заголовок з двох рядків, притиснутий праворуч (scripts/fit-lead.ts) ----------
-   Широкий екран: кожне речення — окремий рядок без переносів; блок стоїть праворуч,
-   тож найдовший рядок закінчується по правому краю колонки (фото під ним). */
-@media (min-width: 1101px) {
-  [data-fit-lead]:not(.is-wrapped) .fit-lead__box {
-    display: block;
-    width: max-content;
-    max-width: none;
-    margin-left: auto;
-  }
-  [data-fit-lead]:not(.is-wrapped) .fit-lead__box > span {
-    display: block;
-    white-space: nowrap;
-  }
-  /* з переносами: блок завширшки з найдовший рядок (ставить скрипт), притиснутий праворуч */
-  [data-fit-lead].is-wrapped .fit-lead__box {
-    display: block;
-    margin-left: auto;
-  }
+
+/* ---------- Світіння «Light» з макета (темна тема «Принципів» і «Про студію») ----------
+   Індиго й помаранч ліворуч. Радіус ×0,7 і непрозорість ×0,75 від макета (м'якше),
+   на широких екранах не більше, ніж на 1512. Блок вмикає його класом .glow-studio. */
+.glow-studio {
+  --glow-studio:
+    radial-gradient(min(28.7vw, 434px) min(18.8vw, 285px) at 17.89% 47.18%, rgb(82 48 201 / 0.22) 0%, rgb(82 48 201 / 0.19) 20%, rgb(82 48 201 / 0.13) 40%, rgb(82 48 201 / 0.07) 60%, rgb(82 48 201 / 0.02) 80%, rgb(82 48 201 / 0) 100%),
+    radial-gradient(min(18.6vw, 281px) min(12.3vw, 186px) at 20.83% 70.45%, rgb(242 99 42 / 0.15) 0%, rgb(242 99 42 / 0.13) 20%, rgb(242 99 42 / 0.09) 40%, rgb(242 99 42 / 0.045) 60%, rgb(242 99 42 / 0.015) 80%, rgb(242 99 42 / 0) 100%);
 }
