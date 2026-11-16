@@ -6,6 +6,9 @@
  * Email і месенджер поки ведуть на сторінку «Контакт»: адреси ще не визначені.
  * Фон (макет): фото диму на всю ширину, поверх — напівпрозорий шар кольору теми
  * (темна: #150b2e 50 %, світла: #f8eedd 55 %). Фото з запасом для ретіни (до 2752 px).
+ * Рідина як у першому екрані (план: «Футер із рідиною»): полотно поверх фото диму розтікає його
+ * від мишки, дотику й прокрутки; шар кольору теми лежить поверх, тож текст читається.
+ * Без WebGL чи з «зменшити рух» — просто фото.
  */
 import { Image } from 'astro:assets';
 import smokeDark from '../assets/footer/smoke-dark.jpg';
@@ -33,10 +36,11 @@ const contact = [
 ];
 ---
 
-<footer class="footer">
+<footer class="footer" data-footer-fluid>
   <div class="footer__bg" aria-hidden="true">
-    <Image src={smokeDark} alt="" widths={[800, 1200, 1600, 2048, 2752]} sizes="100vw" loading="lazy" data-theme-only="dark" class="footer__bg-img footer__bg-img--dark" />
-    <Image src={smokeLight} alt="" widths={[800, 1200, 1600, 2048, 2752]} sizes="100vw" loading="lazy" data-theme-only="light" class="footer__bg-img" />
+    <Image src={smokeDark} alt="" widths={[800, 1200, 1600, 2048, 2752]} sizes="100vw" loading="lazy" data-theme-only="dark" data-fluid-src="dark" class="footer__bg-img footer__bg-img--dark" />
+    <Image src={smokeLight} alt="" widths={[800, 1200, 1600, 2048, 2752]} sizes="100vw" loading="lazy" data-theme-only="light" data-fluid-src="light" class="footer__bg-img" />
+    <canvas class="footer__fluid" data-fluid></canvas>
   </div>
   <div class="footer__top">
     <div class="footer__brand">
@@ -98,12 +102,29 @@ const contact = [
     position: absolute;
     inset: 0;
     z-index: -1;
+    pointer-events: none;
   }
 
   .footer__bg :global(.footer__bg-img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  /* Полотно рідини над фото, під шаром кольору теми (::after). З'являється, коли перший кадр
+     готовий (він збігається з фото) */
+  .footer__fluid {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .footer__fluid:global(.is-ready) {
+    opacity: 1;
   }
 
   /* темна: у макеті видно середню смугу фото трохи нижче центру */
@@ -250,3 +271,20 @@ const contact = [
     }
   }
 </style>
+
+<script>
+  // Рідину вантажимо, лише коли футер наближається до екрана: на початку сторінки вона не потрібна
+  const footer = document.querySelector<HTMLElement>('[data-footer-fluid]');
+  if (footer) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (!entries.some((e) => e.isIntersecting)) return;
+        io.disconnect();
+        // без маски: дим тече на всю ширину, тихі поштовхи — по всьому футеру
+        import('./fluid/fluid').then((m) => m.initFluid(footer, { area: [0.05, 0.95] }));
+      },
+      { rootMargin: '600px 0px' },
+    );
+    io.observe(footer);
+  }
+</script>

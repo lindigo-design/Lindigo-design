@@ -1,5 +1,5 @@
 /*
- * Рідина в першому екрані: картинка з макета сама стає рідиною.
+ * Рідина: картинка-фон блоку сама стає рідиною (перший екран, футер).
  * Основа симуляції: WebGL-Fluid-Simulation, Pavel Dobryakov (MIT), див. shaders.ts.
  *
  * Як це працює:
@@ -46,13 +46,25 @@ interface ImageLayer {
   pos: [number, number];
 }
 
-let started = false;
+export interface FluidOptions {
+  /** Лівіше 45 % ширини сила падає до нуля, щоб рідина не затікала під текст (перший екран) */
+  mask?: boolean;
+  /** У якій частині ширини (0–1) робимо тихі поштовхи без мишки й поштовхи від прокрутки */
+  area?: [number, number];
+}
 
-export function initHeroFluid(): void {
-  if (started) return;
-  const hero = document.querySelector<HTMLElement>('[data-hero]');
-  const canvas = hero?.querySelector<HTMLCanvasElement>('[data-fluid]');
-  if (!hero || !canvas) return;
+const started = new WeakSet<HTMLElement>();
+
+/**
+ * Запускає рідину в блоці root: у ньому має бути полотно [data-fluid] і картинки
+ * [data-fluid-src="dark"] / [data-fluid-src="light"] (object-fit: cover), які полотно накриває.
+ */
+export function initFluid(root: HTMLElement | null, options: FluidOptions = {}): void {
+  const canvas = root?.querySelector<HTMLCanvasElement>('[data-fluid]');
+  if (!root || !canvas || started.has(root)) return;
+  const useMask = options.mask ?? false;
+  const [areaFrom, areaTo] = options.area ?? [0, 1];
+  const inArea = () => areaFrom + Math.random() * (areaTo - areaFrom);
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (reduceMotion.matches) return;
@@ -71,9 +83,9 @@ export function initHeroFluid(): void {
   gl.getExtension('EXT_color_buffer_float');
   gl.getExtension('EXT_color_buffer_half_float');
 
-  started = true;
+  started.add(root);
   const glc: WebGL2RenderingContext = gl;
-  const heroEl: HTMLElement = hero;
+  const rootEl: HTMLElement = root;
   const canvasEl: HTMLCanvasElement = canvas;
 
   /* ---------- Формати текстур ---------- */
@@ -101,7 +113,7 @@ export function initHeroFluid(): void {
   const formatRG = pickFormat([{ internalFormat: glc.RG16F, format: glc.RG }, rgba]);
   const formatR = pickFormat([{ internalFormat: glc.R16F, format: glc.RED }, { internalFormat: glc.RG16F, format: glc.RG }, rgba]);
   if (!formatRG || !formatR) {
-    started = false;
+    started.delete(rootEl);
     return; // Не вміємо малювати у float-текстури — лишається картинка
   }
 
@@ -157,8 +169,8 @@ export function initHeroFluid(): void {
       display: new Program(vertex, S.displayShader),
     };
   } catch (error) {
-    console.warn('[hero fluid] shader error, showing the static image', error);
-    started = false;
+    console.warn('[fluid] shader error, showing the static image', error);
+    started.delete(rootEl);
     return; // Помилка шейдера — лишається картинка
   }
   const P = programs;
@@ -270,7 +282,7 @@ export function initHeroFluid(): void {
   }
 
   /* ---------- Картинки ---------- */
-  const imageFor = (theme: Theme) => heroEl.querySelector<HTMLImageElement>(`[data-fluid-src="${theme}"]`);
+  const imageFor = (theme: Theme) => rootEl.querySelector<HTMLImageElement>(`[data-fluid-src="${theme}"]`);
   const currentTheme = (): Theme => (document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
 
   function whenLoaded(img: HTMLImageElement): Promise<boolean> {
@@ -353,9 +365,9 @@ export function initHeroFluid(): void {
     velocity.swap();
   }
 
-  /** Лівіше 45 % ширини сила плавно падає до нуля, щоб рідина не затікала під заголовок. */
+  /** Лівіше 45 % ширини сила плавно падає до нуля, щоб рідина не затікала під заголовок (якщо mask). */
   function mask(x: number) {
-    if (window.innerWidth < C.MASK_MIN_WIDTH) return 1;
+    if (!useMask || window.innerWidth < C.MASK_MIN_WIDTH) return 1;
     const t = Math.min(1, Math.max(0, (x - C.MASK_FROM) / (C.MASK_TO - C.MASK_FROM)));
     return t * t * (3 - 2 * t);
   }
@@ -386,13 +398,13 @@ export function initHeroFluid(): void {
     lastMove = performance.now();
   }
 
-  // Слухаємо всю секцію: інакше текст і кнопки перекриють мишку
-  heroEl.addEventListener('pointermove', (e) => {
+  // Слухаємо весь блок: інакше текст і кнопки перекриють мишку
+  rootEl.addEventListener('pointermove', (e) => {
     if (e.pointerType === 'mouse') move(e.clientX, e.clientY);
   });
-  heroEl.addEventListener('pointerleave', () => (lastPointer = null));
+  rootEl.addEventListener('pointerleave', () => (lastPointer = null));
   // Телефон: дотик і прокрутка
-  heroEl.addEventListener(
+  rootEl.addEventListener(
     'touchstart',
     (e) => {
       const t = e.touches[0];
@@ -400,7 +412,7 @@ export function initHeroFluid(): void {
     },
     { passive: true },
   );
-  heroEl.addEventListener(
+  rootEl.addEventListener(
     'touchmove',
     (e) => {
       const t = e.touches[0];
@@ -408,7 +420,7 @@ export function initHeroFluid(): void {
     },
     { passive: true },
   );
-  heroEl.addEventListener('touchend', () => (lastPointer = null), { passive: true });
+  rootEl.addEventListener('touchend', () => (lastPointer = null), { passive: true });
 
   const noHover = window.matchMedia('(hover: none)');
   let lastScrollY = window.scrollY;
@@ -425,7 +437,7 @@ export function initHeroFluid(): void {
         if (!running || delta === 0) return;
         // Слабкий поштовх угору
         const strength = Math.min(delta / window.innerHeight, 0.04);
-        push(0.35 + Math.random() * 0.55, 0.2 + Math.random() * 0.5, 0, strength, C.SPLAT_FORCE / C.IDLE_FORCE_DIVIDER);
+        push(inArea(), 0.2 + Math.random() * 0.5, 0, strength, C.SPLAT_FORCE / C.IDLE_FORCE_DIVIDER);
       });
     },
     { passive: true },
@@ -561,11 +573,11 @@ export function initHeroFluid(): void {
     if (now < nextIdle) return;
     nextIdle = now + (C.IDLE_MIN + Math.random() * (C.IDLE_MAX - C.IDLE_MIN)) * 1000;
     if (now - lastMove < 1000) return;
-    // Права половина, випадковий напрям, у 5–6 разів слабше за мишку
+    // У своїй зоні (перший екран — права половина), випадковий напрям, у 5–6 разів слабше за мишку
     const angle = Math.random() * Math.PI * 2;
     const amount = 0.008;
     push(
-      0.55 + Math.random() * 0.4,
+      inArea(),
       0.2 + Math.random() * 0.6,
       Math.cos(angle) * amount,
       Math.sin(angle) * amount,
@@ -638,7 +650,7 @@ export function initHeroFluid(): void {
   new IntersectionObserver(([entry]) => {
     inView = entry.isIntersecting;
     updateRunning();
-  }).observe(heroEl);
+  }).observe(rootEl);
   document.addEventListener('visibilitychange', updateRunning);
   window.addEventListener('lindigo:menu', (event) => {
     menuOpen = (event as CustomEvent<{ open: boolean }>).detail.open;
@@ -669,7 +681,7 @@ export function initHeroFluid(): void {
     // Трохи розмішуємо, щоб перехід був схожий на переливання фарби
     for (let i = 0; i < 3; i++) {
       const a = Math.random() * Math.PI * 2;
-      push(0.55 + Math.random() * 0.4, 0.2 + Math.random() * 0.6, Math.cos(a) * 0.01, Math.sin(a) * 0.01);
+      push(inArea(), 0.2 + Math.random() * 0.6, Math.cos(a) * 0.01, Math.sin(a) * 0.01);
     }
     if (!running) render();
   });

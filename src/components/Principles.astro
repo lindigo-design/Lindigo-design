@@ -1,9 +1,9 @@
 ---
 /**
- * Блок «02б Принципи» (Figma «Головна · Варіант 2», темна й світла тема).
- * Велика цитата: частина тексту сіра (--text-supplement), частина кольором теми; фото праворуч;
- * під нею чотири принципи з лінією згори.
- * Сітка цитати на 1512: 238 | 568 | 310, між колонками 40 px (238 — колонка підпису «Наші принципи»).
+ * Блок «02 Принципи» (Figma «02 Принципи new», темна й світла тема).
+ * Згори: підпис «Наші принципи» і великий заголовок із двох речень (перше сіре, друге кольором теми).
+ * Під ним три колонки 296 | 525 | 435 (між ними 48): ліва — місце під фото (поки порожнє), текст, фото.
+ * Знизу чотири принципи з лінією згори. Фон — бежевий у світлій темі, у темній — світіння «Light».
  */
 import { Image } from 'astro:assets';
 import laptop from '../assets/principles/laptop.jpg';
@@ -18,21 +18,16 @@ const t = ui[locale].principles;
 const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
-<section class="principles" aria-labelledby="principles-title">
-  <div class="principles__quote">
+<section class="principles glow-studio" aria-labelledby="principles-title">
+  <div class="principles__top">
     <p class="principles__eyebrow">{t.eyebrow}</p>
-    <h2 class="principles__lead" id="principles-title" data-fit-lead>
-      <span class="fit-lead__box">
-        <span class="principles__muted">{t.leadMuted}</span>
-        {' '}<span>{keepLastWords(t.lead)}</span>
-      </span>
+    <h2 class="principles__lead" id="principles-title">
+      <span class="principles__muted">{t.leadMuted}</span>
+      {' '}<span class="principles__strong">{keepLastWords(t.lead)}</span>
     </h2>
-    <p class="principles__body">
-      {t.body}{' '}
-      <span class="principles__muted">{keepLastWords(t.bodyMuted)}</span>
-    </p>
+    <p class="principles__body">{keepLastWords(t.body)}</p>
     <div class="principles__media">
-      <Image src={laptop} alt="" widths={[400, 640, 960]} sizes="(max-width: 760px) 100vw, 320px" />
+      <Image src={laptop} alt="" widths={[440, 880, 1200]} sizes="(max-width: 760px) 100vw, (max-width: 1100px) 280px, 435px" />
     </div>
   </div>
 
@@ -53,23 +48,28 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .principles {
     display: flex;
     flex-direction: column;
-    gap: 96px;
+    gap: 56px;
     padding: 120px var(--gutter);
-    background: var(--section-bg);
+    background: var(--section-bg-alt);
   }
 
-  /* Цитата: відступ зліва 156 px, далі сітка 238 | 568 | 310 */
-  .principles__quote {
+  :global(:root:not([data-theme='light'])) .principles {
+    background: var(--glow-studio), var(--section-bg-alt);
+  }
+
+  /* Сітка 296 | 525 | 435 на 1512 (разом 1352 з проміжками 48), на вужчих — у тих самих пропорціях */
+  .principles__top {
     display: grid;
-    grid-template-columns: 238px minmax(0, 1fr) 310px;
-    column-gap: 40px;
+    grid-template-columns: minmax(0, 296fr) minmax(0, 525fr) minmax(0, 435fr);
+    column-gap: 48px;
+    row-gap: 40px;
     align-items: start;
-    padding-left: clamp(0px, 10.3vw, 156px);
   }
 
+  /* Підпис — у лівій колонці від краю; заголовок стоїть над колонкою тексту */
   .principles__eyebrow {
-    grid-column: 1;
-    grid-row: 1;
+    grid-area: 1 / 1;
+    padding-top: clamp(6px, 0.86vw, 13px);
     font-family: var(--font-mono);
     font-weight: 500;
     font-size: 14px;
@@ -79,37 +79,42 @@ const pad = (n: number) => String(n).padStart(2, '0');
     color: var(--accent-text);
   }
 
-  .principles__lead,
-  .principles__body {
+  /* Кожне речення з нового рядка: сіре — завжди одним рядком, друге переноситься лише тоді,
+     коли не влазить до правого краю (на 1512 — 3 рядки, як у макеті; на широких екранах буває 2) */
+  .principles__lead {
+    grid-area: 1 / 2 / 2 / 4;
     font-family: var(--font-display);
     font-weight: 600;
-    /* рядок 62 px на 1512 */
+    font-size: clamp(24px, 2.65vw, 40px);
     line-height: clamp(32px, 4.1vw, 62px);
   }
 
-  .principles__lead {
-    grid-column: 2 / 4;
-    grid-row: 1;
-    font-size: clamp(24px, 2.65vw, 40px);
-  }
-
-  .principles__body {
-    grid-column: 1 / 3;
-    grid-row: 2;
-    font-size: clamp(20px, 2.12vw, 32px);
+  .principles__lead > span {
+    display: block;
   }
 
   .principles__muted {
     color: var(--text-supplement);
   }
 
+  @media (min-width: 1101px) {
+    .principles__muted {
+      white-space: nowrap;
+    }
+  }
+
+  .principles__body {
+    grid-area: 2 / 2;
+    font-weight: 500;
+    font-size: 20px;
+    line-height: 30px;
+    color: var(--text-soft);
+  }
+
+  /* 435 × 260 на 1512; на ширших екранах росте разом із колонкою, пропорція та сама */
   .principles__media {
-    grid-column: 3;
-    grid-row: 2;
-    height: 263px;
-    /* верх фото — по верху великих літер 2-го рядка тексту поруч (там починається друге речення):
-       1 рядок + половина інтерліньяжу + відступ від верху шрифту до верху великої літери (Unbounded) */
-    margin-top: calc(1.5 * clamp(32px, 4.1vw, 62px) - 0.405 * clamp(20px, 2.12vw, 32px));
+    grid-area: 2 / 3;
+    aspect-ratio: 435 / 260;
     overflow: hidden;
     border-radius: 20px;
   }
@@ -120,7 +125,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     object-fit: cover;
   }
 
-  /* Чотири принципи, між ними 48 px, лінія згори */
+  /* Чотири принципи по ширині блоку: на 1512 колонки ≈ 300, між ними 48; лінія згори */
   .principles__list {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -159,31 +164,32 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .principle__text {
     font-weight: 500;
     font-size: 14px;
-    line-height: 18px;
+    line-height: 1.5;
   }
 
-  /* Вужчий комп'ютер і планшет: підпис над цитатою, фото поруч з текстом */
+  /* Вужчий комп'ютер і планшет: підпис над заголовком, порожньої колонки немає, фото поруч із текстом */
   @media (max-width: 1100px) {
-    .principles__quote {
+    .principles__top {
       grid-template-columns: minmax(0, 1fr) 280px;
       row-gap: 16px;
-      padding-left: 0;
     }
     .principles__eyebrow {
-      grid-column: 1 / -1;
+      grid-area: 1 / 1 / 2 / 3;
+      padding: 0;
     }
     .principles__lead {
-      grid-column: 1 / -1;
-      grid-row: 2;
+      grid-area: 2 / 1 / 3 / 3;
     }
     .principles__body {
-      grid-column: 1;
-      grid-row: 3;
+      grid-area: 3 / 1;
+      margin-top: 24px;
+      font-size: 18px;
+      line-height: 28px;
     }
     .principles__media {
-      margin-top: 0;
-      grid-column: 2;
-      grid-row: 3;
+      grid-area: 3 / 2;
+      margin-top: 24px;
+      aspect-ratio: auto;
       height: 240px;
     }
     .principles__list {
@@ -195,28 +201,28 @@ const pad = (n: number) => String(n).padStart(2, '0');
   /* Один стовпчик: фото під текстом */
   @media (max-width: 760px) {
     .principles {
-      gap: 64px;
+      gap: 48px;
     }
-    .principles__quote {
+    .principles__top {
       grid-template-columns: minmax(0, 1fr);
     }
-    .principles__body {
-      grid-row: 3;
-    }
     .principles__media {
-      grid-column: 1;
-      grid-row: 4;
+      grid-area: 4 / 1;
+      width: 100%;
       height: auto;
       aspect-ratio: 16 / 10;
-      margin-top: 8px;
+      margin-top: 16px;
     }
   }
 
   /* Телефон */
   @media (max-width: 640px) {
     .principles {
-      gap: 48px;
       padding: 96px 20px;
+    }
+    .principles__body {
+      font-size: 16px;
+      line-height: 24px;
     }
     .principles__media {
       border-radius: 16px;
@@ -228,14 +234,5 @@ const pad = (n: number) => String(n).padStart(2, '0');
       grid-template-columns: minmax(0, 1fr);
       gap: 24px;
     }
-    .principle__text {
-      font-size: 14px;
-      line-height: 20px;
-    }
   }
 </style>
-
-<script>
-  // Заголовок з двох рядків: найдовший рядок — по правому краю фото
-  import '../scripts/fit-lead';
-</script>
