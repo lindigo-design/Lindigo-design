@@ -25,7 +25,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
       <span class="principles__muted">{t.leadMuted}</span>
       {' '}<span class="principles__strong">{keepLastWords(t.lead)}</span>
     </h2>
-    <p class="principles__body">{keepLastWords(t.body)}</p>
+    <div class="principles__body">
+      {t.body.map((para) => <p>{keepLastWords(para)}</p>)}
+    </div>
     <div class="principles__media">
       <Image src={laptop} alt="" widths={[440, 880, 1200]} sizes="(max-width: 760px) 100vw, (max-width: 1100px) 280px, 435px" />
     </div>
@@ -105,6 +107,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
   .principles__body {
     grid-area: 2 / 2;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
     font-weight: 500;
     font-size: 20px;
     line-height: 30px;

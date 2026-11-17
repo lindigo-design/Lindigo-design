@@ -116,14 +116,17 @@ export const ui = {
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     principles: {
       eyebrow: 'Nos principes',
-      leadMuted: 'Les solutions universelles n’existent pas.',
-      lead: 'Votre entreprise n’a pas à se plier à un modèle.',
-      body: 'Chaque projet a son contexte, ses défis et son public. Ce qui fonctionne pour une marque ne fonctionnera pas forcément pour une autre. C’est pourquoi nous partons du fond, pas de la forme. Nous cherchons à comprendre ce qui compte pour vous et à le traduire en un design réfléchi.',
+      leadMuted: 'Le design est un outil',
+      lead: 'au service de votre entreprise.',
+      body: [
+        'Un bon design aide les gens à comprendre rapidement qui vous êtes et ce que vous proposez. Il transforme des informations complexes en pages claires et faciles à lire, tout en donnant une forme visuelle à vos idées. Ainsi, votre site web, votre application ou votre identité de marque contribue à atteindre vos objectifs.',
+        'Ces quatre principes guident nos décisions dans chaque projet.',
+      ],
       items: [
-        { title: 'D’abord comprendre', text: 'Avant de proposer une solution, nous étudions votre activité, votre public et vos objectifs.' },
-        { title: 'Chaque choix a une raison', text: 'La structure, les fonctionnalités et le langage visuel doivent répondre à des besoins concrets, pas seulement aux tendances du design.' },
-        { title: 'Le dialogue avant tout', text: 'Vous connaissez votre activité. Nous vous aidons à transformer vos connaissances, vos objectifs et vos idées en une solution de design claire.' },
-        { title: 'Un design tourné vers l’avenir', text: 'Nous créons des solutions qui tiennent compte des besoins actuels, mais aussi des possibilités de développement.' },
+        { title: 'Chaque élément a sa raison d’être', text: `Chaque bouton, image et bloc a un rôle précis${NBSP}: aider les visiteurs à comprendre votre activité et à passer à l’étape suivante.` },
+        { title: 'Votre public avant tout', text: 'Nous choisissons les typographies, les couleurs et les mises en page en fonction des personnes que vous souhaitez toucher.' },
+        { title: 'Collaboration créative', text: 'Vous connaissez votre entreprise mieux que personne. Nous savons comment traduire cette connaissance en design. C’est en réunissant nos compétences que nous obtenons les meilleurs résultats.' },
+        { title: 'Conçu pour évoluer', text: 'Nous créons un ensemble de couleurs, de typographies et d’éléments réutilisables. Lorsque vous avez besoin d’une nouvelle page ou d’un nouveau produit, vous pouvez l’ajouter facilement tout en conservant une identité visuelle cohérente.' },
       ],
     },
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
@@ -283,14 +286,17 @@ export const ui = {
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     principles: {
       eyebrow: 'Our principles',
-      leadMuted: 'There are no universal solutions.',
-      lead: 'Your business shouldn’t have to fit a template.',
-      body: 'Every project has its own context, challenges and audience. What works for one brand won’t necessarily work for another. That’s why we start with substance, not form. We aim to understand what matters to you and turn that understanding into thoughtful design.',
+      leadMuted: 'Design is a tool',
+      lead: 'for your business.',
+      body: [
+        'Good design helps people quickly understand who you are and what you offer. It turns complex information into simple, readable pages and gives your ideas a clear visual form. As a result, your website, app or brand works toward your business goals.',
+        'These four principles guide the decisions we make in every project.',
+      ],
       items: [
-        { title: 'Understanding first', text: 'Before proposing a solution, we study your business, your audience and your goals.' },
-        { title: 'Every decision has a reason', text: 'Structure, functionality and visual language should meet real needs, not just design trends.' },
-        { title: 'Dialogue, not guesswork', text: 'You know your business. We help turn your knowledge, goals and ideas into a clear design solution.' },
-        { title: 'Design with the future in mind', text: 'We create solutions that consider not only today’s tasks but also room to grow.' },
+        { title: 'Every element has a job', text: 'Every button, image and block has a clear role: to help visitors understand you and take the next step.' },
+        { title: 'Your audience first', text: 'We choose fonts, colours and layouts for the people you want to reach.' },
+        { title: 'Creative collaboration', text: 'You know your business best. We know how to turn that knowledge into design. The strongest result comes when both work together.' },
+        { title: 'Built to grow', text: 'We create a set of colours, fonts and ready-made elements. When you need a new page or product, it’s easy to add it in the same style.' },
       ],
     },
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
@@ -445,14 +451,17 @@ export const ui = {
     },
     principles: {
       eyebrow: 'Наші принципи',
-      leadMuted: 'Універсальних рішень не існує.',
-      lead: 'Ваш бізнес не повинен підлаштовуватися під шаблон.',
-      body: 'У кожного проєкту свій контекст, свої виклики та своя аудиторія. Те, що працює для одного бренду, не обов’язково спрацює для іншого. Тому ми починаємо зі змісту, а не з форми. Прагнемо зрозуміти, що важливо саме для вас, і перетворити це розуміння на продуманий дизайн.',
+      leadMuted: 'Дизайн — інструмент',
+      lead: 'для вашого бізнесу.',
+      body: [
+        'Хороший дизайн допомагає людям швидко зрозуміти, хто ви та що пропонуєте. Він перетворює складну інформацію на прості й зрозумілі сторінки та надає вашим ідеям чіткої візуальної форми. Завдяки цьому ваш сайт, застосунок або бренд працює на досягнення бізнес-цілей.',
+        'Ці чотири принципи визначають рішення, які ми приймаємо в кожному проєкті.',
+      ],
       items: [
-        { title: 'Спочатку розуміння', text: 'Перш ніж пропонувати рішення, ми досліджуємо ваш бізнес, аудиторію та ваші цілі.' },
-        { title: 'Кожне рішення має причину', text: 'Структура, функціональність і візуальна мова повинні відповідати конкретним потребам, а не лише дизайнерським трендам.' },
-        { title: 'Діалог замість здогадок', text: 'Ви знаєте свій бізнес. Ми допомагаємо перетворити ваші знання, цілі та ідеї на зрозуміле дизайнерське рішення.' },
-        { title: 'Дизайн із перспективою', text: 'Створюємо рішення, які враховують не лише поточні завдання, а й можливості подальшого розвитку.' },
+        { title: 'Кожен елемент має своє призначення', text: 'Кожна кнопка, зображення та блок мають чітку роль: допомогти відвідувачам зрозуміти вашу діяльність і зробити наступний крок.' },
+        { title: 'Ваша аудиторія — на першому місці', text: 'Ми обираємо шрифти, кольори та композицію з урахуванням людей, до яких ви хочете звернутися.' },
+        { title: 'Творча співпраця', text: 'Ви знаєте свій бізнес краще за всіх. Ми знаємо, як втілити ці знання в дизайні. Найкращий результат народжується тоді, коли ми працюємо разом.' },
+        { title: 'Створено для розвитку', text: 'Ми створюємо систему кольорів, шрифтів і готових до використання елементів. Коли вам знадобиться нова сторінка або продукт, їх буде легко додати, зберігаючи єдиний візуальний стиль.' },
       ],
     },
     directions: {
