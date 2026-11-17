@@ -116,11 +116,11 @@ export const ui = {
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     principles: {
       eyebrow: 'Nos principes',
-      leadMuted: 'Le design est un outil',
-      lead: 'au service de votre entreprise.',
+      leadMuted: 'Le design donne forme à vos idées.',
+      lead: 'Et les met au service de vos objectifs.',
       body: [
-        'Un bon design aide les gens à comprendre rapidement qui vous êtes et ce que vous proposez. Il transforme des informations complexes en pages claires et faciles à lire, tout en donnant une forme visuelle à vos idées. Ainsi, votre site web, votre application ou votre identité de marque contribue à atteindre vos objectifs.',
-        'Ces quatre principes guident nos décisions dans chaque projet.',
+        'Un bon design rend les choses complexes plus simples à comprendre et les interactions plus naturelles. Il aide les utilisateurs à trouver rapidement les informations dont ils ont besoin, à naviguer facilement dans les produits numériques et à reconnaître votre marque à travers différents points de contact. De la première découverte à l’utilisation quotidienne, chaque détail contribue à créer une expérience cohérente.',
+        'Ces quatre principes guident les décisions que nous prenons dans chaque projet.',
       ],
       items: [
         { title: 'Chaque élément a sa raison d’être', text: `Chaque bouton, image et bloc a un rôle précis${NBSP}: aider les visiteurs à comprendre votre activité et à passer à l’étape suivante.` },
@@ -286,10 +286,10 @@ export const ui = {
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     principles: {
       eyebrow: 'Our principles',
-      leadMuted: 'Design is a tool',
-      lead: 'for your business.',
+      leadMuted: 'Design gives shape to your ideas.',
+      lead: 'And helps you turn them into results that matter.',
       body: [
-        'Good design helps people quickly understand who you are and what you offer. It turns complex information into simple, readable pages and gives your ideas a clear visual form. As a result, your website, app or brand works toward your business goals.',
+        'Good design makes complex things easier to understand and interactions feel natural. It helps people quickly find the information they need, navigate digital products with ease and recognize your brand across different touchpoints. From the first impression to everyday use, every detail contributes to a consistent experience.',
         'These four principles guide the decisions we make in every project.',
       ],
       items: [
@@ -451,10 +451,10 @@ export const ui = {
     },
     principles: {
       eyebrow: 'Наші принципи',
-      leadMuted: 'Дизайн — інструмент',
-      lead: 'для вашого бізнесу.',
+      leadMuted: 'Дизайн надає форму вашим ідеям.',
+      lead: 'І спрямовує їх на досягнення ваших цілей.',
       body: [
-        'Хороший дизайн допомагає людям швидко зрозуміти, хто ви та що пропонуєте. Він перетворює складну інформацію на прості й зрозумілі сторінки та надає вашим ідеям чіткої візуальної форми. Завдяки цьому ваш сайт, застосунок або бренд працює на досягнення бізнес-цілей.',
+        'Хороший дизайн робить складне зрозумілим, а взаємодію — природною. Він допомагає людям швидко знаходити потрібну інформацію, орієнтуватися в цифрових продуктах і впізнавати бренд у різних точках контакту. Від першого знайомства до щоденного використання кожна деталь формує цілісне враження.',
         'Ці чотири принципи визначають рішення, які ми приймаємо в кожному проєкті.',
       ],
       items: [
