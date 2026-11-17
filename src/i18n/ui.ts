@@ -356,7 +356,7 @@ export const ui = {
     hero: {
       title: ['Strategy first.', 'Then a design', 'that works.'],
       // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
-      lead: `Your business has its own story and goals. We study them and create websites, interfaces and brands that fit your needs, not${NBSP}templates.`,
+      lead: `Your business has its own story and goals. We study them and create websites, interfaces and brands that fit your${NBSP}needs.`,
       leadWidth: '665px',
       primary: 'Discuss your project',
       secondary: 'See our work',
