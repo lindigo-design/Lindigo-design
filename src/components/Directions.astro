@@ -378,7 +378,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
   const BOTTOM_WIDE = 40; // відступ картки від низу екрана
   const BOTTOM_PHONE = 20;
   const MAX_H = 800;
-  const MIN_MEDIA = 140; // картка в стовпчик: фото не нижче за це, інакше стопка не вмикається
+  const MIN_MEDIA = 112; // картка в стовпчик: фото не нижче за це, інакше стопка не вмикається
+  // (112, а не 140: з довшими текстами карток FR на 390 × 844 інакше випадав зі стопки)
   const HOLD = 160;
 
   document.querySelectorAll<HTMLElement>('[data-directions]').forEach((section) => {
