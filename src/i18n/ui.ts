@@ -84,12 +84,12 @@ export const ui = {
       eyebrow: 'Six étapes, de l’appel au lancement',
       title: 'Notre méthode',
       steps: [
-        { title: 'Rencontre et brief', text: `Le premier appel est gratuit. Vous nous présentez votre projet, nous vous posons des questions sur votre activité et vos clients. Nous convenons de qui prend les décisions chez vous et des délais. Après l’appel, vous recevez un court compte rendu écrit.` },
-        { title: 'Proposition', text: `Nous décrivons ce que nous allons faire, le coût et l’ordre des étapes. Vous signez le devis et versez un acompte de 30${NBSP}%. Ensuite, nous commençons.` },
-        { title: 'Stratégie et structure', text: `C’est le travail avant le design. Nous étudions vos clients et votre marché. Nous en tirons l’arborescence et des maquettes en noir et blanc. Nous avons besoin de vos textes, photos et accès. Trois séries de corrections sont prévues.` },
-        { title: 'Design', text: `Nous présentons deux propositions de page d’accueil. Vous en choisissez une, et nous dessinons le reste pour ordinateur et mobile. Trois séries de corrections sont prévues. Après validation, deuxième paiement${NBSP}: 50${NBSP}%.` },
-        { title: 'Développement et tests', text: `Nous construisons le site et ajoutons les animations. Nous le testons sur mobile, vérifions la vitesse et les formulaires. Vous consultez le site via un lien de test.` },
-        { title: 'Lancement', text: `Nous mettons le site en ligne sur votre domaine et vous montrons comment modifier les textes et les photos. Vous réglez les 20${NBSP}% restants.` },
+        { title: 'Premier échange & Brief', text: 'Le premier appel est gratuit. Vous nous présentez votre projet et nous vous posons des questions sur votre activité et vos clients. Nous définissons ensemble les délais et la personne qui prendra les décisions de votre côté. Après l’appel, vous recevez un court récapitulatif écrit.' },
+        { title: 'Proposition', text: 'Nous détaillons ce que nous allons réaliser, le coût, les délais et l’ordre des étapes. Vous signez la proposition et versez un acompte. Nous pouvons alors commencer.' },
+        { title: 'Stratégie & Structure', text: `Nous commençons par bien comprendre votre projet. Nous étudions vos clients et votre marché pour définir la direction à prendre${NBSP}: la structure d’un site web, l’identité d’une marque ou le fonctionnement d’une application. Vous nous fournissez les éléments dont vous disposez déjà${NBSP}: textes, photos et accès nécessaires.` },
+        { title: 'Design', text: `Nous vous présentons les premières propositions${NBSP}: une page d’accueil, des écrans d’application ou des esquisses de logo. Vous choisissez une direction et nous développons le design jusqu’à sa version finale. Trois séries de modifications sont incluses. Une fois le design validé, vous effectuez le paiement suivant.` },
+        { title: 'Réalisation & Vérification', text: `Nous donnons vie au design validé${NBSP}: création du site web, préparation des fichiers de votre identité visuelle ou réalisation d’un prototype. Nous vérifions la qualité du résultat et sa conformité à ce que nous avons défini ensemble. Vous découvrez le travail finalisé avant sa livraison.` },
+        { title: 'Lancement & Livraison', text: 'Nous mettons votre site en ligne sur votre domaine ou vous remettons les fichiers finalisés en vous expliquant comment les utiliser. Vous effectuez le dernier paiement et recevez tous les éléments nécessaires pour poursuivre votre projet en toute autonomie.' },
       ],
     },
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
@@ -116,14 +116,17 @@ export const ui = {
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     principles: {
       eyebrow: 'Nos principes',
-      leadMuted: 'Les solutions universelles n’existent pas.',
-      lead: 'Votre entreprise n’a pas à se plier à un modèle.',
-      body: 'Chaque projet a son contexte, ses défis et son public. Ce qui fonctionne pour une marque ne fonctionnera pas forcément pour une autre. C’est pourquoi nous partons du fond, pas de la forme. Nous cherchons à comprendre ce qui compte pour vous et à le traduire en un design réfléchi.',
+      leadMuted: 'Le design donne forme à vos idées.',
+      lead: 'Et les met au service de vos objectifs.',
+      body: [
+        'Un bon design rend les choses complexes plus simples à comprendre et les interactions plus naturelles. Il aide les utilisateurs à trouver rapidement les informations dont ils ont besoin, à naviguer facilement dans les produits numériques et à reconnaître votre marque à travers différents points de contact. De la première découverte à l’utilisation quotidienne, chaque détail contribue à créer une expérience cohérente.',
+        'Ces quatre principes guident les décisions que nous prenons dans chaque projet.',
+      ],
       items: [
-        { title: 'D’abord comprendre', text: 'Avant de proposer une solution, nous étudions votre activité, votre public et vos objectifs.' },
-        { title: 'Chaque choix a une raison', text: 'La structure, les fonctionnalités et le langage visuel doivent répondre à des besoins concrets, pas seulement aux tendances du design.' },
-        { title: 'Le dialogue avant tout', text: 'Vous connaissez votre activité. Nous vous aidons à transformer vos connaissances, vos objectifs et vos idées en une solution de design claire.' },
-        { title: 'Un design tourné vers l’avenir', text: 'Nous créons des solutions qui tiennent compte des besoins actuels, mais aussi des possibilités de développement.' },
+        { title: 'Chaque élément a sa raison d’être', text: `Chaque bouton, image et bloc a un rôle précis${NBSP}: aider les visiteurs à comprendre votre activité et à passer à l’étape suivante.` },
+        { title: 'Votre public avant tout', text: 'Nous choisissons les typographies, les couleurs et les mises en page en fonction des personnes que vous souhaitez toucher.' },
+        { title: 'Collaboration créative', text: 'Vous connaissez votre entreprise mieux que personne. Nous savons comment traduire cette connaissance en design. C’est en réunissant nos compétences que nous obtenons les meilleurs résultats.' },
+        { title: 'Conçu pour évoluer', text: 'Nous créons un ensemble de couleurs, de typographies et d’éléments réutilisables. Lorsque vous avez besoin d’une nouvelle page ou d’un nouveau produit, vous pouvez l’ajouter facilement tout en conservant une identité visuelle cohérente.' },
       ],
     },
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
@@ -251,12 +254,12 @@ export const ui = {
       eyebrow: 'Six steps from the first call to launch',
       title: 'How we work',
       steps: [
-        { title: 'Introduction & brief', text: 'The first call is free. You tell us about your project, and we ask about your business and your clients. We agree on who makes decisions on your side and on timelines. After the call, you get a short written summary.' },
-        { title: 'Proposal', text: `We write down what we’ll do, how much it costs and in what order. You sign the proposal and pay a 30${NBSP}% deposit. Then we get started.` },
-        { title: 'Strategy & structure', text: 'This is the work before design. We study your clients and your market, and turn that into a sitemap and black-and-white wireframes. We’ll need your texts, photos and access details. Three rounds of revisions are included.' },
-        { title: 'Design', text: `We show two options for the home page. You pick one, and we design the rest for desktop and mobile. Three rounds of revisions are included. After approval comes the second payment, 50${NBSP}%.` },
-        { title: 'Development & testing', text: 'We build the site and add the animations. We test it on phones and check speed and forms. You review the site via a test link.' },
-        { title: 'Launch', text: `We move the site to your domain and show you how to update texts and photos. You pay the remaining 20${NBSP}%.` },
+        { title: 'Introduction & Brief', text: 'The first call is free. You tell us about your project, and we ask questions about your business and your customers. We agree on timelines and who will make decisions on your side. After the call, you receive a short written summary.' },
+        { title: 'Proposal', text: 'We outline what we’ll do, how much it will cost, the timeline and the order of work. You sign the proposal and pay a deposit. Then we get started.' },
+        { title: 'Strategy & Structure', text: 'First, we get to the heart of your project. We study your customers and your market to define what the result should look like: a website structure, a brand identity or the logic behind an app. We’ll need the materials you already have, such as texts, photos and access details.' },
+        { title: 'Design', text: 'We show you the first options: a homepage, app screens or logo sketches. You choose a direction, and we develop the design through to completion. Three rounds of revisions are included. Once you approve the design, the next payment is due.' },
+        { title: 'Development & Testing', text: 'We bring the approved design to life: building your website, preparing brand files or creating a prototype. We check the quality and make sure everything matches what we’ve agreed on. You review the finished work before delivery.' },
+        { title: 'Launch & Handover', text: 'We launch your website on your domain or deliver the finished files and show you how to use them. You make the final payment and receive everything you need to continue working with your project.' },
       ],
     },
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
@@ -283,14 +286,17 @@ export const ui = {
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
     principles: {
       eyebrow: 'Our principles',
-      leadMuted: 'There are no universal solutions.',
-      lead: 'Your business shouldn’t have to fit a template.',
-      body: 'Every project has its own context, challenges and audience. What works for one brand won’t necessarily work for another. That’s why we start with substance, not form. We aim to understand what matters to you and turn that understanding into thoughtful design.',
+      leadMuted: 'Design gives shape to your ideas.',
+      lead: 'And helps you turn them into results that matter.',
+      body: [
+        'Good design makes complex things easier to understand and interactions feel natural. It helps people quickly find the information they need, navigate digital products with ease and recognize your brand across different touchpoints. From the first impression to everyday use, every detail contributes to a consistent experience.',
+        'These four principles guide the decisions we make in every project.',
+      ],
       items: [
-        { title: 'Understanding first', text: 'Before proposing a solution, we study your business, your audience and your goals.' },
-        { title: 'Every decision has a reason', text: 'Structure, functionality and visual language should meet real needs, not just design trends.' },
-        { title: 'Dialogue, not guesswork', text: 'You know your business. We help turn your knowledge, goals and ideas into a clear design solution.' },
-        { title: 'Design with the future in mind', text: 'We create solutions that consider not only today’s tasks but also room to grow.' },
+        { title: 'Every element has a job', text: 'Every button, image and block has a clear role: to help visitors understand you and take the next step.' },
+        { title: 'Your audience first', text: 'We choose fonts, colours and layouts for the people you want to reach.' },
+        { title: 'Creative collaboration', text: 'You know your business best. We know how to turn that knowledge into design. The strongest result comes when both work together.' },
+        { title: 'Built to grow', text: 'We create a set of colours, fonts and ready-made elements. When you need a new page or product, it’s easy to add it in the same style.' },
       ],
     },
     // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
@@ -414,12 +420,12 @@ export const ui = {
       eyebrow: 'Шість кроків від дзвінка до запуску',
       title: 'Як ми працюємо',
       steps: [
-        { title: 'Знайомство і брифінг', text: 'Перший дзвінок безкоштовний. Ви розповідаєте про задачу, ми ставимо питання про ваш бізнес і ваших клієнтів. Домовляємось, хто у вас приймає рішення і які строки. Після дзвінка ви отримуєте короткий підсумок на письмі.' },
-        { title: 'Пропозиція', text: `Пишемо, що зробимо, скільки це коштує і в якому порядку. Ви підписуєте пропозицію й вносите 30${NBSP}%. Після цього починаємо.` },
-        { title: 'Стратегія і структура', text: 'Це робота ще до дизайну. Вивчаємо ваших клієнтів і ваш ринок. З цього складаємо карту сторінок і чорно-білі макети. Від вас потрібні тексти, фото й доступи. На правки є три кола.' },
-        { title: 'Дизайн', text: `Показуємо два варіанти стартової сторінки. Ви обираєте один, і ми малюємо решту для комп’ютера й телефону. На правки є три кола. Після погодження другий платіж, 50${NBSP}%.` },
-        { title: 'Розробка і перевірка', text: 'Збираємо сайт і додаємо анімацію. Перевіряємо його на телефонах, дивимось швидкість і форми. Ви дивитесь сайт за тестовим посиланням.' },
-        { title: 'Запуск', text: `Переносимо сайт на ваш домен і показуємо, як міняти тексти й фото. Ви оплачуєте останні 20${NBSP}%.` },
+        { title: 'Знайомство і брифінг', text: 'Перший дзвінок безкоштовний. Ви розповідаєте про проєкт, а ми ставимо запитання про ваш бізнес і клієнтів. Домовляємося про строки й про те, хто з вашого боку ухвалює рішення. Після дзвінка ви отримуєте короткий письмовий підсумок.' },
+        { title: 'Пропозиція', text: 'Описуємо, що саме зробимо, скільки це коштуватиме, у які строки та в якій послідовності. Ви підписуєте пропозицію та вносите передоплату. Після цього починаємо роботу.' },
+        { title: 'Стратегія і структура', text: 'Спочатку розбираємося в завданні. Вивчаємо ваших клієнтів і ринок та визначаємо, яким має бути результат: структура сайту, характер бренду чи логіка застосунку. Від вас потрібні матеріали, які вже є: тексти, фото, доступи.' },
+        { title: 'Дизайн', text: 'Показуємо перші варіанти: стартову сторінку, екрани застосунку або ескізи логотипа. Ви обираєте напрям, і ми доводимо дизайн до кінця. У вартість входять три кола правок. Після затвердження дизайну — наступна частина оплати.' },
+        { title: 'Реалізація і перевірка', text: 'Втілюємо затверджений дизайн: збираємо сайт, готуємо файли бренду або прототип. Перевіряємо якість і те, чи все відповідає вашим очікуванням та нашим домовленостям. Ви переглядаєте готову роботу перед передачею.' },
+        { title: 'Запуск і передача', text: 'Запускаємо сайт на вашому домені або передаємо готові файли й показуємо, як ними користуватися. Ви вносите фінальну частину оплати й отримуєте все необхідне для подальшої роботи з вашим проєктом.' },
       ],
     },
     works: {
@@ -445,14 +451,17 @@ export const ui = {
     },
     principles: {
       eyebrow: 'Наші принципи',
-      leadMuted: 'Універсальних рішень не існує.',
-      lead: 'Ваш бізнес не повинен підлаштовуватися під шаблон.',
-      body: 'У кожного проєкту свій контекст, свої виклики та своя аудиторія. Те, що працює для одного бренду, не обов’язково спрацює для іншого. Тому ми починаємо зі змісту, а не з форми. Прагнемо зрозуміти, що важливо саме для вас, і перетворити це розуміння на продуманий дизайн.',
+      leadMuted: 'Дизайн надає форму вашим ідеям.',
+      lead: 'І спрямовує їх на досягнення ваших цілей.',
+      body: [
+        'Хороший дизайн робить складне зрозумілим, а взаємодію — природною. Він допомагає людям швидко знаходити потрібну інформацію, орієнтуватися в цифрових продуктах і впізнавати бренд у різних точках контакту. Від першого знайомства до щоденного використання кожна деталь формує цілісне враження.',
+        'Ці чотири принципи визначають рішення, які ми приймаємо в кожному проєкті.',
+      ],
       items: [
-        { title: 'Спочатку розуміння', text: 'Перш ніж пропонувати рішення, ми досліджуємо ваш бізнес, аудиторію та ваші цілі.' },
-        { title: 'Кожне рішення має причину', text: 'Структура, функціональність і візуальна мова повинні відповідати конкретним потребам, а не лише дизайнерським трендам.' },
-        { title: 'Діалог замість здогадок', text: 'Ви знаєте свій бізнес. Ми допомагаємо перетворити ваші знання, цілі та ідеї на зрозуміле дизайнерське рішення.' },
-        { title: 'Дизайн із перспективою', text: 'Створюємо рішення, які враховують не лише поточні завдання, а й можливості подальшого розвитку.' },
+        { title: 'Кожен елемент має своє призначення', text: 'Кожна кнопка, зображення та блок мають чітку роль: допомогти відвідувачам зрозуміти вашу діяльність і зробити наступний крок.' },
+        { title: 'Ваша аудиторія — на першому місці', text: 'Ми обираємо шрифти, кольори та композицію з урахуванням людей, до яких ви хочете звернутися.' },
+        { title: 'Творча співпраця', text: 'Ви знаєте свій бізнес краще за всіх. Ми знаємо, як втілити ці знання в дизайні. Найкращий результат народжується тоді, коли ми працюємо разом.' },
+        { title: 'Створено для розвитку', text: 'Ми створюємо систему кольорів, шрифтів і готових до використання елементів. Коли вам знадобиться нова сторінка або продукт, їх буде легко додати, зберігаючи єдиний візуальний стиль.' },
       ],
     },
     directions: {
