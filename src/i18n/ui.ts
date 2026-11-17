@@ -189,7 +189,7 @@ export const ui = {
     hero: {
       title: ['D’abord la stratégie.', 'Ensuite un design', 'qui fonctionne.'],
       // ЧЕРНЕТКА перекладу з української (Figma, варіант 2) — на вичитку
-      lead: `Votre entreprise a son histoire et ses objectifs. Nous les étudions et créons des sites, des interfaces et des marques qui répondent à vos enjeux, pas à des modèles tout${NBSP}faits.`,
+      lead: `Votre entreprise a son histoire et ses objectifs. Nous les étudions et créons des sites, des interfaces et des marques qui répondent à vos${NBSP}enjeux.`,
       leadWidth: '680px',
       primary: 'Parler de votre projet',
       secondary: 'Voir les réalisations',
@@ -516,7 +516,7 @@ export const ui = {
     },
     hero: {
       title: ['Спочатку стратегія.', 'Потім дизайн,', 'який працює.'],
-      lead: `Ваш бізнес має власну історію та цілі. Ми вивчаємо їх та створюємо сайти, інтерфейси та бренди, які відповідають вашим задачам, а не${NBSP}шаблонам.`,
+      lead: `Ваш бізнес має власну історію та цілі. Ми вивчаємо їх та створюємо сайти, інтерфейси та бренди, які відповідають вашим${NBSP}задачам.`,
       leadWidth: '665px',
       primary: 'Обговорити проєкт',
       secondary: 'Дивитися роботи',
