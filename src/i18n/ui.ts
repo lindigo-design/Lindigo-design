@@ -34,6 +34,8 @@ export const ui = {
     // ЧЕРНЕТКА перекладу — на вичитку
     cta: { title: 'Parlez-nous de votre projet', text: 'Le premier appel est gratuit. Nous commencerons par des questions sur votre activité.' },
     footerNav: { site: 'Site', social: 'Réseaux', contact: 'Nous joindre', email: 'E-mail', messenger: 'Messagerie', legal: 'Mentions légales', privacy: 'Confidentialité' },
+    // Заглушка сторінок, яких ще немає. ЧЕРНЕТКА — на вичитку
+    stub: { text: 'Cette page est en cours de création.' },
     // ЧЕРНЕТКА перекладу — на вичитку (відповіді 2–8 з рішень у плані)
     faq: {
       eyebrow: 'FAQ',
@@ -204,6 +206,8 @@ export const ui = {
     // ЧЕРНЕТКА перекладу — на вичитку
     cta: { title: 'Tell us about your project', text: 'The first call is free. We’ll start with questions about your business.' },
     footerNav: { site: 'Site', social: 'Social', contact: 'Get in touch', email: 'Email', messenger: 'Messenger', legal: 'Legal notice', privacy: 'Privacy' },
+    // Заглушка сторінок, яких ще немає. ЧЕРНЕТКА — на вичитку
+    stub: { text: 'This page is under construction.' },
     // ЧЕРНЕТКА перекладу — на вичитку (відповіді 2–8 з рішень у плані)
     faq: {
       eyebrow: 'FAQ',
@@ -373,6 +377,8 @@ export const ui = {
   uk: {
     cta: { title: 'Розкажіть про свій проєкт', text: 'Перший дзвінок безкоштовний. Почнемо з питань про ваш бізнес.' },
     footerNav: { site: 'Сайт', social: 'Соцмережі', contact: 'Зв’язок', email: 'Email', messenger: 'Месенджер', legal: 'Mentions légales', privacy: 'Confidentialité' },
+    // Заглушка сторінок, яких ще немає. ЧЕРНЕТКА — на вичитку
+    stub: { text: 'Ця сторінка ще в роботі.' },
     // Відповідь 1 — з макета (без цін «від [XX €]»: їх ще не визначено). Відповіді 2–8 — ЧЕРНЕТКА з рішень у плані (розділи 11, 13)
     faq: {
       eyebrow: 'FAQ',

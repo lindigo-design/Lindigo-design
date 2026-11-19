@@ -1,0 +1,10 @@
+---
+import StubPage from '../../components/StubPage.astro';
+import { stubParams } from '../../data/stubs';
+
+export const getStaticPaths = stubParams;
+
+const { stub } = Astro.params;
+---
+
+<StubPage locale="uk" path={`/${stub}/`} />
