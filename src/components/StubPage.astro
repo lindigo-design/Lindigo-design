@@ -1,0 +1,82 @@
+---
+/**
+ * Заглушка для сторінок, яких ще немає: щоб посилання з головної не вели на 404.
+ * Шапка, меню, назва сторінки, одне речення «сторінка в роботі», блок «Заклик до дії» і футер.
+ * Назви сторінок беруться з наявних текстів (меню, напрями, футер); новий лише ui[locale].stub.text.
+ * Сторінка не індексується (noindex): коли справжня сторінка буде готова, заглушку прибираємо зі stubPaths.
+ */
+import Base from '../layouts/Base.astro';
+import Header from './Header.astro';
+import Menu from './Menu.astro';
+import Cta from './Cta.astro';
+import Footer from './Footer.astro';
+import { featuredWorks } from '../data/featured';
+import { keepLastWords, ui, type Locale } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+  /** Шлях без мовного префікса, напр. "/studio/" */
+  path: string;
+}
+
+const { locale, path } = Astro.props;
+const t = ui[locale];
+const nav = t.menu.nav;
+const dir = t.directions.items;
+
+const titles: Record<string, string> = {
+  '/realisations/': nav[0],
+  '/services/': nav[1],
+  '/studio/': nav[2],
+  '/contact/': nav[3],
+  '/services/ui-ux/': dir[0].title,
+  '/services/sites/': dir[1].title,
+  '/services/branding/': dir[3].title,
+  '/services/photo/': dir[4].title,
+  '/mentions-legales/': t.footerNav.legal,
+  '/confidentialite/': t.footerNav.privacy,
+};
+for (const w of featuredWorks) titles[`/realisations/${w.slug}/`] = w.title;
+
+const title = titles[path] ?? nav[0];
+---
+
+<Base locale={locale} title={`${title} — Lindigo Design Studio`} description={t.stub.text} path={path} noindex>
+  <Header locale={locale} path={path} />
+  <Menu locale={locale} path={path} />
+  <main>
+    <section class="stub" aria-labelledby="stub-title">
+      <h1 class="stub__title type-h2" id="stub-title">{title}</h1>
+      <p class="stub__text type-body-lead">{keepLastWords(t.stub.text)}</p>
+    </section>
+    <Cta locale={locale} />
+  </main>
+  <Footer locale={locale} path={path} />
+</Base>
+
+<style>
+  .stub {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+    /* зверху — місце під фіксовану шапку + відступ секції */
+    padding: calc(var(--space-120) + var(--space-80)) var(--gutter) 0;
+    background: var(--section-bg);
+    color: var(--fg);
+  }
+
+  .stub__text {
+    color: var(--text-soft);
+  }
+
+  /* Мобільний розмір заголовка секції — як у решті блоків (Figma-шкала мобільних розмірів не має) */
+  @media (max-width: 640px) {
+    .stub {
+      padding-top: calc(var(--space-96) + var(--space-64));
+    }
+    .stub__title {
+      font-size: 32px;
+      line-height: 40px;
+    }
+  }
+</style>
