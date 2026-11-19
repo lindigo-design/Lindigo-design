@@ -8,6 +8,10 @@
     "deny": [
       "Bash(git push --force *)",
       "Bash(git push -f *)",
+      "Bash(git push origin main)",
+      "Bash(git push origin main *)",
+      "Bash(gh pr merge *)",
+      "mcp__plugin_github_github__merge_pull_request",
       "Read(./.env*)"
     ]
   }
