@@ -45,9 +45,33 @@
      Навігація (шапка) — на всю ширину екрана, без цього обмеження. */
   --gutter: max(clamp(40px, 5.29vw, 80px), calc((100% - 1800px) / 2));
 
-  /* Скруглення */
-  --radius-card: 24px;
-  --radius-media: 12px;
+  /* Відступи: шкала Space з Figma («Дизайн-система · Правила відступів»). Інших значень не буває */
+  --space-4: 4px;
+  --space-8: 8px;
+  --space-12: 12px;
+  --space-16: 16px;
+  --space-20: 20px;
+  --space-24: 24px;
+  --space-28: 28px;
+  --space-32: 32px;
+  --space-40: 40px;
+  --space-48: 48px;
+  --space-56: 56px;
+  --space-64: 64px;
+  --space-80: 80px;
+  --space-96: 96px;
+  --space-120: 120px;
+
+  /* Скруглення: шкала Radius з Figma */
+  --radius-12: 12px; /* кнопки, поля */
+  --radius-16: 16px; /* малі зображення */
+  --radius-20: 20px; /* зображення */
+  --radius-24: 24px; /* картки */
+  --radius-28: 28px; /* великі картки */
+  --radius-32: 32px; /* великі панелі */
+  --radius-full: 999px; /* теги, перемикачі */
+  --radius-card: var(--radius-24);
+  --radius-media: var(--radius-12);
 
   /* ---------- Темна тема (основна) ---------- */
   --bg: var(--indigo-950);
@@ -196,6 +220,31 @@ a {
   white-space: nowrap;
   border: 0;
 }
+
+/* ---------- Текстові стилі ----------
+   Шкала з Figma («Дизайн-система · Типографіка»): розмір / інтервал між рядками, px.
+   Міжлітерний інтервал 8 % тільки в мітках (Label). Мобільних розмірів у шкалі немає. */
+.type-h1 { font: 600 86px/1.2 var(--font-display); letter-spacing: 0; }
+.type-display { font: 600 72px/86px var(--font-display); letter-spacing: 0; }
+.type-h2 { font: 600 56px/68px var(--font-display); letter-spacing: 0; }
+.type-h3 { font: 600 40px/48px var(--font-display); letter-spacing: 0; }
+.type-h3-s { font: 600 36px/48px var(--font-display); letter-spacing: 0; }
+.type-h4 { font: 600 26px/34px var(--font-display); letter-spacing: 0; }
+.type-h5 { font: 600 22px/28px var(--font-display); letter-spacing: 0; }
+.type-h6 { font: 600 18px/24px var(--font-display); letter-spacing: 0; }
+.type-body-xl { font: 400 28px/40px var(--font-body); letter-spacing: 0; }
+.type-body-lead { font: 400 20px/30px var(--font-body); letter-spacing: 0; }
+.type-body-l { font: 400 18px/28px var(--font-body); letter-spacing: 0; }
+.type-body-m { font: 400 16px/24px var(--font-body); letter-spacing: 0; }
+.type-body-s { font: 400 14px/20px var(--font-body); letter-spacing: 0; }
+.type-title-24 { font: 600 24px/32px var(--font-body); letter-spacing: 0; }
+.type-title-16 { font: 600 16px/22px var(--font-body); letter-spacing: 0; }
+.type-button-m { font: 600 16px/24px var(--font-body); letter-spacing: 0; }
+.type-button-s { font: 600 14px/20px var(--font-body); letter-spacing: 0; }
+.type-label-m { font: 500 14px/20px var(--font-mono); letter-spacing: 0.08em; }
+.type-label-s { font: 500 12px/16px var(--font-mono); letter-spacing: 0.08em; }
+/* Label/S Caps: у Figma ті самі параметри, що й Label/S; великі літери — за назвою стилю */
+.type-label-s-caps { font: 500 12px/16px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; }
 
 /* Перемикач тем у розмітці: показуємо лише варіант поточної теми */
 :root:not([data-theme='light']) [data-theme-only='light'],
