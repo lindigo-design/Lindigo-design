@@ -110,7 +110,7 @@ export const ui = {
           slug: 'datatixx',
           name: 'DataTixx',
           tab: 'Site web',
-          tags: ['Identité de marque', 'Site web'],
+          tags: ['Identité de marque', 'Site web', 'Design de service web'],
           task: 'Expliquer sur le site ce que fait datixxia, la plateforme de DataTixx. Le service utilise les données des appels d’offres publics pour estimer les bénéfices de n’importe quel secteur d’activité, dans n’importe quelle région.',
           found: 'Qui visite le site et ce que chaque public doit comprendre en premier. Une entreprise veut savoir où le marché se développe. Une banque ou un assureur cherche à évaluer la fiabilité d’un secteur. Une chambre de commerce veut connaître la situation des entreprises de sa région.',
           // Для майбутньої сторінки кейсу (на головній не показується)
@@ -274,7 +274,7 @@ export const ui = {
       eyebrow: 'Work',
       title: 'Selected work',
       all: 'All work',
-      caseLabel: 'Case Study',
+      caseLabel: 'Project',
       view: 'View case study',
       taskLabel: 'Client’s challenge',
       foundLabel: 'What we learned before designing',
@@ -285,7 +285,7 @@ export const ui = {
           slug: 'datatixx',
           name: 'DataTixx',
           tab: 'Website',
-          tags: ['Branding', 'Website'],
+          tags: ['Branding', 'Website', 'Web service design'],
           task: 'Explain what datixxia, the DataTixx platform, does through its website. The service uses public tender data to estimate profits for any industry in any region.',
           found: 'Who visits the website and what each audience needs to understand first. A company wants to know where the market is growing. A bank or insurer wants to assess how reliable an industry is. A chamber of commerce wants to understand how businesses in its region are performing.',
           // Для майбутньої сторінки кейсу (на головній не показується)
@@ -456,7 +456,7 @@ export const ui = {
           slug: 'datatixx',
           name: 'DataTixx',
           tab: 'Сайт',
-          tags: ['Брендинг', 'Сайт'],
+          tags: ['Брендинг', 'Сайт', 'Дизайн вебсервісу'],
           task: 'Пояснити на сайті, що робить datixxia. Сервіс бере дані публічних тендерів і за ними рахує прибуток будь-якої галузі в будь-якому регіоні.',
           found: 'Хто приходить на сайт і що кожен має зрозуміти першим. Компанія хоче знати, де ринок росте. Банк чи страхова — наскільки надійна галузь. Торгова палата — як почуваються бізнеси її регіону.',
           // Для майбутньої сторінки кейсу (на головній не показується)
