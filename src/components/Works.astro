@@ -194,7 +194,7 @@ const items = directionOrder.flatMap((d) => t.items.find((item) => item.directio
   /* ---------- Картка кейса ---------- */
   .case {
     display: flex;
-    align-items: center;
+    align-items: stretch;
     gap: var(--space-48);
     padding: var(--space-32) var(--space-48) var(--space-32) var(--space-32);
     border: 1px solid var(--card-border);
@@ -219,13 +219,17 @@ const items = directionOrder.flatMap((d) => t.items.find((item) => item.directio
   }
 
   .case__cover {
+    /* Обкладинка на всю висоту тексту праворуч, не нижча за макетні 480 */
     flex: 0 0 584px;
-    height: 480px;
+    position: relative;
+    min-height: 480px;
     overflow: hidden;
     border-radius: var(--radius-24);
   }
 
   .case__cover :global(img) {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -237,6 +241,7 @@ const items = directionOrder.flatMap((d) => t.items.find((item) => item.directio
     flex-direction: column;
     align-items: flex-start;
     gap: var(--space-40);
+    align-self: center;
     flex: 1 1 0;
     min-width: 0;
   }
@@ -348,8 +353,9 @@ const items = directionOrder.flatMap((d) => t.items.find((item) => item.directio
     }
     .case__cover {
       flex: 0 0 46%;
-      height: auto;
+      min-height: 0;
       aspect-ratio: 584 / 480;
+      align-self: center;
     }
     .case__about {
       gap: var(--space-32);
