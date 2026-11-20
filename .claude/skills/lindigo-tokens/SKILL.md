@@ -23,6 +23,8 @@ Tailwind і `@theme` у проєкті не використовуються.
 | `--text-muted` | приглушений текст | `--muted-dark` | `--muted-light` |
 | `--text-supplement` | сіра частина великих цитат | `--grey-supplement` | `--muted-light` |
 | `--label-muted` | підписи, номери неактивних вкладок | `--grey-supplement` | `--indigo-800` |
+| `--tab-active` | активна вкладка «Вибраних робіт» | `--orchid` | `--indigo-800` |
+| `--tab-muted` | неактивні вкладки «Вибраних робіт» | `--grey-supplement` | `--muted-deep` |
 | `--accent-text` | акцентний текст, рамка фокусу | `--orchid` | `--orchid-deep` |
 | `--section-bg` | фон блоків | `--night` | `--cream-50` |
 | `--section-bg-alt` | фон «Фото-стрічки», «Про студію», футера | `--night` | `--beige-50` |
@@ -47,7 +49,7 @@ Tailwind і `@theme` у проєкті не використовуються.
 `--indigo-950` #150b2e, `--indigo-900` #21134a, `--indigo-800` #36206e, `--indigo-600` #5230c9,
 `--cream-50` #fffeee, `--beige-50` #f8eedd, `--beige-100` #efe0c9, `--beige-300` #d9c4a5,
 `--gold` #ffc83d, `--orchid` #dda3f7, `--orchid-deep` #a534c4, `--orange` #f2632a,
-`--muted-dark` #b8a8cc, `--muted-light` #6b5673, `--night` #0c081c, `--grey-supplement` #8a8394,
+`--muted-dark` #b8a8cc, `--muted-light` #6b5673, `--muted-deep` #4e3f5b, `--night` #0c081c, `--grey-supplement` #8a8394,
 `--dusk-600` #2a3265, `--dusk-800` #1a203f, `--night-800` #0e0b23, `--night-950` #070415 (градієнт «Як ми працюємо»),
 `--violet-500` #7c52c9, `--violet-600` #6246aa, `--violet-dusty` #7c56a4 (плями світіння Breath).
 
@@ -155,7 +157,7 @@ Figma (`Radius/*`):
 У коді `Radius/N` = `var(--radius-N)`, `Radius/Full` = `var(--radius-full)`. Старі назви лишаються:
 - `--radius-card` = `var(--radius-24)` (картки)
 - `--radius-media` = `var(--radius-12)` (фото, медіа). У Figma 12 — для кнопок і полів, а для зображень 16/20 — розбіжність, не виправляй без запиту.
-- Кнопки (`Button.astro`) і `.ring-hover` — `999px`, вписано числом. У Figma 999 (Radius/Full) — для тегів і перемикачів, а кнопки — Radius/12 — розбіжність, не виправляй без запиту.
+- Кнопки (`Button.astro`) і `.ring-hover` — повне заокруглення `999px` (Radius/Full) для всього сайту. Рішення власниці (20.11.2026): у Figma в кнопок буває Radius/12 або Radius/28 (наприклад, «Дивитися кейс»), але в коді лишаємо 999. Не змінюй.
 
 ### Пропорції
 
