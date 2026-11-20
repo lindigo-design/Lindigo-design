@@ -96,6 +96,8 @@
   --overlay-dark: rgba(21, 11, 46, 0.5);
   /* Підписи «Задача клієнта», номери неактивних вкладок */
   --label-muted: var(--grey-supplement);
+  /* Активна вкладка «Вибраних робіт» (Figma): Orchid / Indigo 800 */
+  --tab-active: var(--orchid);
   /* «Як ми працюємо»: перший крок виділений щільною карткою */
   --step-bg: var(--card-bg);
   --step-border: var(--card-border);
@@ -132,6 +134,7 @@
   --text-supplement: var(--muted-light);
   --rule: color-mix(in srgb, var(--fg) 24%, transparent);
   --label-muted: var(--indigo-800);
+  --tab-active: var(--indigo-800);
   --step-bg: rgba(21, 11, 46, 0.03);
   --step-border: rgba(21, 11, 46, 0.16);
   --step-first-bg: var(--beige-50);

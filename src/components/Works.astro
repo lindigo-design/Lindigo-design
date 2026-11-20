@@ -2,8 +2,10 @@
 /**
  * Блок «03 Вибрані роботи» (Figma «Головна · Варіант 2», темна й світла тема).
  * Слайдер кейсів: картка на склі (обкладинка, назва, мітки, задача й що з'ясували до дизайну, кнопка),
- * під нею вкладки з назвами кейсів і навігація (SliderNav).
- * Кейси беруться з ui[locale].works.items: вкладки й лічильник рахуються самі.
+ * під нею вкладки з назвами напрямів і навігація (SliderNav).
+ * Правило блоку: по одній найновішій роботі з кожного напряму (Сайт, Інтернет-магазин, Брендинг, Застосунок).
+ * Роботи в ui[locale].works.items ідуть від найновішої; для кожного напряму береться перша.
+ * Напрям без робіт не показується, лічильник рахує тільки видимі вкладки.
  * Фон блоку — векторні плями, що «дихають» (Breath.astro).
  */
 import { Image } from 'astro:assets';
@@ -24,7 +26,9 @@ interface Props {
 const { locale } = Astro.props;
 const t = ui[locale].works;
 const covers: Record<string, ImageMetadata> = { datatixx };
-const pad = (n: number) => String(n).padStart(2, '0');
+// Порядок вкладок (Figma): Сайт, Інтернет-магазин, Брендинг, Застосунок
+const directionOrder = ['site', 'shop', 'branding', 'app'];
+const items = directionOrder.flatMap((d) => t.items.find((item) => item.direction === d) ?? []);
 ---
 
 <section class="works" aria-labelledby="works-title" data-works>
@@ -44,9 +48,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
     </a>
   </header>
 
+  <div class="works__slider">
   <div class="works__slides">
     {
-      t.items.map((item, i) => (
+      items.map((item, i) => (
         <article
           class="case"
           id={`case-${item.slug}`}
@@ -60,9 +65,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
           </div>
           <div class="case__about">
             <div class="case__head">
-              <p class="case__label">
-                {t.caseLabel} {pad(i + 1)}
-              </p>
               <h3 class="case__name">{item.name}</h3>
               <ul class="case__tags">
                 {item.tags.map((tag) => <li>{tag}</li>)}
@@ -91,7 +93,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   <div class="works__controls">
     <div class="works__tabs" role="tablist" aria-label={t.title}>
       {
-        t.items.map((item, i) => (
+        items.map((item, i) => (
           <button
             class="works__tab"
             type="button"
@@ -102,13 +104,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
             tabindex={i === 0 ? 0 : -1}
             data-tab
           >
-            <span class="works__tab-num">{pad(i + 1)} {item.tab}</span>
-            <span class="works__tab-name">{item.name}</span>
+            {item.tab}
           </button>
         ))
       }
     </div>
-    <SliderNav prevLabel={t.prev} nextLabel={t.next} total={t.items.length} />
+    <SliderNav prevLabel={t.prev} nextLabel={t.next} total={items.length} />
+  </div>
   </div>
 </section>
 
@@ -118,8 +120,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     isolation: isolate;
     display: flex;
     flex-direction: column;
-    gap: 56px;
-    padding: 120px var(--gutter);
+    gap: var(--space-56);
+    padding: var(--space-120) var(--gutter);
     background: var(--section-bg);
     overflow: hidden;
   }
@@ -131,17 +133,16 @@ const pad = (n: number) => String(n).padStart(2, '0');
     flex-wrap: wrap;
     align-items: flex-end;
     justify-content: space-between;
-    gap: 24px;
+    gap: var(--space-24);
   }
 
   .works__heading {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: var(--space-16);
   }
 
-  .works__eyebrow,
-  .case__label {
+  .works__eyebrow {
     font-family: var(--font-mono);
     font-weight: 500;
     font-size: 14px;
@@ -161,12 +162,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .works__all {
     display: inline-flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--space-12);
     font-weight: 600;
     font-size: 16px;
     line-height: 22px;
     text-decoration: none;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
   }
 
   .works__all-icon img {
@@ -183,14 +184,21 @@ const pad = (n: number) => String(n).padStart(2, '0');
     transform: rotate(45deg);
   }
 
+  /* ---------- Слайдер: картка, під нею вкладки й стрілки ---------- */
+  .works__slider {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-32);
+  }
+
   /* ---------- Картка кейса ---------- */
   .case {
     display: flex;
     align-items: center;
-    gap: 48px;
-    padding: 32px 48px 32px 32px;
+    gap: var(--space-48);
+    padding: var(--space-32) var(--space-48) var(--space-32) var(--space-32);
     border: 1px solid var(--card-border);
-    border-radius: 32px;
+    border-radius: var(--radius-32);
     background: var(--card-bg);
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
@@ -214,7 +222,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     flex: 0 0 584px;
     height: 480px;
     overflow: hidden;
-    border-radius: 24px;
+    border-radius: var(--radius-24);
   }
 
   .case__cover :global(img) {
@@ -228,7 +236,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 40px;
+    gap: var(--space-40);
     flex: 1 1 0;
     min-width: 0;
   }
@@ -236,7 +244,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .case__head {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--space-12);
   }
 
   .case__name {
@@ -249,16 +257,17 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .case__tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: var(--space-8);
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
   .case__tags li {
-    padding: 8px 16px;
-    border: 1px solid var(--tag-border);
-    border-radius: 20px;
+    padding: var(--space-8) var(--space-16);
+    border: 1px solid var(--fg);
+    border-radius: var(--radius-20);
+    font-weight: 400;
     font-size: 14px;
     line-height: 20px;
   }
@@ -266,18 +275,17 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .case__desc {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: var(--space-24);
     margin: 0;
   }
 
   .case__desc div {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--space-8);
   }
 
-  .case__desc dt,
-  .works__tab-num {
+  .case__desc dt {
     font-family: var(--font-mono);
     font-weight: 500;
     font-size: 12px;
@@ -289,10 +297,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
   .case__desc dd {
     margin: 0;
-    font-weight: 500;
+    font-weight: 400;
     font-size: 20px;
     line-height: 30px;
-    color: var(--text-soft);
+    color: var(--fg);
   }
 
   /* ---------- Вкладки й навігація ---------- */
@@ -300,33 +308,28 @@ const pad = (n: number) => String(n).padStart(2, '0');
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 24px 40px;
+    gap: var(--space-24) var(--space-40);
   }
 
   .works__tabs {
     display: flex;
-    gap: 40px;
+    gap: var(--space-40);
     min-width: 0;
   }
 
+  /* Вкладка — назва напряму, Heading/H4 (Figma). Активна: Orchid / Indigo 800, решта — сірі */
   .works__tab {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 0 8px;
+    padding: var(--space-4) 0;
     border: 0;
-    border-bottom: 2px solid transparent;
     background: none;
-    color: color-mix(in srgb, var(--fg) 60%, transparent);
-    font-family: var(--font-body);
+    color: var(--text-supplement);
+    font-family: var(--font-display);
     font-weight: 600;
-    font-size: 16px;
-    line-height: 22px;
+    font-size: 26px;
+    line-height: 34px;
     white-space: nowrap;
     cursor: pointer;
-    transition:
-      color 0.2s ease,
-      border-color 0.3s var(--ease-out-in);
+    transition: color 0.2s ease;
   }
 
   .works__tab:hover {
@@ -334,19 +337,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
 
   .works__tab[aria-selected='true'] {
-    color: var(--fg);
-    border-bottom-color: var(--accent-text);
-  }
-
-  .works__tab[aria-selected='true'] .works__tab-num {
-    color: var(--accent-text);
+    color: var(--tab-active);
   }
 
   /* ---------- Вужчий комп'ютер і планшет ---------- */
   @media (max-width: 1100px) {
     .case {
-      gap: 32px;
-      padding: 32px;
+      gap: var(--space-32);
+      padding: var(--space-32);
     }
     .case__cover {
       flex: 0 0 46%;
@@ -354,7 +352,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       aspect-ratio: 584 / 480;
     }
     .case__about {
-      gap: 32px;
+      gap: var(--space-32);
     }
     .case__name {
       font-size: 40px;
@@ -389,24 +387,24 @@ const pad = (n: number) => String(n).padStart(2, '0');
   /* Телефон */
   @media (max-width: 640px) {
     .works {
-      gap: 32px;
-      padding: 96px 20px;
+      gap: var(--space-32);
+      padding: var(--space-96) var(--space-20);
     }
     .works__title {
       font-size: 32px;
       line-height: 40px;
     }
     .case {
-      gap: 24px;
-      padding: 16px 16px 24px;
-      border-radius: 24px;
+      gap: var(--space-24);
+      padding: var(--space-16) var(--space-16) var(--space-24);
+      border-radius: var(--radius-24);
     }
     .case__cover {
-      border-radius: 16px;
+      border-radius: var(--radius-16);
     }
     .case__about {
-      gap: 24px;
-      padding-inline: 8px;
+      gap: var(--space-24);
+      padding-inline: var(--space-8);
     }
     .case__name {
       font-size: 32px;
@@ -417,7 +415,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       line-height: 24px;
     }
     .works__tabs {
-      gap: 24px;
+      gap: var(--space-24);
     }
   }
 

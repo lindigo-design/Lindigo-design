@@ -99,7 +99,6 @@ export const ui = {
       eyebrow: 'Réalisations',
       title: 'Projets choisis',
       all: 'Toutes les réalisations',
-      caseLabel: 'Projet',
       view: 'Voir le projet',
       taskLabel: 'Le besoin du client',
       foundLabel: 'Ce que nous avons identifié avant de concevoir le design',
@@ -108,6 +107,8 @@ export const ui = {
       items: [
         {
           slug: 'datatixx',
+          // Напрям: site | shop | branding | app. На головній — найновіша робота кожного напряму (перша в списку)
+          direction: 'site',
           name: 'DataTixx',
           tab: 'Site web',
           tags: ['Identité de marque', 'Site web', 'Design de service web'],
@@ -274,7 +275,6 @@ export const ui = {
       eyebrow: 'Work',
       title: 'Selected work',
       all: 'All work',
-      caseLabel: 'Project',
       view: 'View case study',
       taskLabel: 'Client’s challenge',
       foundLabel: 'What we learned before designing',
@@ -283,6 +283,8 @@ export const ui = {
       items: [
         {
           slug: 'datatixx',
+          // Напрям: site | shop | branding | app. На головній — найновіша робота кожного напряму (перша в списку)
+          direction: 'site',
           name: 'DataTixx',
           tab: 'Website',
           tags: ['Branding', 'Website', 'Web service design'],
@@ -444,7 +446,6 @@ export const ui = {
       eyebrow: 'Роботи',
       title: 'Вибрані роботи',
       all: 'Усі роботи',
-      caseLabel: 'Кейс',
       view: 'Дивитися кейс',
       taskLabel: 'Задача клієнта',
       foundLabel: 'Що з’ясували до дизайну',
@@ -454,6 +455,8 @@ export const ui = {
       items: [
         {
           slug: 'datatixx',
+          // Напрям: site | shop | branding | app. На головній — найновіша робота кожного напряму (перша в списку)
+          direction: 'site',
           name: 'DataTixx',
           tab: 'Сайт',
           tags: ['Брендинг', 'Сайт', 'Дизайн вебсервісу'],
