@@ -275,7 +275,7 @@ export const ui = {
       eyebrow: 'Work',
       title: 'Selected work',
       all: 'All work',
-      view: 'View case study',
+      view: 'View project',
       taskLabel: 'Client’s challenge',
       foundLabel: 'What we learned before designing',
       prev: 'Previous case',
