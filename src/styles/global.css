@@ -18,6 +18,7 @@
   --beige-300: #d9c4a5;
   --muted-dark: #b8a8cc;
   --muted-light: #6b5673;
+  --muted-deep: #4e3f5b; /* Figma: text/muted-light у «Вибраних роботах» (світла тема) */
   /* Нові кольори з макета «Варіант 2» */
   --night: #0c081c; /* Figma: background-dark (темна тема) */
   --grey-supplement: #8a8394; /* Figma: second-supplement */
@@ -98,6 +99,7 @@
   --label-muted: var(--grey-supplement);
   /* Активна вкладка «Вибраних робіт» (Figma): Orchid / Indigo 800 */
   --tab-active: var(--orchid);
+  --tab-muted: var(--grey-supplement); /* неактивні вкладки «Вибраних робіт» */
   /* «Як ми працюємо»: перший крок виділений щільною карткою */
   --step-bg: var(--card-bg);
   --step-border: var(--card-border);
@@ -135,6 +137,7 @@
   --rule: color-mix(in srgb, var(--fg) 24%, transparent);
   --label-muted: var(--indigo-800);
   --tab-active: var(--indigo-800);
+  --tab-muted: var(--muted-deep);
   --step-bg: rgba(21, 11, 46, 0.03);
   --step-border: rgba(21, 11, 46, 0.16);
   --step-first-bg: var(--beige-50);
