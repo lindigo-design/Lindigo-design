@@ -102,7 +102,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
             tabindex={i === 0 ? 0 : -1}
             data-tab
           >
-            <span class="works__tab-num">{pad(i + 1)}</span>
+            <span class="works__tab-num">{pad(i + 1)} {item.tab}</span>
             <span class="works__tab-name">{item.name}</span>
           </button>
         ))
