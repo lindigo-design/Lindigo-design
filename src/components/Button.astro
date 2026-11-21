@@ -1,6 +1,6 @@
 ---
 /**
- * Кнопка-посилання. Дві форми (Figma, «Кнопки: стани»):
+ * Кнопка: посилання (є href) або кнопка форми (href немає). Дві форми (Figma, «Кнопки: стани»):
  *  - primary   — залита, зі стрілкою в колі. Наведення: коло від курсора відкриває градієнт
  *                (темна тема Orchid → Orange, світла Indigo 600 → Orchid Deep). Коло зі стрілкою
  *                зсувається вправо на 6 px, стрілка всередині повертається вправо, текст стоїть.
@@ -9,23 +9,44 @@
  *                тому в кінці наведення кнопка точно така, як у Figma.
  *  - secondary — з обводкою. Наведення: обводка 2 px стає градієнтною, колір біжить по контуру.
  * Розмір md — 56 px (перший екран), sm — 48 px (шапка).
+ *
+ * Вимкнена (disabled): тільки aria-disabled="true", НЕ атрибут disabled — кнопка лишається у фокусі,
+ * і читач екрана озвучує пояснення з describedBy (id елемента з текстом причини). Клік нічого не робить,
+ * наведення й натискання не працюють, контур фокусу видимий. Вигляду вимкненої кнопки в Figma немає —
+ * прозорість --disabled-opacity (пропозиція).
  */
 import arrowOnGold from '../assets/hero/arrow-cta-dark.svg';
 import arrowOnIndigo from '../assets/hero/arrow-cta-light.svg';
 
 interface Props {
-  href: string;
+  /** Є — посилання <a>; немає — <button> */
+  href?: string;
+  /** Тип <button> (без href) */
+  type?: 'button' | 'submit';
   variant?: 'primary' | 'secondary';
   size?: 'md' | 'sm';
+  /** Вимкнена: aria-disabled="true" */
+  disabled?: boolean;
+  /** id елемента, що пояснює, чому кнопка вимкнена (aria-describedby) */
+  describedBy?: string;
   class?: string;
 }
 
-const { href, variant = 'primary', size = 'md', class: className } = Astro.props;
+const { href, type = 'button', variant = 'primary', size = 'md', disabled = false, describedBy, class: className } = Astro.props;
+const Tag = href ? 'a' : 'button';
+// Вимкнене посилання втрачає href (нікуди не веде), але лишається у фокусі завдяки tabindex
+const attrs = href
+  ? disabled
+    ? { role: 'link', tabindex: 0 }
+    : { href }
+  : { type };
 ---
 
-<a
-  href={href}
+<Tag
+  {...attrs}
   class:list={['btn', `btn--${variant}`, `btn--${size}`, { 'ring-hover': variant === 'secondary' }, className]}
+  aria-disabled={disabled ? 'true' : undefined}
+  aria-describedby={describedBy}
   data-btn
 >
   {variant === 'primary' && <span class="btn__fill" aria-hidden="true" />}
@@ -38,7 +59,7 @@ const { href, variant = 'primary', size = 'md', class: className } = Astro.props
       </span>
     )
   }
-</a>
+</Tag>
 
 <style>
   .btn {
@@ -56,14 +77,21 @@ const { href, variant = 'primary', size = 'md', class: className } = Astro.props
     height: 56px;
     padding-inline: 32px;
     border-radius: 999px;
+    font: inherit;
     font-family: var(--font-body);
     font-weight: 600;
     font-size: 16px;
     line-height: 22px;
     white-space: nowrap;
     text-decoration: none;
+    cursor: pointer;
     -webkit-tap-highlight-color: transparent;
     transition: transform 0.2s ease;
+  }
+
+  /* <button> без рамки браузера; обводка другої кнопки — з .ring-hover */
+  button.btn--primary {
+    border: 0;
   }
 
   .btn--sm {
@@ -122,37 +150,43 @@ const { href, variant = 'primary', size = 'md', class: className } = Astro.props
 
   /* ---------- Стани ---------- */
   @media (hover: hover) {
-    .btn--primary:hover .btn__fill {
+    .btn--primary:not([aria-disabled='true']):hover .btn__fill {
       clip-path: circle(var(--r) at var(--x) var(--y));
     }
-    .btn--primary:hover .btn__arrow {
+    .btn--primary:not([aria-disabled='true']):hover .btn__arrow {
       transform: translateX(6px);
     }
-    .btn--primary:hover .btn__arrow img {
+    .btn--primary:not([aria-disabled='true']):hover .btn__arrow img {
       transform: rotate(45deg);
     }
   }
 
   /* Клавіатура: та сама заливка, коло росте з центру */
-  .btn--primary:focus-visible .btn__fill {
+  .btn--primary:not([aria-disabled='true']):focus-visible .btn__fill {
     clip-path: circle(var(--r) at var(--x) var(--y));
   }
-  .btn--primary:focus-visible .btn__arrow {
+  .btn--primary:not([aria-disabled='true']):focus-visible .btn__arrow {
     transform: translateX(6px);
   }
-  .btn--primary:focus-visible .btn__arrow img {
+  .btn--primary:not([aria-disabled='true']):focus-visible .btn__arrow img {
     transform: rotate(45deg);
   }
 
   /* Натискання (і короткий спалах на телефоні, клас ставить скрипт) */
-  .btn:active,
-  .btn.is-pressed {
+  .btn:not([aria-disabled='true']):active,
+  .btn:not([aria-disabled='true']).is-pressed {
     transform: scale(0.98);
   }
-  .btn--primary:active .btn__fill,
-  .btn--primary.is-pressed .btn__fill {
+  .btn--primary:not([aria-disabled='true']):active .btn__fill,
+  .btn--primary:not([aria-disabled='true']).is-pressed .btn__fill {
     clip-path: circle(var(--r) at var(--x) var(--y));
     filter: brightness(0.9);
+  }
+
+  /* Вимкнена: прозора, без заливки й руху стрілки; контур фокусу — загальний :focus-visible */
+  .btn--primary[aria-disabled='true'] {
+    opacity: var(--disabled-opacity);
+    cursor: not-allowed;
   }
 
   /* Вимкнений рух: колір міняється одразу, без кола й без повороту стрілки */
@@ -164,10 +198,10 @@ const { href, variant = 'primary', size = 'md', class: className } = Astro.props
       transition: none !important;
       animation: none !important;
     }
-    .btn--primary:hover .btn__arrow,
-    .btn--primary:focus-visible .btn__arrow,
-    .btn--primary:hover .btn__arrow img,
-    .btn--primary:focus-visible .btn__arrow img {
+    .btn--primary:not([aria-disabled='true']):hover .btn__arrow,
+    .btn--primary:not([aria-disabled='true']):focus-visible .btn__arrow,
+    .btn--primary:not([aria-disabled='true']):hover .btn__arrow img,
+    .btn--primary:not([aria-disabled='true']):focus-visible .btn__arrow img {
       transform: none;
     }
   }
@@ -188,6 +222,13 @@ const { href, variant = 'primary', size = 'md', class: className } = Astro.props
   }
 
   buttons.forEach((btn) => {
+    // Вимкнена кнопка: клік і Enter нічого не роблять (і не відправляють форму)
+    btn.addEventListener('click', (e) => {
+      if (btn.getAttribute('aria-disabled') === 'true') {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }
+    });
     btn.addEventListener('pointerenter', (e) => {
       if (e.pointerType === 'mouse') placeFill(btn, e.clientX, e.clientY);
     });
@@ -196,7 +237,7 @@ const { href, variant = 'primary', size = 'md', class: className } = Astro.props
       if (e.pointerType === 'mouse') placeFill(btn, e.clientX, e.clientY);
     });
     btn.addEventListener('pointerdown', (e) => {
-      if (e.pointerType === 'mouse') return;
+      if (e.pointerType === 'mouse' || btn.getAttribute('aria-disabled') === 'true') return;
       placeFill(btn, e.clientX, e.clientY);
       btn.classList.add('is-pressed');
     });

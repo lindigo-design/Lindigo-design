@@ -18,6 +18,10 @@
   --beige-300: #d9c4a5;
   --muted-dark: #b8a8cc;
   --muted-light: #6b5673;
+  /* Колір помилки. У Figma його немає — ПРОПОЗИЦІЯ, чекає погодження власниці.
+     Контраст: #ff8f80 на Night 8,9; #b3261e на Cream 50 — 6,4, на Beige 50 — 5,7 */
+  --red-300: #ff8f80;
+  --red-700: #b3261e;
   --muted-deep: #4e3f5b; /* Figma: text/muted-light у «Вибраних роботах» (світла тема) */
   /* Нові кольори з макета «Варіант 2» */
   --night: #0c081c; /* Figma: background-dark (темна тема) */
@@ -100,6 +104,11 @@
   /* Активна вкладка «Вибраних робіт» (Figma): Orchid / Indigo 800 */
   --tab-active: var(--orchid);
   --tab-muted: var(--grey-supplement); /* неактивні вкладки «Вибраних робіт» */
+  /* Стани компонентів: помилка, поле форми, вимкнений елемент */
+  --danger: var(--red-300);
+  --field-border: color-mix(in srgb, var(--fg) 60%, transparent);
+  --field-bg: var(--card-bg);
+  --disabled-opacity: 0.45;
   /* «Як ми працюємо»: перший крок виділений щільною карткою */
   --step-bg: var(--card-bg);
   --step-border: var(--card-border);
@@ -138,6 +147,8 @@
   --label-muted: var(--indigo-800);
   --tab-active: var(--indigo-800);
   --tab-muted: var(--muted-deep);
+  --danger: var(--red-700);
+  --field-border: color-mix(in srgb, var(--fg) 48%, transparent);
   --step-bg: rgba(21, 11, 46, 0.03);
   --step-border: rgba(21, 11, 46, 0.16);
   --step-first-bg: var(--beige-50);
@@ -298,16 +309,16 @@ a {
 }
 
 @media (hover: hover) {
-  .ring-hover:hover {
+  .ring-hover:not([aria-disabled='true']):hover {
     border-color: transparent;
   }
-  .ring-hover:hover::before {
+  .ring-hover:not([aria-disabled='true']):hover::before {
     opacity: 1;
     animation: ring-run 3.5s linear infinite;
   }
 }
 
-.ring-hover:focus-visible {
+.ring-hover:not([aria-disabled='true']):focus-visible {
   border-color: transparent;
 }
 .ring-hover:focus-visible::before {
@@ -315,14 +326,24 @@ a {
   animation: ring-run 3.5s linear infinite;
 }
 
+/* Вимкнений елемент (aria-disabled): кільця немає ні при наведенні, ні при натисканні, ні при фокусі;
+   обводка лишається, фокус видно за загальним контуром :focus-visible */
+.ring-hover[aria-disabled='true'] {
+  opacity: var(--disabled-opacity);
+  cursor: not-allowed;
+}
+.ring-hover[aria-disabled='true']::before {
+  display: none;
+}
+
 /* Натискання; на телефоні кільце видно коротко під час дотику */
-.ring-hover:active,
-.ring-hover.is-pressed {
+.ring-hover:not([aria-disabled='true']):active,
+.ring-hover:not([aria-disabled='true']).is-pressed {
   border-color: transparent;
   background-color: var(--ring-press);
 }
-.ring-hover:active::before,
-.ring-hover.is-pressed::before {
+.ring-hover:not([aria-disabled='true']):active::before,
+.ring-hover:not([aria-disabled='true']).is-pressed::before {
   opacity: 1;
 }
 

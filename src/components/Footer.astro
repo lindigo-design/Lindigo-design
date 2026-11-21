@@ -222,6 +222,12 @@ const contact = [
     }
   }
 
+  /* Фокус з клавіатури: той самий колір, що при наведенні, і загальний контур */
+  .footer__col a:focus-visible,
+  .footer__legal a:focus-visible {
+    color: var(--accent-text);
+  }
+
   .footer__bottom {
     display: flex;
     flex-wrap: wrap;

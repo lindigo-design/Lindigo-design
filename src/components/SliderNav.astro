@@ -4,6 +4,8 @@
  * Один компонент для «Робіт» і «Відгуків» (план, розділ 10: «Навігація слайдера»).
  * Стрілки — SVG з Figma (коло й стрілка, своя пара на тему). Наведення — те саме кільце .ring-hover.
  * Логіку перемикання веде блок, у якому стоїть навігація: кнопки мають data-slider-prev / data-slider-next.
+ * Один слайд — стрілки вимкнені через aria-disabled (лишаються у фокусі), причину озвучує disabledNote
+ * (aria-describedby на прихований текст).
  */
 import prevDark from '../assets/works/prev-dark.svg';
 import prevLight from '../assets/works/prev-light.svg';
@@ -11,27 +13,35 @@ import nextDark from '../assets/works/next-dark.svg';
 import nextLight from '../assets/works/next-light.svg';
 
 interface Props {
+  /** Унікальний префікс id на сторінці (works, reviews) */
+  id: string;
   prevLabel: string;
   nextLabel: string;
+  /** Чому стрілки вимкнені (коли слайд один) */
+  disabledNote: string;
   total: number;
 }
 
-const { prevLabel, nextLabel, total } = Astro.props;
+const { id, prevLabel, nextLabel, disabledNote, total } = Astro.props;
+const off = total < 2;
+const noteId = `${id}-nav-note`;
+const state = off ? { 'aria-disabled': 'true', 'aria-describedby': noteId } : {};
 const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
 <div class="slider-nav">
-  <button class="slider-nav__btn ring-hover" type="button" aria-label={prevLabel} data-slider-prev disabled={total < 2}>
+  <button class="slider-nav__btn ring-hover" type="button" aria-label={prevLabel} data-slider-prev {...state}>
     <img src={prevDark.src} width="48" height="48" alt="" data-theme-only="dark" />
     <img src={prevLight.src} width="48" height="48" alt="" data-theme-only="light" />
   </button>
   <p class="slider-nav__count">
     <span data-slider-current>01</span> / <span>{pad(total)}</span>
   </p>
-  <button class="slider-nav__btn ring-hover" type="button" aria-label={nextLabel} data-slider-next disabled={total < 2}>
+  <button class="slider-nav__btn ring-hover" type="button" aria-label={nextLabel} data-slider-next {...state}>
     <img src={nextDark.src} width="48" height="48" alt="" data-theme-only="dark" />
     <img src={nextLight.src} width="48" height="48" alt="" data-theme-only="light" />
   </button>
+  {off && <p class="visually-hidden" id={noteId}>{disabledNote}</p>}
 </div>
 
 <style>
@@ -56,14 +66,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     display: block;
   }
 
-  .slider-nav__btn:disabled {
-    opacity: 0.4;
-    cursor: default;
-  }
-
-  .slider-nav__btn:disabled::before {
-    display: none;
-  }
+  /* Вимкнені стрілки: прозорість і без кільця — спільне правило .ring-hover[aria-disabled] (global.css) */
 
   .slider-nav__count {
     font-family: var(--font-mono);
