@@ -119,7 +119,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   /* 435 × 260 на 1512; на ширших екранах росте разом із колонкою, пропорція та сама */
   .principles__media {
     grid-area: 2 / 3;
-    aspect-ratio: 435 / 260;
+    aspect-ratio: var(--aspect-principles-photo);
     overflow: hidden;
     border-radius: 20px;
   }
@@ -215,7 +215,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       grid-area: 4 / 1;
       width: 100%;
       height: auto;
-      aspect-ratio: 16 / 10;
+      aspect-ratio: var(--aspect-photo-wide);
       margin-top: 16px;
     }
   }
