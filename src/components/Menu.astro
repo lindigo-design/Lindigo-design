@@ -233,18 +233,18 @@ const current = (p: string) => here === localePath(locale, p);
   .menu__top-right {
     display: flex;
     align-items: center;
-    gap: 32px;
+    gap: var(--space-32);
   }
 
   .menu__settings {
     display: flex;
     align-items: center;
-    gap: 16px;
+    gap: var(--space-16);
   }
 
   /* Коди мов стоять по лінії (у посилань є внутрішній відступ 4 px для зони натискання) */
   .menu__settings--bottom :global(.langs) {
-    margin-left: -4px;
+    margin-left: calc(var(--space-4) * -1);
   }
 
   .menu__close {
@@ -305,9 +305,9 @@ const current = (p: string) => here === localePath(locale, p);
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    gap: 48px;
+    gap: var(--space-48);
     margin-top: auto;
-    padding: 48px var(--side) 64px;
+    padding: var(--space-48) var(--side) var(--space-64);
   }
 
   .menu__nav ul,
@@ -321,13 +321,13 @@ const current = (p: string) => here === localePath(locale, p);
   .menu__nav ul {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--space-8);
   }
 
   .menu__nav a {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: var(--space-24);
     color: var(--fg);
     text-decoration: none;
     transition:
@@ -419,7 +419,7 @@ const current = (p: string) => here === localePath(locale, p);
   .menu__aside {
     display: flex;
     flex-direction: column;
-    gap: 40px;
+    gap: var(--space-40);
     width: 360px;
     flex-shrink: 0;
   }
@@ -430,11 +430,11 @@ const current = (p: string) => here === localePath(locale, p);
   }
 
   .menu__group--contact {
-    gap: 16px;
+    gap: var(--space-16);
   }
 
   .menu__group--social {
-    gap: 12px;
+    gap: var(--space-12);
   }
 
   .menu__label {
@@ -454,14 +454,14 @@ const current = (p: string) => here === localePath(locale, p);
   .menu__social {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--space-12);
   }
 
   .menu__social a {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-bottom: 12px;
+    padding-bottom: var(--space-12);
     border-bottom: 1px solid var(--glass-border);
     color: var(--fg);
     font-size: 1.25rem; /* 20px */
@@ -520,16 +520,16 @@ const current = (p: string) => here === localePath(locale, p);
     /* Знизу 16 px (у Figma 32): нижній блок має вміститися без прокрутки на висоті 667 px */
     .menu__body {
       margin-top: 0;
-      padding: 8px var(--side) 16px;
-      gap: 32px;
+      padding: var(--space-8) var(--side) var(--space-16);
+      gap: var(--space-32);
     }
     .menu__nav ul {
-      gap: 4px;
+      gap: var(--space-4);
     }
     .menu__nav a {
       justify-content: space-between;
-      gap: 16px;
-      padding: 8px 0;
+      gap: var(--space-16);
+      padding: var(--space-8) 0;
     }
     .menu__num {
       font-size: 0.75rem; /* 12px */
@@ -550,7 +550,7 @@ const current = (p: string) => here === localePath(locale, p);
       transform: none;
     }
     .menu__group--contact {
-      gap: 12px;
+      gap: var(--space-12);
     }
     .menu__label,
     .menu__group--social,
@@ -567,24 +567,24 @@ const current = (p: string) => here === localePath(locale, p);
     .menu__bottom {
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: var(--space-16);
       margin-top: auto;
-      padding: 0 var(--side) 32px;
+      padding: 0 var(--side) var(--space-32);
     }
     .menu__settings--bottom {
       justify-content: space-between;
-      padding: 16px 0;
+      padding: var(--space-16) 0;
       border-top: 1px solid var(--glass-border);
       border-bottom: 1px solid var(--glass-border);
     }
     .menu__social-row {
       display: flex;
       flex-wrap: wrap;
-      gap: 20px;
+      gap: var(--space-20);
     }
     .menu__social-row a {
       display: inline-block;
-      padding: 4px 0;
+      padding: var(--space-4) 0;
       color: var(--fg);
       font-size: var(--text-body-m);
       line-height: var(--text-body-m--line-height);

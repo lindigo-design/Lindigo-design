@@ -62,7 +62,7 @@ const t = ui[locale].header;
     position: fixed;
     inset: 0 0 auto;
     z-index: 50;
-    padding: 16px 56px;
+    padding: var(--space-16) var(--space-56);
   }
 
   .header__bar {
@@ -71,7 +71,7 @@ const t = ui[locale].header;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 24px;
+    padding: var(--space-16) var(--space-24);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-full);
   }
@@ -101,13 +101,13 @@ const t = ui[locale].header;
   .header__actions {
     display: flex;
     align-items: center;
-    gap: 24px;
+    gap: var(--space-24);
   }
 
   .header__burger {
     display: grid;
     place-content: center;
-    gap: 8px;
+    gap: var(--space-8);
     width: 48px;
     height: 48px;
     padding: 0;
@@ -160,7 +160,7 @@ const t = ui[locale].header;
   }
 
   .header__settings {
-    gap: 16px;
+    gap: var(--space-16);
   }
 
   /* Кнопка дзвінка (Figma): заливка акцентом 20 %, обводка акцентом.
@@ -182,7 +182,7 @@ const t = ui[locale].header;
   /* Планшет (Figma, 834): зовнішні відступи 24 px */
   @media (max-width: 1199px) {
     .header {
-      padding: 16px 24px;
+      padding: var(--space-16) var(--space-24);
     }
   }
 
@@ -198,10 +198,10 @@ const t = ui[locale].header;
   /* Телефон (Figma, 390): лише логотип і бургер */
   @media (max-width: 599px) {
     .header {
-      padding: 12px;
+      padding: var(--space-12);
     }
     .header__bar {
-      padding: 8px 8px 8px 16px;
+      padding: var(--space-8) var(--space-8) var(--space-8) var(--space-16);
     }
     .header__settings {
       display: none;

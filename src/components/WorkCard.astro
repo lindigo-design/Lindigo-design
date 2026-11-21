@@ -75,10 +75,10 @@ const total = works.length;
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--space-12);
     width: 392px;
     max-width: 100%;
-    padding: 16px;
+    padding: var(--space-16);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-card);
     background: var(--glass-bg);
@@ -97,7 +97,7 @@ const total = works.length;
   .work-card__link {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--space-12);
     text-decoration: none;
     border-radius: var(--radius-media);
   }
@@ -108,7 +108,7 @@ const total = works.length;
   }
 
   .work-card__title {
-    margin-top: -8px; /* 12 між блоками картки, 4 між підписом і назвою */
+    margin-top: calc(var(--space-8) * -1); /* 12 між блоками картки, 4 між підписом і назвою */
     font-family: var(--font-display);
     font-weight: var(--text-h5--font-weight);
     font-size: var(--text-h5);
@@ -169,7 +169,7 @@ const total = works.length;
   .work-card__footer {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--space-8);
   }
 
   .work-card__counter {

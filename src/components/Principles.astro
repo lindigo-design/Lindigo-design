@@ -50,8 +50,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .principles {
     display: flex;
     flex-direction: column;
-    gap: 56px;
-    padding: 120px var(--gutter);
+    gap: var(--space-56);
+    padding: var(--space-120) var(--gutter);
     background: var(--section-bg-alt);
   }
 
@@ -63,8 +63,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .principles__top {
     display: grid;
     grid-template-columns: minmax(0, 296fr) minmax(0, 525fr) minmax(0, 435fr);
-    column-gap: 48px;
-    row-gap: 40px;
+    column-gap: var(--space-48);
+    row-gap: var(--space-40);
     align-items: start;
   }
 
@@ -134,7 +134,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .principles__list {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 48px;
+    gap: var(--space-48);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -143,8 +143,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .principle {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-    padding-top: 16px;
+    gap: var(--space-12);
+    padding-top: var(--space-16);
     border-top: 1px solid var(--rule);
   }
 
@@ -176,7 +176,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   @media (max-width: 1100px) {
     .principles__top {
       grid-template-columns: minmax(0, 1fr) 280px;
-      row-gap: 16px;
+      row-gap: var(--space-16);
     }
     .principles__eyebrow {
       grid-area: 1 / 1 / 2 / 3;
@@ -187,26 +187,26 @@ const pad = (n: number) => String(n).padStart(2, '0');
     }
     .principles__body {
       grid-area: 3 / 1;
-      margin-top: 24px;
+      margin-top: var(--space-24);
       font-size: var(--text-body-l);
       line-height: var(--text-body-l--line-height);
     }
     .principles__media {
       grid-area: 3 / 2;
-      margin-top: 24px;
+      margin-top: var(--space-24);
       aspect-ratio: auto;
       height: 240px;
     }
     .principles__list {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 32px 48px;
+      gap: var(--space-32) var(--space-48);
     }
   }
 
   /* Один стовпчик: фото під текстом */
   @media (max-width: 760px) {
     .principles {
-      gap: 48px;
+      gap: var(--space-48);
     }
     .principles__top {
       grid-template-columns: minmax(0, 1fr);
@@ -216,7 +216,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       width: 100%;
       height: auto;
       aspect-ratio: var(--aspect-photo-wide);
-      margin-top: 16px;
+      margin-top: var(--space-16);
     }
   }
 
@@ -237,7 +237,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   @media (max-width: 480px) {
     .principles__list {
       grid-template-columns: minmax(0, 1fr);
-      gap: 24px;
+      gap: var(--space-24);
     }
   }
 </style>

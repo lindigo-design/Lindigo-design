@@ -73,9 +73,9 @@ const attrs = href
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: var(--space-12);
     height: 56px;
-    padding-inline: 32px;
+    padding-inline: var(--space-32);
     border-radius: var(--radius-full);
     font: inherit;
     font-family: var(--font-body);
@@ -96,7 +96,7 @@ const attrs = href
 
   .btn--sm {
     height: 48px;
-    padding-inline: 24px;
+    padding-inline: var(--space-24);
     font-size: 0.875rem; /* 14px */
     /* Інтервал .btn у відсотках рахується від розміру, тож для 14 px свій відсоток — щоб лишилось 22 px */
     line-height: 157.1429%; /* 22px */
