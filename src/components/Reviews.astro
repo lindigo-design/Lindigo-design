@@ -135,7 +135,7 @@ const images: Record<string, ImageMetadata> = { datatixx };
   .review__media {
     flex: 0 0 var(--img-w);
     overflow: hidden;
-    border-radius: 32px;
+    border-radius: var(--radius-32);
   }
 
   .review__media :global(img) {
@@ -155,7 +155,7 @@ const images: Record<string, ImageMetadata> = { datatixx };
     margin: 0;
     padding: 48px 48px 128px;
     border: 1px solid var(--step-border);
-    border-radius: 32px;
+    border-radius: var(--radius-32);
     background: var(--step-bg);
     -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
@@ -224,7 +224,7 @@ const images: Record<string, ImageMetadata> = { datatixx };
     font-size: 16px;
     line-height: 22px;
     text-decoration: none;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
   }
 
   .reviews__case[hidden] {
@@ -298,7 +298,7 @@ const images: Record<string, ImageMetadata> = { datatixx };
     }
     .review__media,
     .review__card {
-      border-radius: 24px;
+      border-radius: var(--radius-24);
     }
     .review__card {
       gap: 20px;

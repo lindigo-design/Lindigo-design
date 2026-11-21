@@ -139,7 +139,7 @@ const t = ui[locale].about;
     font-size: 16px;
     line-height: 22px;
     text-decoration: none;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
   }
 
   .about__more-icon img {
@@ -161,7 +161,7 @@ const t = ui[locale].about;
     grid-area: 2 / 3 / 4 / 4;
     aspect-ratio: var(--aspect-about-photo);
     overflow: hidden;
-    border-radius: 20px;
+    border-radius: var(--radius-20);
   }
 
   .about__photo :global(img) {
@@ -232,7 +232,7 @@ const t = ui[locale].about;
       line-height: 24px;
     }
     .about__photo {
-      border-radius: 16px;
+      border-radius: var(--radius-16);
     }
   }
 </style>

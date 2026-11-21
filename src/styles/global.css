@@ -68,12 +68,14 @@
   --space-120: 120px;
 
   /* Скруглення: шкала Radius з Figma */
+  --radius-8: 8px; /* рамка фокусу навколо логотипа, пункти меню мов */
   --radius-12: 12px; /* кнопки, поля */
   --radius-16: 16px; /* малі зображення */
   --radius-20: 20px; /* зображення */
   --radius-24: 24px; /* картки */
   --radius-28: 28px; /* великі картки */
   --radius-32: 32px; /* великі панелі */
+  --radius-48: 48px; /* панель «Заклик до дії» */
   --radius-full: 999px; /* теги, перемикачі */
   --radius-card: var(--radius-24);
   --radius-media: var(--radius-12);
@@ -290,7 +292,7 @@ a {
 .ring-hover {
   position: relative;
   border: 1px solid var(--fg);
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--fg);
   transition:
