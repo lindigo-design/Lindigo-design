@@ -109,6 +109,10 @@ Tailwind і `@theme` у проєкті не використовуються.
 
 **У коді** кожен стиль має чотири токени в `global.css`: `--text-<стиль>` (розмір), `--text-<стиль>--line-height`, `--text-<стиль>--font-weight`, `--text-<стиль>--letter-spacing`. Назви стилів: `h1`, `display`, `h2`, `h3`, `h3-s`, `h4`, `h5`, `h6`, `body-xl`, `body-lead`, `body-l`, `body-m`, `body-s`, `title-24`, `title-16`, `button-m`, `button-s`, `label-m`, `label-s`. Шрифт окремо: `--font-display` (Heading), `--font-body` (Body, Title, Button), `--font-mono` (Label).
 
+Інтервал між рядками (`--line-height`) — **у відсотках від розміру шрифту** (рішення власниці 21.11.2026), у коментарі — те саме в px: `--text-h2--line-height: 121.4286%; /* 68px */`. Відсоток рахується від розміру шрифту того самого елемента, тож ставь розмір і інтервал одного стилю разом. Якщо правило змінює тільки розмір, інтервал теж зміниться — перевір (приклад: `.btn--sm` у `Button.astro`).
+
+Мобільні стилі (Figma, 21.11.2026): `h1-mobile` 27 / 130 %, `h2-mobile` 24 / 130 %, `h4-mobile` 22 / 130 %, `menu-mobile` 32 / 125 %, `quote-mobile` 72 / 100 %, `title-20` 20 / 140 % Bold, `title-18` 18 / 144,44 %, `label-xs` 12 / 150 %. Де вони стоять на телефоні — `docs/figma-mobile-brief.md`.
+
 Класи `.type-*` (`.type-h2`, `.type-body-lead`, `.type-label-s-caps` тощо) зібрані з цих токенів — їх можна ставити в розмітку. У стилях компонента пиши токени: `font-size: var(--text-h2); line-height: var(--text-h2--line-height);`.
 
 Не переведено на токени (21.11.2026) — значень немає в шкалі Figma, лишаються числами; нові такі розміри не додавай без запиту:
