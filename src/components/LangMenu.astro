@@ -57,9 +57,9 @@ const listId = `lang-list-${Math.random().toString(36).slice(2, 8)}`;
     background: none;
     color: var(--fg);
     font-family: var(--font-mono);
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 20px;
+    font-weight: var(--text-label-m--font-weight);
+    font-size: var(--text-label-m);
+    line-height: var(--text-label-m--line-height);
     text-transform: uppercase;
     cursor: pointer;
   }
@@ -135,9 +135,9 @@ const listId = `lang-list-${Math.random().toString(36).slice(2, 8)}`;
   /* Код мови: Martian Mono 14; у поточної — підкреслення 2 px на відстані 2 px */
   .lang__code {
     font-family: var(--font-mono);
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 20px;
+    font-weight: var(--text-label-m--font-weight);
+    font-size: var(--text-label-m);
+    line-height: var(--text-label-m--line-height);
     padding-bottom: 2px;
     border-bottom: 2px solid transparent;
     margin-bottom: -4px;
@@ -149,8 +149,8 @@ const listId = `lang-list-${Math.random().toString(36).slice(2, 8)}`;
 
   .lang__name {
     font-family: var(--font-body);
-    font-size: 16px;
-    line-height: 22px;
+    font-size: var(--text-title-16);
+    line-height: var(--text-title-16--line-height);
   }
 
   @media (prefers-reduced-motion: reduce) {

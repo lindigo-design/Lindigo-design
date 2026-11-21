@@ -144,28 +144,28 @@ const items = directionOrder.flatMap((d) => t.items.find((item) => item.directio
 
   .works__eyebrow {
     font-family: var(--font-mono);
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 20px;
-    letter-spacing: 0.08em;
+    font-weight: var(--text-label-m--font-weight);
+    font-size: var(--text-label-m);
+    line-height: var(--text-label-m--line-height);
+    letter-spacing: var(--text-label-m--letter-spacing);
     text-transform: uppercase;
     color: var(--accent-text);
   }
 
   .works__title {
     font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 56px;
-    line-height: 68px;
+    font-weight: var(--text-h2--font-weight);
+    font-size: var(--text-h2);
+    line-height: var(--text-h2--line-height);
   }
 
   .works__all {
     display: inline-flex;
     align-items: center;
     gap: var(--space-12);
-    font-weight: 600;
-    font-size: 16px;
-    line-height: 22px;
+    font-weight: var(--text-title-16--font-weight);
+    font-size: var(--text-title-16);
+    line-height: var(--text-title-16--line-height);
     text-decoration: none;
     border-radius: var(--radius-full);
   }
@@ -254,9 +254,9 @@ const items = directionOrder.flatMap((d) => t.items.find((item) => item.directio
 
   .case__name {
     font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 56px;
-    line-height: 68px;
+    font-weight: var(--text-h2--font-weight);
+    font-size: var(--text-h2);
+    line-height: var(--text-h2--line-height);
   }
 
   .case__tags {
@@ -272,9 +272,9 @@ const items = directionOrder.flatMap((d) => t.items.find((item) => item.directio
     padding: var(--space-8) var(--space-16);
     border: 1px solid var(--fg);
     border-radius: var(--radius-20);
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 20px;
+    font-weight: var(--text-body-s--font-weight);
+    font-size: var(--text-body-s);
+    line-height: var(--text-body-s--line-height);
   }
 
   .case__desc {
@@ -292,19 +292,19 @@ const items = directionOrder.flatMap((d) => t.items.find((item) => item.directio
 
   .case__desc dt {
     font-family: var(--font-mono);
-    font-weight: 500;
-    font-size: 12px;
-    line-height: 16px;
-    letter-spacing: 0.08em;
+    font-weight: var(--text-label-s--font-weight);
+    font-size: var(--text-label-s);
+    line-height: var(--text-label-s--line-height);
+    letter-spacing: var(--text-label-s--letter-spacing);
     text-transform: uppercase;
     color: var(--label-muted);
   }
 
   .case__desc dd {
     margin: 0;
-    font-weight: 400;
-    font-size: 20px;
-    line-height: 30px;
+    font-weight: var(--text-body-lead--font-weight);
+    font-size: var(--text-body-lead);
+    line-height: var(--text-body-lead--line-height);
     color: var(--fg);
   }
 
@@ -329,9 +329,9 @@ const items = directionOrder.flatMap((d) => t.items.find((item) => item.directio
     background: none;
     color: var(--tab-muted);
     font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 26px;
-    line-height: 34px;
+    font-weight: var(--text-h4--font-weight);
+    font-size: var(--text-h4);
+    line-height: var(--text-h4--line-height);
     white-space: nowrap;
     cursor: pointer;
     transition: color 0.2s ease;
@@ -361,12 +361,12 @@ const items = directionOrder.flatMap((d) => t.items.find((item) => item.directio
       gap: var(--space-32);
     }
     .case__name {
-      font-size: 40px;
-      line-height: 48px;
+      font-size: var(--text-h3);
+      line-height: var(--text-h3--line-height);
     }
     .case__desc dd {
-      font-size: 18px;
-      line-height: 28px;
+      font-size: var(--text-body-l);
+      line-height: var(--text-body-l--line-height);
     }
   }
 
@@ -417,8 +417,8 @@ const items = directionOrder.flatMap((d) => t.items.find((item) => item.directio
       line-height: 40px;
     }
     .case__desc dd {
-      font-size: 16px;
-      line-height: 24px;
+      font-size: var(--text-body-m);
+      line-height: var(--text-body-m--line-height);
     }
     .works__tabs {
       gap: var(--space-24);

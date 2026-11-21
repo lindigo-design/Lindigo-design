@@ -72,10 +72,10 @@ const t = ui[locale].about;
     grid-area: 1 / 1;
     padding-top: clamp(6px, 0.86vw, 13px);
     font-family: var(--font-mono);
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 20px;
-    letter-spacing: 0.08em;
+    font-weight: var(--text-label-m--font-weight);
+    font-size: var(--text-label-m);
+    line-height: var(--text-label-m--line-height);
+    letter-spacing: var(--text-label-m--letter-spacing);
     text-transform: uppercase;
     color: var(--accent-text);
   }
@@ -126,8 +126,8 @@ const t = ui[locale].about;
     gap: 30px;
     max-width: 854px;
     font-weight: 500;
-    font-size: 20px;
-    line-height: 30px;
+    font-size: var(--text-body-lead);
+    line-height: var(--text-body-lead--line-height);
     color: var(--text-soft);
   }
 
@@ -135,9 +135,9 @@ const t = ui[locale].about;
     display: inline-flex;
     align-items: center;
     gap: 12px;
-    font-weight: 600;
-    font-size: 16px;
-    line-height: 22px;
+    font-weight: var(--text-title-16--font-weight);
+    font-size: var(--text-title-16);
+    line-height: var(--text-title-16--line-height);
     text-decoration: none;
     border-radius: var(--radius-full);
   }
@@ -198,8 +198,8 @@ const t = ui[locale].about;
     }
     .about__text {
       gap: 28px;
-      font-size: 18px;
-      line-height: 28px;
+      font-size: var(--text-body-l);
+      line-height: var(--text-body-l--line-height);
     }
   }
 
@@ -228,8 +228,8 @@ const t = ui[locale].about;
     }
     .about__text {
       gap: 24px;
-      font-size: 16px;
-      line-height: 24px;
+      font-size: var(--text-body-m);
+      line-height: var(--text-body-m--line-height);
     }
     .about__photo {
       border-radius: var(--radius-16);

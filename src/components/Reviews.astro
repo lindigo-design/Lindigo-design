@@ -91,19 +91,19 @@ const images: Record<string, ImageMetadata> = { datatixx };
 
   .reviews__eyebrow {
     font-family: var(--font-mono);
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 20px;
-    letter-spacing: 0.08em;
+    font-weight: var(--text-label-m--font-weight);
+    font-size: var(--text-label-m);
+    line-height: var(--text-label-m--line-height);
+    letter-spacing: var(--text-label-m--letter-spacing);
     text-transform: uppercase;
     color: var(--accent-text);
   }
 
   .reviews__title {
     font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 56px;
-    line-height: 68px;
+    font-weight: var(--text-h2--font-weight);
+    font-size: var(--text-h2);
+    line-height: var(--text-h2--line-height);
   }
 
   /* Зображення 664 і картка, 24 px між ними, висота 540 */
@@ -179,8 +179,8 @@ const images: Record<string, ImageMetadata> = { datatixx };
   }
 
   .review__quote p {
-    font-size: 28px;
-    line-height: 40px;
+    font-size: var(--text-body-xl);
+    line-height: var(--text-body-xl--line-height);
     color: var(--text-soft);
   }
 
@@ -198,9 +198,9 @@ const images: Record<string, ImageMetadata> = { datatixx };
 
   .review__meta {
     font-family: var(--font-mono);
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 20px;
+    font-weight: var(--text-label-m--font-weight);
+    font-size: var(--text-label-m);
+    line-height: var(--text-label-m--line-height);
     color: var(--label-muted);
   }
 
@@ -220,9 +220,9 @@ const images: Record<string, ImageMetadata> = { datatixx };
     display: inline-flex;
     align-items: center;
     gap: 12px;
-    font-weight: 600;
-    font-size: 16px;
-    line-height: 22px;
+    font-weight: var(--text-title-16--font-weight);
+    font-size: var(--text-title-16);
+    line-height: var(--text-title-16--line-height);
     text-decoration: none;
     border-radius: var(--radius-full);
   }
@@ -309,8 +309,8 @@ const images: Record<string, ImageMetadata> = { datatixx };
       font-size: 72px;
     }
     .review__quote p {
-      font-size: 18px;
-      line-height: 28px;
+      font-size: var(--text-body-l);
+      line-height: var(--text-body-l--line-height);
     }
     .reviews__controls {
       flex-wrap: wrap;
