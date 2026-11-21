@@ -4,6 +4,10 @@
  * Три SVG-частини: знак, «design» і «lindigo», розставлені за координатами з Figma.
  * Темна тема — Beige 50 (#F8EEDD), світла — Indigo 800 (#36206E).
  * Стоїть у шапці й у меню; посилання й підпис задає місце, де логотип використано.
+ *
+ * Наведення і фокус з клавіатури на посилання з логотипом: заливка переливається фірмовим
+ * градієнтом (--brand-gradient-from → --brand-gradient-to). Шар градієнта вирізано за формою
+ * тих самих SVG (mask), тож сам логотип не змінюється.
  */
 import darkIcon from '../assets/logo/dark-icon.svg';
 import darkDesign from '../assets/logo/dark-design.svg';
@@ -18,6 +22,9 @@ interface Props {
 }
 
 const { width = 151 } = Astro.props;
+
+/* Форми частин для маски градієнта (колір маски не важливий, важлива форма) */
+const masks = `--mask-icon: url(${darkIcon.src}); --mask-design: url(${darkDesign.src}); --mask-lindigo: url(${darkLindigo.src})`;
 
 const sets = [
   { theme: 'dark', icon: darkIcon, design: darkDesign, lindigo: darkLindigo },
@@ -35,20 +42,95 @@ const sets = [
       </span>
     ))
   }
+  <span class="logo__fill" style={masks}></span>
 </span>
 
 <style>
   /* 151 × 54 як у Figma; частини стоять у відсотках, тож логотип масштабується цілим */
   .logo {
+    --lw: var(--logo-w, 151px);
+    --lh: calc(var(--lw) * 54 / 151);
     position: relative;
     display: block;
-    width: var(--logo-w, 151px);
+    width: var(--lw);
     aspect-ratio: 151 / 54;
   }
 
   .logo__set {
     position: absolute;
     inset: 0;
+    transition: opacity var(--dur-btn) var(--ease-out-in);
+  }
+
+  /* Градієнтна заливка: ті самі місця й розміри частин, що нижче, у px від ширини логотипа */
+  .logo__fill {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    background-image: linear-gradient(90deg, var(--brand-gradient-from), var(--brand-gradient-to), var(--brand-gradient-from));
+    background-size: calc(var(--lw) * 2) 100%;
+    background-repeat: repeat-x;
+    -webkit-mask-image: var(--mask-icon), var(--mask-design), var(--mask-lindigo);
+    mask-image: var(--mask-icon), var(--mask-design), var(--mask-lindigo);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size:
+      calc(var(--lw) * 0.1653) calc(var(--lh) * 0.6362),
+      calc(var(--lw) * 0.3061) calc(var(--lh) * 0.2902),
+      calc(var(--lw) * 0.7435) calc(var(--lh) * 0.6081);
+    mask-size:
+      calc(var(--lw) * 0.1653) calc(var(--lh) * 0.6362),
+      calc(var(--lw) * 0.3061) calc(var(--lh) * 0.2902),
+      calc(var(--lw) * 0.7435) calc(var(--lh) * 0.6081);
+    -webkit-mask-position:
+      calc(var(--lw) * 0.027) calc(var(--lh) * 0.1783),
+      calc(var(--lw) * 0.2724) calc(var(--lh) * 0.0761),
+      calc(var(--lw) * 0.2287) calc(var(--lh) * 0.3089);
+    mask-position:
+      calc(var(--lw) * 0.027) calc(var(--lh) * 0.1783),
+      calc(var(--lw) * 0.2724) calc(var(--lh) * 0.0761),
+      calc(var(--lw) * 0.2287) calc(var(--lh) * 0.3089);
+    transition: opacity var(--dur-btn) var(--ease-out-in);
+  }
+
+  /* Наведення й фокус з клавіатури: те саме переливання (вимога «Компоненти зі станами») */
+  @media (hover: hover) {
+    :global(a:hover) > .logo .logo__fill {
+      opacity: 1;
+      animation: logo-flow 3s linear infinite;
+    }
+    :global(a:hover) > .logo .logo__set {
+      opacity: 0;
+    }
+  }
+
+  :global(a:focus-visible) > .logo .logo__fill {
+    opacity: 1;
+    animation: logo-flow 3s linear infinite;
+  }
+
+  :global(a:focus-visible) > .logo .logo__set {
+    opacity: 0;
+  }
+
+  /* Градієнт повторюється з кроком у дві ширини логотипа — зсув на цей крок дає безшовне коло */
+  @keyframes logo-flow {
+    to {
+      background-position-x: calc(var(--lw) * 2);
+    }
+  }
+
+  /* Без руху: градієнт з'являється, але не переливається */
+  @media (prefers-reduced-motion: reduce) {
+    .logo__fill,
+    .logo__set {
+      transition: none;
+    }
+    :global(a:hover) > .logo .logo__fill,
+    :global(a:focus-visible) > .logo .logo__fill {
+      animation: none;
+    }
   }
 
   .logo__set img {
