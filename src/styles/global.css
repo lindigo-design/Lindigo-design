@@ -68,15 +68,106 @@
   --space-120: 120px;
 
   /* Скруглення: шкала Radius з Figma */
+  --radius-8: 8px; /* рамка фокусу навколо логотипа, пункти меню мов */
   --radius-12: 12px; /* кнопки, поля */
   --radius-16: 16px; /* малі зображення */
   --radius-20: 20px; /* зображення */
   --radius-24: 24px; /* картки */
   --radius-28: 28px; /* великі картки */
   --radius-32: 32px; /* великі панелі */
+  --radius-48: 48px; /* панель «Заклик до дії» */
   --radius-full: 999px; /* теги, перемикачі */
   --radius-card: var(--radius-24);
   --radius-media: var(--radius-12);
+
+  /* ---------- Текст (Figma: Heading, Body, Title, Button, Label) ----------
+     --text-<стиль> — розмір; --text-<стиль>--line-height, --font-weight, --letter-spacing — пари до нього.
+     Шрифт — --font-display (Heading), --font-body (Body, Title, Button), --font-mono (Label). */
+  --text-h1: 86px;
+  --text-h1--line-height: 1.2;
+  --text-h1--font-weight: 600;
+  --text-h1--letter-spacing: 0;
+  --text-display: 72px;
+  --text-display--line-height: 86px;
+  --text-display--font-weight: 600;
+  --text-display--letter-spacing: 0;
+  --text-h2: 56px;
+  --text-h2--line-height: 68px;
+  --text-h2--font-weight: 600;
+  --text-h2--letter-spacing: 0;
+  --text-h3: 40px;
+  --text-h3--line-height: 48px;
+  --text-h3--font-weight: 600;
+  --text-h3--letter-spacing: 0;
+  --text-h3-s: 36px;
+  --text-h3-s--line-height: 48px;
+  --text-h3-s--font-weight: 600;
+  --text-h3-s--letter-spacing: 0;
+  --text-h4: 26px;
+  --text-h4--line-height: 34px;
+  --text-h4--font-weight: 600;
+  --text-h4--letter-spacing: 0;
+  --text-h5: 22px;
+  --text-h5--line-height: 28px;
+  --text-h5--font-weight: 600;
+  --text-h5--letter-spacing: 0;
+  --text-h6: 18px;
+  --text-h6--line-height: 24px;
+  --text-h6--font-weight: 600;
+  --text-h6--letter-spacing: 0;
+  --text-body-xl: 28px;
+  --text-body-xl--line-height: 40px;
+  --text-body-xl--font-weight: 400;
+  --text-body-xl--letter-spacing: 0;
+  --text-body-lead: 20px;
+  --text-body-lead--line-height: 30px;
+  --text-body-lead--font-weight: 400;
+  --text-body-lead--letter-spacing: 0;
+  --text-body-l: 18px;
+  --text-body-l--line-height: 28px;
+  --text-body-l--font-weight: 400;
+  --text-body-l--letter-spacing: 0;
+  --text-body-m: 16px;
+  --text-body-m--line-height: 24px;
+  --text-body-m--font-weight: 400;
+  --text-body-m--letter-spacing: 0;
+  --text-body-s: 14px;
+  --text-body-s--line-height: 20px;
+  --text-body-s--font-weight: 400;
+  --text-body-s--letter-spacing: 0;
+  --text-title-24: 24px;
+  --text-title-24--line-height: 32px;
+  --text-title-24--font-weight: 600;
+  --text-title-24--letter-spacing: 0;
+  --text-title-16: 16px;
+  --text-title-16--line-height: 22px;
+  --text-title-16--font-weight: 600;
+  --text-title-16--letter-spacing: 0;
+  --text-button-m: 16px;
+  --text-button-m--line-height: 24px;
+  --text-button-m--font-weight: 600;
+  --text-button-m--letter-spacing: 0;
+  --text-button-s: 14px;
+  --text-button-s--line-height: 20px;
+  --text-button-s--font-weight: 600;
+  --text-button-s--letter-spacing: 0;
+  --text-label-m: 14px;
+  --text-label-m--line-height: 20px;
+  --text-label-m--font-weight: 500;
+  --text-label-m--letter-spacing: 0.08em;
+  --text-label-s: 12px;
+  --text-label-s--line-height: 16px;
+  --text-label-s--font-weight: 500;
+  --text-label-s--letter-spacing: 0.08em;
+
+  /* ---------- Пропорції картинок (ширина / висота з макета) ---------- */
+  --aspect-case-cover: 584 / 480; /* обкладинка кейса, «Вибрані роботи» (до 1100 px) */
+  --aspect-work-card: 360 / 220; /* обкладинка картки «Остання робота», перший екран */
+  --aspect-about-photo: 439 / 494; /* фото «Про студію» */
+  --aspect-principles-photo: 435 / 260; /* фото «Принципи» */
+  --aspect-review-photo: 664 / 540; /* фото «Відгуки» (до 900 px) */
+  --aspect-photo-wide: 16 / 10; /* фото «Напрями» і «Принципи» на телефоні */
+  --aspect-process-jelly: 1624 / 1019.5; /* декоративний купол «Як ми працюємо» */
 
   /* ---------- Темна тема (основна) ---------- */
   --bg: var(--indigo-950);
@@ -241,27 +332,27 @@ a {
 /* ---------- Текстові стилі ----------
    Шкала з Figma («Дизайн-система · Типографіка»): розмір / інтервал між рядками, px.
    Міжлітерний інтервал 8 % тільки в мітках (Label). Мобільних розмірів у шкалі немає. */
-.type-h1 { font: 600 86px/1.2 var(--font-display); letter-spacing: 0; }
-.type-display { font: 600 72px/86px var(--font-display); letter-spacing: 0; }
-.type-h2 { font: 600 56px/68px var(--font-display); letter-spacing: 0; }
-.type-h3 { font: 600 40px/48px var(--font-display); letter-spacing: 0; }
-.type-h3-s { font: 600 36px/48px var(--font-display); letter-spacing: 0; }
-.type-h4 { font: 600 26px/34px var(--font-display); letter-spacing: 0; }
-.type-h5 { font: 600 22px/28px var(--font-display); letter-spacing: 0; }
-.type-h6 { font: 600 18px/24px var(--font-display); letter-spacing: 0; }
-.type-body-xl { font: 400 28px/40px var(--font-body); letter-spacing: 0; }
-.type-body-lead { font: 400 20px/30px var(--font-body); letter-spacing: 0; }
-.type-body-l { font: 400 18px/28px var(--font-body); letter-spacing: 0; }
-.type-body-m { font: 400 16px/24px var(--font-body); letter-spacing: 0; }
-.type-body-s { font: 400 14px/20px var(--font-body); letter-spacing: 0; }
-.type-title-24 { font: 600 24px/32px var(--font-body); letter-spacing: 0; }
-.type-title-16 { font: 600 16px/22px var(--font-body); letter-spacing: 0; }
-.type-button-m { font: 600 16px/24px var(--font-body); letter-spacing: 0; }
-.type-button-s { font: 600 14px/20px var(--font-body); letter-spacing: 0; }
-.type-label-m { font: 500 14px/20px var(--font-mono); letter-spacing: 0.08em; }
-.type-label-s { font: 500 12px/16px var(--font-mono); letter-spacing: 0.08em; }
+.type-h1 { font: var(--text-h1--font-weight) var(--text-h1)/var(--text-h1--line-height) var(--font-display); letter-spacing: var(--text-h1--letter-spacing); }
+.type-display { font: var(--text-display--font-weight) var(--text-display)/var(--text-display--line-height) var(--font-display); letter-spacing: var(--text-display--letter-spacing); }
+.type-h2 { font: var(--text-h2--font-weight) var(--text-h2)/var(--text-h2--line-height) var(--font-display); letter-spacing: var(--text-h2--letter-spacing); }
+.type-h3 { font: var(--text-h3--font-weight) var(--text-h3)/var(--text-h3--line-height) var(--font-display); letter-spacing: var(--text-h3--letter-spacing); }
+.type-h3-s { font: var(--text-h3-s--font-weight) var(--text-h3-s)/var(--text-h3-s--line-height) var(--font-display); letter-spacing: var(--text-h3-s--letter-spacing); }
+.type-h4 { font: var(--text-h4--font-weight) var(--text-h4)/var(--text-h4--line-height) var(--font-display); letter-spacing: var(--text-h4--letter-spacing); }
+.type-h5 { font: var(--text-h5--font-weight) var(--text-h5)/var(--text-h5--line-height) var(--font-display); letter-spacing: var(--text-h5--letter-spacing); }
+.type-h6 { font: var(--text-h6--font-weight) var(--text-h6)/var(--text-h6--line-height) var(--font-display); letter-spacing: var(--text-h6--letter-spacing); }
+.type-body-xl { font: var(--text-body-xl--font-weight) var(--text-body-xl)/var(--text-body-xl--line-height) var(--font-body); letter-spacing: var(--text-body-xl--letter-spacing); }
+.type-body-lead { font: var(--text-body-lead--font-weight) var(--text-body-lead)/var(--text-body-lead--line-height) var(--font-body); letter-spacing: var(--text-body-lead--letter-spacing); }
+.type-body-l { font: var(--text-body-l--font-weight) var(--text-body-l)/var(--text-body-l--line-height) var(--font-body); letter-spacing: var(--text-body-l--letter-spacing); }
+.type-body-m { font: var(--text-body-m--font-weight) var(--text-body-m)/var(--text-body-m--line-height) var(--font-body); letter-spacing: var(--text-body-m--letter-spacing); }
+.type-body-s { font: var(--text-body-s--font-weight) var(--text-body-s)/var(--text-body-s--line-height) var(--font-body); letter-spacing: var(--text-body-s--letter-spacing); }
+.type-title-24 { font: var(--text-title-24--font-weight) var(--text-title-24)/var(--text-title-24--line-height) var(--font-body); letter-spacing: var(--text-title-24--letter-spacing); }
+.type-title-16 { font: var(--text-title-16--font-weight) var(--text-title-16)/var(--text-title-16--line-height) var(--font-body); letter-spacing: var(--text-title-16--letter-spacing); }
+.type-button-m { font: var(--text-button-m--font-weight) var(--text-button-m)/var(--text-button-m--line-height) var(--font-body); letter-spacing: var(--text-button-m--letter-spacing); }
+.type-button-s { font: var(--text-button-s--font-weight) var(--text-button-s)/var(--text-button-s--line-height) var(--font-body); letter-spacing: var(--text-button-s--letter-spacing); }
+.type-label-m { font: var(--text-label-m--font-weight) var(--text-label-m)/var(--text-label-m--line-height) var(--font-mono); letter-spacing: var(--text-label-m--letter-spacing); }
+.type-label-s { font: var(--text-label-s--font-weight) var(--text-label-s)/var(--text-label-s--line-height) var(--font-mono); letter-spacing: var(--text-label-s--letter-spacing); }
 /* Label/S Caps: у Figma ті самі параметри, що й Label/S; великі літери — за назвою стилю */
-.type-label-s-caps { font: 500 12px/16px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.type-label-s-caps { font: var(--text-label-s--font-weight) var(--text-label-s)/var(--text-label-s--line-height) var(--font-mono); letter-spacing: var(--text-label-s--letter-spacing); text-transform: uppercase; }
 
 /* Перемикач тем у розмітці: показуємо лише варіант поточної теми */
 :root:not([data-theme='light']) [data-theme-only='light'],
@@ -281,7 +372,7 @@ a {
 .ring-hover {
   position: relative;
   border: 1px solid var(--fg);
-  border-radius: 999px;
+  border-radius: var(--radius-full);
   background: transparent;
   color: var(--fg);
   transition:

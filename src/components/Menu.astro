@@ -225,7 +225,7 @@ const current = (p: string) => here === localePath(locale, p);
 
   .menu__logo {
     display: block;
-    border-radius: 8px;
+    border-radius: var(--radius-8);
   }
 
   
@@ -337,9 +337,9 @@ const current = (p: string) => here === localePath(locale, p);
 
   .menu__num {
     font-family: var(--font-mono);
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 20px;
+    font-weight: var(--text-label-m--font-weight);
+    font-size: var(--text-label-m);
+    line-height: var(--text-label-m--line-height);
     color: var(--text-muted);
   }
 
@@ -439,9 +439,9 @@ const current = (p: string) => here === localePath(locale, p);
 
   .menu__label {
     font-family: var(--font-mono);
-    font-weight: 500;
-    font-size: 12px;
-    line-height: 16px;
+    font-weight: var(--text-label-s--font-weight);
+    font-size: var(--text-label-s);
+    line-height: var(--text-label-s--line-height);
     letter-spacing: 0.04em;
     text-transform: uppercase;
     color: var(--text-muted);
@@ -476,9 +476,9 @@ const current = (p: string) => here === localePath(locale, p);
 
   .menu__place {
     font-family: var(--font-mono);
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 20px;
+    font-weight: var(--text-label-m--font-weight);
+    font-size: var(--text-label-m);
+    line-height: var(--text-label-m--line-height);
     color: var(--text-muted);
   }
 
@@ -586,8 +586,8 @@ const current = (p: string) => here === localePath(locale, p);
       display: inline-block;
       padding: 4px 0;
       color: var(--fg);
-      font-size: 16px;
-      line-height: 24px;
+      font-size: var(--text-body-m);
+      line-height: var(--text-body-m--line-height);
       text-decoration: none;
     }
   }

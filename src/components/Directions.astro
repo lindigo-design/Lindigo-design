@@ -131,19 +131,19 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .directions__eyebrow,
   .direction__num {
     font-family: var(--font-mono);
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 20px;
-    letter-spacing: 0.08em;
+    font-weight: var(--text-label-m--font-weight);
+    font-size: var(--text-label-m);
+    line-height: var(--text-label-m--line-height);
+    letter-spacing: var(--text-label-m--letter-spacing);
     text-transform: uppercase;
     color: var(--accent-text);
   }
 
   .directions__title {
     font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 56px;
-    line-height: 68px;
+    font-weight: var(--text-h2--font-weight);
+    font-size: var(--text-h2);
+    line-height: var(--text-h2--line-height);
   }
 
   .directions__list {
@@ -162,7 +162,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     gap: 48px;
     padding: 32px 32px 32px 48px;
     border: 1px solid var(--card-border);
-    border-radius: 32px;
+    border-radius: var(--radius-32);
     background: var(--card-bg);
     -webkit-backdrop-filter: blur(24px);
     backdrop-filter: blur(24px);
@@ -179,9 +179,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
   .direction__title {
     font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 40px;
-    line-height: 48px;
+    font-weight: var(--text-h3--font-weight);
+    font-size: var(--text-h3);
+    line-height: var(--text-h3--line-height);
   }
 
   .direction__tags {
@@ -196,15 +196,15 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .direction__tags li {
     padding: 8px 16px;
     border: 1px solid var(--tag-border);
-    border-radius: 20px;
-    font-size: 14px;
-    line-height: 20px;
+    border-radius: var(--radius-20);
+    font-size: var(--text-body-s);
+    line-height: var(--text-body-s--line-height);
   }
 
   .direction__desc {
     font-weight: 500;
-    font-size: 20px;
-    line-height: 30px;
+    font-size: var(--text-body-lead);
+    line-height: var(--text-body-lead--line-height);
     color: var(--text-soft);
   }
 
@@ -222,7 +222,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     /* картка 586 px у макеті: фото 520 + поля 32 + рамка */
     height: 520px;
     overflow: hidden;
-    border-radius: 20px;
+    border-radius: var(--radius-20);
   }
 
   .direction__media :global(img) {
@@ -288,8 +288,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
       line-height: 40px;
     }
     .direction__desc {
-      font-size: 18px;
-      line-height: 28px;
+      font-size: var(--text-body-l);
+      line-height: var(--text-body-l--line-height);
     }
   }
 
@@ -305,7 +305,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     .direction__media {
       flex: none;
       height: auto;
-      aspect-ratio: 16 / 10;
+      aspect-ratio: var(--aspect-photo-wide);
     }
   }
 
@@ -322,7 +322,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     .direction {
       gap: 24px;
       padding: 24px;
-      border-radius: 24px;
+      border-radius: var(--radius-24);
     }
     .direction__text {
       gap: 16px;
@@ -332,14 +332,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
       line-height: 32px;
     }
     .direction__desc {
-      font-size: 16px;
-      line-height: 24px;
+      font-size: var(--text-body-m);
+      line-height: var(--text-body-m--line-height);
     }
     .direction__text :global(.direction__more) {
       height: 50px;
     }
     .direction__media {
-      border-radius: 16px;
+      border-radius: var(--radius-16);
     }
   }
 

@@ -73,10 +73,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
     grid-area: 1 / 1;
     padding-top: clamp(6px, 0.86vw, 13px);
     font-family: var(--font-mono);
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 20px;
-    letter-spacing: 0.08em;
+    font-weight: var(--text-label-m--font-weight);
+    font-size: var(--text-label-m);
+    line-height: var(--text-label-m--line-height);
+    letter-spacing: var(--text-label-m--letter-spacing);
     text-transform: uppercase;
     color: var(--accent-text);
   }
@@ -111,17 +111,17 @@ const pad = (n: number) => String(n).padStart(2, '0');
     flex-direction: column;
     gap: 1em;
     font-weight: 500;
-    font-size: 20px;
-    line-height: 30px;
+    font-size: var(--text-body-lead);
+    line-height: var(--text-body-lead--line-height);
     color: var(--text-soft);
   }
 
   /* 435 × 260 на 1512; на ширших екранах росте разом із колонкою, пропорція та сама */
   .principles__media {
     grid-area: 2 / 3;
-    aspect-ratio: 435 / 260;
+    aspect-ratio: var(--aspect-principles-photo);
     overflow: hidden;
-    border-radius: 20px;
+    border-radius: var(--radius-20);
   }
 
   .principles__media :global(img) {
@@ -188,8 +188,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     .principles__body {
       grid-area: 3 / 1;
       margin-top: 24px;
-      font-size: 18px;
-      line-height: 28px;
+      font-size: var(--text-body-l);
+      line-height: var(--text-body-l--line-height);
     }
     .principles__media {
       grid-area: 3 / 2;
@@ -215,7 +215,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       grid-area: 4 / 1;
       width: 100%;
       height: auto;
-      aspect-ratio: 16 / 10;
+      aspect-ratio: var(--aspect-photo-wide);
       margin-top: 16px;
     }
   }
@@ -226,11 +226,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
       padding: 96px 20px;
     }
     .principles__body {
-      font-size: 16px;
-      line-height: 24px;
+      font-size: var(--text-body-m);
+      line-height: var(--text-body-m--line-height);
     }
     .principles__media {
-      border-radius: 16px;
+      border-radius: var(--radius-16);
     }
   }
 

@@ -99,30 +99,30 @@ const photos = [
 
   .photos__eyebrow {
     font-family: var(--font-mono);
-    font-weight: 500;
-    font-size: 14px;
-    line-height: 20px;
-    letter-spacing: 0.08em;
+    font-weight: var(--text-label-m--font-weight);
+    font-size: var(--text-label-m);
+    line-height: var(--text-label-m--line-height);
+    letter-spacing: var(--text-label-m--letter-spacing);
     text-transform: uppercase;
     color: var(--accent-text);
   }
 
   .photos__title {
     font-family: var(--font-display);
-    font-weight: 600;
-    font-size: 56px;
-    line-height: 68px;
+    font-weight: var(--text-h2--font-weight);
+    font-size: var(--text-h2);
+    line-height: var(--text-h2--line-height);
   }
 
   .photos__more {
     display: inline-flex;
     align-items: center;
     gap: 12px;
-    font-weight: 600;
-    font-size: 16px;
-    line-height: 22px;
+    font-weight: var(--text-title-16--font-weight);
+    font-size: var(--text-title-16);
+    line-height: var(--text-title-16--line-height);
     text-decoration: none;
-    border-radius: 999px;
+    border-radius: var(--radius-full);
   }
 
   .photos__more-icon img {
@@ -152,7 +152,7 @@ const photos = [
     overscroll-behavior-x: contain;
     scroll-snap-type: x proximity;
     scrollbar-width: none;
-    border-radius: 24px 0 0 24px;
+    border-radius: var(--radius-24) 0 0 var(--radius-24);
   }
 
   .photos__strip::-webkit-scrollbar {
@@ -163,7 +163,7 @@ const photos = [
     flex: 0 0 var(--w);
     height: var(--h);
     overflow: hidden;
-    border-radius: 24px;
+    border-radius: var(--radius-24);
     scroll-snap-align: start;
   }
 
@@ -192,7 +192,7 @@ const photos = [
     .photos__item {
       flex-basis: calc(var(--w) * 0.66);
       height: calc(var(--h) * 0.66);
-      border-radius: 16px;
+      border-radius: var(--radius-16);
     }
   }
 </style>

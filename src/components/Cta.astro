@@ -51,7 +51,7 @@ const menu = ui[locale].menu;
     gap: 40px;
     padding: 120px clamp(24px, 5.29vw, 80px);
     overflow: hidden;
-    border-radius: 48px;
+    border-radius: var(--radius-48);
     text-align: center;
   }
 
@@ -89,11 +89,11 @@ const menu = ui[locale].menu;
     .cta__panel {
       gap: 32px;
       padding: 64px 20px;
-      border-radius: 24px;
+      border-radius: var(--radius-24);
     }
     .cta__lead {
-      font-size: 18px;
-      line-height: 28px;
+      font-size: var(--text-body-l);
+      line-height: var(--text-body-l--line-height);
     }
     .cta__actions {
       flex-direction: column;
