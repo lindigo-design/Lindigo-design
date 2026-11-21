@@ -284,8 +284,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
       height: 420px;
     }
     .direction__title {
-      font-size: 32px;
-      line-height: 40px;
+      font-size: 2rem; /* 32px */
+      line-height: 125%; /* 40px */
     }
     .direction__desc {
       font-size: var(--text-body-l);
@@ -313,11 +313,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
   @media (max-width: 640px) {
     .directions__stage {
       gap: 24px;
-      padding: 96px 20px;
+      padding: var(--space-56) var(--space-20);
     }
     .directions__title {
-      font-size: 32px;
-      line-height: 40px;
+      font-size: 2rem; /* 32px */
+      line-height: 125%; /* 40px */
     }
     .direction {
       gap: 24px;
@@ -328,8 +328,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
       gap: 16px;
     }
     .direction__title {
-      font-size: 26px;
-      line-height: 32px;
+      font-size: 1.625rem; /* 26px */
+      line-height: 123.0769%; /* 32px */
     }
     .direction__desc {
       font-size: var(--text-body-m);

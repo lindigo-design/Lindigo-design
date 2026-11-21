@@ -253,8 +253,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     .step--5 { grid-area: 3 / 1; }
     .step--6 { grid-area: 3 / 2; }
     .step__title {
-      font-size: 22px;
-      line-height: 30px;
+      font-size: 1.375rem; /* 22px */
+      line-height: 136.3636%; /* 30px */
     }
   }
 
@@ -276,11 +276,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
   @media (max-width: 640px) {
     .process {
       gap: 24px;
-      padding: 96px 20px;
+      padding: var(--space-56) var(--space-20);
     }
     .process__title {
-      font-size: 32px;
-      line-height: 40px;
+      font-size: 2rem; /* 32px */
+      line-height: 125%; /* 40px */
     }
     .process__steps {
       gap: 16px;
