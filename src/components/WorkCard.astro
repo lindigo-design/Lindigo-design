@@ -158,6 +158,14 @@ const total = works.length;
     }
   }
 
+  /* Фокус з клавіатури: те саме, що при наведенні (плюс загальний контур :focus-visible) */
+  .work-card__link:focus-visible .work-card__cover :global(.work-card__img) {
+    transform: scale(1.03);
+  }
+  .work-card__link:focus-visible .work-card__arrow img {
+    transform: rotate(45deg);
+  }
+
   .work-card__footer {
     display: flex;
     flex-direction: column;

@@ -109,7 +109,7 @@ const items = directionOrder.flatMap((d) => t.items.find((item) => item.directio
         ))
       }
     </div>
-    <SliderNav prevLabel={t.prev} nextLabel={t.next} total={items.length} />
+    <SliderNav id="works" prevLabel={t.prev} nextLabel={t.next} disabledNote={t.navDisabled} total={items.length} />
   </div>
   </div>
 </section>

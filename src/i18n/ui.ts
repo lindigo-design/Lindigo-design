@@ -70,6 +70,8 @@ export const ui = {
       view: 'Voir le projet',
       prev: 'Avis précédent',
       next: 'Avis suivant',
+      // ЧЕРНЕТКА: пояснення до вимкнених стрілок (озвучує читач екрана), на вичитку
+      navDisabled: 'Pour l’instant, il n’y a qu’un seul avis.',
       items: [
         {
           slug: 'datatixx',
@@ -104,6 +106,8 @@ export const ui = {
       foundLabel: 'Ce que nous avons identifié avant de concevoir le design',
       prev: 'Projet précédent',
       next: 'Projet suivant',
+      // ЧЕРНЕТКА: пояснення до вимкнених стрілок (озвучує читач екрана), на вичитку
+      navDisabled: 'Pour l’instant, il n’y a qu’un seul projet.',
       items: [
         {
           slug: 'datatixx',
@@ -246,6 +250,7 @@ export const ui = {
       view: 'View case',
       prev: 'Previous testimonial',
       next: 'Next testimonial',
+      navDisabled: 'There is only one testimonial for now.',
       items: [
         {
           slug: 'datatixx',
@@ -280,6 +285,7 @@ export const ui = {
       foundLabel: 'What we learned before designing',
       prev: 'Previous case',
       next: 'Next case',
+      navDisabled: 'There is only one project for now.',
       items: [
         {
           slug: 'datatixx',
@@ -419,6 +425,7 @@ export const ui = {
       view: 'Дивитися кейс',
       prev: 'Попередній відгук',
       next: 'Наступний відгук',
+      navDisabled: 'Поки що тут один відгук.',
       // У макеті лічильник «01 / 03», але заповнений лише один відгук
       items: [
         {
@@ -451,6 +458,7 @@ export const ui = {
       foundLabel: 'Що з’ясували до дизайну',
       prev: 'Попередній кейс',
       next: 'Наступний кейс',
+      navDisabled: 'Поки що тут одна робота.',
       // Кейси Luigi Contessi, «Логотипи» й Frelia є в макеті лише назвами на вкладках — чекаємо на зміст
       items: [
         {

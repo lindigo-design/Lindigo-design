@@ -1,0 +1,150 @@
+---
+/**
+ * Поле форми: підпис, поле (input або textarea), підказка і текст помилки під полем.
+ * Макета поля у Figma ще немає — вигляд зібраний із токенів системи (пропозиція, чекає погодження).
+ *
+ * Стани:
+ *  - hover    — обводка стає кольору тексту;
+ *  - focus    — загальний видимий контур :focus-visible (global.css) + обводка акцентного кольору;
+ *  - disabled — атрибут disabled (поле форми не відправляється), прозорість --disabled-opacity;
+ *  - error    — обводка й текст помилки кольору --danger, aria-invalid="true",
+ *               текст помилки під полем зв'язаний через aria-describedby.
+ */
+interface Props {
+  id: string;
+  label: string;
+  name?: string;
+  type?: 'text' | 'email' | 'tel' | 'textarea';
+  value?: string;
+  placeholder?: string;
+  autocomplete?: string;
+  hint?: string;
+  error?: string;
+  required?: boolean;
+  disabled?: boolean;
+}
+
+const {
+  id,
+  label,
+  name = id,
+  type = 'text',
+  value,
+  placeholder,
+  autocomplete,
+  hint,
+  error,
+  required = false,
+  disabled = false,
+} = Astro.props;
+
+const hintId = hint ? `${id}-hint` : undefined;
+const errorId = error ? `${id}-error` : undefined;
+const describedBy = [hintId, errorId].filter(Boolean).join(' ') || undefined;
+const common = {
+  id,
+  name,
+  placeholder,
+  autocomplete,
+  required,
+  disabled,
+  'aria-invalid': error ? 'true' : undefined,
+  'aria-describedby': describedBy,
+  class: 'field__control',
+};
+---
+
+<div class:list={['field', { 'field--error': error, 'field--disabled': disabled }]}>
+  <label class="field__label" for={id}>{label}</label>
+  {type === 'textarea' ? <textarea {...common} rows="5">{value}</textarea> : <input {...common} type={type} value={value} />}
+  {hint && <p class="field__hint" id={hintId}>{hint}</p>}
+  {error && <p class="field__error" id={errorId}>{error}</p>}
+</div>
+
+<style>
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  /* Title/16 */
+  .field__label {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 22px;
+    color: var(--fg);
+  }
+
+  /* Body/M */
+  .field__control {
+    width: 100%;
+    padding: var(--space-16) var(--space-20);
+    border: 1px solid var(--field-border);
+    border-radius: var(--radius-12);
+    background: var(--field-bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    transition: border-color 0.2s ease;
+  }
+
+  textarea.field__control {
+    resize: vertical;
+  }
+
+  .field__control::placeholder {
+    color: var(--text-muted);
+  }
+
+  @media (hover: hover) {
+    .field__control:hover:not(:disabled) {
+      border-color: var(--fg);
+    }
+  }
+
+  /* Контур фокусу — загальний :focus-visible; обводка підсвічує поле й при фокусі мишею */
+  .field__control:focus {
+    border-color: var(--accent-text);
+  }
+
+  .field__control:disabled {
+    opacity: var(--disabled-opacity);
+    cursor: not-allowed;
+  }
+
+  .field--disabled .field__label {
+    opacity: var(--disabled-opacity);
+  }
+
+  /* Помилка: обводка й текст під полем кольору danger */
+  .field--error .field__control,
+  .field--error .field__control:hover {
+    border-color: var(--danger);
+  }
+
+  .field--error .field__control:focus-visible {
+    outline-color: var(--danger);
+  }
+
+  /* Body/S */
+  .field__hint,
+  .field__error {
+    margin: 0;
+    font-family: var(--font-body);
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+  }
+
+  .field__hint {
+    color: var(--text-muted);
+  }
+
+  .field__error {
+    color: var(--danger);
+  }
+</style>

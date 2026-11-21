@@ -1,0 +1,116 @@
+---
+/**
+ * Службова сторінка: стани компонентів (вимога «Компоненти зі станами», CLAUDE.md).
+ * Існує тільки в npm run dev — у збірку для сайту не потрапляє.
+ * http://localhost:4321/design-system/states/
+ */
+import Base from '../../layouts/Base.astro';
+import Button from '../../components/Button.astro';
+import Field from '../../components/Field.astro';
+import WorkCard from '../../components/WorkCard.astro';
+import Footer from '../../components/Footer.astro';
+import ThemeSwitch from '../../components/ThemeSwitch.astro';
+import { featuredWorks } from '../../data/featured';
+
+export function getStaticPaths() {
+  return import.meta.env.DEV ? [{ params: { page: 'states' } }] : [];
+}
+---
+
+<Base locale="uk" title="Стани компонентів" description="Службова сторінка" path="/design-system/states/" noindex>
+  <main class="ds">
+    <header class="ds__head">
+      <h1 class="type-h3">Стани компонентів</h1>
+      <ThemeSwitch locale="uk" />
+    </header>
+    <p class="type-body-m ds__note">
+      Перевірка: наведіть мишею, пройдіть клавішею Tab. Контур фокусу має бути видно скрізь, у тому числі на вимкнених кнопках.
+    </p>
+
+    <section class="ds__section">
+      <h2 class="type-h5">Кнопка</h2>
+      <div class="ds__row">
+        <Button href="#">Основна</Button>
+        <Button href="#" variant="secondary">Друга</Button>
+        <Button type="submit">Кнопка форми</Button>
+      </div>
+      <div class="ds__row">
+        <Button href="#" disabled describedBy="ds-btn-note">Основна, вимкнена</Button>
+        <Button href="#" variant="secondary" disabled describedBy="ds-btn-note">Друга, вимкнена</Button>
+        <Button type="submit" disabled describedBy="ds-btn-note">Надіслати</Button>
+      </div>
+      <p class="type-body-s ds__muted" id="ds-btn-note">Кнопка стане активною, коли всі поля заповнені.</p>
+    </section>
+
+    <section class="ds__section">
+      <h2 class="type-h5">Поле форми</h2>
+      <form class="ds__form" novalidate>
+        <Field id="ds-name" label="Ім’я" placeholder="Як до вас звертатися" autocomplete="name" />
+        <Field id="ds-email" type="email" label="Email" value="anna@" hint="На цю адресу надішлемо відповідь." error="Перевірте адресу: у ній бракує домену, наприклад @gmail.com." />
+        <Field id="ds-phone" type="tel" label="Телефон" value="+33 6 00 00 00 00" disabled hint="Поле вимкнене." />
+        <Field id="ds-msg" type="textarea" label="Повідомлення" placeholder="Розкажіть про проєкт" />
+      </form>
+    </section>
+
+    <section class="ds__section">
+      <h2 class="type-h5">Картка</h2>
+      <div class="ds__card">
+        <WorkCard locale="uk" works={featuredWorks} />
+      </div>
+    </section>
+  </main>
+
+  <h2 class="type-h5 ds__nav-title">Навігація (футер)</h2>
+  <Footer locale="uk" />
+</Base>
+
+<style>
+  .ds {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-48);
+    max-width: 1100px;
+    margin-inline: auto;
+    padding: var(--space-64) var(--gutter);
+  }
+
+  .ds__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-24);
+  }
+
+  .ds__note,
+  .ds__muted {
+    color: var(--text-muted);
+  }
+
+  .ds__section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
+  }
+
+  .ds__row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-16);
+  }
+
+  .ds__form {
+    display: grid;
+    gap: var(--space-24);
+    max-width: 560px;
+  }
+
+  .ds__card {
+    max-width: 480px;
+  }
+
+  .ds__nav-title {
+    padding: 0 var(--gutter) var(--space-24);
+    max-width: 1100px;
+    margin-inline: auto;
+  }
+</style>
