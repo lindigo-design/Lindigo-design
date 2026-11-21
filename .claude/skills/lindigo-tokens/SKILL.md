@@ -43,6 +43,7 @@ Tailwind і `@theme` у проєкті не використовуються.
 | `--step-first-bg` / `--step-first-border` | перший крок | `--night` / rgba(248,238,221,.16) | `--beige-50` / rgba(21,11,46,.16) |
 | `--switch-border` | обводка перемикача теми | `--beige-50` | `--orchid-deep` |
 | `--btn-primary-bg` / `--btn-primary-fg` | основна кнопка | `--gold` / `--indigo-950` | `--indigo-600` / `--beige-50` |
+| `--brand-gradient-from` / `--brand-gradient-to` | фірмовий градієнт: основа `--btn-primary-hover` і заливки логотипа при наведенні | `--orchid` / `--orange` | `--indigo-600` / `--orchid-deep` |
 | `--btn-primary-hover` | наведення на основну кнопку | градієнт `--orchid` → `--orange` | градієнт `--indigo-600` → `--orchid-deep` |
 | `--ring-from` / `--ring-to` | градієнтне кільце `.ring-hover` | `--orchid` / `--orange` | `--orchid-deep` / `--orange` |
 | `--ring-press` | фон при натисканні | rgba(248,238,221,.1) | rgba(21,11,46,.06) |

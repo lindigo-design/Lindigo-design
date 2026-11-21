@@ -255,7 +255,10 @@
   --btn-primary-bg: var(--gold);
   --btn-primary-fg: var(--indigo-950);
   /* Наведення: Orchid → Orange, той самий градієнт, що на кільці другої кнопки (Figma, «обрано») */
-  --btn-primary-hover: linear-gradient(90deg, var(--orchid), var(--orange));
+  /* Фірмовий градієнт: наведення на основну кнопку, заливка логотипа при наведенні */
+  --brand-gradient-from: var(--orchid);
+  --brand-gradient-to: var(--orange);
+  --btn-primary-hover: linear-gradient(90deg, var(--brand-gradient-from), var(--brand-gradient-to));
   --ring-from: var(--orchid);
   --ring-to: var(--orange);
   --ring-press: rgba(248, 238, 221, 0.1);
@@ -293,7 +296,9 @@
 
   --btn-primary-bg: var(--indigo-600);
   --btn-primary-fg: var(--beige-50);
-  --btn-primary-hover: linear-gradient(90deg, var(--indigo-600), var(--orchid-deep));
+  --brand-gradient-from: var(--indigo-600);
+  --brand-gradient-to: var(--orchid-deep);
+  --btn-primary-hover: linear-gradient(90deg, var(--brand-gradient-from), var(--brand-gradient-to));
   --ring-from: var(--orchid-deep);
   --ring-to: var(--orange);
   --ring-press: rgba(21, 11, 46, 0.06);
