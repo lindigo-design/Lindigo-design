@@ -165,10 +165,10 @@ const bgWidths = [768, 1280, 1920, 2752];
   .hero__content {
     display: flex;
     align-items: flex-end;
-    gap: 24px;
+    gap: var(--space-24);
     /* Боки: 80 px на макеті 1512; масштабується разом із заголовком і карткою.
        Низ: 64 px від кнопок до краю екрана (Figma, «Варіант 2»). */
-    padding: 0 var(--gutter) 64px;
+    padding: 0 var(--gutter) var(--space-64);
   }
 
   /* Великі екрани (ширші за ноутбук 1512): текст трохи вище від низу, щоб не «лежав» на краю.
@@ -185,7 +185,7 @@ const bgWidths = [768, 1280, 1920, 2752];
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 32px;
+    gap: var(--space-32);
   }
 
   .hero__title {
@@ -214,7 +214,7 @@ const bgWidths = [768, 1280, 1920, 2752];
   .hero__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: var(--space-12);
   }
 
   .hero__content > :global(.work-card) {
@@ -229,8 +229,8 @@ const bgWidths = [768, 1280, 1920, 2752];
     .hero__content {
       flex-direction: column;
       align-items: stretch;
-      gap: 48px;
-      padding: 0 40px 48px;
+      gap: var(--space-48);
+      padding: 0 var(--space-40) var(--space-48);
     }
     .hero__content > :global(.work-card) {
       width: min(392px, 100%);
@@ -251,11 +251,11 @@ const bgWidths = [768, 1280, 1920, 2752];
     }
     /* Телефон (Figma, 390): поля 20 px; опис і картка на всю ширину між полями */
     .hero__content {
-      gap: 32px;
-      padding: 0 20px 32px;
+      gap: var(--space-32);
+      padding: 0 var(--space-20) var(--space-32);
     }
     .hero__text {
-      gap: 24px;
+      gap: var(--space-24);
     }
     .hero__lead {
       max-width: none;

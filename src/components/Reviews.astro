@@ -76,8 +76,8 @@ const images: Record<string, ImageMetadata> = { datatixx };
     isolation: isolate;
     display: flex;
     flex-direction: column;
-    gap: 56px;
-    padding: 120px var(--gutter);
+    gap: var(--space-56);
+    padding: var(--space-120) var(--gutter);
     background: var(--section-bg);
     overflow: hidden;
   }
@@ -86,7 +86,7 @@ const images: Record<string, ImageMetadata> = { datatixx };
   .reviews__head {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: var(--space-16);
   }
 
   .reviews__eyebrow {
@@ -114,7 +114,7 @@ const images: Record<string, ImageMetadata> = { datatixx };
 
   .review {
     display: flex;
-    gap: 24px;
+    gap: var(--space-24);
     height: 540px;
   }
 
@@ -151,9 +151,9 @@ const images: Record<string, ImageMetadata> = { datatixx };
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: var(--space-28);
     margin: 0;
-    padding: 48px 48px 128px;
+    padding: var(--space-48) var(--space-48) 128px;
     border: 1px solid var(--step-border);
     border-radius: var(--radius-32);
     background: var(--step-bg);
@@ -164,7 +164,7 @@ const images: Record<string, ImageMetadata> = { datatixx };
   .review__quote {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--space-12);
     margin: 0;
   }
 
@@ -187,7 +187,7 @@ const images: Record<string, ImageMetadata> = { datatixx };
   .review__author {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: var(--space-8);
   }
 
   .review__name {
@@ -213,13 +213,13 @@ const images: Record<string, ImageMetadata> = { datatixx };
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 16px;
+    gap: var(--space-16);
   }
 
   .reviews__case {
     display: inline-flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--space-12);
     font-weight: var(--text-title-16--font-weight);
     font-size: var(--text-title-16);
     line-height: var(--text-title-16--line-height);
@@ -246,12 +246,12 @@ const images: Record<string, ImageMetadata> = { datatixx };
   }
 
   .reviews__controls :global(.slider-nav) {
-    gap: 16px;
+    gap: var(--space-16);
   }
 
   @media (max-width: 1100px) {
     .review__card {
-      padding: 32px 32px 112px;
+      padding: var(--space-32) var(--space-32) 112px;
     }
     .reviews__controls {
       right: 32px;
@@ -276,17 +276,17 @@ const images: Record<string, ImageMetadata> = { datatixx };
       max-height: 420px;
     }
     .review__card {
-      padding-bottom: 32px;
+      padding-bottom: var(--space-32);
     }
     .reviews__controls {
       position: static;
-      margin-top: 24px;
+      margin-top: var(--space-24);
     }
   }
 
   @media (max-width: 640px) {
     .reviews {
-      gap: 24px;
+      gap: var(--space-24);
       padding: var(--space-56) var(--space-20);
     }
     .reviews__title {
@@ -294,15 +294,15 @@ const images: Record<string, ImageMetadata> = { datatixx };
       line-height: 125%; /* 40px */
     }
     .review {
-      gap: 16px;
+      gap: var(--space-16);
     }
     .review__media,
     .review__card {
       border-radius: var(--radius-24);
     }
     .review__card {
-      gap: 20px;
-      padding: 24px;
+      gap: var(--space-20);
+      padding: var(--space-24);
     }
     .review__mark {
       height: 40px;

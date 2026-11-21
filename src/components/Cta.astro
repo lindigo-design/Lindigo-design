@@ -38,7 +38,7 @@ const menu = ui[locale].menu;
 
 <style>
   .cta {
-    padding: 120px var(--gutter);
+    padding: var(--space-120) var(--gutter);
     background: var(--section-bg);
   }
 
@@ -48,8 +48,8 @@ const menu = ui[locale].menu;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 40px;
-    padding: 120px clamp(24px, 5.29vw, 80px);
+    gap: var(--space-40);
+    padding: var(--space-120) clamp(24px, 5.29vw, 80px);
     overflow: hidden;
     border-radius: var(--radius-48);
     text-align: center;
@@ -59,7 +59,7 @@ const menu = ui[locale].menu;
   .cta__text {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: var(--space-16);
   }
 
   .cta__title {
@@ -79,7 +79,7 @@ const menu = ui[locale].menu;
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 16px;
+    gap: var(--space-16);
   }
 
   @media (max-width: 640px) {
@@ -87,8 +87,8 @@ const menu = ui[locale].menu;
       padding: var(--space-56) var(--space-20);
     }
     .cta__panel {
-      gap: 32px;
-      padding: 64px 20px;
+      gap: var(--space-32);
+      padding: var(--space-64) var(--space-20);
       border-radius: var(--radius-24);
     }
     .cta__lead {

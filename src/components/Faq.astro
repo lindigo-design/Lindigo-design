@@ -69,9 +69,9 @@ const t = ui[locale].faq;
     isolation: isolate;
     display: grid;
     grid-template-columns: 380px minmax(0, 1fr);
-    column-gap: 80px;
+    column-gap: var(--space-80);
     align-items: start;
-    padding: 120px var(--gutter);
+    padding: var(--space-120) var(--gutter);
     background: var(--section-bg);
     overflow: hidden;
   }
@@ -168,7 +168,7 @@ const t = ui[locale].faq;
   .faq__head {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: var(--space-16);
   }
 
   .faq__eyebrow {
@@ -200,8 +200,8 @@ const t = ui[locale].faq;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 24px;
-    padding: 28px 0;
+    gap: var(--space-24);
+    padding: var(--space-28) 0;
     font-weight: var(--text-title-24--font-weight);
     font-size: var(--text-title-24);
     line-height: var(--text-title-24--line-height);
@@ -220,7 +220,7 @@ const t = ui[locale].faq;
   }
 
   .faq__item[open] .faq__q {
-    padding-bottom: 16px;
+    padding-bottom: var(--space-16);
     color: var(--accent-text);
   }
 
@@ -270,7 +270,7 @@ const t = ui[locale].faq;
   }
 
   .faq__a {
-    padding: 0 64px 28px 0;
+    padding: 0 var(--space-64) var(--space-28) 0;
     font-weight: 500;
     font-size: var(--text-body-lead);
     line-height: var(--text-body-lead--line-height);
@@ -280,7 +280,7 @@ const t = ui[locale].faq;
   @media (max-width: 1100px) {
     .faq {
       grid-template-columns: minmax(0, 1fr);
-      row-gap: 40px;
+      row-gap: var(--space-40);
     }
     .faq__q {
       font-size: 1.25rem; /* 20px */
@@ -294,7 +294,7 @@ const t = ui[locale].faq;
 
   @media (max-width: 640px) {
     .faq {
-      row-gap: 24px;
+      row-gap: var(--space-24);
       padding: var(--space-56) var(--space-20);
     }
     .faq__title {
@@ -302,15 +302,15 @@ const t = ui[locale].faq;
       line-height: 125%; /* 40px */
     }
     .faq__q {
-      padding: 20px 0;
+      padding: var(--space-20) 0;
       font-size: 1.125rem; /* 18px */
       line-height: 144.4444%; /* 26px */
     }
     .faq__item[open] .faq__q {
-      padding-bottom: 12px;
+      padding-bottom: var(--space-12);
     }
     .faq__a {
-      padding: 0 0 20px;
+      padding: 0 0 var(--space-20);
       font-size: var(--text-body-m);
       line-height: var(--text-body-m--line-height);
     }

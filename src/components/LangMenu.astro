@@ -48,10 +48,10 @@ const listId = `lang-list-${Math.random().toString(36).slice(2, 8)}`;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: var(--space-4);
     min-width: 44px;
     height: 44px;
-    padding: 0 4px;
+    padding: 0 var(--space-4);
     border: 0;
     border-radius: var(--radius-8);
     background: none;
@@ -79,7 +79,7 @@ const listId = `lang-list-${Math.random().toString(36).slice(2, 8)}`;
     right: 0;
     z-index: 10;
     margin: 0;
-    padding: 8px;
+    padding: var(--space-8);
     list-style: none;
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-16);
@@ -113,10 +113,10 @@ const listId = `lang-list-${Math.random().toString(36).slice(2, 8)}`;
   .lang__list a {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: var(--space-12);
     width: 200px;
     height: 44px;
-    padding: 0 12px;
+    padding: 0 var(--space-12);
     border-radius: var(--radius-8);
     color: var(--fg);
     text-decoration: none;
@@ -140,7 +140,7 @@ const listId = `lang-list-${Math.random().toString(36).slice(2, 8)}`;
     line-height: var(--text-label-m--line-height);
     padding-bottom: 2px;
     border-bottom: 2px solid transparent;
-    margin-bottom: -4px;
+    margin-bottom: calc(var(--space-4) * -1);
   }
 
   .lang__list a[aria-current='true'] .lang__code {
