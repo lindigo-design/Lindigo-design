@@ -68,7 +68,7 @@
 
 ## Що змінюється в коді
 
-1. **Токени тексту.** У `src/styles/global.css` інтервал між рядками записано у відсотках, наприклад `--text-h2--line-height: 121.4286%` (= 68 px при 56 px). Мобільні стилі — окремі токени: `--text-h1-mobile`, `--text-h2-mobile`, `--text-h4-mobile`, `--text-menu-mobile`, `--text-quote-mobile`, `--text-title-18`, `--text-title-20`, `--text-label-xs`.
+1. **Токени тексту.** У `src/styles/global.css` розмір шрифту записано в rem (1rem = 16px), інтервал між рядками — у відсотках, наприклад `--text-h2: 3.5rem` (56 px) і `--text-h2--line-height: 121.4286%` (68 px). Мобільні стилі — окремі токени: `--text-h1-mobile`, `--text-h2-mobile`, `--text-h4-mobile`, `--text-menu-mobile`, `--text-quote-mobile`, `--text-title-18`, `--text-title-20`, `--text-label-xs`.
 2. **Блоки.** Кожен блок переноситься з фрейму командою `/build-screen <блок> <посилання на фрейм>`. Зміни на телефоні:
    - заголовки блоків стають Heading/H2 Mobile (24 / 130 %) замість 32 / 40;
    - висота кнопок 48 замість 50;
