@@ -347,8 +347,8 @@ const current = (p: string) => here === localePath(locale, p);
     font-family: var(--font-display);
     font-weight: 600;
     /* як заголовок hero: 86 px на 1512 */
-    font-size: clamp(40px, 5.69vw, 86px);
-    line-height: 1.2;
+    font-size: clamp(2.5rem, 5.69vw, 5.375rem);
+    line-height: 120%;
     white-space: nowrap;
     text-decoration-thickness: 2px;
     text-underline-offset: 0.18em;
@@ -464,8 +464,8 @@ const current = (p: string) => here === localePath(locale, p);
     padding-bottom: 12px;
     border-bottom: 1px solid var(--glass-border);
     color: var(--fg);
-    font-size: 20px;
-    line-height: 28px;
+    font-size: 1.25rem; /* 20px */
+    line-height: 140%; /* 28px */
     text-decoration: none;
     transition: color 0.2s ease;
   }
@@ -532,14 +532,14 @@ const current = (p: string) => here === localePath(locale, p);
       padding: 8px 0;
     }
     .menu__num {
-      font-size: 12px;
-      line-height: 18px;
+      font-size: 0.75rem; /* 12px */
+      line-height: 150%; /* 18px */
       order: 0;
     }
     .menu__word {
       flex: 1;
-      font-size: 32px;
-      line-height: 40px;
+      font-size: 2rem; /* 32px */
+      line-height: 125%; /* 40px */
     }
     /* На телефоні стрілка завжди видна, без кола */
     .menu__go {
@@ -562,7 +562,7 @@ const current = (p: string) => here === localePath(locale, p);
     }
     .menu__group :global(.menu__btn) {
       height: 50px;
-      font-size: 16px;
+      font-size: 1rem; /* 16px */
     }
     .menu__bottom {
       display: flex;

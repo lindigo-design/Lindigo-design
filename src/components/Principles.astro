@@ -87,8 +87,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     grid-area: 1 / 2 / 2 / 4;
     font-family: var(--font-display);
     font-weight: 600;
-    font-size: clamp(24px, 2.65vw, 40px);
-    line-height: clamp(32px, 4.1vw, 62px);
+    font-size: clamp(1.5rem, 2.65vw, 2.5rem);
+    line-height: clamp(2rem, 4.1vw, 3.875rem);
   }
 
   .principles__lead > span {
@@ -152,24 +152,24 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .principle__title {
     font-family: var(--font-mono);
     font-weight: 500;
-    font-size: 12px;
+    font-size: 0.75rem; /* 12px */
     letter-spacing: 0.08em;
   }
 
   .principle__num {
-    line-height: 16px;
+    line-height: 133.3333%; /* 16px */
     color: var(--accent-text);
   }
 
   .principle__title {
-    line-height: 18px;
+    line-height: 150%; /* 18px */
     text-transform: uppercase;
   }
 
   .principle__text {
     font-weight: 500;
-    font-size: 14px;
-    line-height: 1.5;
+    font-size: 0.875rem; /* 14px */
+    line-height: 150%;
   }
 
   /* Вужчий комп'ютер і планшет: підпис над заголовком, порожньої колонки немає, фото поруч із текстом */
