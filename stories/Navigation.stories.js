@@ -92,11 +92,15 @@ export const LogoLink = {
         </span>`,
       )
       .join('');
-    const masks = `--mask-icon: url(${iconDark}); --mask-design: url(${designDark}); --mask-lindigo: url(${lindigoDark})`;
     const root = document.createElement('div');
     root.innerHTML = `<a href="#" aria-label="Lindigo Design — на головну" style="display: inline-block">
-      <span class="logo" aria-hidden="true" style="--logo-w: ${width}px">${sets}<span class="logo__fill" style="${masks}"></span></span>
+      <span class="logo" aria-hidden="true" style="--logo-w: ${width}px">${sets}<span class="logo__fill"></span></span>
     </a>`;
+    // Маска за формою логотипа. Адреси в лапках: Vite вбудовує малі SVG як data URI з лапками всередині
+    const fill = root.querySelector('.logo__fill');
+    fill.style.setProperty('--mask-icon', `url("${iconDark}")`);
+    fill.style.setProperty('--mask-design', `url("${designDark}")`);
+    fill.style.setProperty('--mask-lindigo', `url("${lindigoDark}")`);
     root.querySelector('a').addEventListener('click', (e) => e.preventDefault());
     return root;
   },

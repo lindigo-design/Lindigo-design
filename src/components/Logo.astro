@@ -24,7 +24,7 @@ interface Props {
 const { width = 151 } = Astro.props;
 
 /* Форми частин для маски градієнта (колір маски не важливий, важлива форма) */
-const masks = `--mask-icon: url(${darkIcon.src}); --mask-design: url(${darkDesign.src}); --mask-lindigo: url(${darkLindigo.src})`;
+const masks = `--mask-icon: url("${darkIcon.src}"); --mask-design: url("${darkDesign.src}"); --mask-lindigo: url("${darkLindigo.src}")`;
 
 const sets = [
   { theme: 'dark', icon: darkIcon, design: darkDesign, lindigo: darkLindigo },
