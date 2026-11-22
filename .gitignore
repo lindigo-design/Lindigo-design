@@ -7,3 +7,6 @@ dist/
 Thumbs.db
 npm-debug.log*
 .env*
+*storybook.log
+storybook-static/
+public/storybook/
