@@ -25,6 +25,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
 // Поточна сторінка: порівнюємо з адресою сторінки (разом із base і мовним префіксом)
 const here = Astro.url.pathname.replace(/\/?$/, '/');
 const current = (p: string) => here === localePath(locale, p);
+// Storybook — демонстрація дизайн-системи (тимчасово, окрема сторінка /storybook/ без мовного префікса)
+const storybookHref = `${(import.meta.env.BASE_URL ?? '/').replace(/\/+$/, '')}/storybook/`;
 ---
 
 <div
@@ -70,6 +72,13 @@ const current = (p: string) => here === localePath(locale, p);
               </li>
             ))
           }
+          <li style={`--i: ${menuPaths.length}`}>
+            <a href={storybookHref} data-menu-link>
+              <span class="menu__num">{pad(menuPaths.length + 1)}</span>
+              <span class="menu__word">Storybook</span>
+              <span class="menu__go" aria-hidden="true"></span>
+            </a>
+          </li>
         </ul>
       </nav>
 
@@ -523,13 +532,14 @@ const current = (p: string) => here === localePath(locale, p);
       padding: var(--space-8) var(--side) var(--space-16);
       gap: var(--space-32);
     }
+    /* П'ять пунктів (з Storybook) мають вміститися на 390 × 667: пункт 48 px заввишки, без проміжків */
     .menu__nav ul {
-      gap: var(--space-4);
+      gap: 0;
     }
     .menu__nav a {
       justify-content: space-between;
       gap: var(--space-16);
-      padding: var(--space-8) 0;
+      padding: var(--space-4) 0;
     }
     .menu__num {
       font-size: 0.75rem; /* 12px */

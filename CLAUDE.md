@@ -91,8 +91,9 @@
 
 - Запуск: `npm run storybook` → http://localhost:6006. Окремо зібрати: `npm run build-storybook`.
 - `npm run build` збирає його разом із сайтом у `dist/storybook`, тож він відкривається як окрема сторінка `/storybook/` (з `noindex`).
+- У меню сайту — п'ятий пункт «05 Storybook» (`src/components/Menu.astro`). Через нього пункти меню на телефоні стиснуто до 48 px заввишки без проміжків, щоб меню вміщалося на 390 × 667.
 - Налаштування — `.storybook/`, історії — `stories/`. Розмітка в історіях — звичайний HTML, стилі беруться з тих самих файлів `.astro` (`stories/lib/astro.js`), токени — прямо з `global.css` (`stories/lib/tokens.js`).
-- Тимчасово: потім приберемо. Для цього видалити `.storybook/`, `stories/`, скрипти `storybook` і `build-storybook`, повернути `"build": "astro build"` і видалити пакети `storybook` та `@storybook/*`.
+- Тимчасово: потім приберемо. Для цього видалити пункт меню (і повернути на телефоні проміжок `--space-4` між пунктами й `padding: var(--space-8) 0`), теки `.storybook/`, `stories/`, скрипти `storybook` і `build-storybook`, повернути `"build": "astro build"` і видалити пакети `storybook` та `@storybook/*`.
 - Новий компонент зі станами додаємо в Storybook і на службову сторінку станів.
 
 Службова сторінка станів (тільки в `npm run dev`, у збірку не потрапляє): http://localhost:4321/design-system/states/ (`src/pages/design-system/[page].astro`).
