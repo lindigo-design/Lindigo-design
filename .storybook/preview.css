@@ -1,0 +1,122 @@
+/* Фон полотна Storybook — фон сайту в поточній темі */
+body {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+/* Сторінки документації (autodocs) — блоки прикладів теж на фоні сайту */
+.docs-story {
+  background: var(--bg);
+}
+
+/* Службові обгортки історій */
+.sb-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-16);
+}
+
+.sb-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+}
+
+.sb-note {
+  margin: 0;
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: var(--text-body-s);
+  line-height: var(--text-body-s--line-height);
+}
+
+.sb-stack--tight {
+  gap: var(--space-12);
+}
+
+/* Сторінки токенів */
+.sb-tokens {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  font-family: var(--font-body);
+}
+
+.sb-tokens code {
+  font-family: var(--font-mono);
+  font-size: var(--text-label-m);
+}
+
+.sb-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--space-24);
+}
+
+.sb-swatch {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin: 0;
+}
+
+.sb-swatch__color {
+  display: block;
+  height: 88px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-12);
+}
+
+.sb-swatch__color--radius {
+  width: 120px;
+  background: var(--card-bg);
+  border-color: var(--fg);
+}
+
+.sb-swatch__color--aspect {
+  height: auto;
+  background: var(--card-bg);
+}
+
+.sb-swatch figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  font-size: var(--text-body-s);
+  line-height: var(--text-body-s--line-height);
+}
+
+.sb-swatch small {
+  color: var(--text-muted);
+}
+
+.sb-type {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  padding-bottom: var(--space-24);
+  border-bottom: 1px solid var(--rule);
+}
+
+.sb-type__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+  color: var(--text-muted);
+  font-size: var(--text-body-s);
+}
+
+.sb-space {
+  display: grid;
+  grid-template-columns: 140px auto 1fr;
+  align-items: center;
+  gap: var(--space-16);
+}
+
+.sb-space__bar {
+  display: block;
+  height: 24px;
+  background: var(--accent-text);
+  border-radius: var(--radius-full);
+}

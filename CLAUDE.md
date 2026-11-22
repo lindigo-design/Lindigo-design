@@ -87,7 +87,15 @@
 
 ### Перегляд компонентів
 
-Storybook у проєкті немає. Замість нього — службова сторінка станів (тільки в `npm run dev`, у збірку не потрапляє): http://localhost:4321/design-system/states/ (`src/pages/design-system/[page].astro`). Новий компонент зі станами додаємо на цю сторінку.
+**Storybook** (`@storybook/html-vite`, HTML-компоненти) — демонстрація токенів і компонентів дизайн-системи.
+
+- Запуск: `npm run storybook` → http://localhost:6006. Окремо зібрати: `npm run build-storybook`.
+- `npm run build` збирає його разом із сайтом у `dist/storybook`, тож він відкривається як окрема сторінка `/storybook/` (з `noindex`).
+- Налаштування — `.storybook/`, історії — `stories/`. Розмітка в історіях — звичайний HTML, стилі беруться з тих самих файлів `.astro` (`stories/lib/astro.js`), токени — прямо з `global.css` (`stories/lib/tokens.js`).
+- Тимчасово: потім приберемо. Для цього видалити `.storybook/`, `stories/`, скрипти `storybook` і `build-storybook`, повернути `"build": "astro build"` і видалити пакети `storybook` та `@storybook/*`.
+- Новий компонент зі станами додаємо в Storybook і на службову сторінку станів.
+
+Службова сторінка станів (тільки в `npm run dev`, у збірку не потрапляє): http://localhost:4321/design-system/states/ (`src/pages/design-system/[page].astro`).
 
 ## Правила
 
