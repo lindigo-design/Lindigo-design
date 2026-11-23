@@ -45,7 +45,7 @@ const { locale, content: t, bannerHref } = Astro.props;
   </header>
 
   <div class="pricing__body">
-    <ul class="pricing__plans" data-reveal-row>
+    <ul class="pricing__plans" data-reveal-row data-reveal-at="0.75">
       {
         t.plans.map((plan) => (
           <li class="plan">
@@ -158,7 +158,11 @@ const { locale, content: t, bannerHref } = Astro.props;
     gap: var(--space-40);
   }
 
+  /* Поява карток коротша за типову: 1 с, кожна наступна на 0,2 с пізніше,
+     запуск, коли верх ряду на 75 % екрана (рішення Яни 24.11.2026) */
   .pricing__plans {
+    --reveal-duration: 1s;
+    --reveal-stagger: 0.2s;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--space-24);
