@@ -2,11 +2,12 @@
 /**
  * Перший екран сторінки послуги (Figma «UI дизайн», «Послуга: UI/UX дизайн і прототипування — UI»,
  * темна 231:3261 і світла 243:867).
- * Фон (Figma, 24.11.2026): темна — Indigo 950 і градієнт 40 %; світла — світлий градієнт 50 % Multiply.
+ * Фон (Figma, 24.11.2026): темна — Background dark (--night, оновлено 24.11.2026) і градієнт 40 %; світла — світлий градієнт 50 % Multiply.
  * Ліворуч: хлібні крихти, заголовок (Display 72), опис, теги й дві кнопки; праворуч — картка проєкту
  * (спільний WorkCard, ширша, ніж на головній, зі своїм підписом). Текст і картка притиснуті донизу.
  */
 import { Image } from 'astro:assets';
+import Breath from '../Breath.astro';
 import Button from '../Button.astro';
 import WorkCard from '../WorkCard.astro';
 import { featuredWorks } from '../../data/featured';
@@ -40,6 +41,8 @@ const bgWidths = [768, 1280, 1920, 2752];
     <Image class="s-hero__bg-dark" src={bgDark} alt="" widths={bgWidths.filter((w) => w <= bgDark.width)} sizes="100vw" loading="eager" fetchpriority="high" data-theme-only="dark" />
     <Image class="s-hero__bg-light" src={bgLight} alt="" widths={bgWidths.filter((w) => w <= bgLight.width)} sizes="100vw" loading="lazy" data-theme-only="light" />
   </div>
+  <!-- плями, що пливуть праворуч (пробний варіант для сторінок послуг); після фону — лежать над ним -->
+  <Breath variant="service" />
 
   <div class="s-hero__content">
     <div class="s-hero__text">
@@ -83,7 +86,7 @@ const bgWidths = [768, 1280, 1920, 2752];
     padding-top: 136px;
     padding-bottom: var(--space-64);
     overflow: hidden;
-    background: var(--indigo-950);
+    background: var(--night);
   }
 
   :global(:root[data-theme='light']) .s-hero {
@@ -95,6 +98,26 @@ const bgWidths = [768, 1280, 1920, 2752];
   @media (min-width: 1600px) {
     .s-hero {
       padding-bottom: min(160px, calc(64px + (100vw - 1600px) * 0.3));
+    }
+    /* вміст більшає разом з екраном: заголовок як на головній (H1 86), ширші текст і картка */
+    /* .s-hero попереду: базові правила стоять нижче у файлі */
+    .s-hero .s-hero__text {
+      max-width: 920px;
+    }
+    .s-hero .s-hero__title {
+      font-size: var(--text-h1);
+      line-height: var(--text-h1--line-height);
+    }
+    .s-hero .s-hero__content > :global(.work-card) {
+      width: min(680px, 36.38vw);
+    }
+  }
+
+  /* Високе вікно (великий монітор): висота першого екрана не більша, ніж на ноутбуці (960),
+     вміст притиснутий донизу, як на ноутбуці — інакше над текстом забагато порожнечі (рішення Яни 23.11.2026) */
+  @media (min-width: 1101px) {
+    .s-hero {
+      min-height: min(100svh, 960px);
     }
   }
 
@@ -246,8 +269,9 @@ const bgWidths = [768, 1280, 1920, 2752];
     .s-hero__title {
       font-size: clamp(1.875rem, 7.2vw, 4.5rem);
     }
+    /* планшет: картка на всю ширину між полями (рішення Яни 23.11.2026) */
     .s-hero__content > :global(.work-card) {
-      width: min(550px, 100%);
+      width: 100%;
       margin-left: 0;
     }
   }

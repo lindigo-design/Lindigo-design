@@ -80,7 +80,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
               src={media[i].src}
               alt=""
               widths={[480, 800, 1200, 1600, 2048, 2560].filter((w) => w <= media[i].src.width)}
-              sizes="(max-width: 760px) 100vw, (max-width: 1100px) 50vw, 46vw"
+              sizes="(max-width: 1100px) 100vw, 46vw"
               style={`object-position: ${media[i].position}` + (media[i].zoom ? `; scale: ${media[i].zoom}; transform-origin: ${media[i].origin}` : '')}
             />
           </div>
@@ -293,8 +293,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     }
   }
 
-  /* Картка в стовпчик: текст, під ним зображення на всю ширину (на планшеті 834 ще поруч) */
-  @media (max-width: 760px) {
+  /* Картка в стовпчик: текст, під ним зображення на всю ширину (і на планшеті, як на телефоні; рішення Яни 23.11.2026) */
+  @media (max-width: 1100px) {
     .direction {
       flex-direction: column;
       align-items: stretch;
@@ -343,10 +343,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
     }
   }
 
-  /* Стопка на телефоні й вузькому планшеті: висота картки під екран, тож фото забирає лишок висоти
+  /* Стопка на телефоні й планшеті: висота картки під екран, тож фото забирає лишок висоти
      замість пропорції 16:10. Розмиття вимкнене, щоб не гальмувало, тому підкладка повністю непрозора:
      інакше крізь нову картку просвічує попередня */
-  @media (max-width: 760px) {
+  @media (max-width: 1100px) {
     .directions.is-stacked .direction__text {
       flex: none;
     }
@@ -391,7 +391,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     const n = cards.length;
 
     const phone = window.matchMedia('(max-width: 599px)');
-    const column = window.matchMedia('(max-width: 760px)'); // картка в стовпчик
+    const column = window.matchMedia('(max-width: 1100px)'); // картка в стовпчик (і на планшеті)
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     // Висота екрана без адресного рядка (100svh): на телефоні рядок ховається під час гортання,
     // і window.innerHeight змінюється — від svh стопка не перебудовується і не смикається

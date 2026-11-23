@@ -177,7 +177,14 @@ const bgWidths = [768, 1280, 1920, 2752];
     .hero__content {
       padding-bottom: min(160px, calc(64px + (100vw - 1600px) * 0.3));
     }
+    /* картка росте разом з екраном (заголовок уже 86 — найбільший розмір) */
+    .hero .hero__content > :global(.work-card) {
+      width: min(460px, 25.93vw);
+    }
   }
+
+  /* Високе вікно: на головній вміст лишається притиснутим донизу (відступ 160 на 1920+),
+     без поділу вільного місця 4 : 1, як на сторінці послуги, — інакше зависоко (рішення Яни 23.11.2026) */
 
   .hero__text {
     flex: 1 1 0;
@@ -232,8 +239,9 @@ const bgWidths = [768, 1280, 1920, 2752];
       gap: var(--space-48);
       padding: 0 var(--space-40) var(--space-48);
     }
+    /* планшет: картка на всю ширину між полями (рішення Яни 23.11.2026) */
     .hero__content > :global(.work-card) {
-      width: min(392px, 100%);
+      width: 100%;
     }
     .hero__title {
       white-space: normal;

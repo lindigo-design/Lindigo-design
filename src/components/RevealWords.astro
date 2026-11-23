@@ -1,0 +1,15 @@
+---
+/**
+ * Текст, що проявляється під час гортання (як на aldena.framer.media): кожне слово — окремий span,
+ * колір міняє src/scripts/reveal-text.ts. Батьківський елемент має мати атрибут data-reveal-text.
+ * Ділимо тільки за звичайними пробілами: нерозривні (французька типографіка, keepLastWords)
+ * лишаються всередині слова, тож переноси рядків не змінюються.
+ */
+interface Props {
+  text: string;
+}
+
+const words = Astro.props.text.split(' ');
+---
+
+{words.map((word, i) => <><span class="reveal-word">{word}</span>{i < words.length - 1 && ' '}</>)}
