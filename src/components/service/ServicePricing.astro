@@ -4,7 +4,8 @@
  * Три картки цін: назва (H4) і для кого, ціна «від … € HT» (H3), лінія, що входить у стартову ціну,
  * кнопка внизу на всю ширину. Під картками — пояснення й дрібний текст про податки; далі банер
  * «Сайти під ключ» з головною кнопкою.
- * Фон: темна — --section-bg без картинки; світла — directions-light 50 % на весь блок.
+ * Картки суцільні, кожна свого кольору: --plan-1-bg … --plan-3-bg (Figma, 24.11.2026).
+ * Фон: темна — --section-bg без картинки; світла — --bg і directions-light 20 % на весь блок.
  */
 import { Image } from 'astro:assets';
 import Button from '../Button.astro';
@@ -44,7 +45,7 @@ const { locale, content: t, bannerHref } = Astro.props;
   </header>
 
   <div class="pricing__body">
-    <ul class="pricing__plans">
+    <ul class="pricing__plans" data-reveal-row>
       {
         t.plans.map((plan) => (
           <li class="plan">
@@ -101,7 +102,7 @@ const { locale, content: t, bannerHref } = Astro.props;
     overflow: hidden;
   }
 
-  /* Світла тема: фон на beige-50 (--bg), картинка 50 % на весь блок */
+  /* Світла тема: фон на beige-50 (--bg), картинка 20 % на весь блок */
   :global(:root[data-theme='light']) .pricing {
     background: var(--bg);
   }
@@ -117,7 +118,7 @@ const { locale, content: t, bannerHref } = Astro.props;
     width: 100%;
     height: 100%;
     object-fit: cover;
-    opacity: 0.5;
+    opacity: 0.2;
   }
 
   .pricing__head {
@@ -150,10 +151,11 @@ const { locale, content: t, bannerHref } = Astro.props;
     line-height: var(--text-body-l--line-height);
   }
 
+  /* між картками й поясненням під ними 40 (рішення Яни 24.11.2026; у макеті 24) */
   .pricing__body {
     display: flex;
     flex-direction: column;
-    gap: var(--space-24);
+    gap: var(--space-40);
   }
 
   .pricing__plans {
@@ -165,7 +167,7 @@ const { locale, content: t, bannerHref } = Astro.props;
     list-style: none;
   }
 
-  /* Картка ціни: скло, радіус 32, поля 32; кнопка притиснута донизу */
+  /* Картка ціни: суцільна, радіус 32, поля 32; кнопка притиснута донизу */
   .plan {
     display: flex;
     flex-direction: column;
@@ -173,9 +175,17 @@ const { locale, content: t, bannerHref } = Astro.props;
     padding: var(--space-32);
     border: 1px solid var(--card-border);
     border-radius: var(--radius-32);
-    background: var(--card-bg);
+    background: var(--plan-1-bg);
     -webkit-backdrop-filter: blur(24px);
     backdrop-filter: blur(24px);
+  }
+
+  .plan:nth-child(2) {
+    background: var(--plan-2-bg);
+  }
+
+  .plan:nth-child(3) {
+    background: var(--plan-3-bg);
   }
 
   .plan__content {
@@ -263,7 +273,7 @@ const { locale, content: t, bannerHref } = Astro.props;
     line-height: var(--text-body-s--line-height);
   }
 
-  /* Банер: скло, текст і головна кнопка поруч */
+  /* Банер: текст і головна кнопка поруч; темна — скло, світла — Orchid dark (Figma, 24.11.2026) */
   .banner {
     display: flex;
     flex-wrap: wrap;
@@ -272,7 +282,7 @@ const { locale, content: t, bannerHref } = Astro.props;
     padding: var(--space-32);
     border: 1px solid var(--card-border);
     border-radius: var(--radius-32);
-    background: var(--card-bg);
+    background: var(--banner-bg);
     -webkit-backdrop-filter: blur(24px);
     backdrop-filter: blur(24px);
   }
@@ -334,3 +344,8 @@ const { locale, content: t, bannerHref } = Astro.props;
     }
   }
 </style>
+
+<script>
+  // Картки цін з'являються по черзі зліва направо (спільний ефект, стилі в global.css)
+  import '../../scripts/reveal-row';
+</script>

@@ -5,6 +5,11 @@
  * за правий край екрана й гортається вбік (тачпад, палець, клавіатура).
  * Фон: колір теми і м'яка золота пляма 12 % (радіальний градієнт з Figma).
  * Фото 6 і 7 у макеті — заглушки (картинка першого екрана з підписом «ФОТО 6/7»), їх не беремо.
+ * Рух (рішення Яни 24.11.2026): перше фото велике (360 × 540), решта менші (300 × 440). Кожні 3,5 с
+ * перше зменшується, друге збільшується й стає на його місце, а попереднє переходить у кінець —
+ * стрічка йде по колу. Пауза — поки на стрічці курсор чи фокус, поки блок поза екраном або вкладка
+ * прихована. Свайп на телефоні й стрілки на клавіатурі гортають вперед і назад.
+ * Фото злегка збільшується при наведенні. З «зменшити рух» — звичайна стрічка, яку гортають самі.
  */
 import { Image } from 'astro:assets';
 import photo1 from '../assets/photos/photo-1.jpg';
@@ -23,13 +28,13 @@ interface Props {
 const { locale } = Astro.props;
 const t = ui[locale].photos;
 
-/** Порядок і кадрування як у Figma: ширина, висота, object-position */
+/** Порядок і кадрування як у Figma (object-position). Розмір залежить від місця: перше фото велике */
 const photos = [
-  { src: photo1, w: 360, h: 540, pos: '50% 50%' },
-  { src: photo3, w: 300, h: 440, pos: '39% 50%' },
-  { src: photo2, w: 300, h: 440, pos: '0% 50%' },
-  { src: photo4, w: 300, h: 440, pos: '50% 50%' },
-  { src: photo5, w: 300, h: 440, pos: '50% 50%' },
+  { src: photo1, pos: '50% 50%' },
+  { src: photo3, pos: '39% 50%' },
+  { src: photo2, pos: '0% 50%' },
+  { src: photo4, pos: '50% 50%' },
+  { src: photo5, pos: '50% 50%' },
 ];
 ---
 
@@ -49,11 +54,11 @@ const photos = [
   </header>
 
   <!-- Стрічка гортається; tabindex — щоб її можна було гортати стрілками з клавіатури -->
-  <ul class="photos__strip" aria-label={t.strip} tabindex="0">
+  <ul class="photos__strip" aria-label={t.strip} tabindex="0" data-photo-strip>
     {
       photos.map((p) => (
-        <li class="photos__item" style={`--w: ${p.w}px; --h: ${p.h}px`}>
-          <Image src={p.src} alt="" widths={[360, 720]} sizes={`${p.w}px`} loading="lazy" style={`object-position: ${p.pos}`} />
+        <li class="photos__item">
+          <Image src={p.src} alt="" widths={[360, 720]} sizes="360px" loading="lazy" style={`object-position: ${p.pos}`} />
         </li>
       ))
     }
@@ -159,6 +164,14 @@ const photos = [
     display: none;
   }
 
+  /* Розміри фото: звичайне 300 × 440, перше (головне) 360 × 540 */
+  .photos__strip {
+    --w: 300px;
+    --h: 440px;
+    --w-big: 360px;
+    --h-big: 540px;
+  }
+
   .photos__item {
     flex: 0 0 var(--w);
     height: var(--h);
@@ -167,10 +180,57 @@ const photos = [
     scroll-snap-align: start;
   }
 
+  .photos__item:first-child {
+    flex-basis: var(--w-big);
+    height: var(--h-big);
+  }
+
+  /* ---------- Карусель (класи ставить скрипт) ----------
+     is-carousel — стрічка не гортається, рухаються самі фото (зсув --shift).
+     has-active — під час кроку велике те фото, що має is-active, а не перше.
+     is-moving — плавний перехід розміру й зсуву. */
+  .photos__strip.is-carousel {
+    overflow: hidden;
+    scroll-snap-type: none;
+  }
+  .photos__strip.is-carousel .photos__item {
+    translate: var(--shift, 0px) 0;
+  }
+  .photos__strip.has-active .photos__item:first-child:not(.is-active) {
+    flex-basis: var(--w);
+    height: var(--h);
+  }
+  .photos__strip.has-active .photos__item.is-active {
+    flex-basis: var(--w-big);
+    height: var(--h-big);
+  }
+  .photos__item.is-entering {
+    animation: photo-enter 0.6s var(--ease-out-in);
+  }
+  @keyframes photo-enter {
+    from {
+      opacity: 0;
+    }
+  }
+  .photos__strip.is-moving .photos__item {
+    transition:
+      translate 0.9s var(--ease-out-in),
+      flex-basis 0.9s var(--ease-out-in),
+      height 0.9s var(--ease-out-in);
+  }
+
   .photos__item :global(img) {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    transition: scale 0.8s var(--ease-out-in);
+  }
+
+  /* Легкий зум при наведенні на фото */
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    .photos__item:hover :global(img) {
+      scale: 1.05;
+    }
   }
 
   /* Телефон: фото менші, пропорції ті самі */
@@ -189,10 +249,112 @@ const photos = [
       height: 360px;
       scroll-snap-type: x mandatory;
     }
+    /* ті самі пропорції, 0,66 від комп'ютера */
+    .photos__strip {
+      --w: 198px;
+      --h: 290px;
+      --w-big: 238px;
+      --h-big: 356px;
+    }
     .photos__item {
-      flex-basis: calc(var(--w) * 0.66);
-      height: calc(var(--h) * 0.66);
       border-radius: var(--radius-16);
     }
   }
 </style>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const DELAY = 3500; // скільки стоїть кожне фото, мс
+  const DURATION = 900; // тривалість кроку, мс (як transition у стилях)
+
+  document.querySelectorAll<HTMLElement>('[data-photo-strip]').forEach((strip) => {
+    if (reduceMotion || strip.children.length < 2) return;
+    strip.classList.add('is-carousel');
+    let timer = 0;
+    let busy = false;
+    let onScreen = false;
+    let hovered = false;
+    let focused = false;
+
+    const items = () => Array.from(strip.children) as HTMLElement[];
+    // крок = ширина звичайного фото + проміжок
+    const stepSize = () => items()[1].offsetWidth + (parseFloat(getComputedStyle(strip).columnGap) || 0);
+    const canRun = () => onScreen && !hovered && !focused && !document.hidden;
+
+    // кінець кроку: без переходу переставляємо фото, вигляд не змінюється
+    const finish = (reorder: () => void) =>
+      window.setTimeout(() => {
+        strip.classList.remove('is-moving');
+        reorder();
+        items().forEach((it) => it.classList.remove('is-active'));
+        strip.classList.remove('has-active');
+        strip.style.removeProperty('--shift');
+        busy = false;
+        schedule();
+      }, DURATION);
+
+    // уперед: друге фото росте й їде на місце першого, перше меншає й іде в кінець
+    const next = () => {
+      if (busy) return;
+      busy = true;
+      const [first, second] = items();
+      const d = stepSize();
+      strip.classList.add('has-active', 'is-moving');
+      second.classList.add('is-active');
+      strip.style.setProperty('--shift', `${-d}px`);
+      finish(() => {
+        strip.append(first);
+        // фото, що пішло в кінець, біля правого краю проявляється, а не вискакує
+        first.classList.remove('is-entering');
+        void first.offsetWidth;
+        first.classList.add('is-entering');
+      });
+    };
+
+    // назад: останнє фото виїжджає зліва й росте, перше меншає
+    const prev = () => {
+      if (busy) return;
+      busy = true;
+      const list = items();
+      const first = list[0];
+      const last = list[list.length - 1];
+      const d = stepSize();
+      // підготовка без переходу: перше лишається великим, останнє стоїть малим за лівим краєм
+      strip.classList.add('has-active');
+      first.classList.add('is-active');
+      strip.prepend(last);
+      strip.style.setProperty('--shift', `${-d}px`);
+      void strip.offsetWidth;
+      strip.classList.add('is-moving');
+      first.classList.remove('is-active');
+      last.classList.add('is-active');
+      strip.style.setProperty('--shift', '0px');
+      finish(() => {});
+    };
+
+    const schedule = () => {
+      clearTimeout(timer);
+      if (canRun()) timer = window.setTimeout(next, DELAY);
+    };
+
+    // свайп на телефоні
+    let startX = 0;
+    strip.addEventListener('touchstart', (e) => (startX = e.touches[0].clientX), { passive: true });
+    strip.addEventListener('touchend', (e) => {
+      const dx = e.changedTouches[0].clientX - startX;
+      if (Math.abs(dx) > 40) (dx < 0 ? next : prev)();
+    });
+    // клавіатура: стрілки, коли стрічка у фокусі
+    strip.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') { e.preventDefault(); next(); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); prev(); }
+    });
+
+    strip.addEventListener('pointerenter', (e) => { if (e.pointerType === 'mouse') { hovered = true; schedule(); } });
+    strip.addEventListener('pointerleave', () => { hovered = false; schedule(); });
+    strip.addEventListener('focusin', () => { focused = true; schedule(); });
+    strip.addEventListener('focusout', () => { focused = false; schedule(); });
+    document.addEventListener('visibilitychange', schedule);
+    new IntersectionObserver(([e]) => { onScreen = e.isIntersecting; schedule(); }, { threshold: 0.3 }).observe(strip);
+  });
+</script>

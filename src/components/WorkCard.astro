@@ -13,10 +13,13 @@ interface Props {
   works: FeaturedWork[];
   /** Скільки секунд показується один слайд */
   interval?: number;
+  /** Підпис над назвою; без нього — «Остання робота» (напр. «Проєкт з UI/UX» на сторінці послуги) */
+  label?: string;
 }
 
-const { locale, works, interval = 6 } = Astro.props;
+const { locale, works, interval = 6, label } = Astro.props;
 const t = ui[locale].hero;
+const eyebrow = label ?? t.latest;
 const pad = (n: number) => String(n).padStart(2, '0');
 const total = works.length;
 ---
@@ -24,7 +27,7 @@ const total = works.length;
 <section
   class="work-card"
   aria-roledescription="carousel"
-  aria-label={t.latest}
+  aria-label={eyebrow}
   data-work-card
   data-interval={interval}
   style={`--interval: ${interval}s`}
@@ -39,7 +42,7 @@ const total = works.length;
         hidden={i !== 0}
       >
         <a class="work-card__link" href={localePath(locale, `/realisations/${work.slug}/`)}>
-          <p class="work-card__eyebrow">{t.latest}</p>
+          <p class="work-card__eyebrow">{eyebrow}</p>
           <h2 class="work-card__title">{work.title}</h2>
           <div class="work-card__cover">
             <Image
@@ -78,7 +81,8 @@ const total = works.length;
     gap: var(--space-12);
     width: 392px;
     max-width: 100%;
-    padding: var(--space-16);
+    /* поля 32 (Figma, 24.11.2026); на телефоні 16 — правило внизу */
+    padding: var(--space-32);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-card);
     background: var(--glass-bg);
@@ -120,7 +124,7 @@ const total = works.length;
     aspect-ratio: var(--aspect-work-card);
     overflow: hidden;
     border: 1px solid var(--beige-50);
-    border-radius: var(--radius-media);
+    border-radius: var(--radius-16);
   }
 
   .work-card__cover :global(.work-card__img) {
@@ -201,6 +205,13 @@ const total = works.length;
 
   .work-card.is-paused .work-card__progress {
     animation-play-state: paused;
+  }
+
+  /* Телефон (Figma, 390): поля 16 */
+  @media (max-width: 640px) {
+    .work-card {
+      padding: var(--space-16);
+    }
   }
 
   @keyframes work-progress {

@@ -49,6 +49,7 @@ export const ui = {
         tags: ['Recherche UX', 'Design UI', 'Prototypage', 'Applications web', 'Applications mobiles'],
         primary: 'Discuter de votre projet',
         secondary: 'Voir nos réalisations',
+        cardLabel: 'Projet en UI/UX',
       },
       audience: {
         eyebrow: `Pour qui${NBSP}?`,
@@ -120,18 +121,18 @@ export const ui = {
             action: 'Discuter d’un prototype',
           },
           {
-            title: 'Design d’une application web',
-            for: 'Pour les plateformes en ligne, les espaces personnels et les outils internes des entreprises.',
-            price: `9${NBSP}500${NBSP}€`,
-            items: ['Entretiens avec les utilisateurs ou analyse des données existantes', 'Structure des écrans et principaux parcours utilisateurs', `Jusqu’à 25${NBSP}écrans pour ordinateur et versions mobiles des écrans clés`, `Bibliothèque de composants${NBSP}: boutons, formulaires, tableaux et leurs états`, 'Prototype interactif et fichiers de design pour les développeurs', `3${NBSP}séries de modifications à chaque étape`],
-            action: 'Discuter d’une application web',
-          },
-          {
             title: 'Design d’une application mobile',
             for: 'Pour les produits destinés à être utilisés sur smartphone.',
             price: `8${NBSP}500${NBSP}€`,
             items: ['Principaux parcours utilisateurs et navigation de l’application', `Jusqu’à 20${NBSP}écrans pour une seule plateforme — iOS ou Android`, `Bibliothèque de composants${NBSP}: boutons, formulaires, cartes et leurs états`, 'Prototype interactif consultable sur smartphone', 'Fichiers de design pour les développeurs', `3${NBSP}séries de modifications à chaque étape`],
             action: 'Discuter d’une application mobile',
+          },
+          {
+            title: 'Design d’une application web',
+            for: 'Pour les plateformes en ligne, les espaces personnels et les outils internes des entreprises.',
+            price: `9${NBSP}500${NBSP}€`,
+            items: ['Entretiens avec les utilisateurs ou analyse des données existantes', 'Structure des écrans et principaux parcours utilisateurs', `Jusqu’à 25${NBSP}écrans pour ordinateur et versions mobiles des écrans clés`, `Bibliothèque de composants${NBSP}: boutons, formulaires, tableaux et leurs états`, 'Prototype interactif et fichiers de design pour les développeurs', `3${NBSP}séries de modifications à chaque étape`],
+            action: 'Discuter d’une application web',
           },
         ],
         notes: [
@@ -358,6 +359,7 @@ export const ui = {
         tags: ['UX Research', 'UI Design', 'Prototyping', 'Web Applications', 'Mobile Apps'],
         primary: 'Discuss Your Project',
         secondary: 'View Our Work',
+        cardLabel: 'UI/UX case',
       },
       audience: {
         eyebrow: 'Who it’s for',
@@ -429,18 +431,18 @@ export const ui = {
             action: 'Discuss a Prototype',
           },
           {
-            title: 'Web Application Design',
-            for: 'For online platforms, user dashboards and internal company systems.',
-            price: '€9,500',
-            items: ['User interviews or analysis of existing data', 'Screen structure and key user flows', 'Up to 25 desktop screens and mobile versions of key screens', 'Component library: buttons, forms, tables and their states', 'Interactive prototype and design files for developers', '3 rounds of revisions at each stage'],
-            action: 'Discuss a Web Application',
-          },
-          {
             title: 'Mobile App Design',
             for: 'For products designed to be used on smartphones.',
             price: '€8,500',
             items: ['Core user flows and app navigation', 'Up to 20 screens for one platform — iOS or Android', 'Component library: buttons, forms, cards and their states', 'Interactive prototype for viewing on a smartphone', 'Design files for developer handoff', '3 rounds of revisions at each stage'],
             action: 'Discuss a Mobile App',
+          },
+          {
+            title: 'Web Application Design',
+            for: 'For online platforms, user dashboards and internal company systems.',
+            price: '€9,500',
+            items: ['User interviews or analysis of existing data', 'Screen structure and key user flows', 'Up to 25 desktop screens and mobile versions of key screens', 'Component library: buttons, forms, tables and their states', 'Interactive prototype and design files for developers', '3 rounds of revisions at each stage'],
+            action: 'Discuss a Web Application',
           },
         ],
         notes: [
@@ -664,6 +666,7 @@ export const ui = {
         tags: ['UX-дослідження', 'UI-дизайн', 'Прототипування', 'Вебсервіси', 'Застосунки'],
         primary: 'Обговорити проєкт',
         secondary: 'Переглянути роботи',
+        cardLabel: 'Проєкт з UI/UX',
       },
       audience: {
         eyebrow: 'Для кого',
@@ -734,18 +737,18 @@ export const ui = {
             action: 'Обговорити прототип',
           },
           {
-            title: 'Дизайн вебсервісу',
-            for: 'Для онлайн-платформ, особистих кабінетів і внутрішніх систем компаній.',
-            price: `9${NBSP}500${NBSP}€`,
-            items: ['Інтерв’ю з користувачами або аналіз наявних даних', 'Структура екранів і основні сценарії користування', `До 25${NBSP}екранів для комп’ютера та мобільна версія ключових екранів`, 'Бібліотека компонентів: кнопки, форми, таблиці та їхні стани', 'Інтерактивний прототип і дизайн-файли для розробників', `3${NBSP}раунди правок на кожному етапі`],
-            action: 'Обговорити вебсервіс',
-          },
-          {
             title: 'Дизайн мобільного застосунку',
             for: 'Для продуктів, якими користуватимуться зі смартфона.',
             price: `8${NBSP}500${NBSP}€`,
             items: ['Основні сценарії та навігація застосунку', `До 20${NBSP}екранів для однієї платформи — iOS або Android`, 'Бібліотека компонентів: кнопки, форми, картки та їхні стани', 'Інтерактивний прототип для перегляду на смартфоні', 'Дизайн-файли для передачі розробникам', `3${NBSP}раунди правок на кожному етапі`],
             action: 'Обговорити застосунок',
+          },
+          {
+            title: 'Дизайн вебсервісу',
+            for: 'Для онлайн-платформ, особистих кабінетів і внутрішніх систем компаній.',
+            price: `9${NBSP}500${NBSP}€`,
+            items: ['Інтерв’ю з користувачами або аналіз наявних даних', 'Структура екранів і основні сценарії користування', `До 25${NBSP}екранів для комп’ютера та мобільна версія ключових екранів`, 'Бібліотека компонентів: кнопки, форми, таблиці та їхні стани', 'Інтерактивний прототип і дизайн-файли для розробників', `3${NBSP}раунди правок на кожному етапі`],
+            action: 'Обговорити вебсервіс',
           },
         ],
         notes: [

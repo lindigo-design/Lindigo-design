@@ -41,6 +41,8 @@ Tailwind і `@theme` у проєкті не використовуються.
 | `--track` | доріжка смуги прогресу (картка «Остання робота») | rgba(248,238,221,.3) | rgba(21,11,46,.25) |
 | `--step-bg` / `--step-border` | картки «Як ми працюємо» | `--card-bg` / `--card-border` | rgba(21,11,46,.03) / rgba(21,11,46,.16) |
 | `--step-first-bg` / `--step-first-border` | перший крок | `--night` / rgba(248,238,221,.16) | `--beige-50` / rgba(21,11,46,.16) |
+| `--plan-1-bg` / `--plan-2-bg` / `--plan-3-bg` | три картки цін (сторінка послуги) | `--indigo-850` / `--indigo-900` / `--indigo-950` | `--blush-50` / `--card-accent-light` / `--orchid-dark` |
+| `--banner-bg` | банер під цінами («Сайти під ключ») | `--card-bg` | `--orchid-dark` |
 | `--switch-border` | обводка перемикача теми | `--beige-50` | `--orchid-deep` |
 | `--btn-primary-bg` / `--btn-primary-fg` | основна кнопка | `--gold` / `--indigo-950` | `--indigo-600` / `--beige-50` |
 | `--brand-gradient-from` / `--brand-gradient-to` | фірмовий градієнт: основа `--btn-primary-hover` і заливки логотипа при наведенні | `--orchid` / `--orange` | `--indigo-600` / `--orchid-deep` |
@@ -50,12 +52,14 @@ Tailwind і `@theme` у проєкті не використовуються.
 
 ### Палітра (не міняється з темою)
 
-`--indigo-950` #150b2e, `--indigo-900` #21134a, `--indigo-800` #36206e, `--indigo-600` #5230c9,
+`--indigo-950` #150b2e, `--indigo-900` #21134a, `--indigo-850` #2e1962, `--indigo-800` #36206e, `--indigo-600` #5230c9,
 `--cream-50` #fffeee, `--beige-50` #f8eedd, `--beige-100` #efe0c9, `--beige-300` #d9c4a5,
 `--gold` #ffc83d, `--orchid` #dda3f7, `--orchid-deep` #a534c4, `--orange` #f2632a,
 `--muted-dark` #b8a8cc, `--muted-light` #6b5673, `--muted-deep` #4e3f5b, `--red-300` #ff8f80, `--red-700` #b3261e (колір помилки, пропозиція), `--night` #0c081c, `--grey-supplement` #8a8394,
 `--dusk-600` #2a3265, `--dusk-800` #1a203f, `--night-800` #0e0b23, `--night-950` #070415 (градієнт «Як ми працюємо»),
-`--violet-500` #7c52c9, `--violet-600` #6246aa, `--violet-dusty` #7c56a4 (плями світіння Breath).
+`--violet-500` #7c52c9, `--violet-600` #6246aa, `--violet-dusty` #7c56a4 (плями світіння Breath),
+`--card-accent-light` #f7e8e9 (Figma «Card accent light»), `--orchid-dark` #e2d8de (Figma «Orchid dark»), `--blush-50` #fff6f7 (у Figma змінної ще немає) — світлі картки цін.
+Увага: `--orchid-deep` на `--orchid-dark` дає контраст 3,89 — для дрібного тексту замало.
 
 ### Шрифти
 
@@ -188,7 +192,7 @@ Figma (`Radius/*`):
 | Змінна | Значення | Де |
 | --- | --- | --- |
 | `--aspect-case-cover` | 584 / 480 | обкладинка кейса, «Вибрані роботи» (до 1100 px) |
-| `--aspect-work-card` | 360 / 220 | обкладинка картки «Остання робота» |
+| `--aspect-work-card` | 16 / 9 | обкладинка картки «Остання робота» (у Figma 326 / 220; прямокутна картка — рішення Яни) |
 | `--aspect-about-photo` | 439 / 494 | фото «Про студію» |
 | `--aspect-principles-photo` | 435 / 260 | фото «Принципи» |
 | `--aspect-review-photo` | 664 / 540 | фото «Відгуки» (до 900 px) |

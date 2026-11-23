@@ -45,7 +45,7 @@
 
 ### Кольори
 
-- **Палітра** названа за іменами кольорів: `--indigo-950`, `--indigo-800`, `--indigo-600`, `--beige-50`, `--cream-50`, `--gold`, `--orchid`, `--orchid-deep`, `--orange`, `--muted-dark`, `--muted-light`, `--muted-deep`, `--night`, `--grey-supplement` та ін.
+- **Палітра** названа за іменами кольорів: `--indigo-950`, `--indigo-850`, `--indigo-800`, `--indigo-600`, `--beige-50`, `--cream-50`, `--gold`, `--orchid`, `--orchid-deep`, `--orange`, `--muted-dark`, `--muted-light`, `--muted-deep`, `--night`, `--grey-supplement`, `--card-accent-light`, `--orchid-dark`, `--blush-50` та ін.
 - **Ролі** міняються з темою: `--bg`, `--fg`, `--text-soft`, `--text-muted`, `--accent-text`, `--section-bg`, `--card-bg`, `--rule`, `--btn-primary-bg`, `--danger` та ін.
 - У компонентах беремо ролі; палітру напряму — тільки якщо колір однаковий в обох темах. Кожен колір перевіряти в обох темах; контраст тексту не нижче 4,5.
 

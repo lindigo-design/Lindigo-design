@@ -1,5 +1,5 @@
 import { useStyles } from './lib/astro.js';
-import cover from '../src/assets/hero/datatixx-cover.png';
+import cover from '../src/assets/hero/datatixx-card.jpg';
 import arrow from '../src/assets/hero/arrow-card.svg';
 
 /**

@@ -4,6 +4,8 @@
  * Згори: підпис «Наші принципи» і великий заголовок із двох речень (перше сіре, друге кольором теми).
  * Під ним три колонки 296 | 525 | 435 (між ними 48): ліва — місце під фото (поки порожнє), текст, фото.
  * Знизу чотири принципи з лінією згори. Фон — бежевий у світлій темі, у темній — світіння «Light».
+ * Принципи з'являються під час прокрутки по черзі 01 → 04: лінія прокреслюється зліва направо,
+ * за нею проявляється текст (тихіший варіант спільного ефекту, [data-reveal-soft]).
  */
 import { Image } from 'astro:assets';
 import laptop from '../assets/principles/laptop.jpg';
@@ -33,7 +35,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     </div>
   </div>
 
-  <ol class="principles__list">
+  <ol class="principles__list" data-reveal-soft>
     {
       t.items.map((item, i) => (
         <li class="principle">
@@ -141,11 +143,47 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
 
   .principle {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: var(--space-12);
     padding-top: var(--space-16);
-    border-top: 1px solid var(--rule);
+  }
+
+  /* Лінія згори — окремим елементом, а не рамкою: так її можна прокреслити під час появи */
+  .principle::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: var(--rule);
+    transform-origin: 0 50%;
+  }
+
+  /* Поява під час прокрутки (скрипт src/scripts/reveal-row.ts ставить --n і is-visible): по черзі 01 → 04
+     з кроком 0,15 с лінія прокреслюється за 0,8 с, а текст проявляється зі зсувом 24 px трохи пізніше.
+     Сховано з першого показу (клас js на <html>); без JS і з «зменшити рух» видно одразу. */
+  @media (prefers-reduced-motion: no-preference) {
+    :global(html.js) .principles__list .principle::before {
+      scale: 0 1;
+      transition: scale 0.8s var(--ease-out-in) calc(var(--n, 0) * 0.15s);
+    }
+    :global(html.js) .principles__list .principle > * {
+      opacity: 0;
+      translate: 0 var(--space-24);
+      transition:
+        opacity 0.8s var(--ease-out-in) calc(var(--n, 0) * 0.15s + 0.2s),
+        translate 0.8s var(--ease-out-in) calc(var(--n, 0) * 0.15s + 0.2s);
+    }
+    :global(html.js) .principles__list.is-visible .principle::before {
+      scale: 1 1;
+    }
+    :global(html.js) .principles__list.is-visible .principle > * {
+      opacity: 1;
+      translate: none;
+    }
   }
 
   .principle__num,
@@ -241,3 +279,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     }
   }
 </style>
+
+<script>
+  // Принципи з'являються по черзі, коли ряд піднявся до 60 % висоти екрана
+  import '../scripts/reveal-row';
+</script>

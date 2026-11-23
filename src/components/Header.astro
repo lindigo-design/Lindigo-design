@@ -78,10 +78,12 @@ const t = ui[locale].header;
 
   /* Скло — окремим шаром. Якщо розмиття стоїть на самій смузі, вкладене скло (панель мов)
      розмиває лише вміст смуги, а не сторінку під нею. */
+  /* inset 0: скло лежить усередині обводки. З -1px воно (z-index -1 малюється поверх рамки самої смуги)
+     накривало обводку, і її не було видно. */
   .header__bar::before {
     content: '';
     position: absolute;
-    inset: -1px;
+    inset: 0;
     z-index: -1;
     border-radius: inherit;
     background: var(--glass-bg);
