@@ -6,6 +6,7 @@
 :root {
   --indigo-950: #150b2e;
   --indigo-900: #21134a;
+  --indigo-850: #2e1962; /* Figma: Indigo/850 — картка ціни «Прототип» (темна тема), 24.11.2026 */
   --indigo-800: #36206e;
   --cream-50: #fffeee; /* фон більшості блоків у світлій темі */
   --indigo-600: #5230c9;
@@ -35,6 +36,10 @@
   --violet-500: #7c52c9;
   --violet-600: #6246aa;
   --violet-dusty: #7c56a4;
+  /* Світлі фони карток цін (світла тема, сторінка послуги), 24.11.2026 */
+  --card-accent-light: #f7e8e9; /* Figma: Card accent light */
+  --orchid-dark: #e2d8de; /* Figma: Orchid dark */
+  --blush-50: #fff6f7; /* картка ціни «Прототип» (світла тема); у Figma змінної ще немає — рішення Яни 24.11.2026 */
 
   /* Шрифти */
   --font-display: 'Unbounded Variable', system-ui, sans-serif;
@@ -205,7 +210,7 @@
 
   /* ---------- Пропорції картинок (ширина / висота з макета) ---------- */
   --aspect-case-cover: 584 / 480; /* обкладинка кейса, «Вибрані роботи» (до 1100 px) */
-  --aspect-work-card: 360 / 220; /* обкладинка картки «Остання робота», перший екран */
+  --aspect-work-card: 16 / 9; /* обкладинка картки «Остання робота», перший екран: прямокутна картка — рішення Яни 24.11.2026 (у Figma 326 / 220) */
   --aspect-about-photo: 439 / 494; /* фото «Про студію» */
   --aspect-principles-photo: 435 / 260; /* фото «Принципи» */
   --aspect-review-photo: 664 / 540; /* фото «Відгуки» (до 900 px) */
@@ -248,6 +253,12 @@
   --step-border: var(--card-border);
   --step-first-bg: var(--night); /* background dark (макет) */
   --step-first-border: rgba(248, 238, 221, 0.16);
+  /* Три картки цін на сторінці послуги — від світлішої до темнішої (Figma «05 Скільки коштує») */
+  --plan-1-bg: var(--indigo-850);
+  --plan-2-bg: var(--indigo-900);
+  --plan-3-bg: var(--indigo-950);
+  /* банер під цінами («Сайти під ключ») */
+  --banner-bg: var(--card-bg);
   --glass-bg: var(--overlay-dark);
   --glass-border: rgba(248, 238, 221, 0.2);
   --track: rgba(248, 238, 221, 0.3);
@@ -290,6 +301,10 @@
   --step-border: rgba(21, 11, 46, 0.16);
   --step-first-bg: var(--beige-50);
   --step-first-border: rgba(21, 11, 46, 0.16);
+  --plan-1-bg: var(--blush-50);
+  --plan-2-bg: var(--card-accent-light);
+  --plan-3-bg: var(--orchid-dark);
+  --banner-bg: var(--orchid-dark);
   --glass-bg: rgba(248, 238, 221, 0.6);
   --glass-border: rgba(21, 11, 46, 0.16);
   --track: rgba(21, 11, 46, 0.25);
@@ -364,6 +379,29 @@ a {
 :focus-visible {
   outline: 2px solid var(--accent-text);
   outline-offset: 3px;
+}
+
+/* ---------- Поява ряду карток під час прокрутки ([data-reveal-row], скрипт src/scripts/reveal-row.ts) ----------
+   Картки по черзі зліва направо (кожна на 0,3 с пізніше) виїжджають знизу, трохи збільшуються й проявляються.
+   Сховані з першого показу (клас js на <html> ставить Base.astro до малювання), is-visible ставить скрипт.
+   Без JS і з «зменшити рух» картки видно одразу. Так з'являються картки цін, «Коли потрібен» (сторінка послуги) і панель «Заклику до дії» (усі сторінки). */
+@media (prefers-reduced-motion: no-preference) {
+  html.js [data-reveal-row] > * {
+    opacity: 0;
+    translate: 0 var(--space-96);
+    scale: 0.96;
+    transition:
+      opacity 1.4s var(--ease-out-in),
+      translate 1.4s var(--ease-out-in),
+      scale 1.4s var(--ease-out-in);
+    transition-delay: calc(var(--n, 0) * 0.3s);
+  }
+
+  html.js [data-reveal-row].is-visible > * {
+    opacity: 1;
+    translate: none;
+    scale: none;
+  }
 }
 
 .visually-hidden {

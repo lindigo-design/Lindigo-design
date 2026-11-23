@@ -16,6 +16,7 @@ import Button from './Button.astro';
 import SliderNav from './SliderNav.astro';
 import allDark from '../assets/works/all-dark.svg';
 import allLight from '../assets/works/all-light.svg';
+// фото ноутбука на камені (Figma, 24.11.2026); кадр ширший за макет і ноутбук по центру, щоб у вузькій рамці не обрізався збоку
 import datatixx from '../assets/works/datatixx.jpg';
 import { keepLastWords, localePath, ui, type Locale } from '../i18n/ui';
 
@@ -234,6 +235,24 @@ const items = directionOrder.flatMap((d) => t.items.find((item) => item.directio
     height: 100%;
     object-fit: cover;
     object-position: 50% 50%;
+    transition: scale 0.8s var(--ease-out-in);
+  }
+
+  /* Зум обкладинки при наведенні на картку кейса (рішення Яни 24.11.2026); той самий зум —
+     коли кнопка «Дивитися кейс» у фокусі з клавіатури */
+  @media (hover: hover) {
+    .case:hover .case__cover :global(img) {
+      scale: 1.05;
+    }
+  }
+  .case:has(a:focus-visible) .case__cover :global(img) {
+    scale: 1.05;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .case__cover :global(img) {
+      transition: none;
+    }
   }
 
   .case__about {

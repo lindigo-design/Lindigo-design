@@ -109,10 +109,12 @@ const dt = t.texts.datatixx;
 
       <div class="projects__group" data-group>
         <h3 class="projects__group-title">{t.ownGroup}</h3>
-        <ul class="projects__grid" data-grid>
+        <div class="projects__cols" data-cols>
+          {[0, 1].map((col) => (
+          <ul class:list={['projects__col', { 'projects__col--right': col === 1 }]} data-col>
           {
-            own.map((p, i) => (
-              <li class:list={['card', { 'is-shifted': i % 2 === 1 }]} data-category={p.category} data-card>
+            own.filter((_, i) => i % 2 === col).map((p) => (
+              <li class="card" data-category={p.category} data-card>
                 <div class="card__media">
                   <Image src={p.cover} alt="" widths={[640, 960, 1240]} sizes="(max-width: 760px) 100vw, 44vw" loading="lazy" />
                 </div>
@@ -139,7 +141,9 @@ const dt = t.texts.datatixx;
               </li>
             ))
           }
-        </ul>
+          </ul>
+          ))}
+        </div>
       </div>
     </div>
   </div>
@@ -158,7 +162,7 @@ const dt = t.texts.datatixx;
     gap: var(--space-56);
     padding: var(--space-120) var(--gutter);
     background: var(--section-bg);
-    overflow: hidden;
+    overflow: clip;
     scroll-margin-top: 0;
   }
 
@@ -266,10 +270,11 @@ const dt = t.texts.datatixx;
     background: var(--ring-press);
   }
 
+  /* між групами 80 (Figma, 24.11.2026) */
   .projects__groups {
     display: flex;
     flex-direction: column;
-    gap: var(--space-56);
+    gap: var(--space-80);
   }
 
   .projects__group {
@@ -385,29 +390,64 @@ const dt = t.texts.datatixx;
   }
 
   /* ---------- Картки власних проєктів: дві колонки, права нижче на 120 ---------- */
-  .projects__grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .projects__cols {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-24);
+  }
+
+  .projects__col {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
     gap: var(--space-24);
     margin: 0;
-    padding: 0 0 var(--space-120);
+    padding: 0;
     list-style: none;
+  }
+
+  .projects__col--right {
+    padding-top: var(--space-120);
+  }
+
+  .projects__col:empty {
+    display: none;
+  }
+
+  /* Поява під час прокрутки (як на cbwebsitedesign.co.uk): картка повільно виїжджає знизу,
+     трохи збільшується й проявляється, коли доходить до екрана. Права колонка — із затримкою 0,15 с
+     (--col ставить скрипт). Сховані з першого показу (клас js на <html> ставить Base.astro до малювання),
+     is-visible ставить скрипт; без JS і з «зменшити рух» картки видно одразу. */
+  @media (prefers-reduced-motion: no-preference) {
+  :global(html.js) .projects__cols .card {
+    opacity: 0;
+    translate: 0 var(--space-96);
+    scale: 0.96;
+    transition:
+      opacity 1s var(--ease-out-in),
+      translate 1s var(--ease-out-in),
+      scale 1s var(--ease-out-in);
+    transition-delay: calc(var(--col, 0) * 0.15s);
+  }
+
+  :global(html.js) .projects__cols .card.is-visible {
+    opacity: 1;
+    translate: none;
+    scale: none;
+  }
   }
 
   .card {
     position: relative;
     display: flex;
     flex-direction: column;
-    padding: var(--space-24);
+    padding: var(--space-32); /* Figma, 24.11.2026 (було 24) */
     border: 1px solid var(--card-border);
     border-radius: var(--radius-32);
     background: var(--card-bg);
     -webkit-backdrop-filter: blur(24px);
     backdrop-filter: blur(24px);
-  }
-
-  .card.is-shifted {
-    transform: translateY(var(--space-120));
   }
 
   /* 440 px (у макеті 360): Яна попросила вище, щоб менше обрізалось (23.11.2026) */
@@ -536,12 +576,9 @@ const dt = t.texts.datatixx;
   }
 
   @media (max-width: 760px) {
-    .projects__grid {
-      grid-template-columns: minmax(0, 1fr);
-      padding-bottom: 0;
-    }
-    .card.is-shifted {
-      transform: none;
+    /* одна колонка: скрипт переносить усі картки в ліву, щоб порядок був 1, 2, 3… */
+    .projects__col--right {
+      padding-top: 0;
     }
     .card__media {
       height: auto;
@@ -584,10 +621,12 @@ const dt = t.texts.datatixx;
     .card__media {
       border-radius: var(--radius-16);
     }
-    .projects__grid {
+    .projects__cols,
+    .projects__col {
       gap: var(--space-16);
     }
   }
+
 
   @media (prefers-reduced-motion: reduce) {
     .projects * {
@@ -601,25 +640,73 @@ const dt = t.texts.datatixx;
     const buttons = Array.from(section.querySelectorAll<HTMLButtonElement>('[data-filter]'));
     const groups = Array.from(section.querySelectorAll<HTMLElement>('[data-group]'));
 
+    // Колонки власних проєктів: картки в початковому порядку (ліва — 1, 3, 5; права — 2, 4, 6)
+    const cols = section.querySelector<HTMLElement>('[data-cols]');
+    const colEls = cols ? Array.from(cols.querySelectorAll<HTMLElement>('[data-col]')) : [];
+    const ownCards = colEls.length
+      ? [0, 1, 2].flatMap((row) => colEls.map((c) => c.children[row] as HTMLElement | undefined)).filter((c): c is HTMLElement => !!c)
+      : [];
+    const oneColumn = window.matchMedia('(max-width: 760px)');
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let filter = 'all';
+
+    // Розкладка: видимі картки по черзі в ліву й праву колонку (на вузькому екрані — усі в ліву)
+    const layout = () => {
+      if (!cols) return;
+      let n = 0;
+      ownCards.forEach((card) => {
+        const show = filter === 'all' || card.dataset.category === filter;
+        card.hidden = !show;
+        const col = !show || oneColumn.matches ? 0 : n % 2;
+        if (show) n += 1;
+        colEls[col].append(card);
+        // права колонка з'являється трохи пізніше за ліву
+        card.style.setProperty('--col', String(col));
+      });
+    };
+    oneColumn.addEventListener('change', layout);
+
+    // Поява під час прокрутки (без «зменшити рух»)
+    // Картка з'являється, щойно її верх піднявся вище за 90 % висоти екрана — і тоді, коли сторінку
+    // перескочили (End, якір): картки, що вже вище екрана, теж стають видимими
+    if (cols && !reduceMotion.matches) {
+      let pending = 0;
+      const reveal = () => {
+        pending = 0;
+        const line = window.innerHeight * 0.9;
+        let left = 0;
+        ownCards.forEach((c) => {
+          if (c.classList.contains('is-visible')) return;
+          if (c.getBoundingClientRect().top < line) c.classList.add('is-visible');
+          else left += 1;
+        });
+        if (!left) window.removeEventListener('scroll', onScroll);
+      };
+      const onScroll = () => {
+        if (!pending) pending = requestAnimationFrame(reveal);
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+      reveal();
+    }
+
     const apply = (key: string) => {
+      filter = key;
       buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === key)));
       groups.forEach((group) => {
         const cards = Array.from(group.querySelectorAll<HTMLElement>('[data-card]'));
-        let visible = 0;
-        cards.forEach((card) => {
-          const show = key === 'all' || card.dataset.category === key;
-          card.hidden = !show;
-          // зсув вниз — у кожної другої видимої картки (права колонка)
-          card.classList.toggle('is-shifted', show && card.tagName === 'LI' && visible % 2 === 1);
-          if (show) visible += 1;
-        });
+        if (!group.querySelector('[data-cols]')) {
+          cards.forEach((card) => (card.hidden = !(key === 'all' || card.dataset.category === key)));
+        }
+        const visible = cards.filter((c) => key === 'all' || c.dataset.category === key).length;
         group.hidden = visible === 0;
-        // одна картка в сітці — без нижнього запасу під зсув
-        const grid = group.querySelector<HTMLElement>('[data-grid]');
-        if (grid) grid.style.paddingBottom = visible > 1 ? '' : '0';
       });
+      layout();
+      // після фільтра картки показуємо одразу, без повторної появи
+      ownCards.forEach((c) => c.classList.add('is-visible'));
     };
 
     buttons.forEach((b) => b.addEventListener('click', () => apply(b.dataset.filter ?? 'all')));
+    document.fonts?.ready.then(layout);
+    layout();
   });
 </script>

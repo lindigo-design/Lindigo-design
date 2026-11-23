@@ -2,11 +2,11 @@
 /**
  * Блок «02 Коли потрібен…» сторінки послуги (Figma 231:3345 темна, 243:914 світла).
  * Мітка, заголовок H2, підзаголовок і три скляні картки: номер, назва (H4), текст.
- * Фон: темна — градієнт dark-horizontal 20 % на --section-bg; світла — works-light 40 % на --section-bg.
+ * Фон: темна — градієнт dark-horizontal 20 % на --section-bg; світла — service-light 40 % на --section-bg (Figma, 24.11.2026).
  */
 import { Image } from 'astro:assets';
 import bgDark from '../../assets/backgrounds/dark-horizontal.jpg';
-import bgLight from '../../assets/backgrounds/works-light.jpg';
+import bgLight from '../../assets/backgrounds/service-light.jpg';
 import { keepLastWords } from '../../i18n/ui';
 
 interface Props {
@@ -35,7 +35,7 @@ const widths = [960, 1600, 2048, 2752];
     <p class="audience__lead">{keepLastWords(t.lead)}</p>
   </header>
 
-  <ol class="audience__list">
+  <ol class="audience__list" data-reveal-row>
     {
       t.items.map((item, i) => (
         <li class="audience__card">
@@ -191,3 +191,8 @@ const widths = [960, 1600, 2048, 2752];
     }
   }
 </style>
+
+<script>
+  // Картки з'являються по черзі зліва направо, як картки цін (спільний ефект, стилі в global.css)
+  import '../../scripts/reveal-row';
+</script>

@@ -3,6 +3,7 @@
  * Блок «09 Заклик до дії» (Figma «Головна · Варіант 2», темна й світла тема).
  * Панель із радіусом 48: розмита картинка рідини під кольором теми (складено з Figma в одну картинку),
  * заголовок 72, підпис 24 і дві кнопки по центру.
+ * Панель проявляється під час прокрутки (спільний ефект [data-reveal-row], global.css і src/scripts/reveal-row.ts).
  */
 import { Image } from 'astro:assets';
 import Breath from './Breath.astro';
@@ -28,7 +29,7 @@ const menu = ui[locale].menu;
 const lines = content ? content.text : [t.text];
 ---
 
-<section class="cta" aria-labelledby="cta-title">
+<section class="cta" aria-labelledby="cta-title" data-reveal-row>
   <div class="cta__panel">
     <Breath variant="cta" lightImage={bgLight} darkImage={bgDark} />
     <div class="cta__text">
@@ -110,3 +111,8 @@ const lines = content ? content.text : [t.text];
     }
   }
 </style>
+
+<script>
+  // Панель «Заклику» проявляється, коли блок піднявся до 60 % висоти екрана
+  import '../scripts/reveal-row';
+</script>

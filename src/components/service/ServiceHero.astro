@@ -2,8 +2,9 @@
 /**
  * Перший екран сторінки послуги (Figma «UI дизайн», «Послуга: UI/UX дизайн і прототипування — UI»,
  * темна 231:3261 і світла 243:867).
- * Фон — нерухома картинка рідини (своя для кожної теми). Ліворуч: хлібні крихти, заголовок (Display 72),
- * опис, теги й дві кнопки; праворуч — картка «Остання робота» (спільний WorkCard, ширша, ніж на головній).
+ * Фон (Figma, 24.11.2026): темна — Indigo 950 і градієнт 40 %; світла — світлий градієнт 50 % Multiply.
+ * Ліворуч: хлібні крихти, заголовок (Display 72), опис, теги й дві кнопки; праворуч — картка проєкту
+ * (спільний WorkCard, ширша, ніж на головній, зі своїм підписом). Текст і картка притиснуті донизу.
  */
 import { Image } from 'astro:assets';
 import Button from '../Button.astro';
@@ -26,16 +27,18 @@ interface Props {
   bgLight: ImageMetadata;
   /** Куди веде «Переглянути роботи» (якір блоку робіт на цій сторінці) */
   worksHref: string;
+  /** Підпис на картці проєкту (напр. «Проєкт з UI/UX») */
+  cardLabel?: string;
 }
 
-const { locale, content: t, bgDark, bgLight, worksHref } = Astro.props;
+const { locale, content: t, bgDark, bgLight, worksHref, cardLabel } = Astro.props;
 const bgWidths = [768, 1280, 1920, 2752];
 ---
 
 <section class="s-hero" aria-labelledby="s-hero-title">
   <div class="s-hero__bg" aria-hidden="true">
-    <Image src={bgDark} alt="" widths={bgWidths} sizes="100vw" loading="eager" fetchpriority="high" data-theme-only="dark" />
-    <Image src={bgLight} alt="" widths={bgWidths.filter((w) => w <= bgLight.width)} sizes="100vw" loading="lazy" data-theme-only="light" />
+    <Image class="s-hero__bg-dark" src={bgDark} alt="" widths={bgWidths.filter((w) => w <= bgDark.width)} sizes="100vw" loading="eager" fetchpriority="high" data-theme-only="dark" />
+    <Image class="s-hero__bg-light" src={bgLight} alt="" widths={bgWidths.filter((w) => w <= bgLight.width)} sizes="100vw" loading="lazy" data-theme-only="light" />
   </div>
 
   <div class="s-hero__content">
@@ -63,7 +66,7 @@ const bgWidths = [768, 1280, 1920, 2752];
       </div>
     </div>
 
-    <WorkCard locale={locale} works={featuredWorks} />
+    <WorkCard locale={locale} works={featuredWorks} label={cardLabel} />
   </div>
 </section>
 
@@ -73,13 +76,26 @@ const bgWidths = [768, 1280, 1920, 2752];
     isolation: isolate;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-end;
     min-height: 100vh;
     min-height: 100svh;
     /* місце під шапку, як у першому екрані головної: 16 + 82 + 16 + 24 */
     padding-top: 136px;
-    padding-bottom: var(--space-40);
+    padding-bottom: var(--space-64);
     overflow: hidden;
+    background: var(--indigo-950);
+  }
+
+  :global(:root[data-theme='light']) .s-hero {
+    background: var(--bg);
+  }
+
+  /* Великі екрани (ширші за ноутбук 1512): відступ знизу як у першому екрані головної —
+     від 1600 px росте разом з екраном і на 1920+ сягає 160 px; ноутбук не змінюється. */
+  @media (min-width: 1600px) {
+    .s-hero {
+      padding-bottom: min(160px, calc(64px + (100vw - 1600px) * 0.3));
+    }
   }
 
   .s-hero__bg {
@@ -98,9 +114,18 @@ const bgWidths = [768, 1280, 1920, 2752];
     object-fit: cover;
   }
 
+  .s-hero__bg :global(.s-hero__bg-dark) {
+    opacity: 0.4;
+  }
+
+  .s-hero__bg :global(.s-hero__bg-light) {
+    opacity: 0.5;
+    mix-blend-mode: multiply;
+  }
+
   .s-hero__content {
     display: flex;
-    align-items: center;
+    align-items: flex-end;
     gap: var(--space-24);
     padding-inline: var(--gutter);
   }
@@ -199,17 +224,12 @@ const bgWidths = [768, 1280, 1920, 2752];
     gap: var(--space-12);
   }
 
-  /* Картка «Остання робота»: 547 px на макеті 1512, обкладинка 364 px заввишки */
+  /* Картка проєкту: 550 px на макеті 1512; обкладинка — пропорція --aspect-work-card, як на головній */
   .s-hero__content > :global(.work-card) {
     flex-shrink: 0;
-    width: min(547px, 36.18vw);
+    width: min(550px, 36.38vw);
     margin-left: auto;
   }
-  .s-hero__content :global(.work-card__cover) {
-    aspect-ratio: auto;
-    height: 364px;
-  }
-
   /* Вужчий екран: картка під текстом */
   @media (max-width: 1100px) {
     .s-hero {
@@ -227,12 +247,8 @@ const bgWidths = [768, 1280, 1920, 2752];
       font-size: clamp(1.875rem, 7.2vw, 4.5rem);
     }
     .s-hero__content > :global(.work-card) {
-      width: min(547px, 100%);
+      width: min(550px, 100%);
       margin-left: 0;
-    }
-    .s-hero__content :global(.work-card__cover) {
-      aspect-ratio: var(--aspect-work-card);
-      height: auto;
     }
   }
 
