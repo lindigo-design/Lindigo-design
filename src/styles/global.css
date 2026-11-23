@@ -384,17 +384,18 @@ a {
 /* ---------- Поява ряду карток під час прокрутки ([data-reveal-row], скрипт src/scripts/reveal-row.ts) ----------
    Картки по черзі зліва направо (кожна на 0,3 с пізніше) виїжджають знизу, трохи збільшуються й проявляються.
    Сховані з першого показу (клас js на <html> ставить Base.astro до малювання), is-visible ставить скрипт.
-   Без JS і з «зменшити рух» картки видно одразу. Так з'являються картки цін, «Коли потрібен» (сторінка послуги) і панель «Заклику до дії» (усі сторінки). */
+   Без JS і з «зменшити рух» картки видно одразу.
+   Швидкість ряду можна змінити в компоненті: --reveal-duration, --reveal-stagger; момент запуску — data-reveal-at. Так з'являються картки цін, «Коли потрібен» (сторінка послуги) і панель «Заклику до дії» (усі сторінки). */
 @media (prefers-reduced-motion: no-preference) {
   html.js [data-reveal-row] > * {
     opacity: 0;
     translate: 0 var(--space-96);
     scale: 0.96;
     transition:
-      opacity 1.4s var(--ease-out-in),
-      translate 1.4s var(--ease-out-in),
-      scale 1.4s var(--ease-out-in);
-    transition-delay: calc(var(--n, 0) * 0.3s);
+      opacity var(--reveal-duration, 1.4s) var(--ease-out-in),
+      translate var(--reveal-duration, 1.4s) var(--ease-out-in),
+      scale var(--reveal-duration, 1.4s) var(--ease-out-in);
+    transition-delay: calc(var(--n, 0) * var(--reveal-stagger, 0.3s));
   }
 
   html.js [data-reveal-row].is-visible > * {

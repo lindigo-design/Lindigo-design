@@ -35,7 +35,7 @@ const widths = [960, 1600, 2048, 2752];
     <p class="audience__lead">{keepLastWords(t.lead)}</p>
   </header>
 
-  <ol class="audience__list" data-reveal-row>
+  <ol class="audience__list" data-reveal-row data-reveal-at="0.85">
     {
       t.items.map((item, i) => (
         <li class="audience__card">
@@ -115,7 +115,11 @@ const widths = [960, 1600, 2048, 2752];
     color: var(--text-soft);
   }
 
+  /* Картки невисокі: з'являються раніше (верх ряду на 85 % екрана) і швидше, ніж ціни
+     (0,9 с, кожна наступна на 0,15 с пізніше; рішення Яни 24.11.2026) */
   .audience__list {
+    --reveal-duration: 0.9s;
+    --reveal-stagger: 0.15s;
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: var(--space-24);

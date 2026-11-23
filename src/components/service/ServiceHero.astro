@@ -96,6 +96,33 @@ const bgWidths = [768, 1280, 1920, 2752];
     .s-hero {
       padding-bottom: min(160px, calc(64px + (100vw - 1600px) * 0.3));
     }
+    /* вміст більшає разом з екраном: заголовок як на головній (H1 86), ширші текст і картка */
+    /* .s-hero попереду: базові правила стоять нижче у файлі */
+    .s-hero .s-hero__text {
+      max-width: 920px;
+    }
+    .s-hero .s-hero__title {
+      font-size: var(--text-h1);
+      line-height: var(--text-h1--line-height);
+    }
+    .s-hero .s-hero__content > :global(.work-card) {
+      width: min(680px, 36.38vw);
+    }
+  }
+
+  /* Високе вікно (вище 1000, великий монітор): вміст трохи нижче центру, а не притиснутий донизу,
+     щоб не лишалося порожнечі зверху. Вільне місце ділиться 4 : 1 (зверху більше; рішення Яни 24.11.2026); ноутбук не змінюється */
+  @media (min-width: 1101px) and (min-height: 1000px) {
+    .s-hero::before,
+    .s-hero::after {
+      content: '';
+    }
+    .s-hero::before {
+      flex: 4 1 0;
+    }
+    .s-hero::after {
+      flex: 1 1 0;
+    }
   }
 
   .s-hero__bg {
