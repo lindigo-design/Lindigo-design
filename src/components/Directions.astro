@@ -427,6 +427,16 @@ const pad = (n: number) => String(n).padStart(2, '0');
       const room = lastVh - T - (n - 1) * PEEK - bottom;
       if (room < minH) return;
       H = Math.min(MAX_H, room);
+      // У стовпчик фото горизонтальне: картка не вища, ніж текст + фото в пропорції --aspect-photo-wide
+      // (інакше на високому екрані фото забирає весь лишок і стає вертикальним; рішення Яни 23.11.2026)
+      if (column.matches) {
+        const [aw, ah] = getComputedStyle(document.documentElement)
+          .getPropertyValue('--aspect-photo-wide')
+          .split('/')
+          .map((v) => parseFloat(v));
+        const mediaW = cards[0].clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+        if (aw && ah) H = Math.min(H, Math.ceil(textH + frame + parseFloat(cs.rowGap || '0') + (mediaW * ah) / aw));
+      }
       L = list.getBoundingClientRect().top - stage.getBoundingClientRect().top;
       travel = L + (n - 1) * (H + GAP) - (T + (n - 1) * PEEK) + HOLD;
       section.classList.add('is-stacked');
