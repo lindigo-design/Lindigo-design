@@ -62,7 +62,7 @@ const items = directionOrder.flatMap((d) => t.items.find((item) => item.directio
           data-slide
         >
           <div class="case__cover">
-            <Image src={covers[item.slug]} alt="" widths={[600, 900, 1200]} sizes="(max-width: 760px) 100vw, 584px" loading="lazy" />
+            <Image src={covers[item.slug]} alt="" widths={[600, 900, 1200]} sizes="(max-width: 1100px) 100vw, 584px" loading="lazy" />
           </div>
           <div class="case__about">
             <div class="case__head">
@@ -389,8 +389,8 @@ const items = directionOrder.flatMap((d) => t.items.find((item) => item.directio
     }
   }
 
-  /* Картка в стовпчик; вкладки гортаються вбік */
-  @media (max-width: 760px) {
+  /* Картка в стовпчик (і на планшеті; рішення Яни 23.11.2026) */
+  @media (max-width: 1100px) {
     .case {
       flex-direction: column;
       align-items: stretch;
@@ -399,6 +399,21 @@ const items = directionOrder.flatMap((d) => t.items.find((item) => item.directio
       flex: none;
       width: 100%;
     }
+    .case__about {
+      align-self: stretch;
+    }
+  }
+
+  /* Планшет: зверху опис, під ним обкладинка — горизонтальна 16:10, як фото «Напрямів» (рішення Яни 23.11.2026) */
+  @media (min-width: 641px) and (max-width: 1100px) {
+    .case__cover {
+      order: 1;
+      aspect-ratio: var(--aspect-photo-wide);
+    }
+  }
+
+  /* Вкладки гортаються вбік */
+  @media (max-width: 760px) {
     .works__controls {
       flex-wrap: wrap;
     }

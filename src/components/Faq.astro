@@ -287,6 +287,13 @@ const t = content ?? ui[locale].faq;
       grid-template-columns: minmax(0, 1fr);
       row-gap: var(--space-40);
     }
+  }
+
+  /* Планшет: менший відступ до CTA під блоком — разом 80 (рішення Яни 23.11.2026) */
+  @media (min-width: 641px) and (max-width: 1100px) {
+    .faq {
+      padding-bottom: var(--space-80);
+    }
     .faq__q {
       font-size: 1.25rem; /* 20px */
       line-height: 140%; /* 28px */
