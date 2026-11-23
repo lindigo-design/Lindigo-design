@@ -381,6 +381,18 @@ a {
   outline-offset: 3px;
 }
 
+/* ---------- Проявлення тексту під час гортання ([data-reveal-text], компонент RevealWords,
+   скрипт src/scripts/reveal-text.ts). Сіре слово — --text-supplement (як сірий рядок заголовка),
+   проявлене — колір абзацу. Клас is-ready ставить скрипт, тож без JS текст одразу звичайний ---------- */
+[data-reveal-text].is-ready .reveal-word {
+  color: var(--text-supplement);
+  transition: color 0.4s var(--ease-out-in);
+}
+
+[data-reveal-text].is-ready .reveal-word.is-lit {
+  color: inherit;
+}
+
 /* ---------- Поява ряду карток під час прокрутки ([data-reveal-row], скрипт src/scripts/reveal-row.ts) ----------
    Картки по черзі зліва направо (кожна на 0,3 с пізніше) виїжджають знизу, трохи збільшуються й проявляються.
    Сховані з першого показу (клас js на <html> ставить Base.astro до малювання), is-visible ставить скрипт.

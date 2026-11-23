@@ -9,6 +9,7 @@
  */
 import { Image } from 'astro:assets';
 import laptop from '../assets/principles/laptop.jpg';
+import RevealWords from './RevealWords.astro';
 import { keepLastWords, ui, type Locale } from '../i18n/ui';
 
 interface Props {
@@ -28,7 +29,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
       {' '}<span class="principles__strong">{keepLastWords(t.lead)}</span>
     </h2>
     <div class="principles__body">
-      {t.body.map((para) => <p>{keepLastWords(para)}</p>)}
+      {/* перший абзац проявляється під час гортання (рішення Яни 23.11.2026) */}
+      {t.body.map((para, i) => (i === 0 ? <p data-reveal-text><RevealWords text={keepLastWords(para)} /></p> : <p>{keepLastWords(para)}</p>))}
     </div>
     <div class="principles__media">
       <Image src={laptop} alt="" widths={[440, 880, 1200]} sizes="(max-width: 760px) 100vw, (max-width: 1100px) 280px, 435px" />
@@ -283,4 +285,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
 <script>
   // Принципи з'являються по черзі, коли ряд піднявся до 60 % висоти екрана
   import '../scripts/reveal-row';
+  // перший абзац проявляється під час гортання
+  import '../scripts/reveal-text';
 </script>

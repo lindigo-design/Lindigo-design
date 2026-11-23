@@ -11,6 +11,7 @@ import { Image } from 'astro:assets';
 import portrait from '../assets/about/portrait.jpg';
 import allDark from '../assets/works/all-dark.svg';
 import allLight from '../assets/works/all-light.svg';
+import RevealWords from './RevealWords.astro';
 import { keepLastWords, localePath, ui, type Locale } from '../i18n/ui';
 
 interface Props {
@@ -29,7 +30,8 @@ const t = ui[locale].about;
       {' '}<span class="about__strong">{keepLastWords(t.lead)}</span>
     </h2>
 
-    <p class="about__intro">{keepLastWords(t.intro)}</p>
+    <!-- вступ проявляється під час гортання (рішення Яни 23.11.2026) -->
+    <p class="about__intro" data-reveal-text><RevealWords text={keepLastWords(t.intro)} /></p>
 
     <div class="about__main">
       <div class="about__text">
@@ -193,8 +195,17 @@ const t = ui[locale].about;
       grid-area: 4 / 1;
       gap: var(--space-32);
     }
+    /* фото на всю висоту вступу й тексту поруч, а не за пропорцією (рішення Яни 23.11.2026) */
     .about__photo {
       grid-area: 3 / 2 / 5 / 3;
+      aspect-ratio: auto;
+      align-self: stretch;
+      position: relative;
+    }
+    /* картинка не розпирає блок: висоту задає текст, фото закінчується по лінії кнопки «Студія» */
+    .about__photo :global(img) {
+      position: absolute;
+      inset: 0;
     }
     .about__text {
       gap: var(--space-28);
@@ -219,6 +230,10 @@ const t = ui[locale].about;
     .about__photo {
       width: 100%;
       max-width: 420px;
+      aspect-ratio: var(--aspect-about-photo);
+    }
+    .about__photo :global(img) {
+      position: static;
     }
   }
 
@@ -236,3 +251,8 @@ const t = ui[locale].about;
     }
   }
 </style>
+
+<script>
+  // вступ проявляється під час гортання (спільний ефект, стилі в global.css)
+  import '../scripts/reveal-text';
+</script>
