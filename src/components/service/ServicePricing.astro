@@ -1,0 +1,336 @@
+---
+/**
+ * Блок «05 Скільки коштує» сторінки послуги (Figma 231:3696 темна, 243:1100 світла).
+ * Три картки цін: назва (H4) і для кого, ціна «від … € HT» (H3), лінія, що входить у стартову ціну,
+ * кнопка внизу на всю ширину. Під картками — пояснення й дрібний текст про податки; далі банер
+ * «Сайти під ключ» з головною кнопкою.
+ * Фон: темна — --section-bg без картинки; світла — directions-light 50 % на весь блок.
+ */
+import { Image } from 'astro:assets';
+import Button from '../Button.astro';
+import bgLight from '../../assets/backgrounds/directions-light.jpg';
+import { keepLastWords, localePath, type Locale } from '../../i18n/ui';
+
+interface Props {
+  locale: Locale;
+  content: {
+    eyebrow: string;
+    title: string;
+    lead: string;
+    includedLabel: string;
+    from: string;
+    tax: string;
+    plans: { title: string; for: string; price: string; items: string[]; action: string }[];
+    notes: string[];
+    small: string;
+    banner: { title: string; text: string; action: string };
+  };
+  /** Куди веде кнопка банера (сторінка сайтів під ключ) */
+  bannerHref: string;
+}
+
+const { locale, content: t, bannerHref } = Astro.props;
+---
+
+<section class="pricing" aria-labelledby="pricing-title">
+  <div class="pricing__bg" aria-hidden="true" data-theme-only="light">
+    <Image src={bgLight} alt="" widths={[960, 1600, 2048, 2752]} sizes="100vw" loading="lazy" />
+  </div>
+
+  <header class="pricing__head">
+    <p class="pricing__eyebrow">{t.eyebrow}</p>
+    <h2 class="pricing__title" id="pricing-title">{t.title}</h2>
+    <p class="pricing__lead">{keepLastWords(t.lead)}</p>
+  </header>
+
+  <div class="pricing__body">
+    <ul class="pricing__plans">
+      {
+        t.plans.map((plan) => (
+          <li class="plan">
+            <div class="plan__content">
+              <div class="plan__head">
+                <h3 class="plan__title">{plan.title}</h3>
+                <p class="plan__for">{keepLastWords(plan.for)}</p>
+              </div>
+              <p class="plan__price">
+                <span class="plan__from">{t.from}</span>
+                <span class="plan__amount">{plan.price}</span>
+                <span class="plan__tax">{t.tax}</span>
+              </p>
+              <div class="plan__rule" />
+              <div class="plan__included">
+                <p class="plan__label">{t.includedLabel}</p>
+                <ul class="plan__items">
+                  {plan.items.map((item) => <li>{keepLastWords(item)}</li>)}
+                </ul>
+              </div>
+            </div>
+            <Button href={localePath(locale, '/contact/')} variant="secondary" class="plan__action">
+              {plan.action}
+            </Button>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="pricing__notes">
+      {t.notes.map((note) => <p>{keepLastWords(note)}</p>)}
+      <p class="pricing__small">{keepLastWords(t.small)}</p>
+    </div>
+  </div>
+
+  <aside class="banner" aria-labelledby="pricing-banner-title">
+    <div class="banner__text">
+      <h3 class="banner__title" id="pricing-banner-title">{t.banner.title}</h3>
+      <p class="banner__desc">{keepLastWords(t.banner.text)}</p>
+    </div>
+    <Button href={bannerHref} variant="primary">{t.banner.action}</Button>
+  </aside>
+</section>
+
+<style>
+  .pricing {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-56);
+    padding: var(--space-120) var(--gutter);
+    background: var(--section-bg);
+    overflow: hidden;
+  }
+
+  /* Світла тема: фон на beige-50 (--bg), картинка 50 % на весь блок */
+  :global(:root[data-theme='light']) .pricing {
+    background: var(--bg);
+  }
+
+  .pricing__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .pricing__bg :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.5;
+  }
+
+  .pricing__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+  }
+
+  .pricing__eyebrow,
+  .plan__tax,
+  .plan__label {
+    font-family: var(--font-mono);
+    font-weight: var(--text-label-s--font-weight);
+    font-size: var(--text-label-s);
+    line-height: var(--text-label-s--line-height);
+    letter-spacing: var(--text-label-s--letter-spacing);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .pricing__title {
+    font-family: var(--font-display);
+    font-weight: var(--text-h2--font-weight);
+    font-size: var(--text-h2);
+    line-height: var(--text-h2--line-height);
+  }
+
+  .pricing__lead {
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
+  }
+
+  .pricing__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
+  }
+
+  .pricing__plans {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-24);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Картка ціни: скло, радіус 32, поля 32; кнопка притиснута донизу */
+  .plan {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-32);
+    padding: var(--space-32);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-32);
+    background: var(--card-bg);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+  }
+
+  .plan__content {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
+  }
+
+  /* Назва й «для кого» однакової висоти в усіх картках: 124 px на макеті */
+  .plan__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    min-height: 124px;
+  }
+
+  .plan__title {
+    font-family: var(--font-display);
+    font-weight: var(--text-h4--font-weight);
+    font-size: var(--text-h4);
+    line-height: var(--text-h4--line-height);
+  }
+
+  .plan__for {
+    font-size: var(--text-body-m);
+    line-height: var(--text-body-m--line-height);
+  }
+
+  .plan__price {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-8);
+  }
+
+  .plan__from {
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
+  }
+
+  .plan__amount {
+    font-family: var(--font-display);
+    font-weight: var(--text-h3--font-weight);
+    font-size: var(--text-h3);
+    line-height: var(--text-h3--line-height);
+    white-space: nowrap;
+  }
+
+  .plan__rule {
+    height: 1px;
+    background: var(--fg);
+  }
+
+  .plan__included {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .plan__items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    margin: 0;
+    padding-left: var(--space-20);
+    font-size: var(--text-body-s);
+    line-height: var(--text-body-s--line-height);
+  }
+
+  .plan :global(.plan__action) {
+    width: 100%;
+  }
+
+  .pricing__notes {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+    font-size: var(--text-body-m);
+    line-height: var(--text-body-m--line-height);
+  }
+
+  .pricing__notes .pricing__small {
+    font-size: var(--text-body-s);
+    line-height: var(--text-body-s--line-height);
+  }
+
+  /* Банер: скло, текст і головна кнопка поруч */
+  .banner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-24);
+    padding: var(--space-32);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-32);
+    background: var(--card-bg);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+  }
+
+  .banner__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .banner__title {
+    font-family: var(--font-display);
+    font-weight: var(--text-h5--font-weight);
+    font-size: var(--text-h5);
+    line-height: var(--text-h5--line-height);
+  }
+
+  .banner__desc {
+    font-size: var(--text-body-m);
+    line-height: var(--text-body-m--line-height);
+  }
+
+  @media (max-width: 1100px) {
+    .pricing__plans {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .plan__head {
+      min-height: 0;
+    }
+  }
+
+  /* Телефон */
+  @media (max-width: 640px) {
+    .pricing {
+      gap: var(--space-24);
+      padding: var(--space-56) var(--space-20);
+    }
+    .pricing__title {
+      font-size: var(--text-h2-mobile);
+      line-height: var(--text-h2-mobile--line-height);
+    }
+    .pricing__lead {
+      font-size: var(--text-body-m);
+      line-height: var(--text-body-m--line-height);
+    }
+    .plan,
+    .banner {
+      gap: var(--space-24);
+      padding: var(--space-24);
+      border-radius: var(--radius-24);
+    }
+    .plan__title {
+      font-size: var(--text-h4-mobile);
+      line-height: var(--text-h4-mobile--line-height);
+    }
+    .banner :global(.btn) {
+      width: 100%;
+      height: 50px;
+    }
+  }
+</style>

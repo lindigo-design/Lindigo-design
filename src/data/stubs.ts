@@ -1,5 +1,6 @@
 import { directionPaths, menuPaths } from '../i18n/ui';
 import { featuredWorks } from './featured';
+import { uiuxProjects } from './uiux-projects';
 
 /**
  * Сторінки, на які вже ведуть посилання, але яких ще немає. Для кожної мови збирається заглушка (StubPage),
@@ -8,8 +9,9 @@ import { featuredWorks } from './featured';
 export const stubPaths: string[] = [
   ...new Set([
     ...menuPaths,
-    ...directionPaths,
+    ...directionPaths.filter((p) => p !== '/services/ui-ux/'), // сторінка UI/UX готова: src/pages/services/ui-ux.astro
     ...featuredWorks.map((w) => `/realisations/${w.slug}/`),
+    ...uiuxProjects.map((p) => `/realisations/${p.slug}/`),
     '/mentions-legales/',
     '/confidentialite/',
   ]),

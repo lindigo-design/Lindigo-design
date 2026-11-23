@@ -1,0 +1,625 @@
+---
+/**
+ * Блок «03 Наші проєкти» сторінки UI/UX (Figma 231:3409 темна, 240:4306 світла).
+ * Заголовок, фільтр за сферою (кнопки-чипи з лічильником), група «Клієнтські проєкти» з великою карткою
+ * і група «Власні проєкти та концепти» — дві колонки, права зсунута вниз на 120 px.
+ *
+ * Фільтр: кнопки з aria-pressed; скрипт ховає картки іншої сфери й групу, де нічого не лишилось,
+ * і заново розкладає видимі картки по двох колонках. Без JavaScript видно всі проєкти.
+ * Лічильники рахуються з даних (src/data/uiux-projects.ts), а не беруться з макета.
+ *
+ * Картка — посилання на сторінку проєкту (уся картка клікабельна через назву). Наведення й фокус
+ * з клавіатури однакові: фото трохи збільшується, стрілка в колі повертається.
+ *
+ * Фон: темна — dark-vertical 20 % на --section-bg (як «Напрями» головної); світла — directions-light
+ * 50 % Multiply унизу блоку (Breath, як «Напрями»).
+ */
+import { Image } from 'astro:assets';
+import Breath from '../Breath.astro';
+import Button from '../Button.astro';
+import bgDark from '../../assets/backgrounds/dark-vertical.jpg';
+import bgLight from '../../assets/backgrounds/directions-light.jpg';
+import arrowDark from '../../assets/hero/arrow-card.svg';
+import arrowLight from '../../assets/services/ui-ux/arrow-card-light.svg';
+import { filterCategories, uiuxProjects } from '../../data/uiux-projects';
+import { keepLastWords, localePath, ui, type Locale } from '../../i18n/ui';
+
+interface Props {
+  locale: Locale;
+  /** id секції — для якоря «Переглянути роботи» з першого екрана */
+  id: string;
+}
+
+const { locale, id } = Astro.props;
+const t = ui[locale].uiux.projects;
+const client = uiuxProjects.filter((p) => p.client);
+const own = uiuxProjects.filter((p) => !p.client);
+const count = (c: string) => uiuxProjects.filter((p) => p.category === c).length;
+const filters = [
+  { key: 'all', label: t.all, n: uiuxProjects.length },
+  ...filterCategories.map((c) => ({ key: c, label: t.categories[c], n: count(c) })),
+];
+const caseHref = (slug: string) => localePath(locale, `/realisations/${slug}/`);
+const dt = t.texts.datatixx;
+---
+
+<section class="projects" id={id} aria-labelledby="projects-title" data-projects>
+  <Image class="projects__bg-dark" src={bgDark} alt="" widths={[960, 1400, 1800]} sizes="100vw" loading="lazy" data-theme-only="dark" aria-hidden="true" />
+  <Breath variant="directions" lightImage={bgLight} />
+
+  <header class="projects__head">
+    <p class="projects__eyebrow">{t.eyebrow}</p>
+    <h2 class="projects__title" id="projects-title">
+      {t.title.map((line) => <span>{line} </span>)}
+    </h2>
+    <p class="projects__lead">{keepLastWords(t.lead)}</p>
+  </header>
+
+  <div class="projects__catalog">
+    <div class="projects__filters" role="group" aria-label={t.filterLabel}>
+      {
+        filters.map((f) => (
+          <button class="chip" type="button" aria-pressed={f.key === 'all' ? 'true' : 'false'} data-filter={f.key}>
+            <span class="chip__label">{f.label}</span>
+            <span class="chip__count">{f.n}</span>
+          </button>
+        ))
+      }
+    </div>
+
+    <div class="projects__groups">
+      <div class="projects__group" data-group>
+        <h3 class="projects__group-title">{t.clientGroup}</h3>
+        {
+          client.map((p) => (
+            <article class="big-card" data-category={p.category} data-card>
+              <div class="big-card__media">
+                <Image src={p.cover} alt="" widths={[800, 1300, 1800, 2600]} sizes="(max-width: 1100px) 100vw, 85vw" loading="lazy" />
+                <span class="big-card__btn" aria-hidden="true">{t.viewCase}</span>
+              </div>
+              <div class="big-card__about">
+                <div class="big-card__rule" />
+                <div class="big-card__facts">
+                  <h4 class="big-card__name">
+                    <a class="big-card__link" href={caseHref(p.slug)}>
+                      {p.title}
+                      <span class="visually-hidden">: {t.viewCase}</span>
+                    </a>
+                  </h4>
+                  <dl class="big-card__list">
+                    <div class="big-card__fact big-card__fact--what">
+                      <dt>{t.whatLabel}</dt>
+                      <dd>{keepLastWords(dt.what)}</dd>
+                    </div>
+                    <div class="big-card__fact big-card__fact--did">
+                      <dt>{t.didLabel}</dt>
+                      <dd>{keepLastWords(dt.did)}</dd>
+                    </div>
+                    <div class="big-card__fact big-card__fact--industry">
+                      <dt>{t.industryLabel}</dt>
+                      <dd>{t.categories[p.category]}</dd>
+                    </div>
+                  </dl>
+                </div>
+              </div>
+            </article>
+          ))
+        }
+      </div>
+
+      <div class="projects__group" data-group>
+        <h3 class="projects__group-title">{t.ownGroup}</h3>
+        <ul class="projects__grid" data-grid>
+          {
+            own.map((p, i) => (
+              <li class:list={['card', { 'is-shifted': i % 2 === 1 }]} data-category={p.category} data-card>
+                <div class="card__media">
+                  <Image src={p.cover} alt="" widths={[640, 960, 1240]} sizes="(max-width: 760px) 100vw, 44vw" loading="lazy" />
+                </div>
+                <div class="card__about">
+                  <div class="card__top">
+                    <div class="card__heading">
+                      <h4 class="card__name">
+                        <a class="card__link" href={caseHref(p.slug)}>
+                          {p.title}
+                          <span class="visually-hidden">: {t.viewCase}</span>
+                        </a>
+                      </h4>
+                      <p class="card__meta">
+                        {t.categories[p.category]} · {t.platforms[p.platform]}
+                      </p>
+                    </div>
+                    <span class="card__arrow" aria-hidden="true">
+                      <img src={arrowDark.src} width="20" height="20" alt="" data-theme-only="dark" />
+                      <img src={arrowLight.src} width="20" height="20" alt="" data-theme-only="light" />
+                    </span>
+                  </div>
+                  <p class="card__text">{keepLastWords(t.texts[p.slug as keyof typeof t.texts] as string)}</p>
+                </div>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="projects__more">
+    <Button href={localePath(locale, '/realisations/')} variant="secondary">{t.more}</Button>
+  </div>
+</section>
+
+<style>
+  .projects {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-56);
+    padding: var(--space-120) var(--gutter);
+    background: var(--section-bg);
+    overflow: hidden;
+    scroll-margin-top: 0;
+  }
+
+  .projects :global(.projects__bg-dark) {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.2;
+    pointer-events: none;
+  }
+
+  /* ---------- Заголовок ---------- */
+  .projects__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+  }
+
+  .projects__eyebrow,
+  .projects__group-title,
+  .card__meta,
+  .big-card__fact dt {
+    font-family: var(--font-mono);
+    font-weight: var(--text-label-s--font-weight);
+    font-size: var(--text-label-s);
+    line-height: var(--text-label-s--line-height);
+    letter-spacing: var(--text-label-s--letter-spacing);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .projects__title {
+    font-family: var(--font-display);
+    font-weight: var(--text-h2--font-weight);
+    font-size: var(--text-h2);
+    line-height: var(--text-h2--line-height);
+  }
+
+  .projects__title span {
+    display: block;
+  }
+
+  .projects__lead {
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
+  }
+
+  /* ---------- Каталог: фільтр і групи ---------- */
+  .projects__catalog {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-32);
+  }
+
+  .projects__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+  }
+
+  /* Чип фільтра: обводка, радіус Full; вибраний — залитий кольором тексту */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-8);
+    padding: var(--space-8) var(--space-16);
+    border: 1px solid var(--fg);
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--fg);
+    font: inherit;
+    cursor: pointer;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+
+  .chip__label {
+    font-size: var(--text-body-m);
+    line-height: var(--text-body-m--line-height);
+  }
+
+  .chip__count {
+    font-family: var(--font-mono);
+    font-weight: var(--text-label-s--font-weight);
+    font-size: var(--text-label-s);
+    line-height: var(--text-label-s--line-height);
+    letter-spacing: var(--text-label-s--letter-spacing);
+  }
+
+  .chip[aria-pressed='true'] {
+    background: var(--fg);
+    color: var(--bg);
+  }
+
+  @media (hover: hover) {
+    .chip[aria-pressed='false']:hover {
+      background: var(--ring-press);
+    }
+  }
+  .chip[aria-pressed='false']:focus-visible {
+    background: var(--ring-press);
+  }
+
+  .projects__groups {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-56);
+  }
+
+  .projects__group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-20);
+  }
+
+  .projects__group[hidden],
+  [data-card][hidden] {
+    display: none;
+  }
+
+  /* ---------- Велика картка (клієнтський проєкт) ---------- */
+  .big-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-32);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-32);
+    background: var(--card-bg);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+  }
+
+  .big-card__media {
+    position: relative;
+    height: 606px;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-24);
+  }
+
+  .big-card__media :global(img),
+  .card__media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.8s var(--ease-out-in);
+  }
+
+  /* «Дивитися кейс» на фото: обводка й текст світлі в обох темах (фото темне) */
+  .big-card__btn {
+    position: absolute;
+    right: var(--space-32);
+    bottom: var(--space-32);
+    padding: var(--space-16) var(--space-28);
+    border: 1px solid var(--beige-50);
+    border-radius: var(--radius-full);
+    color: var(--beige-50);
+    font-weight: var(--text-button-m--font-weight);
+    font-size: var(--text-button-m);
+    line-height: var(--text-button-m--line-height);
+    white-space: nowrap;
+    transition: background-color 0.2s ease;
+  }
+
+  .big-card__about {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
+    padding-top: var(--space-24);
+  }
+
+  .big-card__rule {
+    height: 1px;
+    background: var(--fg);
+  }
+
+  .big-card__facts {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-40);
+  }
+
+  .big-card__name {
+    flex: 1 1 0;
+    margin: 0;
+    min-width: 0;
+    font-family: var(--font-display);
+    font-weight: var(--text-h4--font-weight);
+    font-size: var(--text-h4);
+    line-height: var(--text-h4--line-height);
+  }
+
+  .big-card__list {
+    display: flex;
+    gap: var(--space-40);
+    margin: 0;
+  }
+
+  .big-card__fact {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .big-card__fact--what {
+    width: 360px;
+  }
+  .big-card__fact--did {
+    width: 240px;
+  }
+  .big-card__fact--industry {
+    width: 160px;
+  }
+
+  .big-card__fact dd {
+    margin: 0;
+    font-size: var(--text-body-s);
+    line-height: var(--text-body-s--line-height);
+  }
+
+  /* ---------- Картки власних проєктів: дві колонки, права нижче на 120 ---------- */
+  .projects__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-24);
+    margin: 0;
+    padding: 0 0 var(--space-120);
+    list-style: none;
+  }
+
+  .card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-24);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-32);
+    background: var(--card-bg);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+  }
+
+  .card.is-shifted {
+    transform: translateY(var(--space-120));
+  }
+
+  /* 440 px (у макеті 360): Яна попросила вище, щоб менше обрізалось (23.11.2026) */
+  .card__media {
+    height: 440px;
+    overflow: hidden;
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-24);
+  }
+
+  .card__about {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+    padding-top: var(--space-24);
+  }
+
+  .card__top {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-16);
+  }
+
+  .card__heading {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .card__name {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: var(--text-h5--font-weight);
+    font-size: var(--text-h5);
+    line-height: var(--text-h5--line-height);
+  }
+
+  .card__text {
+    font-size: var(--text-body-s);
+    line-height: var(--text-body-s--line-height);
+  }
+
+  /* Стрілка в колі 48: світла стрілка в темній темі, темна — у світлій (обидві з макета) */
+  .card__arrow {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    border: 1px solid var(--fg);
+    border-radius: 50%;
+    background: var(--ring-press);
+  }
+
+  .card__arrow img {
+    transition: transform var(--dur-btn) var(--ease-out-in);
+  }
+
+  /* Уся картка — посилання: псевдоелемент назви накриває картку */
+  .card__link,
+  .big-card__link {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .card__link::after,
+  .big-card__link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  /* Контур фокусу — загальний (:focus-visible у global.css) на назві-посиланні; не прибираємо */
+
+  /* Наведення і фокус: фото трохи більшає, стрілка повертається, кнопка на фото підсвічується */
+  @media (hover: hover) {
+    .card:hover .card__media :global(img),
+    .big-card:hover .big-card__media :global(img) {
+      transform: scale(1.03);
+    }
+    .card:hover .card__arrow img {
+      transform: rotate(45deg);
+    }
+    .big-card:hover .big-card__btn {
+      background: color-mix(in srgb, var(--beige-50) 10%, transparent);
+    }
+  }
+  .card:has(.card__link:focus-visible) .card__media :global(img),
+  .big-card:has(.big-card__link:focus-visible) .big-card__media :global(img) {
+    transform: scale(1.03);
+  }
+  .card:has(.card__link:focus-visible) .card__arrow img {
+    transform: rotate(45deg);
+  }
+  .big-card:has(.big-card__link:focus-visible) .big-card__btn {
+    background: color-mix(in srgb, var(--beige-50) 10%, transparent);
+  }
+
+  .projects__more {
+    display: flex;
+    justify-content: center;
+  }
+
+  /* ---------- Вужчі екрани ---------- */
+  @media (max-width: 1100px) {
+    .big-card__media {
+      height: 420px;
+    }
+    .big-card__facts {
+      flex-direction: column;
+      gap: var(--space-24);
+    }
+    .big-card__list {
+      flex-wrap: wrap;
+      gap: var(--space-24) var(--space-40);
+    }
+    .big-card__fact--what,
+    .big-card__fact--did,
+    .big-card__fact--industry {
+      width: auto;
+      flex: 1 1 200px;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .projects__grid {
+      grid-template-columns: minmax(0, 1fr);
+      padding-bottom: 0;
+    }
+    .card.is-shifted {
+      transform: none;
+    }
+    .card__media {
+      height: auto;
+      aspect-ratio: var(--aspect-photo-wide);
+    }
+    .big-card__media {
+      height: auto;
+      aspect-ratio: var(--aspect-photo-wide);
+    }
+    .big-card__btn {
+      right: var(--space-16);
+      bottom: var(--space-16);
+      padding: var(--space-8) var(--space-20);
+    }
+  }
+
+  /* Телефон */
+  @media (max-width: 640px) {
+    .projects {
+      gap: var(--space-24);
+      padding: var(--space-56) var(--space-20);
+    }
+    .projects__title {
+      font-size: var(--text-h2-mobile);
+      line-height: var(--text-h2-mobile--line-height);
+    }
+    .projects__lead {
+      font-size: var(--text-body-m);
+      line-height: var(--text-body-m--line-height);
+    }
+    .projects__groups {
+      gap: var(--space-40);
+    }
+    .big-card,
+    .card {
+      padding: var(--space-16);
+      border-radius: var(--radius-24);
+    }
+    .big-card__media,
+    .card__media {
+      border-radius: var(--radius-16);
+    }
+    .projects__grid {
+      gap: var(--space-16);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .projects * {
+      transition: none !important;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-projects]').forEach((section) => {
+    const buttons = Array.from(section.querySelectorAll<HTMLButtonElement>('[data-filter]'));
+    const groups = Array.from(section.querySelectorAll<HTMLElement>('[data-group]'));
+
+    const apply = (key: string) => {
+      buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.filter === key)));
+      groups.forEach((group) => {
+        const cards = Array.from(group.querySelectorAll<HTMLElement>('[data-card]'));
+        let visible = 0;
+        cards.forEach((card) => {
+          const show = key === 'all' || card.dataset.category === key;
+          card.hidden = !show;
+          // зсув вниз — у кожної другої видимої картки (права колонка)
+          card.classList.toggle('is-shifted', show && card.tagName === 'LI' && visible % 2 === 1);
+          if (show) visible += 1;
+        });
+        group.hidden = visible === 0;
+        // одна картка в сітці — без нижнього запасу під зсув
+        const grid = group.querySelector<HTMLElement>('[data-grid]');
+        if (grid) grid.style.paddingBottom = visible > 1 ? '' : '0';
+      });
+    };
+
+    buttons.forEach((b) => b.addEventListener('click', () => apply(b.dataset.filter ?? 'all')));
+  });
+</script>
