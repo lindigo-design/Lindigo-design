@@ -2,11 +2,14 @@
 /**
  * Блок «02 Коли потрібен…» сторінки послуги (Figma 231:3345 темна, 243:914 світла).
  * Мітка, заголовок H2, підзаголовок і три скляні картки: номер, назва (H4), текст.
- * Фон: темна — градієнт dark-horizontal 20 % на --section-bg; світла — service-light 40 % на --section-bg (Figma, 24.11.2026).
+ * Фон: тільки --section-bg, без картинки; за картками пливе розмита медуза: виринає з-під нижнього лівого кута,
+ * пливе хвилею (синусоїдою) вгору праворуч, наприкінці зменшується, запливає на перший екран і там зникає; потім усе знову.
+ * Рух поштовхами, як у справжньої медузи: купол стискається — ривок, далі ковзання (рішення Яни 23.11.2026).
+ * Поза екраном і з «менше руху» в системі не рухається.
  */
 import { Image } from 'astro:assets';
-import bgDark from '../../assets/backgrounds/dark-horizontal.jpg';
-import bgLight from '../../assets/backgrounds/service-light.jpg';
+import jellyDark from '../../assets/faq/jellyfish-dark.webp';
+import jellyLight from '../../assets/faq/jellyfish-light-upright.webp';
 import { keepLastWords } from '../../i18n/ui';
 
 interface Props {
@@ -20,13 +23,17 @@ interface Props {
 
 const { content: t } = Astro.props;
 const pad = (n: number) => String(n).padStart(2, '0');
-const widths = [960, 1600, 2048, 2752];
 ---
 
 <section class="audience" aria-labelledby="audience-title">
   <div class="audience__bg" aria-hidden="true">
-    <Image class="audience__bg-dark" src={bgDark} alt="" widths={widths} sizes="100vw" loading="lazy" data-theme-only="dark" />
-    <Image class="audience__bg-light" src={bgLight} alt="" widths={widths} sizes="100vw" loading="lazy" data-theme-only="light" />
+    <!-- шлях: шар на всю секцію зсувається (відсотки — від розміру секції), медуза в його нижньому лівому куті -->
+    <div class="audience__track">
+      <div class="audience__jelly">
+        <Image class="audience__jelly-img" src={jellyDark} alt="" widths={[300, 600]} sizes="300px" loading="lazy" data-theme-only="dark" />
+        <Image class="audience__jelly-img" src={jellyLight} alt="" widths={[300, 600]} sizes="300px" loading="lazy" data-theme-only="light" />
+      </div>
+    </div>
   </div>
 
   <header class="audience__head">
@@ -59,30 +66,122 @@ const widths = [960, 1600, 2048, 2752];
     gap: var(--space-56);
     padding: var(--space-120) var(--gutter);
     background: var(--section-bg);
-    overflow: hidden;
+    /* обрізаємо тільки з боків: згори медуза запливає на перший екран */
+    overflow-x: clip;
   }
 
+  /* фон з медузою: обрізаний знизу й з боків, а згори відкритий на 70 % висоти секції */
   .audience__bg {
     position: absolute;
     inset: 0;
     z-index: -1;
     pointer-events: none;
+    clip-path: inset(-70% 0 0 0);
   }
 
-  .audience__bg :global(img) {
+  /* Медуза: пливе куполом уперед, трохи розмита. Шлях за 26 с — 14 поштовхів по 1.86 с:
+     кожен відрізок починається ривком і закінчується ковзанням (cubic-bezier), купол стискається на початку
+     кожного поштовху. Ключові точки пораховано за синусоїдою (1,5 хвилі) від нижнього лівого кута до верхнього правого.
+     Останні 30 % шляху медуза зменшується (до 0,3) і тане, перепливаючи верхній край на перший екран. */
+  .audience__track {
     position: absolute;
     inset: 0;
+    animation: audience-jelly-path 26s cubic-bezier(0.2, 0.7, 0.35, 1) infinite;
+    animation-play-state: paused;
+    will-change: translate;
+  }
+
+  .audience__jelly {
+    position: absolute;
+    left: 4%;
+    top: 100%;
+    width: clamp(150px, 13vw, 260px);
+    opacity: 0.65;
+    animation: audience-jelly-turn 26s cubic-bezier(0.2, 0.7, 0.35, 1) infinite;
+    animation-play-state: inherit;
+  }
+
+  :global(:root[data-theme='light']) .audience__jelly {
+    opacity: 0.55;
+  }
+
+  .audience.is-inview .audience__track {
+    animation-play-state: running;
+  }
+
+  .audience__jelly :global(.audience__jelly-img) {
+    display: block;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
+    height: auto;
+    filter: blur(4px);
+    transform-origin: 50% 30%;
+    animation: audience-jelly-pulse 1.8571s ease-out infinite;
+    animation-play-state: inherit;
   }
 
-  .audience__bg :global(.audience__bg-dark) {
-    opacity: 0.2;
+  @keyframes audience-jelly-path {
+    0.0% { translate: 0.0% -0.0%; opacity: 1.00; }
+    7.14% { translate: 9.9% -10.4%; opacity: 1.00; }
+    14.29% { translate: 18.0% -20.7%; opacity: 1.00; }
+    21.43% { translate: 23.0% -31.1%; opacity: 1.00; }
+    28.57% { translate: 25.3% -41.4%; opacity: 1.00; }
+    35.71% { translate: 26.3% -51.8%; opacity: 1.00; }
+    42.86% { translate: 28.0% -62.1%; opacity: 1.00; }
+    50.0% { translate: 32.0% -72.5%; opacity: 1.00; }
+    57.14% { translate: 39.1% -82.9%; opacity: 1.00; }
+    64.29% { translate: 48.6% -93.2%; opacity: 1.00; }
+    71.43% { translate: 58.8% -103.6%; opacity: 1.00; }
+    78.57% { translate: 67.6% -113.9%; opacity: 1.00; }
+    85.71% { translate: 73.7% -124.3%; opacity: 0.71; }
+    92.86% { translate: 76.8% -134.6%; opacity: 0.36; }
+    100.0% { translate: 78.0% -145.0%; opacity: 0.00; }
   }
 
-  .audience__bg :global(.audience__bg-light) {
-    opacity: 0.4;
+  /* медуза повертається за напрямком хвилі; наприкінці зменшується */
+  @keyframes audience-jelly-turn {
+    0.0% { rotate: 61deg; scale: 1.00; }
+    7.14% { rotate: 59deg; scale: 1.00; }
+    14.29% { rotate: 50deg; scale: 1.00; }
+    21.43% { rotate: 34deg; scale: 1.00; }
+    28.57% { rotate: 17deg; scale: 1.00; }
+    35.71% { rotate: 14deg; scale: 1.00; }
+    42.86% { rotate: 27deg; scale: 1.00; }
+    50.0% { rotate: 45deg; scale: 1.00; }
+    57.14% { rotate: 57deg; scale: 1.00; }
+    64.29% { rotate: 61deg; scale: 1.00; }
+    71.43% { rotate: 60deg; scale: 0.97; }
+    78.57% { rotate: 54deg; scale: 0.80; }
+    85.71% { rotate: 40deg; scale: 0.63; }
+    92.86% { rotate: 22deg; scale: 0.47; }
+    100.0% { rotate: 12deg; scale: 0.30; }
+  }
+
+  /* поштовх: купол стискається й розправляється */
+  @keyframes audience-jelly-pulse {
+    0% {
+      scale: 1 1;
+    }
+    18% {
+      scale: 0.86 1.08;
+    }
+    100% {
+      scale: 1 1;
+    }
+  }
+
+  /* «Менше руху»: медуза стоїть праворуч і не пливе */
+  @media (prefers-reduced-motion: reduce) {
+    .audience__track,
+    .audience__jelly,
+    .audience__jelly :global(.audience__jelly-img) {
+      animation: none;
+    }
+    .audience__track {
+      translate: 70% -75%;
+    }
+    .audience__jelly {
+      rotate: 30deg;
+    }
   }
 
   .audience__head {
@@ -199,4 +298,9 @@ const widths = [960, 1600, 2048, 2752];
 <script>
   // Картки з'являються по черзі зліва направо, як картки цін (спільний ефект, стилі в global.css)
   import '../../scripts/reveal-row';
+
+  // Медуза пливе тільки тоді, коли блок на екрані
+  document.querySelectorAll<HTMLElement>('.audience').forEach((section) => {
+    new IntersectionObserver(([entry]) => section.classList.toggle('is-inview', entry.isIntersecting)).observe(section);
+  });
 </script>
