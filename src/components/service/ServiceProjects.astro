@@ -559,6 +559,11 @@ const dt = t.texts.datatixx;
     .big-card__media {
       height: 420px;
     }
+    /* планшет: фото карток горизонтальні, 16:10 (рішення Яни 23.11.2026) */
+    .card__media {
+      height: auto;
+      aspect-ratio: var(--aspect-photo-wide);
+    }
     .big-card__facts {
       flex-direction: column;
       gap: var(--space-24);
