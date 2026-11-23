@@ -15,23 +15,29 @@ import { keepLastWords, localePath, ui, type Locale } from '../i18n/ui';
 
 interface Props {
   locale: Locale;
+  /**
+   * Тексти для іншої сторінки (напр. «Заклик до дії» сторінки послуги); без них — тексти головної.
+   * text — масив: кожен елемент з нового рядка (як у макеті). call і message — підписи кнопок.
+   */
+  content?: { title: string; text: string[]; call: string; message: string };
 }
 
-const { locale } = Astro.props;
+const { locale, content } = Astro.props;
 const t = ui[locale].cta;
 const menu = ui[locale].menu;
+const lines = content ? content.text : [t.text];
 ---
 
 <section class="cta" aria-labelledby="cta-title">
   <div class="cta__panel">
     <Breath variant="cta" lightImage={bgLight} darkImage={bgDark} />
     <div class="cta__text">
-      <h2 class="cta__title" id="cta-title">{t.title}</h2>
-      <p class="cta__lead">{keepLastWords(t.text)}</p>
+      <h2 class="cta__title" id="cta-title">{content?.title ?? t.title}</h2>
+      <p class="cta__lead">{lines.map((line, i) => <>{i > 0 && <br />}{keepLastWords(line)}</>)}</p>
     </div>
     <div class="cta__actions">
-      <Button href={localePath(locale, '/contact/')} variant="primary">{menu.call}</Button>
-      <Button href={localePath(locale, '/contact/#message')} variant="secondary">{menu.message}</Button>
+      <Button href={localePath(locale, '/contact/')} variant="primary">{content?.call ?? menu.call}</Button>
+      <Button href={localePath(locale, '/contact/#message')} variant="secondary">{content?.message ?? menu.message}</Button>
     </div>
   </div>
 </section>

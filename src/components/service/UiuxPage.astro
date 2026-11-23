@@ -1,0 +1,44 @@
+---
+/**
+ * Сторінка послуги «UI/UX дизайн і прототипування» (Figma «UI дизайн»: темна 231:3260, світла 243:866).
+ * Блоки: перший екран, «Коли потрібен», «Наші проєкти», «Етапи і результат» (спільний Process),
+ * «Скільки коштує», FAQ і «Заклик до дії» (спільні Faq і Cta з текстами сторінки), футер.
+ */
+import Base from '../../layouts/Base.astro';
+import Header from '../Header.astro';
+import Menu from '../Menu.astro';
+import Process from '../Process.astro';
+import Faq from '../Faq.astro';
+import Cta from '../Cta.astro';
+import Footer from '../Footer.astro';
+import ServiceHero from './ServiceHero.astro';
+import ServiceAudience from './ServiceAudience.astro';
+import ServiceProjects from './ServiceProjects.astro';
+import ServicePricing from './ServicePricing.astro';
+import heroDark from '../../assets/services/ui-ux/hero-dark.jpg';
+import heroLight from '../../assets/services/ui-ux/hero-light.jpg';
+import { localePath, ui, type Locale } from '../../i18n/ui';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = ui[locale].uiux;
+const path = '/services/ui-ux/';
+---
+
+<Base locale={locale} title={t.meta.title} description={t.hero.lead} path={path}>
+  <Header locale={locale} path={path} />
+  <Menu locale={locale} path={path} />
+  <main>
+    <ServiceHero locale={locale} content={t.hero} bgDark={heroDark} bgLight={heroLight} worksHref="#projects" />
+    <ServiceAudience content={t.audience} />
+    <ServiceProjects locale={locale} id="projects" />
+    <Process locale={locale} content={t.stages} />
+    <ServicePricing locale={locale} content={t.pricing} bannerHref={localePath(locale, '/services/sites/')} />
+    <Faq locale={locale} content={t.faq} />
+    <Cta locale={locale} content={t.cta} />
+  </main>
+  <Footer locale={locale} path={path} />
+</Base>

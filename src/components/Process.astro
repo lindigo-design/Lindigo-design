@@ -19,10 +19,26 @@ import { keepLastWords, localePath, ui, type Locale } from '../i18n/ui';
 
 interface Props {
   locale: Locale;
+  /**
+   * Тексти блоку для іншої сторінки (напр. «Етапи і результат» на сторінці послуги).
+   * Без них — тексти головної. lead — підзаголовок під назвою, result — «Результат» під текстом кроку,
+   * action — одна головна кнопка в останньому кроці замість двох кнопок головної.
+   */
+  content?: {
+    eyebrow: string;
+    title: string;
+    lead?: string;
+    resultLabel?: string;
+    steps: { title: string; text: string; result?: string }[];
+    action?: string;
+  };
 }
 
-const { locale } = Astro.props;
-const t = ui[locale].process;
+const { locale, content } = Astro.props;
+const t = content ?? ui[locale].process;
+const lead = content?.lead;
+const resultLabel = content?.resultLabel;
+const action = content?.action;
 const menu = ui[locale].menu;
 const pad = (n: number) => String(n).padStart(2, '0');
 ---
@@ -43,21 +59,34 @@ const pad = (n: number) => String(n).padStart(2, '0');
   <header class="process__head">
     <p class="process__eyebrow">{t.eyebrow}</p>
     <h2 class="process__title" id="process-title">{t.title}</h2>
+    {lead && <p class="process__lead">{keepLastWords(lead)}</p>}
   </header>
 
   <ol class="process__steps">
     {
-      t.steps.map((step, i) => (
+      t.steps.map((step: { title: string; text: string; result?: string }, i: number) => (
         <li class:list={['step', `step--${i + 1}`]}>
           <div class="step__head">
             <p class="step__num" aria-hidden="true">{pad(i + 1)}</p>
             <h3 class="step__title">{step.title}</h3>
           </div>
           <p class="step__text">{keepLastWords(step.text)}</p>
+          {step.result && (
+            <div class="step__result">
+              <p class="step__result-label">{resultLabel}</p>
+              <p class="step__result-text">{keepLastWords(step.result)}</p>
+            </div>
+          )}
           {i === t.steps.length - 1 && (
             <div class="step__actions">
-              <Button href={localePath(locale, '/contact/')} variant="primary">{menu.call}</Button>
-              <Button href={localePath(locale, '/contact/#message')} variant="secondary">{menu.message}</Button>
+              {action ? (
+                <Button href={localePath(locale, '/contact/')} variant="primary">{action}</Button>
+              ) : (
+                <>
+                  <Button href={localePath(locale, '/contact/')} variant="primary">{menu.call}</Button>
+                  <Button href={localePath(locale, '/contact/#message')} variant="secondary">{menu.message}</Button>
+                </>
+              )}
             </div>
           )}
         </li>
@@ -232,6 +261,34 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
   .step--6 .step__text {
     max-width: 640px;
+  }
+
+  /* Підзаголовок блоку і «Результат» кроку (сторінка послуги, Figma «04 Етапи і результат») */
+  .process__lead {
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
+  }
+
+  .step__result {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .step__result-label {
+    font-family: var(--font-mono);
+    font-weight: var(--text-label-s--font-weight);
+    font-size: var(--text-label-s);
+    line-height: var(--text-label-s--line-height);
+    letter-spacing: var(--text-label-s--letter-spacing);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .step__result-text {
+    font-weight: var(--text-title-16--font-weight);
+    font-size: var(--text-title-16);
+    line-height: var(--text-title-16--line-height);
   }
 
   .step__actions {

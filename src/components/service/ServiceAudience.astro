@@ -1,0 +1,193 @@
+---
+/**
+ * Блок «02 Коли потрібен…» сторінки послуги (Figma 231:3345 темна, 243:914 світла).
+ * Мітка, заголовок H2, підзаголовок і три скляні картки: номер, назва (H4), текст.
+ * Фон: темна — градієнт dark-horizontal 20 % на --section-bg; світла — works-light 40 % на --section-bg.
+ */
+import { Image } from 'astro:assets';
+import bgDark from '../../assets/backgrounds/dark-horizontal.jpg';
+import bgLight from '../../assets/backgrounds/works-light.jpg';
+import { keepLastWords } from '../../i18n/ui';
+
+interface Props {
+  content: {
+    eyebrow: string;
+    title: string;
+    lead: string;
+    items: { title: string; text: string }[];
+  };
+}
+
+const { content: t } = Astro.props;
+const pad = (n: number) => String(n).padStart(2, '0');
+const widths = [960, 1600, 2048, 2752];
+---
+
+<section class="audience" aria-labelledby="audience-title">
+  <div class="audience__bg" aria-hidden="true">
+    <Image class="audience__bg-dark" src={bgDark} alt="" widths={widths} sizes="100vw" loading="lazy" data-theme-only="dark" />
+    <Image class="audience__bg-light" src={bgLight} alt="" widths={widths} sizes="100vw" loading="lazy" data-theme-only="light" />
+  </div>
+
+  <header class="audience__head">
+    <p class="audience__eyebrow">{t.eyebrow}</p>
+    <h2 class="audience__title" id="audience-title">{t.title}</h2>
+    <p class="audience__lead">{keepLastWords(t.lead)}</p>
+  </header>
+
+  <ol class="audience__list">
+    {
+      t.items.map((item, i) => (
+        <li class="audience__card">
+          <div class="audience__card-head">
+            <p class="audience__num" aria-hidden="true">{pad(i + 1)}</p>
+            <h3 class="audience__card-title">{item.title}</h3>
+          </div>
+          <p class="audience__text">{keepLastWords(item.text)}</p>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .audience {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-56);
+    padding: var(--space-120) var(--gutter);
+    background: var(--section-bg);
+    overflow: hidden;
+  }
+
+  .audience__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .audience__bg :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .audience__bg :global(.audience__bg-dark) {
+    opacity: 0.2;
+  }
+
+  .audience__bg :global(.audience__bg-light) {
+    opacity: 0.4;
+  }
+
+  .audience__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+  }
+
+  .audience__eyebrow,
+  .audience__num {
+    font-family: var(--font-mono);
+    font-weight: var(--text-label-m--font-weight);
+    font-size: var(--text-label-m);
+    line-height: var(--text-label-m--line-height);
+    letter-spacing: var(--text-label-m--letter-spacing);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .audience__title {
+    font-family: var(--font-display);
+    font-weight: var(--text-h2--font-weight);
+    font-size: var(--text-h2);
+    line-height: var(--text-h2--line-height);
+  }
+
+  .audience__lead {
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
+    color: var(--text-soft);
+  }
+
+  .audience__list {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-24);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Картка: скло, радіус 28, поля 32 */
+  .audience__card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-20);
+    padding: var(--space-32);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-28);
+    background: var(--card-bg);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+  }
+
+  .audience__card-head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .audience__card-title {
+    font-family: var(--font-display);
+    font-weight: var(--text-h4--font-weight);
+    font-size: var(--text-h4);
+    line-height: var(--text-h4--line-height);
+  }
+
+  .audience__text {
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
+    color: var(--text-soft);
+  }
+
+  @media (max-width: 1100px) {
+    .audience__list {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  /* Телефон */
+  @media (max-width: 640px) {
+    .audience {
+      gap: var(--space-24);
+      padding: var(--space-56) var(--space-20);
+    }
+    .audience__title {
+      font-size: var(--text-h2-mobile);
+      line-height: var(--text-h2-mobile--line-height);
+    }
+    .audience__lead,
+    .audience__text {
+      font-size: var(--text-body-m);
+      line-height: var(--text-body-m--line-height);
+    }
+    .audience__list {
+      gap: var(--space-16);
+    }
+    .audience__card {
+      gap: var(--space-16);
+      padding: var(--space-24);
+      border-radius: var(--radius-24);
+    }
+    .audience__card-title {
+      font-size: var(--text-h4-mobile);
+      line-height: var(--text-h4-mobile--line-height);
+    }
+  }
+</style>
