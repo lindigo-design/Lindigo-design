@@ -3,7 +3,7 @@
  * Перший екран сторінки послуги (Figma «UI дизайн», «Послуга: UI/UX дизайн і прототипування — UI»,
  * темна 231:3261 і світла 243:867).
  * Фон (Figma, 24.11.2026): темна — Background dark (--night, оновлено 24.11.2026) і градієнт 40 %; світла — світлий градієнт 50 % Multiply.
- * Ліворуч: хлібні крихти, заголовок (Display 72), опис, теги й дві кнопки; праворуч — картка проєкту
+ * Ліворуч: хлібні крихти, заголовок (Display 72), опис і дві кнопки (теги — у ServiceMarquee під екраном); праворуч — картка проєкту
  * (спільний WorkCard, ширша, ніж на головній, зі своїм підписом). Текст і картка притиснуті донизу.
  * Фарба від мишки над фоном — спільний HeroPaint (на перших екранах усіх сторінок, крім головної).
  */
@@ -61,14 +61,10 @@ const bgWidths = [768, 1280, 1920, 2752];
 
       <p class="s-hero__lead">{keepLastWords(t.lead)}</p>
 
-      <div class="s-hero__bottom">
-        <ul class="s-hero__tags">
-          {t.tags.map((tag) => <li>{tag}</li>)}
-        </ul>
-        <div class="s-hero__actions">
-          <Button href={localePath(locale, '/contact/')} variant="primary">{t.primary}</Button>
-          <Button href={worksHref} variant="secondary">{t.secondary}</Button>
-        </div>
+      <!-- теги послуги не тут, а в біжучому рядку під першим екраном (ServiceMarquee; рішення Яни 24.11.2026) -->
+      <div class="s-hero__actions">
+        <Button href={localePath(locale, '/contact/')} variant="primary">{t.primary}</Button>
+        <Button href={worksHref} variant="secondary">{t.secondary}</Button>
       </div>
     </div>
 
@@ -115,6 +111,18 @@ const bgWidths = [768, 1280, 1920, 2752];
     .s-hero {
       min-height: min(100svh, 960px);
     }
+  }
+
+  /* Низ першого екрана плавно переходить у фон наступного блоку (стрічки, «Для кого»): без різкої межі
+     між фото/плямами першого екрана й рівним фоном. Над фоном, плямами й фарбою, під текстом */
+  .s-hero::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    z-index: -1;
+    height: var(--space-120);
+    background: linear-gradient(to bottom, transparent, var(--section-bg));
+    pointer-events: none;
   }
 
   .s-hero__bg {
@@ -222,29 +230,6 @@ const bgWidths = [768, 1280, 1920, 2752];
     line-height: var(--text-body-lead--line-height);
   }
 
-  .s-hero__bottom {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-48);
-  }
-
-  .s-hero__tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-8);
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-
-  .s-hero__tags li {
-    padding: var(--space-8) var(--space-16);
-    border: 1px solid var(--fg);
-    border-radius: var(--radius-20);
-    font-size: var(--text-body-s);
-    line-height: var(--text-body-s--line-height);
-  }
-
   .s-hero__actions {
     display: flex;
     flex-wrap: wrap;
@@ -305,11 +290,8 @@ const bgWidths = [768, 1280, 1920, 2752];
       font-size: var(--text-body-m);
       line-height: var(--text-body-m--line-height);
     }
-    .s-hero__bottom {
-      gap: var(--space-32);
-      width: 100%;
-    }
     .s-hero__actions {
+      width: 100%;
       flex-direction: column;
       align-items: stretch;
     }

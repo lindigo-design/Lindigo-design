@@ -1,0 +1,205 @@
+---
+/**
+ * Дві біжучі стрічки під першим екраном сторінки послуги (Figma «02б Дві стрічки»: темна 403:4437, світла 404:4649).
+ * Перша — що входить у послугу (рухається вліво), друга — сфери, з якими працюємо (рухається вправо).
+ * Замінили теги-пігулки в першому екрані: їх плутали з кнопками, а перший екран розвантажився (рішення Яни 24.11.2026).
+ *
+ * Темна: стрічка 1 — Muted dark, текст Indigo 950, крапка Orchid deep; стрічка 2 — фон блоку, текст Beige, зірка Orchid.
+ * Світла: стрічка 1 — Indigo 950, текст Beige, крапка Orchid; стрічка 2 — фон блоку, текст Indigo 950, зірка Orchid.
+ *
+ * Доступність: екранний читач чує кожен перелік один раз (перша копія — список із назвою),
+ * повтори для безперервного руху приховані. Рух зупиняється під мишкою і вимкнений при «менше руху».
+ */
+import dotDark from '../../assets/marquee/dot-dark.svg';
+import dotLight from '../../assets/marquee/dot-light.svg';
+import star from '../../assets/marquee/star.svg';
+
+interface Props {
+  services: string[];
+  servicesLabel: string;
+  industries: string[];
+  industriesLabel: string;
+}
+
+const { services, servicesLabel, industries, industriesLabel } = Astro.props;
+
+// Половина доріжки — перелік двічі (як у Figma): так вона ширша за будь-який екран і рух не має розриву.
+// Доріжка — дві однакові половини, анімація зсуває її рівно на половину.
+const rows = [
+  { key: 'services', items: services, label: servicesLabel },
+  { key: 'industries', items: industries, label: industriesLabel },
+] as const;
+---
+
+<div class="marquee">
+  {
+    rows.map((row) => (
+      <div class:list={['marquee__row', `marquee__row--${row.key}`]}>
+        <div class="marquee__track">
+          {[0, 1, 2, 3].map((copy) => (
+            <ul class="marquee__group" aria-label={copy === 0 ? row.label : undefined} aria-hidden={copy === 0 ? undefined : 'true'}>
+              {row.items.map((item) => (
+                <li class="marquee__item">
+                  <span>{item}</span>
+                  {row.key === 'services' ? (
+                    <>
+                      <img class="marquee__sep" src={dotDark.src} width="14" height="14" alt="" data-theme-only="dark" />
+                      <img class="marquee__sep" src={dotLight.src} width="14" height="14" alt="" data-theme-only="light" />
+                    </>
+                  ) : (
+                    <img class="marquee__sep" src={star.src} width="18" height="19" alt="" />
+                  )}
+                </li>
+              ))}
+            </ul>
+          ))}
+        </div>
+      </div>
+    ))
+  }
+</div>
+
+<style>
+  /* Стрічки перехрещуються (пробний варіант, 24.11.2026): обидві в одній клітинці сітки,
+     нахилені в різні боки навколо точки на 30 % ширини — перетин не в центрі.
+     Поля згори й знизу (6,5vw ≈ 70 % ширини × tg 5°) — щоб кінці нахилених стрічок біля краю екрана не обрізались. */
+  .marquee {
+    --tilt: 5deg;
+    --cross: 30%;
+    --room: max(var(--space-40), 6.5vw);
+    display: grid;
+    padding-block: var(--room);
+    overflow: hidden;
+    /* Поле над і під стрічками — не порожній темний фон: м'яке світіння навколо перетину
+       (Indigo 600 у темній, Orchid у світлій), що згасає до верхнього й нижнього краю — без межі з сусідами. Сам перший екран унизу плавно переходить у фон блоку (ServiceHero) */
+    background:
+      radial-gradient(ellipse 40% 48% at var(--cross) 55%, color-mix(in srgb, var(--indigo-600) 22%, transparent), transparent 70%),
+      radial-gradient(ellipse 35% 38% at 82% 58%, color-mix(in srgb, var(--orchid-deep) 12%, transparent), transparent 70%),
+      var(--section-bg);
+  }
+  :global(:root[data-theme='light']) .marquee {
+    background:
+      radial-gradient(ellipse 40% 48% at var(--cross) 55%, color-mix(in srgb, var(--orchid) 22%, transparent), transparent 70%),
+      radial-gradient(ellipse 35% 38% at 82% 58%, color-mix(in srgb, var(--orange) 10%, transparent), transparent 70%),
+      var(--section-bg);
+  }
+
+  /* Стрічка ширша за екран на 10 % з кожного боку, щоб нахилена не мала порожніх кутів;
+     точка повороту — та сама точка екрана для обох стрічок */
+  .marquee__row {
+    grid-area: 1 / 1;
+    align-self: center;
+    display: flex;
+    width: 120%;
+    min-width: 0; /* інакше клітинка сітки розтягується на всю доріжку і точка повороту з'їжджає */
+    margin-left: -10%;
+    padding-block: var(--space-20);
+    transform-origin: calc((var(--cross) + 10%) / 1.2) 50%;
+  }
+
+  /* Стрічка 1: темна — Muted dark з текстом Indigo 950; світла — Indigo 950 з текстом Beige */
+  .marquee__row--services {
+    z-index: 1;
+    rotate: calc(-1 * var(--tilt));
+    background: var(--muted-dark);
+    color: var(--indigo-950);
+  }
+  :global(:root[data-theme='light']) .marquee__row--services {
+    background: var(--indigo-950);
+    color: var(--beige-50);
+  }
+
+  /* Стрічка 2: без фону, лінії згори й знизу — колір тексту на 20 % (у перетині лінія згори показує край стрічки) */
+  .marquee__row--industries {
+    rotate: var(--tilt);
+    /* прозора: крізь неї видно світіння за стрічками */
+    color: var(--fg);
+    border-block: 1px solid color-mix(in srgb, var(--fg) 20%, transparent);
+  }
+
+  .marquee__track {
+    display: flex;
+    flex-shrink: 0;
+    animation: marquee-left 90s linear infinite;
+  }
+  .marquee__row--industries .marquee__track {
+    animation-name: marquee-right;
+    animation-duration: 130s;
+  }
+
+  /* під мишкою рух зупиняється — можна спокійно прочитати */
+  @media (hover: hover) {
+    .marquee__row:hover .marquee__track {
+      animation-play-state: paused;
+    }
+  }
+
+  @keyframes marquee-left {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @keyframes marquee-right {
+    from {
+      transform: translateX(-50%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+
+  .marquee__group {
+    display: flex;
+    flex-shrink: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Heading/H3 (Unbounded SemiBold 40 / 48), між словом і роздільником 32 */
+  .marquee__item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-32);
+    padding-right: var(--space-32);
+    font-family: var(--font-display);
+    font-weight: var(--text-h3--font-weight);
+    font-size: var(--text-h3);
+    line-height: var(--text-h3--line-height);
+    white-space: nowrap;
+  }
+
+  .marquee__sep {
+    flex-shrink: 0;
+  }
+
+  /* Телефон: стрічки одна під одною, без нахилу — на вузькому екрані перехрещені стрічки майже повністю
+     накривали одна одну. Менший шрифт і відступи */
+  @media (max-width: 640px) {
+    .marquee {
+      padding-block: 0;
+    }
+    .marquee__row {
+      grid-area: auto;
+      width: 100%;
+      margin-left: 0;
+      rotate: none;
+      padding-block: var(--space-12);
+    }
+    .marquee__row--industries {
+      border-top: 0;
+    }
+    .marquee__item {
+      gap: var(--space-20);
+      padding-right: var(--space-20);
+      font-size: var(--text-h4-mobile);
+      line-height: var(--text-h4-mobile--line-height);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .marquee__track {
+      animation: none;
+    }
+  }
+</style>
