@@ -368,6 +368,18 @@ const items = directionOrder.flatMap((d) => t.items.find((item) => item.directio
     color: var(--tab-active);
   }
 
+  /* ---------- Невеликий ноутбук (до 1366) ----------
+     Обкладинка 584 px забирала половину картки: текст ставав вузьким і високим, а обкладинка розтягувалась
+     на його висоту й грубо обрізалась. Тут вона вужча (46 %), у своїй пропорції й по центру висоти тексту (24.11.2026) */
+  @media (max-width: 1366px) {
+    .case__cover {
+      flex: 0 0 46%;
+      min-height: 0;
+      aspect-ratio: var(--aspect-case-cover);
+      align-self: center;
+    }
+  }
+
   /* ---------- Вужчий комп'ютер і планшет ---------- */
   @media (max-width: 1100px) {
     .case {

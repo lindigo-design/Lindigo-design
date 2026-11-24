@@ -215,6 +215,15 @@ const t: { eyebrow: string; title: string; items: FaqItem[] } = content ?? ui[lo
     line-height: var(--text-h2--line-height);
   }
 
+  /* Невеликий ноутбук: у колонці на третину ширини довге слово заголовка (fréquentes, Frequently) не вміщалось
+     і напливало на питання — тут заголовок H3 40 (24.11.2026) */
+  @media (min-width: 1101px) and (max-width: 1366px) {
+    .faq__title {
+      font-size: var(--text-h3);
+      line-height: var(--text-h3--line-height);
+    }
+  }
+
   .faq__list {
     border-top: 1px solid var(--step-border);
   }
