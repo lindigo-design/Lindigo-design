@@ -259,6 +259,15 @@
   --plan-3-bg: var(--indigo-950);
   /* банер під цінами («Сайти під ключ») */
   --banner-bg: var(--card-bg);
+  /* Калькулятор (Figma «Калькулятор — UI dark / light», 24.11.2026): картки варіантів, обраний варіант,
+     панель «Підсумок», доріжка смуги кроків і розділювач у панелі (Beige 50 на 20 % / Indigo 950 на 20 %) */
+  --choice-bg: var(--card-bg);
+  --choice-border: var(--card-border);
+  --choice-selected-bg: var(--indigo-850);
+  --choice-selected-border: color-mix(in srgb, var(--fg) 20%, transparent);
+  --calc-panel-bg: var(--indigo-900);
+  --calc-panel-border: var(--card-border);
+  --calc-track: color-mix(in srgb, var(--fg) 20%, transparent);
   --glass-bg: var(--overlay-dark);
   --glass-border: rgba(248, 238, 221, 0.2);
   --track: rgba(248, 238, 221, 0.3);
@@ -305,6 +314,10 @@
   --plan-2-bg: var(--card-accent-light);
   --plan-3-bg: var(--orchid-dark);
   --banner-bg: var(--orchid-dark);
+  --choice-bg: var(--beige-50);
+  --choice-selected-bg: var(--card-accent-light);
+  --choice-selected-border: var(--orchid-deep);
+  --calc-panel-bg: var(--orchid-dark);
   --glass-bg: rgba(248, 238, 221, 0.6);
   --glass-border: rgba(21, 11, 46, 0.16);
   --track: rgba(21, 11, 46, 0.25);

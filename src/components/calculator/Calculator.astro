@@ -1,0 +1,1034 @@
+---
+/**
+ * Калькулятор вартості проєкту (Figma «Калькулятор — UI dark (1512)» 353:2854 / light 353:3564:
+ * блоки «02 Калькулятор» і «03 Що входить у вартість»).
+ * Ліворуч — питання (крок 1 — напрям, далі параметри, доповнення, темп), праворуч — панель «Підсумок»,
+ * що липне під шапкою. Ціни й логіка — src/data/calculator.ts, тексти — src/i18n/calculator.ts.
+ *
+ * Розмітку всіх напрямів збираємо одразу; скрипт показує лише обраний. Варіанти — нативні radio / checkbox
+ * у картках-label. Без JavaScript калькулятор схований, замість нього — текст і посилання на форму.
+ * Телефон (до 640 px): одне питання на екран, «Назад / Далі», внизу — панель із сумою.
+ */
+import Button from '../Button.astro';
+import { calculator, type CalcQuestion, type ServiceId } from '../../data/calculator';
+import { calcUi, fill } from '../../i18n/calculator';
+import { keepLastWords, localePath, type Locale } from '../../i18n/ui';
+
+interface Props {
+  locale: Locale;
+  /** Обраний напрям на старті (сторінка послуги); інакше — з ?service= або жодного */
+  service?: ServiceId;
+}
+
+const { locale, service } = Astro.props;
+const t = calcUi[locale];
+const contact = localePath(locale, '/contact/');
+
+const qText = (sid: string, qid: string) => t.questions[sid]?.[qid] ?? t.questions.common?.[qid];
+const stepLabel = (n: number) => fill(t.stepLabel, { n, name: t.steps[n - 1] });
+/** Сітка варіантів: 3 у ряд, для двох варіантів — 2 */
+const cols = (q: CalcQuestion) => ((q.options?.length ?? 0) === 2 || (q.options?.length ?? 0) === 4 ? 2 : 3);
+---
+
+<section class="calc" data-calc data-locale={locale} data-service={service} aria-label={t.hero.title}>
+  <script type="application/json" data-calc-texts set:html={JSON.stringify(t)} />
+
+  <noscript>
+    <p class="calc__noscript">
+      {t.noscript.text} <a href={`${contact}#message`}>{t.noscript.link}</a>
+    </p>
+  </noscript>
+
+  <div class="calc__questions">
+    <ol class="calc__steps" aria-label={t.stepsLabel}>
+      {
+        t.steps.map((name, i) => (
+          <li class="calc__step" data-step-item>
+            <span class="calc__step-bar" aria-hidden="true" />
+            <span class="calc__step-name">
+              {i + 1} {name}
+            </span>
+          </li>
+        ))
+      }
+    </ol>
+
+    <!-- Крок 1. Напрям -->
+    <fieldset class="calc-q" data-question="service" data-step="1">
+      <legend class="calc-q__head" tabindex="-1">
+        <span class="calc-q__eyebrow">{stepLabel(1)}</span>
+        <span class="calc-q__title">{t.serviceQuestion}</span>
+      </legend>
+      <div class="calc-q__body">
+      <div class="calc-q__options calc-q__options--3">
+        {
+          calculator.services.map((s) => (
+            <label class="calc-opt">
+              <span class="calc-opt__top">
+                <input class="calc-opt__input" type="radio" name="calc-service" value={s.id} />
+                <span class="calc-opt__title">{t.services[s.id].title}</span>
+              </span>
+              <span class="calc-opt__text">{keepLastWords(t.services[s.id].text)}</span>
+            </label>
+          ))
+        }
+      </div>
+      </div>
+    </fieldset>
+
+    {
+      calculator.services.map((s) => (
+        <div class="calc__group" data-service-group={s.id} hidden>
+          {s.questions.map((q) => {
+            const qt = qText(s.id, q.id);
+            const name = `calc-${s.id}-${q.id}`;
+            const hintId = `${name}-hint`;
+            return (
+              <fieldset class="calc-q" data-question={q.id} data-step={q.step} aria-describedby={qt?.hint ? hintId : undefined}>
+                <legend class="calc-q__head" tabindex="-1">
+                  <span class="calc-q__eyebrow">{stepLabel(q.step)}</span>
+                  <span class="calc-q__title">{qt?.title}</span>
+                </legend>
+                <div class="calc-q__body">
+                {qt?.hint && (
+                  <p class="calc-q__hint" id={hintId} data-hint>
+                    {keepLastWords(qt.hint)}
+                  </p>
+                )}
+
+                {q.kind === 'counter' && (
+                  <div class="calc-counter-wrap">
+                    <div class="calc-counter">
+                      <button class="calc-counter__btn" type="button" data-dec aria-label={t.counter.minus}>
+                        <span aria-hidden="true">−</span>
+                      </button>
+                      <input class="calc-counter__input" type="number" inputmode="numeric" name={name} aria-label={qt?.title} />
+                      <button class="calc-counter__btn" type="button" data-inc aria-label={t.counter.plus}>
+                        <span aria-hidden="true">+</span>
+                      </button>
+                    </div>
+                    <p class="calc-q__over" data-over hidden>
+                      {fill(t.counter.over, { n: q.customAbove ?? 0 })}
+                    </p>
+                  </div>
+                )}
+
+                {q.role === 'languages' && (
+                  <div class="calc-pills">
+                    {q.options?.map((o) => (
+                      <label class="calc-pill">
+                        <input class="calc-pill__input" type="radio" name={name} value={o.id} />
+                        <span>{t.languages[o.id]}</span>
+                      </label>
+                    ))}
+                  </div>
+                )}
+
+                {q.kind === 'single' && q.role !== 'languages' && (
+                  <div class={`calc-q__options calc-q__options--${cols(q)}`}>
+                    {q.options?.map((o) => {
+                      const ot = qt?.options?.[o.id];
+                      return (
+                        <label class="calc-opt">
+                          <span class="calc-opt__top">
+                            <input class="calc-opt__input" type="radio" name={name} value={o.id} />
+                            <span class="calc-opt__title">{ot?.title}</span>
+                          </span>
+                          {ot?.text && <span class="calc-opt__text">{keepLastWords(ot.text)}</span>}
+                          <span class="calc-opt__price" data-price />
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {q.kind === 'multi' && (
+                  <div class="calc-q__list">
+                    {q.options?.map((o) => {
+                      const ot = qt?.options?.[o.id];
+                      return (
+                        <label class="calc-opt calc-opt--row">
+                          <input class="calc-opt__input calc-opt__input--check" type="checkbox" name={name} value={o.id} />
+                          <span class="calc-opt__body">
+                            <span class="calc-opt__title">{ot?.title}</span>
+                            {ot?.text && <span class="calc-opt__text">{keepLastWords(ot.text)}</span>}
+                          </span>
+                          <span class="calc-opt__price" data-price />
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+                </div>
+              </fieldset>
+            );
+          })}
+        </div>
+      ))
+    }
+
+    <!-- Телефон: «Назад / Далі» -->
+    <div class="calc__nav" data-nav>
+      <button class="calc__nav-back ring-hover" type="button" data-back hidden>{t.mobile.back}</button>
+      <button class="calc__nav-next" type="button" data-next>{t.mobile.next}</button>
+    </div>
+  </div>
+
+  <aside class="calc-sum" data-summary aria-labelledby="calc-sum-label">
+    <p class="calc-sum__label" id="calc-sum-label">{t.summary.label}</p>
+
+    <p class="calc-sum__empty" data-empty>{keepLastWords(t.summary.empty)}</p>
+
+    <div class="calc-sum__body" data-breakdown hidden>
+      <div class="calc-sum__total">
+        <p class="calc-sum__range" data-range aria-hidden="true"></p>
+        <p class="calc-sum__meta" data-meta></p>
+      </div>
+      <p class="calc-sum__text" data-custom-text hidden>{keepLastWords(t.summary.customText)}</p>
+      <hr class="calc-sum__rule" />
+      <div class="calc-sum__parts">
+        <p class="calc-sum__label">{t.summary.breakdown}</p>
+        <ul class="calc-sum__lines" data-lines></ul>
+      </div>
+      <p class="calc-sum__text" data-advice hidden>{t.summary.advice}</p>
+      <p class="calc-sum__text" data-note>{keepLastWords(t.summary.note)}</p>
+      <p class="calc-sum__text">{t.summary.vat}</p>
+    </div>
+
+    <!-- Сума для екранного читача: лише остаточне значення, без проміжних чисел анімації -->
+    <p class="visually-hidden" aria-live="polite" data-live></p>
+
+    <div class="calc-sum__actions">
+      <span data-exact><Button href={`${contact}#message`} variant="primary">{t.summary.exact}</Button></span>
+      <span data-call><Button href={contact} variant="secondary">{t.summary.call}</Button></span>
+    </div>
+    <button class="calc-sum__restart" type="button" data-restart>{t.summary.restart}</button>
+  </aside>
+
+  <!-- Телефон і планшет: сума завжди внизу екрана -->
+  <div class="calc-bar" data-bar aria-hidden="true">
+    <span class="calc-bar__label">{t.mobile.bar}</span>
+    <span class="calc-bar__range" data-bar-range>—</span>
+    <a class="calc-bar__link" href="#calc-sum-label" data-bar-link tabindex="-1">{t.mobile.toResult}</a>
+  </div>
+</section>
+
+<section class="calc-incl" data-calc-included aria-labelledby="calc-incl-title" hidden>
+  <header class="calc-incl__head">
+    <p class="calc-incl__eyebrow">{t.included.eyebrow}</p>
+    <h2 class="calc-incl__title" id="calc-incl-title" data-incl-title></h2>
+    <p class="calc-incl__lead">{t.included.lead}</p>
+  </header>
+  <ol class="calc-incl__cards">
+    {
+      [1, 2, 3, 4].map((n) => (
+        <li class="calc-incl__card" data-incl-item>
+          <span class="calc-incl__num">{String(n).padStart(2, '0')}</span>
+          <h3 class="calc-incl__name" data-incl-name />
+          <p class="calc-incl__text" data-incl-text />
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<script>
+  import { initCalculator } from './calculator-client';
+  document.querySelectorAll<HTMLElement>('[data-calc]').forEach(initCalculator);
+</script>
+
+<style>
+  /* ---------- Розкладка: питання ліворуч, підсумок праворуч ---------- */
+  .calc {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-56);
+    padding: var(--space-56) var(--gutter) var(--space-120);
+    background: var(--section-bg);
+  }
+
+  /* Без JavaScript калькулятор не працює: показуємо лише текст із посиланням на форму */
+  :global(html:not(.js)) .calc > :not(noscript) {
+    display: none;
+  }
+  .calc__noscript {
+    max-width: 665px;
+    font-size: var(--text-body-lead);
+    line-height: var(--text-body-lead--line-height);
+  }
+  .calc__noscript a {
+    color: var(--accent-text);
+  }
+
+  .calc__questions {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-56);
+  }
+
+  .calc__group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-56);
+  }
+  .calc__group[hidden] {
+    display: none;
+  }
+
+  /* ---------- Смуга кроків ---------- */
+  .calc__steps {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-8);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .calc__step {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    font-family: var(--font-mono);
+    font-weight: var(--text-label-s--font-weight);
+    font-size: var(--text-label-s);
+    line-height: var(--text-label-s--line-height);
+    letter-spacing: var(--text-label-s--letter-spacing);
+    color: var(--text-muted);
+  }
+
+  .calc__step-bar {
+    height: var(--space-4);
+    border-radius: var(--radius-full);
+    background: var(--calc-track);
+    transition: background-color 0.4s var(--ease-out-in);
+  }
+
+  .calc__step.is-done {
+    color: var(--fg);
+  }
+  .calc__step.is-done .calc__step-bar {
+    background: var(--accent-text);
+  }
+
+  /* ---------- Питання ---------- */
+  .calc-q {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    scroll-margin-top: calc(var(--space-120) + var(--space-24));
+  }
+  .calc-q[hidden] {
+    display: none;
+  }
+
+  /* Мітка кроку й питання — ближче одне до одного, ніж до варіантів */
+  .calc-q__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    width: 100%;
+    margin-bottom: var(--space-24);
+    padding: 0;
+  }
+  /* Підказка йде одразу під заголовком: 8 px, далі 24 до варіантів */
+  .calc-q:has(.calc-q__hint) .calc-q__head {
+    margin-bottom: var(--space-8);
+  }
+
+  .calc-q__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
+  }
+
+  .calc-q__eyebrow {
+    font-family: var(--font-mono);
+    font-weight: var(--text-label-s--font-weight);
+    font-size: var(--text-label-s);
+    line-height: var(--text-label-s--line-height);
+    letter-spacing: var(--text-label-s--letter-spacing);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .calc-q__title {
+    font-family: var(--font-display);
+    font-weight: var(--text-h4--font-weight);
+    font-size: var(--text-h4);
+    line-height: var(--text-h4--line-height);
+    text-wrap: balance;
+  }
+
+  .calc-q__hint,
+  .calc-q__over {
+    font-size: var(--text-body-m);
+    line-height: var(--text-body-m--line-height);
+    color: var(--text-muted);
+  }
+  .calc-q__over {
+    color: var(--accent-text);
+  }
+
+  .calc-q__options {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-16);
+  }
+  .calc-q__options--2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .calc-q__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+  }
+
+  /* ---------- Картка варіанта: нативний radio / checkbox усередині ---------- */
+  .calc-opt {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-8);
+    padding: var(--space-24);
+    border: 1px solid var(--choice-border);
+    border-radius: var(--radius-16);
+    background: var(--choice-bg);
+    cursor: pointer;
+    transition:
+      border-color 0.2s ease,
+      background-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .calc-opt--row {
+    flex-direction: row;
+    gap: var(--space-16);
+  }
+
+  .calc-opt__top {
+    display: flex;
+    align-items: center;
+    gap: var(--space-12);
+    width: 100%;
+  }
+
+  .calc-opt__body {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .calc-opt__title {
+    flex: 1 1 0;
+    min-width: 0;
+    font-weight: var(--text-title-18--font-weight);
+    font-size: var(--text-title-18);
+    line-height: var(--text-title-18--line-height);
+  }
+
+  .calc-opt__text {
+    font-size: var(--text-body-s);
+    line-height: var(--text-body-s--line-height);
+    color: var(--text-muted);
+  }
+
+  .calc-opt__price {
+    font-family: var(--font-mono);
+    font-weight: var(--text-label-m--font-weight);
+    font-size: var(--text-label-m);
+    line-height: var(--text-label-m--line-height);
+    letter-spacing: var(--text-label-m--letter-spacing);
+    white-space: nowrap;
+  }
+  .calc-opt__price:empty {
+    display: none;
+  }
+
+  /* Радіо: кільце 20 px, обране — з точкою кольору акценту */
+  .calc-opt__input {
+    flex-shrink: 0;
+    display: grid;
+    place-content: center;
+    width: 20px;
+    height: 20px;
+    margin: 0;
+    border: 1.5px solid var(--fg);
+    border-radius: 50%;
+    background: transparent;
+    appearance: none;
+    cursor: pointer;
+  }
+  .calc-opt__input::before {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent-text);
+    transform: scale(0);
+    transition: transform 0.2s var(--ease-out-in);
+  }
+  .calc-opt__input:checked {
+    border-color: var(--accent-text);
+  }
+  .calc-opt__input:checked::before {
+    transform: scale(1);
+  }
+
+  /* Чекбокс: квадрат 20 px з галочкою; стоїть на рівні назви */
+  .calc-opt__input--check {
+    margin-top: var(--space-4);
+    border-radius: calc(var(--radius-8) / 2);
+  }
+  .calc-opt__input--check::before {
+    width: 12px;
+    height: 12px;
+    border-radius: 0;
+    background: var(--bg);
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0, 43% 62%);
+  }
+  .calc-opt__input--check:checked {
+    background: var(--accent-text);
+  }
+
+  .calc-opt--row .calc-opt__price {
+    margin-top: var(--space-4);
+  }
+
+  /* Обраний варіант */
+  .calc-opt:has(:checked) {
+    border-color: var(--choice-selected-border);
+    box-shadow: inset 0 0 0 1px var(--choice-selected-border);
+    background: var(--choice-selected-bg);
+  }
+  .calc-opt:has(:checked) .calc-opt__price {
+    color: var(--accent-text);
+  }
+
+  /* Наведення і фокус з клавіатури — однакова обводка; контур фокусу видно */
+  @media (hover: hover) {
+    .calc-opt:hover:not(:has(:checked)) {
+      border-color: var(--more-border);
+    }
+  }
+  .calc-opt:has(:focus-visible) {
+    border-color: var(--more-border);
+    outline: 2px solid var(--accent-text);
+    outline-offset: 3px;
+  }
+  .calc-opt__input:focus-visible {
+    outline: none;
+  }
+
+  /* ---------- Лічильник ---------- */
+  .calc-counter-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-16);
+  }
+
+  .calc-counter {
+    display: inline-flex;
+    align-items: center;
+    border: 1px solid var(--fg);
+    border-radius: var(--radius-full);
+  }
+
+  .calc-counter__btn,
+  .calc-counter__input {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-full);
+    background: transparent;
+    color: var(--fg);
+    font: inherit;
+    text-align: center;
+  }
+
+  .calc-counter__btn {
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+  @media (hover: hover) {
+    .calc-counter__btn:not(:disabled):hover {
+      background: var(--ring-press);
+    }
+  }
+  .calc-counter__btn:not(:disabled):active {
+    background: var(--ring-press);
+  }
+  .calc-counter__btn:disabled {
+    opacity: var(--disabled-opacity);
+    cursor: not-allowed;
+  }
+
+  .calc-counter__input {
+    font-weight: var(--text-title-18--font-weight);
+    font-size: var(--text-title-18);
+    line-height: var(--text-title-18--line-height);
+    appearance: textfield;
+  }
+  .calc-counter__input::-webkit-inner-spin-button,
+  .calc-counter__input::-webkit-outer-spin-button {
+    appearance: none;
+    margin: 0;
+  }
+
+  /* ---------- Перемикач мов: «таблетки» з radio ---------- */
+  .calc-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8);
+  }
+
+  .calc-pill {
+    position: relative;
+    padding: var(--space-12) var(--space-28);
+    border: 1px solid var(--fg);
+    border-radius: var(--radius-full);
+    font-weight: var(--text-button-m--font-weight);
+    font-size: var(--text-button-m);
+    line-height: var(--text-button-m--line-height);
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+
+  .calc-pill__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  @media (hover: hover) {
+    .calc-pill:hover:not(:has(:checked)) {
+      background: var(--ring-press);
+    }
+  }
+  .calc-pill:has(:checked) {
+    background: var(--fg);
+    color: var(--bg);
+  }
+  .calc-pill:has(:focus-visible) {
+    outline: 2px solid var(--accent-text);
+    outline-offset: 3px;
+  }
+
+  /* ---------- Підсумок (липне під шапкою: шапка ~114 px + 32) ---------- */
+  .calc-sum {
+    position: sticky;
+    top: calc(var(--space-120) + var(--space-24));
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
+    width: 440px;
+    padding: var(--space-32);
+    border: 1px solid var(--calc-panel-border);
+    border-radius: var(--radius-32);
+    background: var(--calc-panel-bg);
+    scroll-margin-top: calc(var(--space-120) + var(--space-24));
+  }
+
+  .calc-sum__label {
+    font-family: var(--font-mono);
+    font-weight: var(--text-label-s--font-weight);
+    font-size: var(--text-label-s);
+    line-height: var(--text-label-s--line-height);
+    letter-spacing: var(--text-label-s--letter-spacing);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .calc-sum__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
+  }
+  .calc-sum__body[hidden],
+  .calc-sum__empty[hidden],
+  .calc-sum__text[hidden] {
+    display: none;
+  }
+
+  .calc-sum__total {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .calc-sum__range {
+    font-family: var(--font-display);
+    font-weight: var(--text-h3-s--font-weight);
+    font-size: var(--text-h3-s);
+    line-height: var(--text-h3-s--line-height);
+    font-variant-numeric: tabular-nums;
+  }
+  /* «Потрібна індивідуальна оцінка» — довший текст, менший стиль */
+  :global(.calc.is-custom) .calc-sum__range {
+    font-size: var(--text-h5);
+    line-height: var(--text-h5--line-height);
+  }
+
+  .calc-sum__meta {
+    font-family: var(--font-mono);
+    font-weight: var(--text-label-m--font-weight);
+    font-size: var(--text-label-m);
+    line-height: var(--text-label-m--line-height);
+    letter-spacing: var(--text-label-m--letter-spacing);
+    color: var(--text-muted);
+  }
+
+  .calc-sum__rule {
+    width: 100%;
+    height: 1px;
+    margin: 0;
+    border: 0;
+    background: var(--calc-track);
+  }
+
+  .calc-sum__parts {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+  }
+
+  .calc-sum__lines {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .calc-sum__lines :global(.calc-sum__line) {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--space-16);
+    font-size: var(--text-body-m);
+    line-height: var(--text-body-m--line-height);
+  }
+
+  .calc-sum__lines :global(.calc-sum__amount) {
+    flex-shrink: 0;
+    font-weight: var(--text-title-16--font-weight);
+    white-space: nowrap;
+  }
+
+  .calc-sum__empty,
+  .calc-sum__text {
+    font-size: var(--text-body-s);
+    line-height: var(--text-body-s--line-height);
+    color: var(--text-muted);
+  }
+
+  .calc-sum__actions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+  }
+  .calc-sum__actions > span,
+  .calc-sum__actions :global(.btn) {
+    display: flex;
+    width: 100%;
+  }
+
+  .calc-sum__restart {
+    align-self: flex-start;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--text-muted);
+    font: inherit;
+    font-weight: var(--text-button-s--font-weight);
+    font-size: var(--text-button-s);
+    line-height: var(--text-button-s--line-height);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  @media (hover: hover) {
+    .calc-sum__restart:hover {
+      color: var(--fg);
+    }
+  }
+  .calc-sum__restart:focus-visible {
+    color: var(--fg);
+  }
+
+  /* ---------- Нижня панель із сумою і кнопки «Назад / Далі»: лише телефон і планшет ---------- */
+  .calc-bar,
+  .calc__nav {
+    display: none;
+  }
+
+  /* ---------- «Що входить у вартість» ---------- */
+  .calc-incl {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-56);
+    padding: var(--space-120) var(--gutter);
+    background: var(--section-bg);
+  }
+  .calc-incl[hidden] {
+    display: none;
+  }
+
+  .calc-incl__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+  }
+
+  .calc-incl__eyebrow {
+    font-family: var(--font-mono);
+    font-weight: var(--text-label-s--font-weight);
+    font-size: var(--text-label-s);
+    line-height: var(--text-label-s--line-height);
+    letter-spacing: var(--text-label-s--letter-spacing);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .calc-incl__title {
+    font-family: var(--font-display);
+    font-weight: var(--text-h2--font-weight);
+    font-size: var(--text-h2);
+    line-height: var(--text-h2--line-height);
+  }
+
+  .calc-incl__lead {
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
+  }
+
+  .calc-incl__cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--space-16);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .calc-incl__card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+    padding: var(--space-32);
+    border: 1px solid var(--choice-border);
+    border-radius: var(--radius-32);
+    background: var(--choice-bg);
+  }
+  .calc-incl__card[hidden] {
+    display: none;
+  }
+
+  .calc-incl__num {
+    font-family: var(--font-mono);
+    font-weight: var(--text-label-m--font-weight);
+    font-size: var(--text-label-m);
+    line-height: var(--text-label-m--line-height);
+    letter-spacing: var(--text-label-m--letter-spacing);
+    color: var(--accent-text);
+  }
+
+  .calc-incl__name {
+    font-family: var(--font-display);
+    font-weight: var(--text-h5--font-weight);
+    font-size: var(--text-h5);
+    line-height: var(--text-h5--line-height);
+  }
+
+  .calc-incl__text {
+    font-size: var(--text-body-m);
+    line-height: var(--text-body-m--line-height);
+  }
+
+  /* ---------- Планшет: підсумок під питаннями, сума — у панелі внизу екрана ---------- */
+  @media (max-width: 1100px) {
+    .calc {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .calc__questions {
+      flex: none;
+    }
+    .calc-sum {
+      position: static;
+      width: 100%;
+    }
+    .calc-incl__cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .calc-bar {
+      position: fixed;
+      inset: auto 0 0;
+      z-index: 40;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-4) var(--space-16);
+      padding: var(--space-16) var(--gutter);
+      border-top: 1px solid var(--calc-panel-border);
+      background: var(--calc-panel-bg);
+    }
+    :global(.calc.is-empty) .calc-bar {
+      display: none;
+    }
+    .calc-bar__label {
+      width: 100%;
+      font-family: var(--font-mono);
+      font-weight: var(--text-label-s--font-weight);
+      font-size: var(--text-label-s);
+      line-height: var(--text-label-s--line-height);
+      letter-spacing: var(--text-label-s--letter-spacing);
+      text-transform: uppercase;
+      color: var(--accent-text);
+    }
+    .calc-bar__range {
+      flex: 1 1 auto;
+      font-family: var(--font-display);
+      font-weight: var(--text-h5--font-weight);
+      font-size: var(--text-h5);
+      line-height: var(--text-h5--line-height);
+    }
+    .calc-bar__link {
+      font-weight: var(--text-button-s--font-weight);
+      font-size: var(--text-button-s);
+      line-height: var(--text-button-s--line-height);
+      color: var(--fg);
+    }
+  }
+
+  @media (max-width: 900px) {
+    .calc-q__options--3 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* ---------- Телефон: одне питання на екран ---------- */
+  @media (max-width: 640px) {
+    .calc {
+      gap: var(--space-32);
+      padding: var(--space-32) var(--space-20) var(--space-56);
+    }
+    .calc-q__options,
+    .calc-q__options--2,
+    .calc-q__options--3 {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .calc-q__title {
+      font-size: var(--text-h4-mobile);
+      line-height: var(--text-h4-mobile--line-height);
+    }
+    /* смуга кроків — під шапкою, коли майстер гортає до неї */
+    .calc__steps {
+      scroll-margin-top: var(--space-96);
+    }
+    .calc-opt,
+    .calc-sum {
+      padding: var(--space-20);
+    }
+    .calc-sum__range {
+      font-size: var(--text-h2-mobile);
+      line-height: var(--text-h2-mobile--line-height);
+    }
+    .calc-sum {
+      border-radius: var(--radius-24);
+    }
+    .calc-incl {
+      gap: var(--space-32);
+      padding: var(--space-56) var(--space-20);
+    }
+    .calc-incl__title {
+      font-size: var(--text-h2-mobile);
+      line-height: var(--text-h2-mobile--line-height);
+    }
+    .calc-incl__cards {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .calc-incl__card {
+      padding: var(--space-24);
+      border-radius: var(--radius-24);
+    }
+    .calc-bar {
+      padding-inline: var(--space-20);
+    }
+
+    /* Майстер (клас ставить скрипт): видно лише поточне питання або результат */
+    :global(.calc.is-wizard) .calc-q:not(.is-current),
+    :global(.calc.is-wizard) .calc-sum:not(.is-current) {
+      display: none;
+    }
+    :global(.calc.is-wizard.is-result) .calc-bar {
+      display: none;
+    }
+    /* Місце під нижню панель, щоб вона не закривала кнопки */
+    :global(.calc.is-wizard:not(.is-result):not(.is-empty)) {
+      padding-bottom: calc(var(--space-120) + var(--space-24));
+    }
+
+    .calc__nav {
+      display: flex;
+      gap: var(--space-12);
+    }
+    .calc__nav[hidden] {
+      display: none;
+    }
+    .calc__nav-back,
+    .calc__nav-next {
+      flex: 1 1 0;
+      height: 50px;
+      padding-inline: var(--space-24);
+      border-radius: var(--radius-full);
+      font: inherit;
+      font-weight: var(--text-button-m--font-weight);
+      font-size: var(--text-button-m);
+      line-height: var(--text-button-m--line-height);
+      cursor: pointer;
+    }
+    .calc__nav-back[hidden] {
+      display: none;
+    }
+    .calc__nav-next {
+      border: 0;
+      background: var(--btn-primary-bg);
+      color: var(--btn-primary-fg);
+    }
+    .calc__nav-next:disabled {
+      opacity: var(--disabled-opacity);
+      cursor: not-allowed;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .calc-opt,
+    .calc-opt__input::before,
+    .calc__step-bar,
+    .calc-pill,
+    .calc-counter__btn {
+      transition: none;
+    }
+  }
+</style>

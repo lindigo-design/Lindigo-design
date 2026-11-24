@@ -1,0 +1,172 @@
+---
+/**
+ * Сторінка «Калькулятор вартості» (Figma «Калькулятор — UI dark (1512)» 353:2854, light 353:3564).
+ * Блоки: короткий перший екран (хлібні крихти, заголовок Display, опис), калькулятор, «Що входить», футер.
+ * Фон першого екрана — той самий, що на сторінці послуги (dark-vertical / світлий градієнт).
+ */
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Header from '../Header.astro';
+import Menu from '../Menu.astro';
+import Footer from '../Footer.astro';
+import Calculator from './Calculator.astro';
+import heroDark from '../../assets/backgrounds/service-dark.jpg';
+import heroLight from '../../assets/backgrounds/service-light.jpg';
+import { calcUi } from '../../i18n/calculator';
+import { keepLastWords, localePath, type Locale } from '../../i18n/ui';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = calcUi[locale];
+const path = '/calculator/';
+const bgWidths = [768, 1280, 1920, 2752];
+---
+
+<Base locale={locale} title={t.meta.title} description={t.meta.description} path={path}>
+  <Header locale={locale} path={path} />
+  <Menu locale={locale} path={path} />
+  <main>
+    <section class="c-hero" aria-labelledby="c-hero-title">
+      <div class="c-hero__bg" aria-hidden="true">
+        <Image class="c-hero__bg-dark" src={heroDark} alt="" widths={bgWidths.filter((w) => w <= heroDark.width)} sizes="100vw" loading="eager" fetchpriority="high" data-theme-only="dark" />
+        <Image class="c-hero__bg-light" src={heroLight} alt="" widths={bgWidths.filter((w) => w <= heroLight.width)} sizes="100vw" loading="lazy" data-theme-only="light" />
+      </div>
+      <div class="c-hero__text">
+        <div class="c-hero__heading">
+          <nav class="c-hero__crumbs" aria-label={t.hero.crumbsLabel}>
+            <ol>
+              <li><a href={localePath(locale)}>{t.hero.crumbs[0]}</a></li>
+              <li aria-current="page">{t.hero.crumbs[1]}</li>
+            </ol>
+          </nav>
+          <h1 class="c-hero__title" id="c-hero-title">{t.hero.title}</h1>
+        </div>
+        <p class="c-hero__lead">{keepLastWords(t.hero.lead)}</p>
+      </div>
+    </section>
+
+    <Calculator locale={locale} />
+  </main>
+  <Footer locale={locale} path={path} />
+</Base>
+
+<style>
+  /* Короткий перший екран: місце під шапку (як на сторінці послуги — 136), знизу 56 */
+  .c-hero {
+    position: relative;
+    isolation: isolate;
+    padding: 136px var(--gutter) var(--space-56);
+    overflow: hidden;
+    background: var(--night);
+  }
+  :global(:root[data-theme='light']) .c-hero {
+    background: var(--bg);
+  }
+
+  .c-hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+  .c-hero__bg :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+  }
+  .c-hero__bg :global(.c-hero__bg-dark) {
+    opacity: 0.4;
+  }
+  .c-hero__bg :global(.c-hero__bg-light) {
+    opacity: 0.5;
+    mix-blend-mode: multiply;
+  }
+
+  .c-hero__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-40);
+    max-width: 778px;
+    padding-top: var(--space-80);
+  }
+
+  .c-hero__heading {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
+  }
+
+  .c-hero__crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-weight: var(--text-label-s--font-weight);
+    font-size: var(--text-label-s);
+    line-height: var(--text-label-s--line-height);
+    letter-spacing: var(--text-label-s--letter-spacing);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+  .c-hero__crumbs li:not(:last-child)::after {
+    content: '/';
+    padding-inline: var(--space-8);
+  }
+  .c-hero__crumbs a {
+    color: inherit;
+    text-decoration: none;
+  }
+  @media (hover: hover) {
+    .c-hero__crumbs a:hover {
+      text-decoration: underline;
+    }
+  }
+  .c-hero__crumbs a:focus-visible {
+    text-decoration: underline;
+  }
+
+  .c-hero__title {
+    font-family: var(--font-display);
+    font-weight: var(--text-display--font-weight);
+    font-size: var(--text-display);
+    line-height: var(--text-display--line-height);
+  }
+
+  .c-hero__lead {
+    max-width: 665px;
+    font-size: var(--text-body-lead);
+    line-height: var(--text-body-lead--line-height);
+  }
+
+  @media (max-width: 1100px) {
+    .c-hero__title {
+      font-size: clamp(1.875rem, 7.2vw, 4.5rem);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .c-hero {
+      padding: 112px var(--space-20) var(--space-32);
+    }
+    .c-hero__text {
+      gap: var(--space-24);
+      padding-top: var(--space-24);
+    }
+    .c-hero__title {
+      font-size: var(--text-h1-mobile);
+      line-height: var(--text-h1-mobile--line-height);
+    }
+    .c-hero__lead {
+      font-size: var(--text-body-m);
+      line-height: var(--text-body-m--line-height);
+    }
+  }
+</style>
