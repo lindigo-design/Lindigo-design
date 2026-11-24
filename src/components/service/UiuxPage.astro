@@ -1,7 +1,7 @@
 ---
 /**
  * Сторінка послуги «UI/UX дизайн і прототипування» (Figma «UI дизайн»: темна 231:3260, світла 243:866).
- * Блоки: перший екран, «Коли потрібен», «Наші проєкти», «Етапи і результат» (спільний Process),
+ * Блоки: перший екран, біжучі рядки (послуги й сфери), «Коли потрібен», «Наші проєкти», «Етапи і результат» (спільний Process),
  * «Скільки коштує», FAQ і «Заклик до дії» (спільні Faq і Cta з текстами сторінки), футер.
  */
 import Base from '../../layouts/Base.astro';
@@ -12,6 +12,7 @@ import Faq from '../Faq.astro';
 import Cta from '../Cta.astro';
 import Footer from '../Footer.astro';
 import ServiceHero from './ServiceHero.astro';
+import ServiceMarquee from './ServiceMarquee.astro';
 import ServiceAudience from './ServiceAudience.astro';
 import ServiceProjects from './ServiceProjects.astro';
 import ServicePricing from './ServicePricing.astro';
@@ -34,6 +35,7 @@ const path = '/services/ui-ux/';
   <Menu locale={locale} path={path} />
   <main>
     <ServiceHero locale={locale} content={t.hero} bgDark={heroDark} bgLight={heroLight} worksHref="#projects" cardLabel={t.hero.cardLabel} />
+    <ServiceMarquee services={t.hero.tags} servicesLabel={t.hero.tagsLabel} industries={t.hero.industries} industriesLabel={t.hero.industriesLabel} />
     <ServiceAudience content={t.audience} bannerHref={localePath(locale, '/services/sites/')} />
     <ServiceProjects locale={locale} id="projects" />
     <Process locale={locale} content={t.stages} />
