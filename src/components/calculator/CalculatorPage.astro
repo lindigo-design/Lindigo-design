@@ -10,6 +10,7 @@ import Header from '../Header.astro';
 import Menu from '../Menu.astro';
 import Footer from '../Footer.astro';
 import Calculator from './Calculator.astro';
+import HeroPaint from '../HeroPaint.astro';
 import heroDark from '../../assets/backgrounds/service-dark.jpg';
 import heroLight from '../../assets/backgrounds/service-light.jpg';
 import { calcUi } from '../../i18n/calculator';
@@ -34,6 +35,7 @@ const bgWidths = [768, 1280, 1920, 2752];
         <Image class="c-hero__bg-dark" src={heroDark} alt="" widths={bgWidths.filter((w) => w <= heroDark.width)} sizes="100vw" loading="eager" fetchpriority="high" data-theme-only="dark" />
         <Image class="c-hero__bg-light" src={heroLight} alt="" widths={bgWidths.filter((w) => w <= heroLight.width)} sizes="100vw" loading="lazy" data-theme-only="light" />
       </div>
+      <HeroPaint />
       <div class="c-hero__text">
         <div class="c-hero__heading">
           <nav class="c-hero__crumbs" aria-label={t.hero.crumbsLabel}>
@@ -54,11 +56,11 @@ const bgWidths = [768, 1280, 1920, 2752];
 </Base>
 
 <style>
-  /* Короткий перший екран: місце під шапку (як на сторінці послуги — 136), знизу 56 */
+  /* Короткий перший екран: місце під шапку (як на сторінці послуги — 136), знизу 120 (рішення Яни 24.11.2026) */
   .c-hero {
     position: relative;
     isolation: isolate;
-    padding: 136px var(--gutter) var(--space-56);
+    padding: 136px var(--gutter) var(--space-120);
     overflow: hidden;
     background: var(--night);
   }
@@ -154,7 +156,7 @@ const bgWidths = [768, 1280, 1920, 2752];
 
   @media (max-width: 640px) {
     .c-hero {
-      padding: 112px var(--space-20) var(--space-32);
+      padding: 112px var(--space-20) var(--space-56);
     }
     .c-hero__text {
       gap: var(--space-24);

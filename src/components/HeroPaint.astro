@@ -1,0 +1,39 @@
+---
+/**
+ * Фарба від мишки на першому екрані (рідина в режимі «фарба», src/components/fluid/fluid.ts).
+ * Стоїть на перших екранах усіх сторінок, крім головної (там своя рідина з картинкою) — рішення Яни 24.11.2026.
+ * Ставимо в секцію з position: relative; isolation: isolate — полотно лягає над фоном і під текстом.
+ * Тільки там, де є мишка; на телефоні та з «менше руху» полотно лишається прозорим.
+ */
+---
+
+<canvas class="hero-paint" aria-hidden="true" data-fluid></canvas>
+
+<style>
+  /* над фоном і плямами, під текстом; з'являється, коли готовий перший кадр */
+  .hero-paint {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .hero-paint:global(.is-ready) {
+    opacity: 1;
+  }
+</style>
+
+<script>
+  // Рідину вантажимо пізно, щоб не гальмувала перший показ
+  const canvas = document.querySelector<HTMLCanvasElement>('.hero-paint');
+  const root = canvas?.parentElement ?? null;
+  if (root && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    const start = () => import('./fluid/fluid').then((m) => m.initFluid(root, { paint: true, mask: true }));
+    if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 2000 });
+    else setTimeout(start, 200);
+  }
+</script>
