@@ -5,11 +5,12 @@
  * Фон (Figma, 24.11.2026): темна — Background dark (--night, оновлено 24.11.2026) і градієнт 40 %; світла — світлий градієнт 50 % Multiply.
  * Ліворуч: хлібні крихти, заголовок (Display 72), опис, теги й дві кнопки; праворуч — картка проєкту
  * (спільний WorkCard, ширша, ніж на головній, зі своїм підписом). Текст і картка притиснуті донизу.
- * paint — фарба від мишки над фоном (рідина в режимі «фарба», fluid.ts; рішення Яни 24.11.2026).
+ * Фарба від мишки над фоном — спільний HeroPaint (на перших екранах усіх сторінок, крім головної).
  */
 import { Image } from 'astro:assets';
 import Breath from '../Breath.astro';
 import Button from '../Button.astro';
+import HeroPaint from '../HeroPaint.astro';
 import WorkCard from '../WorkCard.astro';
 import { featuredWorks } from '../../data/featured';
 import { keepLastWords, localePath, type Locale } from '../../i18n/ui';
@@ -31,22 +32,20 @@ interface Props {
   worksHref: string;
   /** Підпис на картці проєкту (напр. «Проєкт з UI/UX») */
   cardLabel?: string;
-  /** Фарба від мишки над фоном (лише мишка; телефон і «менше руху» — без неї) */
-  paint?: boolean;
 }
 
-const { locale, content: t, bgDark, bgLight, worksHref, cardLabel, paint = false } = Astro.props;
+const { locale, content: t, bgDark, bgLight, worksHref, cardLabel } = Astro.props;
 const bgWidths = [768, 1280, 1920, 2752];
 ---
 
-<section class="s-hero" aria-labelledby="s-hero-title" data-s-hero-paint={paint ? '' : undefined}>
+<section class="s-hero" aria-labelledby="s-hero-title">
   <div class="s-hero__bg" aria-hidden="true">
     <Image class="s-hero__bg-dark" src={bgDark} alt="" widths={bgWidths.filter((w) => w <= bgDark.width)} sizes="100vw" loading="eager" fetchpriority="high" data-theme-only="dark" />
     <Image class="s-hero__bg-light" src={bgLight} alt="" widths={bgWidths.filter((w) => w <= bgLight.width)} sizes="100vw" loading="lazy" data-theme-only="light" />
   </div>
   <!-- плями, що пливуть праворуч (пробний варіант для сторінок послуг); після фону — лежать над ним -->
   <Breath variant="service" />
-  {paint && <canvas class="s-hero__paint" aria-hidden="true" data-fluid />}
+  <HeroPaint />
 
   <div class="s-hero__content">
     <div class="s-hero__text">
@@ -140,22 +139,6 @@ const bgWidths = [768, 1280, 1920, 2752];
   .s-hero__bg :global(.s-hero__bg-light) {
     opacity: 0.5;
     mix-blend-mode: multiply;
-  }
-
-  /* Фарба від мишки: над фоном і плямами, під текстом; з'являється, коли готовий перший кадр */
-  .s-hero__paint {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.6s ease;
-  }
-
-  .s-hero__paint:global(.is-ready) {
-    opacity: 1;
   }
 
   .s-hero__content {
@@ -335,13 +318,3 @@ const bgWidths = [768, 1280, 1920, 2752];
     }
   }
 </style>
-
-<script>
-  // Фарба тільки там, де є мишка; рідину вантажимо пізно, щоб не гальмувала перший показ
-  const root = document.querySelector<HTMLElement>('[data-s-hero-paint]');
-  if (root && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-    const start = () => import('../fluid/fluid').then((m) => m.initFluid(root, { paint: true, mask: true }));
-    if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 2000 });
-    else setTimeout(start, 200);
-  }
-</script>

@@ -46,8 +46,10 @@ const lines = content ? content.text : [t.text];
 </section>
 
 <style>
+  /* Єдиний виняток з правила «120 згори й знизу»: згори 56 — панель заклику ближче до блоку над нею
+     (рішення Яни 24.11.2026); на телефоні й так 56 */
   .cta {
-    padding: var(--space-120) var(--gutter);
+    padding: var(--space-56) var(--gutter) var(--space-120);
     background: var(--section-bg);
   }
 

@@ -262,6 +262,8 @@ const cols = (q: CalcQuestion) => ((q.options?.length ?? 0) === 2 || (q.options?
   }
 
   .calc__questions {
+    /* картки варіантів шикуються за шириною колонки питань, а не екрана (див. @container нижче) */
+    container-type: inline-size;
     flex: 1 1 0;
     min-width: 0;
     display: flex;
@@ -922,8 +924,16 @@ const cols = (q: CalcQuestion) => ((q.options?.length ?? 0) === 2 || (q.options?
     }
   }
 
-  @media (max-width: 900px) {
-    .calc-q__options--3 {
+  /* Вузька колонка питань (планшет, ноутбук до ~1400, телефон): картки одна під одною — інакше ціна
+     «à partir de 9 500 €» не вміщається в картку (рішення Яни 24.11.2026). Три картки поруч — від 800 px колонки,
+     дві — від 560 */
+  @container (max-width: 799px) {
+    .calc-q__options {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+  @container (min-width: 560px) and (max-width: 799px) {
+    .calc-q__options--2 {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
