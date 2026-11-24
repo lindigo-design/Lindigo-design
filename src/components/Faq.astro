@@ -15,16 +15,19 @@ import jellyDark from '../assets/faq/jellyfish-dark.webp';
 import jellyLight from '../assets/process/jellyfish-light.webp';
 // світла велика: та сама медуза, поставлена вертикально (як у макеті), прозорий фон
 import jellyLightUpright from '../assets/faq/jellyfish-light-upright.webp';
-import { keepLastWords, ui, type Locale } from '../i18n/ui';
+import { keepLastWords, localePath, ui, type Locale } from '../i18n/ui';
+
+/** link — речення з посиланням після відповіді: «{lead} <a>{text}</a>.» (напр. на калькулятор) */
+type FaqItem = { q: string; a: string; link?: { lead: string; text: string; path: string } };
 
 interface Props {
   locale: Locale;
   /** Тексти для іншої сторінки (напр. FAQ сторінки послуги); без них — FAQ головної */
-  content?: { eyebrow: string; title: string; items: { q: string; a: string }[] };
+  content?: { eyebrow: string; title: string; items: FaqItem[] };
 }
 
 const { locale, content } = Astro.props;
-const t = content ?? ui[locale].faq;
+const t: { eyebrow: string; title: string; items: FaqItem[] } = content ?? ui[locale].faq;
 ---
 
 <section class="faq" aria-labelledby="faq-title" data-faq>
@@ -58,7 +61,15 @@ const t = content ?? ui[locale].faq;
             <span>{item.q}</span>
             <span class="faq__icon" aria-hidden="true" />
           </summary>
-          <p class="faq__a">{keepLastWords(item.a)}</p>
+          <p class="faq__a">
+            {item.link ? item.a : keepLastWords(item.a)}
+            {item.link && (
+              <>
+                {' '}
+                {item.link.lead} <a href={localePath(locale, item.link.path)}>{item.link.text}</a>.
+              </>
+            )}
+          </p>
         </details>
       ))
     }
@@ -280,6 +291,16 @@ const t = content ?? ui[locale].faq;
     font-size: var(--text-body-lead);
     line-height: var(--text-body-lead--line-height);
     color: var(--text-soft);
+  }
+
+  .faq__a a {
+    color: var(--accent-text);
+    text-underline-offset: 0.15em;
+  }
+  @media (hover: hover) {
+    .faq__a a:hover {
+      text-decoration-thickness: 2px;
+    }
   }
 
   @media (max-width: 1100px) {

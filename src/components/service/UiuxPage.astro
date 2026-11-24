@@ -34,10 +34,10 @@ const path = '/services/ui-ux/';
   <Menu locale={locale} path={path} />
   <main>
     <ServiceHero locale={locale} content={t.hero} bgDark={heroDark} bgLight={heroLight} worksHref="#projects" cardLabel={t.hero.cardLabel} />
-    <ServiceAudience content={t.audience} />
+    <ServiceAudience content={t.audience} bannerHref={localePath(locale, '/services/sites/')} />
     <ServiceProjects locale={locale} id="projects" />
     <Process locale={locale} content={t.stages} />
-    <ServicePricing locale={locale} content={t.pricing} bannerHref={localePath(locale, '/services/sites/')} />
+    <ServicePricing locale={locale} content={t.pricing} calcHref={`${localePath(locale, '/calculator/')}?service=uiux`} />
     <Faq locale={locale} content={t.faq} />
     <Cta locale={locale} content={t.cta} />
   </main>

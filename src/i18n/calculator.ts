@@ -1,0 +1,841 @@
+/**
+ * Тексти калькулятора вартості (сторінка /calculator/). Ключі — id напрямів, питань і варіантів з src/data/calculator.ts.
+ * UK — з макета Figma «Калькулятор — UI dark (1512)» і специфікації; тексти для напрямів, яких немає в макеті
+ * (UI/UX, магазин, брендинг, фото), і блок «Що входить» для них — ЧЕРНЕТКА, на вичитку.
+ * FR і EN — ЧЕРНЕТКА перекладу (Claude, 24.11.2026), на вичитку.
+ *
+ * Плейсхолдери: {n} — число, {price}, {full}, {design}, {low}, {high} — суми (форматує компонент за мовою), {name} — назва.
+ * Нерозривні пробіли (N): перед « : ; ? ! » у французькій, між числом і словом, між двома останніми словами.
+ */
+import type { Locale } from './ui';
+
+const N = ' ';
+
+export interface CalcOptionText {
+  title: string;
+  text?: string;
+  /** Як варіант звучить у рядку «З чого складається» (за замовчуванням — title) */
+  line?: string;
+}
+export interface CalcQuestionText {
+  title: string;
+  hint?: string;
+  options?: Record<string, CalcOptionText>;
+}
+export interface CalcIncludedItem {
+  title: string;
+  text: string;
+}
+
+export interface CalcTexts {
+  meta: { title: string; description: string };
+  hero: { crumbs: [string, string]; crumbsLabel: string; title: string; lead: string };
+  steps: [string, string, string, string];
+  stepsLabel: string;
+  /** «Крок {n} · {name}» */
+  stepLabel: string;
+  serviceQuestion: string;
+  services: Record<string, { title: string; text: string }>;
+  questions: Record<string, Record<string, CalcQuestionText>>;
+  price: { from: string; perPage: string; plus: string; perMonth: string; custom: string; percent: string };
+  counter: { minus: string; plus: string; over: string };
+  languages: Record<string, string>;
+  lines: { screens: string; pages: string; copy: string; copyLanding: string; pace: string; products: string; monthly: string };
+  summary: {
+    label: string;
+    tax: string;
+    breakdown: string;
+    empty: string;
+    custom: string;
+    customText: string;
+    note: string;
+    vat: string;
+    advice: string;
+    exact: string;
+    call: string;
+    restart: string;
+    /** Для екранного читача: «Орієнтовно: від {low} до {high} HT» */
+    range: string;
+  };
+  included: { eyebrow: string; lead: string; titles: Record<string, string>; items: Record<string, CalcIncludedItem[]> };
+  mobile: { back: string; next: string; result: string; bar: string; toResult: string };
+  noscript: { text: string; link: string };
+  estimate: { service: string; total: string };
+}
+
+// TVA: на всіх мовах той самий французький текст (специфікація, правило 5)
+const VAT = 'TVA non applicable, art. 293 B du CGI';
+
+export const calcUi: Record<Locale, CalcTexts> = {
+  uk: {
+    meta: {
+      title: 'Калькулятор вартості проєкту — Lindigo Design Studio',
+      description: 'Оберіть, що потрібно, і дайте відповідь на кілька питань. Ви одразу побачите орієнтовну вартість і з чого вона складається.',
+    },
+    hero: {
+      crumbs: ['Головна', 'Калькулятор'],
+      crumbsLabel: 'Хлібні крихти',
+      title: 'Скільки коштує ваш проєкт?',
+      lead: 'Оберіть, що потрібно, і дайте відповідь на кілька питань. Ви одразу побачите орієнтовну вартість і з чого вона складається. Точну ціну назвемо після короткої розмови.',
+    },
+    steps: ['Напрям', 'Параметри', 'Доповнення', 'Темп'],
+    stepsLabel: 'Кроки калькулятора',
+    stepLabel: 'Крок {n} · {name}',
+    serviceQuestion: 'Що потрібно?',
+    services: {
+      uiux: { title: 'UI/UX і прототипи', text: 'Застосунки, вебсервіси, прототипи' },
+      sites: { title: 'Сайт під ключ', text: 'Лендинг, візитівка, корпоративний' },
+      shop: { title: 'Інтернет-магазин', text: 'Shopify або власний код' },
+      branding: { title: 'Брендинг і логотипи', text: 'Логотип, стиль, брендбук' },
+      content: { title: 'Фото й контент', text: 'Зйомка й публікації для соцмереж' },
+    },
+    questions: {
+      uiux: {
+        type: {
+          title: 'Що проєктуємо?',
+          options: {
+            prototype: { title: 'Клікабельний прототип', text: `Ключовий сценарій, до 10${N}екранів` },
+            mobile: { title: 'Мобільний застосунок', text: `Одна платформа, до 20${N}екранів` },
+            webservice: { title: 'Вебсервіс', text: `Кабінет чи платформа, до 25${N}екранів` },
+          },
+        },
+        screens: {
+          title: 'Скільки екранів?',
+          hint: `До {n}${N}екранів уже у вартості. Кожен наступний — +{price}. Екран — це окремий вид: головна, профіль, кошик, налаштування.`,
+        },
+        addons: {
+          title: 'Що додати?',
+          hint: 'Можна нічого не обирати.',
+          options: {
+            interviews: { title: 'Інтерв’ю з користувачами', text: 'Дізнаємося, що людям справді потрібно' },
+            testing: { title: 'Тестування прототипу з користувачами', text: 'Перевіряємо, чи все зрозуміло без підказок' },
+            ds: { title: 'Дизайн-система для розробників', text: 'Компоненти, стани й правила в одному файлі' },
+            platform2: { title: 'Друга платформа', text: 'Вебверсія й застосунок разом' },
+          },
+        },
+      },
+      sites: {
+        type: {
+          title: 'Який сайт?',
+          options: {
+            landing: { title: 'Лендинг', text: 'Одна сторінка про один продукт або послугу' },
+            vitrine: { title: 'Сайт-візитівка', text: `До 5${N}сторінок: про вас, послуги, контакти` },
+            corporate: { title: 'Корпоративний сайт', text: `До 10${N}сторінок, кілька розділів` },
+          },
+        },
+        scope: {
+          title: 'Що потрібно для сайту?',
+          options: {
+            design: { title: 'Лише дизайн', text: 'Макети для вашого розробника', line: 'лише дизайн' },
+            full: { title: 'Дизайн і розробка', text: 'Готовий сайт на вашому домені', line: 'дизайн і розробка' },
+          },
+        },
+        pages: {
+          title: 'Скільки сторінок?',
+          hint: `До {n}${N}сторінок уже у вартості. Кожна наступна — +{full}, лише дизайн — +{design}.`,
+        },
+        languages: {
+          title: 'Скільки мов?',
+          hint: 'Кожна мова понад першу — +{price}. Переклад робите ви, або оцінимо його окремо.',
+        },
+        copy: {
+          title: 'Хто пише тексти?',
+          options: {
+            ready: { title: 'Тексти вже готові', text: 'Ви надсилаєте тексти, ми розміщуємо їх на сайті' },
+            studio: { title: 'Тексти від студії', text: 'Пишемо просто й зрозуміло, під ваших клієнтів' },
+          },
+        },
+        addons: {
+          title: 'Що додати?',
+          hint: 'Можна нічого не обирати.',
+          options: {
+            logo: { title: 'Потрібен логотип', text: 'Логотип з логобуком: правила, як ним користуватися' },
+            blog: { title: 'Блог', text: 'Публікації, які ви додаєте самі' },
+            booking: { title: 'Онлайн-запис', text: 'Клієнти бронюють час просто на сайті' },
+            support: { title: 'Підтримка після запуску', text: 'Оновлення, резервні копії, дрібні правки. Оплата щомісяця, у суму не входить' },
+          },
+        },
+      },
+      shop: {
+        platform: {
+          title: 'На чому зробити магазин?',
+          options: {
+            shopify: { title: 'Shopify', text: 'Готова платформа для продажів онлайн' },
+            custom: { title: 'Власний код', text: 'Магазин, зроблений саме під вас' },
+            unsure: { title: 'Не знаю — порадьте', text: 'Підкажемо на дзвінку, що вам краще' },
+          },
+        },
+        products: {
+          title: 'Скільки товарів?',
+          options: {
+            upTo50: { title: 'До 50', line: 'до 50' },
+            upTo300: { title: '50–300', line: '50–300' },
+            over300: { title: 'Понад 300', line: 'понад 300' },
+          },
+        },
+        languages: {
+          title: 'Скільки мов?',
+          hint: 'Кожна мова понад першу — +{price}. Переклад робите ви, або оцінимо його окремо.',
+        },
+        addons: {
+          title: 'Що додати?',
+          hint: 'Можна нічого не обирати.',
+          options: {
+            photos: { title: 'Фото товарів від студії', text: 'Зйомка пів дня з обробкою' },
+            logo: { title: 'Потрібен логотип', text: 'Логотип з логобуком: правила, як ним користуватися' },
+          },
+        },
+      },
+      branding: {
+        type: {
+          title: 'Що саме потрібно?',
+          options: {
+            logo: { title: 'Логотип з логобуком', text: 'Логотип і правила, як ним користуватися' },
+            identity: { title: 'Логотип і фірмовий стиль', text: 'Логотип, кольори, шрифти й графіка' },
+            full: { title: 'Повний брендинг', text: 'Логотип, стиль і брендбук' },
+            logobook: { title: 'Логобук для готового логотипа', text: 'У вас уже є логотип, але немає правил, як ним користуватися' },
+            brandbook: { title: 'Брендбук для готового стилю', text: 'У вас уже є логотип і стиль, але кожен підрядник застосовує їх по-своєму' },
+          },
+        },
+        media: {
+          title: 'Що ще оформити?',
+          hint: 'Можна нічого не обирати.',
+          options: {
+            card: { title: 'Візитка', text: 'Макет і файл для друкарні' },
+            social: { title: 'Шаблони для соцмереж', text: 'Дописи й сторіз у вашому стилі' },
+            deck: { title: 'Шаблон презентації', text: 'Слайди, які легко заповнити самим' },
+          },
+        },
+      },
+      content: {
+        type: {
+          title: 'Що саме потрібно?',
+          options: {
+            shoot: { title: 'Зйомка', text: 'Fashion, товари, портрет' },
+            social: { title: 'Контент для соцмереж', text: 'Пакет публікацій' },
+          },
+        },
+        duration: {
+          title: 'Скільки триває зйомка?',
+          options: {
+            half: { title: 'Пів дня', text: 'З обробкою', line: 'пів дня' },
+            full: { title: 'Повний день', text: 'З обробкою', line: 'повний день' },
+            multi: { title: 'Кілька днів', text: 'Оцінимо індивідуально', line: 'кілька днів' },
+          },
+        },
+        addons: {
+          title: 'Що додати?',
+          hint: 'Можна нічого не обирати.',
+          options: {
+            video: { title: 'Короткі відео для соцмереж', text: `До 3${N}відео` },
+            retouch: { title: 'Розширена ретуш', text: 'Детальна обробка кожного кадру' },
+          },
+        },
+      },
+      common: {
+        pace: {
+          title: 'Який темп?',
+          options: {
+            normal: { title: 'Звичайний', text: 'Проєкт іде в роботу за чергою', line: 'звичайний' },
+            priority: { title: 'Пріоритет', text: 'Ваш проєкт іде першим у черзі', line: 'пріоритет' },
+          },
+        },
+      },
+    },
+    price: { from: 'від {price}', perPage: '+ {price} за сторінку', plus: '+ {price}', perMonth: 'від {price} / міс.', custom: 'Індивідуально', percent: '+ {n} %' },
+    counter: { minus: 'Менше', plus: 'Більше', over: 'Понад {n} — оцінимо індивідуально.' },
+    languages: { '1': '1 мова', '2': '2 мови', '3': '3 мови' },
+    lines: {
+      screens: 'Додаткові екрани: {n}',
+      pages: 'Додаткові сторінки: {n}',
+      copy: `Тексти від студії, {n}${N}стор.`,
+      copyLanding: 'Тексти від студії',
+      pace: 'Темп: {name}',
+      products: 'Товарів: {name}',
+      monthly: 'від {price} / міс.',
+    },
+    summary: {
+      label: 'Орієнтовна вартість',
+      tax: 'HT',
+      breakdown: 'З чого складається',
+      empty: 'Оберіть напрям, і тут з’явиться орієнтовна вартість.',
+      custom: 'Потрібна індивідуальна оцінка',
+      customText: 'Такий проєкт виходить за межі звичайних пакетів. Розкажіть про нього, і ми підготуємо оцінку.',
+      note: 'Це орієнтовна вартість. Точну назвемо після короткої розмови, коли дізнаємося деталі проєкту.',
+      vat: VAT,
+      advice: 'Платформу підкажемо на дзвінку.',
+      exact: 'Отримати точну оцінку',
+      call: 'Записатися на дзвінок',
+      restart: 'Почати спочатку',
+      range: 'Орієнтовно: від {low} до {high} HT',
+    },
+    included: {
+      eyebrow: 'Що входить',
+      lead: 'Кожен етап уже враховано у вартості.',
+      titles: {
+        uiux: 'Що входить в UI/UX-дизайн',
+        sites: 'Що входить у сайт під ключ',
+        shop: 'Що входить в інтернет-магазин',
+        branding: 'Що входить у брендинг',
+        content: 'Що входить у зйомку',
+      },
+      items: {
+        uiux: [
+          { title: 'Дослідження', text: 'Вивчаємо ваших користувачів і конкурентів.' },
+          { title: 'Структура', text: 'Плануємо екрани й шлях користувача до мети.' },
+          { title: 'Дизайн', text: 'Екрани у стилі вашого бренду, з усіма станами.' },
+          { title: 'Прототип', text: 'Клікабельний прототип, який можна показати команді.' },
+        ],
+        sites: [
+          { title: 'Структура', text: 'Плануємо сторінки й шлях відвідувача до заявки.' },
+          { title: 'Дизайн', text: 'Макети для комп’ютера й телефона у стилі вашого бренду.' },
+          { title: 'Розробка', text: 'Швидкий сайт, який добре видно в пошуку Google.' },
+          { title: 'Запуск', text: 'Підключаємо домен і аналітику, показуємо, як оновлювати сайт.' },
+        ],
+        'sites-design': [
+          { title: 'Структура', text: 'Плануємо сторінки й шлях відвідувача до заявки.' },
+          { title: 'Дизайн', text: 'Макети для комп’ютера й телефона у стилі вашого бренду.' },
+          { title: 'Прототип', text: 'Клікабельні макети, щоб побачити сайт до розробки.' },
+          { title: 'Передача', text: 'Готуємо файли й пояснення для вашого розробника.' },
+        ],
+        shop: [
+          { title: 'Структура', text: 'Плануємо каталог і шлях покупця до оплати.' },
+          { title: 'Дизайн', text: 'Макети для комп’ютера й телефона у стилі вашого бренду.' },
+          { title: 'Налаштування', text: 'Каталог, кошик, оплата й доставка.' },
+          { title: 'Запуск', text: 'Підключаємо домен і аналітику, показуємо, як додавати товари.' },
+        ],
+        branding: [
+          { title: 'Дослідження', text: 'Вивчаємо ваш ринок, конкурентів і клієнтів.' },
+          { title: 'Концепції', text: 'Показуємо кілька напрямів і обираємо разом.' },
+          { title: 'Дизайн', text: 'Доводимо обраний варіант до готових файлів.' },
+          { title: 'Правила', text: 'Пояснюємо, як користуватися логотипом і стилем.' },
+        ],
+        content: [
+          { title: 'Підготовка', text: 'Плануємо зйомку під мету: сайт, запуск, соцмережі.' },
+          { title: 'Зйомка', text: 'Знімаємо в студії або на локації.' },
+          { title: 'Обробка', text: 'Колір і базова ретуш кожного кадру.' },
+          { title: 'Передача', text: 'Готові файли для сайту й соцмереж.' },
+        ],
+      },
+    },
+    mobile: { back: 'Назад', next: 'Далі', result: 'Показати результат', bar: 'Орієнтовно', toResult: 'До результату' },
+    noscript: { text: 'Увімкніть JavaScript, щоб скористатися калькулятором, або напишіть нам.', link: 'Написати нам' },
+    estimate: { service: 'Напрям', total: 'Орієнтовно' },
+  },
+
+  fr: {
+    meta: {
+      title: 'Calculateur de coût de projet — Lindigo Design Studio',
+      description: 'Choisissez ce dont vous avez besoin et répondez à quelques questions. Vous verrez tout de suite le coût estimé et ce qui le compose.',
+    },
+    hero: {
+      crumbs: ['Accueil', 'Calculateur'],
+      crumbsLabel: 'Fil d’Ariane',
+      title: `Combien coûte votre projet${N}?`,
+      lead: 'Choisissez ce dont vous avez besoin et répondez à quelques questions. Vous verrez tout de suite le coût estimé et ce qui le compose. Nous vous donnerons le prix exact après un court échange.',
+    },
+    steps: ['Domaine', 'Paramètres', 'Options', 'Rythme'],
+    stepsLabel: 'Étapes du calculateur',
+    stepLabel: 'Étape {n} · {name}',
+    serviceQuestion: `De quoi avez-vous besoin${N}?`,
+    services: {
+      uiux: { title: 'UI/UX et prototypes', text: 'Applications, services web, prototypes' },
+      sites: { title: 'Site clés en main', text: 'Landing page, site vitrine, site d’entreprise' },
+      shop: { title: 'Boutique en ligne', text: 'Shopify ou développement sur mesure' },
+      branding: { title: 'Branding et logos', text: 'Logo, identité visuelle, charte graphique' },
+      content: { title: 'Photo et contenu', text: 'Shootings et publications pour les réseaux sociaux' },
+    },
+    questions: {
+      uiux: {
+        type: {
+          title: `Que concevons-nous${N}?`,
+          options: {
+            prototype: { title: 'Prototype interactif', text: `Un parcours clé, jusqu’à 10${N}écrans` },
+            mobile: { title: 'Application mobile', text: `Une plateforme, jusqu’à 20${N}écrans` },
+            webservice: { title: 'Application web', text: `Espace client ou plateforme, jusqu’à 25${N}écrans` },
+          },
+        },
+        screens: {
+          title: `Combien d’écrans${N}?`,
+          hint: `Jusqu’à {n}${N}écrans inclus dans le prix. Chaque écran supplémentaire${N}: +{price}. Un écran est une vue distincte${N}: accueil, profil, panier, paramètres.`,
+        },
+        addons: {
+          title: `Que souhaitez-vous ajouter${N}?`,
+          hint: 'Vous pouvez ne rien choisir.',
+          options: {
+            interviews: { title: 'Entretiens utilisateurs', text: 'Pour comprendre ce dont les gens ont vraiment besoin' },
+            testing: { title: 'Tests du prototype avec des utilisateurs', text: 'Nous vérifions que tout est clair sans explications' },
+            ds: { title: 'Design system pour les développeurs', text: 'Composants, états et règles dans un seul fichier' },
+            platform2: { title: 'Deuxième plateforme', text: 'Version web et application ensemble' },
+          },
+        },
+      },
+      sites: {
+        type: {
+          title: `Quel site${N}?`,
+          options: {
+            landing: { title: 'Landing page', text: 'Une page pour un produit ou un service' },
+            vitrine: { title: 'Site vitrine', text: `Jusqu’à 5${N}pages${N}: à propos, services, contact` },
+            corporate: { title: 'Site d’entreprise', text: `Jusqu’à 10${N}pages, plusieurs rubriques` },
+          },
+        },
+        scope: {
+          title: `De quoi avez-vous besoin pour le site${N}?`,
+          options: {
+            design: { title: 'Design seul', text: 'Maquettes pour votre développeur', line: 'design seul' },
+            full: { title: 'Design et développement', text: 'Un site prêt à l’emploi sur votre domaine', line: 'design et développement' },
+          },
+        },
+        pages: {
+          title: `Combien de pages${N}?`,
+          hint: `Jusqu’à {n}${N}pages incluses dans le prix. Chaque page supplémentaire${N}: +{full}, design seul${N}: +{design}.`,
+        },
+        languages: {
+          title: `Combien de langues${N}?`,
+          hint: `Chaque langue en plus de la première${N}: +{price}. La traduction est à votre charge, ou nous l’estimons séparément.`,
+        },
+        copy: {
+          title: `Qui rédige les textes${N}?`,
+          options: {
+            ready: { title: 'Textes déjà prêts', text: 'Vous nous envoyez les textes, nous les intégrons au site' },
+            studio: { title: 'Textes rédigés par le studio', text: 'Des textes simples et clairs, pensés pour vos clients' },
+          },
+        },
+        addons: {
+          title: `Que souhaitez-vous ajouter${N}?`,
+          hint: 'Vous pouvez ne rien choisir.',
+          options: {
+            logo: { title: 'Besoin d’un logo', text: `Logo avec logobook${N}: les règles pour bien l’utiliser` },
+            blog: { title: 'Blog', text: 'Des articles que vous publiez vous-même' },
+            booking: { title: 'Réservation en ligne', text: 'Vos clients réservent directement sur le site' },
+            support: { title: 'Maintenance après la mise en ligne', text: 'Mises à jour, sauvegardes, petites modifications. Paiement mensuel, non inclus dans le total' },
+          },
+        },
+      },
+      shop: {
+        platform: {
+          title: `Sur quelle plateforme${N}?`,
+          options: {
+            shopify: { title: 'Shopify', text: 'Une plateforme prête pour la vente en ligne' },
+            custom: { title: 'Développement sur mesure', text: 'Une boutique conçue spécialement pour vous' },
+            unsure: { title: 'Je ne sais pas — conseillez-moi', text: 'Nous en parlerons lors de l’appel' },
+          },
+        },
+        products: {
+          title: `Combien de produits${N}?`,
+          options: {
+            upTo50: { title: `Jusqu’à 50`, line: 'jusqu’à 50' },
+            upTo300: { title: '50 à 300', line: '50 à 300' },
+            over300: { title: 'Plus de 300', line: 'plus de 300' },
+          },
+        },
+        languages: {
+          title: `Combien de langues${N}?`,
+          hint: `Chaque langue en plus de la première${N}: +{price}. La traduction est à votre charge, ou nous l’estimons séparément.`,
+        },
+        addons: {
+          title: `Que souhaitez-vous ajouter${N}?`,
+          hint: 'Vous pouvez ne rien choisir.',
+          options: {
+            photos: { title: 'Photos produits par le studio', text: 'Une demi-journée de shooting, retouches comprises' },
+            logo: { title: 'Besoin d’un logo', text: `Logo avec logobook${N}: les règles pour bien l’utiliser` },
+          },
+        },
+      },
+      branding: {
+        type: {
+          title: `De quoi avez-vous besoin exactement${N}?`,
+          options: {
+            logo: { title: 'Logo avec logobook', text: 'Le logo et les règles pour l’utiliser' },
+            identity: { title: 'Logo et identité visuelle', text: 'Logo, couleurs, typographies et éléments graphiques' },
+            full: { title: 'Branding complet', text: 'Logo, identité visuelle et charte graphique' },
+            logobook: { title: 'Logobook pour un logo existant', text: 'Vous avez déjà un logo, mais pas de règles pour l’utiliser' },
+            brandbook: { title: 'Charte graphique pour une identité existante', text: 'Vous avez déjà un logo et un style, mais chaque prestataire les applique à sa façon' },
+          },
+        },
+        media: {
+          title: `Quels supports créer${N}?`,
+          hint: 'Vous pouvez ne rien choisir.',
+          options: {
+            card: { title: 'Carte de visite', text: 'Maquette et fichier pour l’imprimeur' },
+            social: { title: 'Modèles pour les réseaux sociaux', text: 'Publications et stories à votre image' },
+            deck: { title: 'Modèle de présentation', text: 'Des slides faciles à remplir vous-même' },
+          },
+        },
+      },
+      content: {
+        type: {
+          title: `De quoi avez-vous besoin exactement${N}?`,
+          options: {
+            shoot: { title: 'Shooting', text: 'Mode, produits, portrait' },
+            social: { title: 'Contenu pour les réseaux sociaux', text: 'Un pack de publications' },
+          },
+        },
+        duration: {
+          title: `Quelle durée de shooting${N}?`,
+          options: {
+            half: { title: 'Demi-journée', text: 'Retouches comprises', line: 'demi-journée' },
+            full: { title: 'Journée complète', text: 'Retouches comprises', line: 'journée complète' },
+            multi: { title: 'Plusieurs jours', text: 'Estimation sur mesure', line: 'plusieurs jours' },
+          },
+        },
+        addons: {
+          title: `Que souhaitez-vous ajouter${N}?`,
+          hint: 'Vous pouvez ne rien choisir.',
+          options: {
+            video: { title: 'Vidéos courtes pour les réseaux sociaux', text: `Jusqu’à 3${N}vidéos` },
+            retouch: { title: 'Retouche avancée', text: 'Un travail détaillé sur chaque image' },
+          },
+        },
+      },
+      common: {
+        pace: {
+          title: `Quel rythme${N}?`,
+          options: {
+            normal: { title: 'Standard', text: 'Le projet démarre selon notre planning', line: 'standard' },
+            priority: { title: 'Prioritaire', text: 'Votre projet passe en premier', line: 'prioritaire' },
+          },
+        },
+      },
+    },
+    price: { from: 'à partir de {price}', perPage: '+ {price} par page', plus: '+ {price}', perMonth: 'à partir de {price} / mois', custom: 'Sur mesure', percent: `+ {n}${N}%` },
+    counter: { minus: 'Moins', plus: 'Plus', over: `Plus de {n}${N}: estimation sur mesure.` },
+    languages: { '1': `1${N}langue`, '2': `2${N}langues`, '3': `3${N}langues` },
+    lines: {
+      screens: `Écrans supplémentaires${N}: {n}`,
+      pages: `Pages supplémentaires${N}: {n}`,
+      copy: `Textes par le studio, {n}${N}p.`,
+      copyLanding: 'Textes par le studio',
+      pace: `Rythme${N}: {name}`,
+      products: `Produits${N}: {name}`,
+      monthly: 'dès {price} / mois',
+    },
+    summary: {
+      label: 'Coût estimé',
+      tax: 'HT',
+      breakdown: 'Détail',
+      empty: 'Choisissez un domaine pour voir le coût estimé.',
+      custom: 'Estimation sur mesure nécessaire',
+      customText: 'Ce projet sort du cadre de nos formules. Parlez-nous-en, et nous préparerons une estimation.',
+      note: 'Il s’agit d’un coût estimé. Nous vous donnerons le prix exact après un court échange, une fois les détails du projet connus.',
+      vat: VAT,
+      advice: 'Nous vous conseillerons sur la plateforme lors de l’appel.',
+      exact: 'Obtenir une estimation précise',
+      call: 'Réserver un appel',
+      restart: 'Recommencer',
+      range: `Coût estimé${N}: de {low} à {high} HT`,
+    },
+    included: {
+      eyebrow: 'Ce qui est inclus',
+      lead: 'Chaque étape est déjà comprise dans le prix.',
+      titles: {
+        uiux: 'Ce qui est inclus dans le design UI/UX',
+        sites: 'Ce qui est inclus dans un site clés en main',
+        shop: 'Ce qui est inclus dans une boutique en ligne',
+        branding: 'Ce qui est inclus dans le branding',
+        content: 'Ce qui est inclus dans un shooting',
+      },
+      items: {
+        uiux: [
+          { title: 'Recherche', text: 'Nous étudions vos utilisateurs et vos concurrents.' },
+          { title: 'Structure', text: 'Nous planifions les écrans et le parcours de l’utilisateur.' },
+          { title: 'Design', text: 'Des écrans à l’image de votre marque, avec tous leurs états.' },
+          { title: 'Prototype', text: 'Un prototype interactif à montrer à votre équipe.' },
+        ],
+        sites: [
+          { title: 'Structure', text: 'Nous planifions les pages et le parcours du visiteur jusqu’à la demande de contact.' },
+          { title: 'Design', text: 'Des maquettes pour ordinateur et smartphone à l’image de votre marque.' },
+          { title: 'Développement', text: 'Un site rapide et bien visible dans Google.' },
+          { title: 'Mise en ligne', text: 'Nous connectons le domaine et les statistiques, et vous montrons comment mettre le site à jour.' },
+        ],
+        'sites-design': [
+          { title: 'Structure', text: 'Nous planifions les pages et le parcours du visiteur jusqu’à la demande de contact.' },
+          { title: 'Design', text: 'Des maquettes pour ordinateur et smartphone à l’image de votre marque.' },
+          { title: 'Prototype', text: 'Des maquettes cliquables pour voir le site avant le développement.' },
+          { title: 'Transmission', text: 'Nous préparons les fichiers et les explications pour votre développeur.' },
+        ],
+        shop: [
+          { title: 'Structure', text: 'Nous planifions le catalogue et le parcours de l’acheteur jusqu’au paiement.' },
+          { title: 'Design', text: 'Des maquettes pour ordinateur et smartphone à l’image de votre marque.' },
+          { title: 'Configuration', text: 'Catalogue, panier, paiement et livraison.' },
+          { title: 'Mise en ligne', text: 'Nous connectons le domaine et les statistiques, et vous montrons comment ajouter des produits.' },
+        ],
+        branding: [
+          { title: 'Recherche', text: 'Nous étudions votre marché, vos concurrents et vos clients.' },
+          { title: 'Pistes', text: 'Nous présentons plusieurs directions et choisissons ensemble.' },
+          { title: 'Design', text: 'Nous finalisons la piste retenue jusqu’aux fichiers prêts à l’emploi.' },
+          { title: 'Règles', text: 'Nous expliquons comment utiliser le logo et l’identité visuelle.' },
+        ],
+        content: [
+          { title: 'Préparation', text: `Nous planifions le shooting selon l’objectif${N}: site, lancement, réseaux sociaux.` },
+          { title: 'Shooting', text: 'En studio ou en extérieur.' },
+          { title: 'Retouche', text: 'Couleurs et retouche de base sur chaque image.' },
+          { title: 'Livraison', text: 'Des fichiers prêts pour le site et les réseaux sociaux.' },
+        ],
+      },
+    },
+    mobile: { back: 'Retour', next: 'Suivant', result: 'Voir le résultat', bar: 'Estimation', toResult: 'Voir le résultat' },
+    noscript: { text: 'Activez JavaScript pour utiliser le calculateur, ou écrivez-nous.', link: 'Nous écrire' },
+    estimate: { service: 'Domaine', total: 'Estimation' },
+  },
+
+  en: {
+    meta: {
+      title: 'Project cost calculator — Lindigo Design Studio',
+      description: 'Choose what you need and answer a few questions. You’ll see the estimated cost right away, and what it’s made of.',
+    },
+    hero: {
+      crumbs: ['Home', 'Calculator'],
+      crumbsLabel: 'Breadcrumbs',
+      title: 'How much does your project cost?',
+      lead: 'Choose what you need and answer a few questions. You’ll see the estimated cost right away, and what it’s made of. We’ll give you the exact price after a short call.',
+    },
+    steps: ['Service', 'Details', 'Extras', 'Pace'],
+    stepsLabel: 'Calculator steps',
+    stepLabel: 'Step {n} · {name}',
+    serviceQuestion: 'What do you need?',
+    services: {
+      uiux: { title: 'UI/UX and prototypes', text: 'Apps, web services, prototypes' },
+      sites: { title: 'Turnkey website', text: 'Landing page, small business site, corporate site' },
+      shop: { title: 'Online store', text: 'Shopify or custom code' },
+      branding: { title: 'Branding and logos', text: 'Logo, visual identity, brand book' },
+      content: { title: 'Photo and content', text: 'Photo shoots and social media posts' },
+    },
+    questions: {
+      uiux: {
+        type: {
+          title: 'What are we designing?',
+          options: {
+            prototype: { title: 'Clickable prototype', text: `One key user flow, up to 10${N}screens` },
+            mobile: { title: 'Mobile app', text: `One platform, up to 20${N}screens` },
+            webservice: { title: 'Web app', text: `Client area or platform, up to 25${N}screens` },
+          },
+        },
+        screens: {
+          title: 'How many screens?',
+          hint: `Up to {n}${N}screens are included. Each extra screen is +{price}. A screen is one separate view: home, profile, cart, settings.`,
+        },
+        addons: {
+          title: 'What would you like to add?',
+          hint: 'You can leave this empty.',
+          options: {
+            interviews: { title: 'User interviews', text: 'We find out what people really need' },
+            testing: { title: 'Prototype testing with users', text: 'We check that everything is clear without help' },
+            ds: { title: 'Design system for developers', text: 'Components, states and rules in one file' },
+            platform2: { title: 'Second platform', text: 'Web version and app together' },
+          },
+        },
+      },
+      sites: {
+        type: {
+          title: 'Which website?',
+          options: {
+            landing: { title: 'Landing page', text: 'One page about one product or service' },
+            vitrine: { title: 'Small business site', text: `Up to 5${N}pages: about, services, contact` },
+            corporate: { title: 'Corporate website', text: `Up to 10${N}pages, several sections` },
+          },
+        },
+        scope: {
+          title: 'What do you need for the website?',
+          options: {
+            design: { title: 'Design only', text: 'Mockups for your developer', line: 'design only' },
+            full: { title: 'Design and development', text: 'A ready website on your domain', line: 'design and development' },
+          },
+        },
+        pages: {
+          title: 'How many pages?',
+          hint: `Up to {n}${N}pages are included. Each extra page is +{full}, or +{design} for design only.`,
+        },
+        languages: {
+          title: 'How many languages?',
+          hint: 'Each language after the first is +{price}. You provide the translation, or we quote it separately.',
+        },
+        copy: {
+          title: 'Who writes the copy?',
+          options: {
+            ready: { title: 'The copy is ready', text: 'You send us the texts, we put them on the site' },
+            studio: { title: 'Copy by the studio', text: 'Simple, clear texts written for your clients' },
+          },
+        },
+        addons: {
+          title: 'What would you like to add?',
+          hint: 'You can leave this empty.',
+          options: {
+            logo: { title: 'I need a logo', text: 'Logo with a logo book: rules on how to use it' },
+            blog: { title: 'Blog', text: 'Posts you add yourself' },
+            booking: { title: 'Online booking', text: 'Clients book a time right on the site' },
+            support: { title: 'Support after launch', text: 'Updates, backups, small edits. Paid monthly, not included in the total' },
+          },
+        },
+      },
+      shop: {
+        platform: {
+          title: 'Which platform?',
+          options: {
+            shopify: { title: 'Shopify', text: 'A ready platform for selling online' },
+            custom: { title: 'Custom code', text: 'A store built just for you' },
+            unsure: { title: 'Not sure — advise me', text: 'We’ll help you choose on the call' },
+          },
+        },
+        products: {
+          title: 'How many products?',
+          options: {
+            upTo50: { title: 'Up to 50', line: 'up to 50' },
+            upTo300: { title: '50–300', line: '50–300' },
+            over300: { title: 'Over 300', line: 'over 300' },
+          },
+        },
+        languages: {
+          title: 'How many languages?',
+          hint: 'Each language after the first is +{price}. You provide the translation, or we quote it separately.',
+        },
+        addons: {
+          title: 'What would you like to add?',
+          hint: 'You can leave this empty.',
+          options: {
+            photos: { title: 'Product photos by the studio', text: 'A half-day shoot with editing' },
+            logo: { title: 'I need a logo', text: 'Logo with a logo book: rules on how to use it' },
+          },
+        },
+      },
+      branding: {
+        type: {
+          title: 'What exactly do you need?',
+          options: {
+            logo: { title: 'Logo with a logo book', text: 'A logo and rules on how to use it' },
+            identity: { title: 'Logo and visual identity', text: 'Logo, colours, fonts and graphics' },
+            full: { title: 'Full branding', text: 'Logo, visual identity and brand book' },
+            logobook: { title: 'Logo book for an existing logo', text: 'You already have a logo, but no rules on how to use it' },
+            brandbook: { title: 'Brand book for an existing identity', text: 'You already have a logo and style, but every contractor uses them differently' },
+          },
+        },
+        media: {
+          title: 'What else should we design?',
+          hint: 'You can leave this empty.',
+          options: {
+            card: { title: 'Business card', text: 'Design and print-ready file' },
+            social: { title: 'Social media templates', text: 'Posts and stories in your style' },
+            deck: { title: 'Presentation template', text: 'Slides that are easy to fill in yourself' },
+          },
+        },
+      },
+      content: {
+        type: {
+          title: 'What exactly do you need?',
+          options: {
+            shoot: { title: 'Photo shoot', text: 'Fashion, products, portrait' },
+            social: { title: 'Social media content', text: 'A pack of posts' },
+          },
+        },
+        duration: {
+          title: 'How long is the shoot?',
+          options: {
+            half: { title: 'Half a day', text: 'Editing included', line: 'half a day' },
+            full: { title: 'Full day', text: 'Editing included', line: 'full day' },
+            multi: { title: 'Several days', text: 'Custom quote', line: 'several days' },
+          },
+        },
+        addons: {
+          title: 'What would you like to add?',
+          hint: 'You can leave this empty.',
+          options: {
+            video: { title: 'Short videos for social media', text: `Up to 3${N}videos` },
+            retouch: { title: 'Advanced retouching', text: 'Detailed work on every image' },
+          },
+        },
+      },
+      common: {
+        pace: {
+          title: 'What pace?',
+          options: {
+            normal: { title: 'Standard', text: 'Your project joins our queue', line: 'standard' },
+            priority: { title: 'Priority', text: 'Your project goes first in the queue', line: 'priority' },
+          },
+        },
+      },
+    },
+    price: { from: 'from {price}', perPage: '+ {price} per page', plus: '+ {price}', perMonth: 'from {price} / month', custom: 'Custom quote', percent: '+ {n}%' },
+    counter: { minus: 'Fewer', plus: 'More', over: 'Over {n} — custom quote.' },
+    languages: { '1': '1 language', '2': '2 languages', '3': '3 languages' },
+    lines: {
+      screens: 'Extra screens: {n}',
+      pages: 'Extra pages: {n}',
+      copy: 'Copy by the studio, {n} pages',
+      copyLanding: 'Copy by the studio',
+      pace: 'Pace: {name}',
+      products: 'Products: {name}',
+      monthly: 'from {price} / mo',
+    },
+    summary: {
+      label: 'Estimated cost',
+      tax: 'excl. VAT',
+      breakdown: 'What it’s made of',
+      empty: 'Choose a service to see the estimated cost here.',
+      custom: 'Custom quote needed',
+      customText: 'This project goes beyond our standard packages. Tell us about it, and we’ll prepare a quote.',
+      note: 'This is an estimated cost. We’ll give you the exact price after a short call, once we know the project details.',
+      vat: VAT,
+      advice: 'We’ll help you choose the platform on the call.',
+      exact: 'Get an exact quote',
+      call: 'Book a call',
+      restart: 'Start over',
+      range: 'Estimated: {low} to {high}, excl. VAT',
+    },
+    included: {
+      eyebrow: 'What’s included',
+      lead: 'Every stage is already included in the price.',
+      titles: {
+        uiux: 'What’s included in UI/UX design',
+        sites: 'What’s included in a turnkey website',
+        shop: 'What’s included in an online store',
+        branding: 'What’s included in branding',
+        content: 'What’s included in a photo shoot',
+      },
+      items: {
+        uiux: [
+          { title: 'Research', text: 'We study your users and competitors.' },
+          { title: 'Structure', text: 'We plan the screens and the user’s path to their goal.' },
+          { title: 'Design', text: 'Screens in your brand style, with all their states.' },
+          { title: 'Prototype', text: 'A clickable prototype you can show your team.' },
+        ],
+        sites: [
+          { title: 'Structure', text: 'We plan the pages and the visitor’s path to an enquiry.' },
+          { title: 'Design', text: 'Desktop and mobile mockups in your brand style.' },
+          { title: 'Development', text: 'A fast website that is easy to find on Google.' },
+          { title: 'Launch', text: 'We connect the domain and analytics, and show you how to update the site.' },
+        ],
+        'sites-design': [
+          { title: 'Structure', text: 'We plan the pages and the visitor’s path to an enquiry.' },
+          { title: 'Design', text: 'Desktop and mobile mockups in your brand style.' },
+          { title: 'Prototype', text: 'Clickable mockups to see the site before development.' },
+          { title: 'Handover', text: 'We prepare the files and notes for your developer.' },
+        ],
+        shop: [
+          { title: 'Structure', text: 'We plan the catalogue and the buyer’s path to checkout.' },
+          { title: 'Design', text: 'Desktop and mobile mockups in your brand style.' },
+          { title: 'Setup', text: 'Catalogue, cart, payment and delivery.' },
+          { title: 'Launch', text: 'We connect the domain and analytics, and show you how to add products.' },
+        ],
+        branding: [
+          { title: 'Research', text: 'We study your market, competitors and clients.' },
+          { title: 'Concepts', text: 'We show several directions and choose one together.' },
+          { title: 'Design', text: 'We turn the chosen concept into ready-to-use files.' },
+          { title: 'Rules', text: 'We explain how to use the logo and visual identity.' },
+        ],
+        content: [
+          { title: 'Preparation', text: 'We plan the shoot around its goal: website, launch, social media.' },
+          { title: 'Shoot', text: 'In a studio or on location.' },
+          { title: 'Editing', text: 'Colour and basic retouching for every image.' },
+          { title: 'Delivery', text: 'Files ready for your website and social media.' },
+        ],
+      },
+    },
+    mobile: { back: 'Back', next: 'Next', result: 'Show result', bar: 'Estimate', toResult: 'See result' },
+    noscript: { text: 'Turn on JavaScript to use the calculator, or write to us.', link: 'Write to us' },
+    estimate: { service: 'Service', total: 'Estimate' },
+  },
+};
+
+/** Підставляє {ключ} у шаблон */
+export const fill = (tpl: string, vars: Record<string, string | number>) =>
+  tpl.replace(/\{(\w+)\}/g, (_, k: string) => (k in vars ? String(vars[k]) : `{${k}}`));

@@ -33,7 +33,7 @@ export const ui = {
   fr: {
     // ЧЕРНЕТКА перекладу — на вичитку
     cta: { title: 'Parlez-nous de votre projet', text: 'Le premier appel est gratuit. Nous commencerons par des questions sur votre activité.' },
-    footerNav: { site: 'Site', social: 'Réseaux', contact: 'Nous joindre', email: 'E-mail', messenger: 'Messagerie', legal: 'Mentions légales', privacy: 'Confidentialité' },
+    footerNav: { site: 'Site', calculator: 'Calculateur', social: 'Réseaux', contact: 'Nous joindre', email: 'E-mail', messenger: 'Messagerie', legal: 'Mentions légales', privacy: 'Confidentialité' },
     // Заглушка сторінок, яких ще немає. ЧЕРНЕТКА — на вичитку
     stub: { text: 'Cette page est en cours de création.' },
     // Сторінка послуги «UI/UX дизайн і прототипування» (Figma «UI дизайн», 231:3260 / 243:866). Переклад від Яни, 23.11.2026
@@ -60,6 +60,12 @@ export const ui = {
           { title: 'Refonte d’un produit', text: `Vos utilisateurs se perdent dans la navigation ou ne trouvent pas les fonctionnalités recherchées${NBSP}? Nous identifions les points de difficulté et proposons des améliorations.` },
           { title: 'Prototype de présentation', text: `Vous souhaitez présenter une idée à votre équipe, à vos partenaires ou à des investisseurs${NBSP}? Nous créons un prototype interactif qu’ils pourront explorer et tester.` },
         ],
+        // банер «Сайти під ключ» у кінці блоку (рішення Яни 24.11.2026)
+        banner: {
+          title: `Besoin d’une landing page ou d’un site vitrine${NBSP}?`,
+          text: 'Pour les petits sites, nous proposons une prestation distincte, de la conception au développement et à la mise en ligne.',
+          action: 'Sites web clés en main',
+        },
       },
       projects: {
         eyebrow: 'Nos réalisations',
@@ -137,14 +143,14 @@ export const ui = {
         ],
         notes: [
           'Le prix de départ couvre les prestations indiquées dans chaque carte. Les écrans supplémentaires et les modifications hors du périmètre convenu font l’objet d’un devis distinct, validé avant le début des travaux concernés.',
-          `Vous ne savez pas quelle formule choisir${NBSP}? Parlez-nous de votre projet. Après un court échange, nous définirons le périmètre nécessaire et préparerons une proposition.`,
         ],
-        small: 'Tous les prix sont indiqués hors taxes (HT). TVA non applicable, art. 293 B du CGI.',
-        banner: {
-          title: `Besoin d’une landing page ou d’un site vitrine${NBSP}?`,
-          text: 'Pour les petits sites, nous proposons une prestation distincte, de la conception au développement et à la mise en ligne.',
-          action: 'Sites web clés en main',
+        // банер калькулятора під картками → /calculator/?service=uiux (тексти Яни, 24.11.2026)
+        calcBanner: {
+          title: `Vous ne savez pas quelle formule choisir${NBSP}?`,
+          text: 'Répondez à quelques questions et voyez tout de suite le budget estimé de votre projet.',
+          action: 'Estimer le coût',
         },
+        small: 'Tous les prix sont indiqués hors taxes (HT). TVA non applicable, art. 293 B du CGI.',
       },
       faq: {
         eyebrow: 'FAQ',
@@ -171,7 +177,7 @@ export const ui = {
       eyebrow: 'FAQ',
       title: 'Questions fréquentes',
       items: [
-        { q: `Combien coûte un projet${NBSP}?`, a: `Le prix dépend du type de projet, de sa complexité et du volume de travail. Nous donnons le prix définitif après le brief${NBSP}: il dépend des besoins de votre projet.` },
+        { q: `Combien coûte un projet${NBSP}?`, a: `Le prix dépend du type de projet, de sa complexité et du volume de travail. Nous donnons le prix définitif après le brief${NBSP}: il dépend des besoins de votre projet.`, link: { lead: 'Pour une première estimation, utilisez', text: `notre${NBSP}calculateur`, path: '/calculator/' } },
         { q: `Comment se passe le paiement${NBSP}?`, a: `En plusieurs fois. Pour un site${NBSP}: 30${NBSP}% au démarrage, 50${NBSP}% après validation du design et 20${NBSP}% à la livraison. Pour un logo${NBSP}: 70${NBSP}% au démarrage et 30${NBSP}% à la livraison.` },
         { q: `Combien de corrections sont incluses${NBSP}?`, a: 'Trois séries de corrections à chaque étape. Si vous changez entièrement de concept, il s’agit d’un nouveau travail, facturé séparément.' },
         { q: `Peut-on s’arrêter après l’analyse${NBSP}?`, a: `Oui. Après l’étape stratégie et structure, vous pouvez vous arrêter. Vous ne payez alors que l’acompte de 30${NBSP}% et repartez avec les résultats de l’analyse${NBSP}: l’arborescence et les maquettes en noir et blanc.` },
@@ -343,7 +349,7 @@ export const ui = {
   en: {
     // ЧЕРНЕТКА перекладу — на вичитку
     cta: { title: 'Tell us about your project', text: 'The first call is free. We’ll start with questions about your business.' },
-    footerNav: { site: 'Site', social: 'Social', contact: 'Get in touch', email: 'Email', messenger: 'Messenger', legal: 'Legal notice', privacy: 'Privacy' },
+    footerNav: { site: 'Site', calculator: 'Calculator', social: 'Social', contact: 'Get in touch', email: 'Email', messenger: 'Messenger', legal: 'Legal notice', privacy: 'Privacy' },
     // Заглушка сторінок, яких ще немає. ЧЕРНЕТКА — на вичитку
     stub: { text: 'This page is under construction.' },
     // Сторінка послуги «UI/UX дизайн і прототипування». Переклад від Яни, 23.11.2026
@@ -370,6 +376,12 @@ export const ui = {
           { title: 'Product Redesign', text: 'Are users getting lost in the navigation or struggling to find key features? We’ll identify where they run into difficulties and suggest improvements.' },
           { title: 'Presentation Prototype', text: 'Need to present an idea to your team, partners, or investors? We’ll create an interactive prototype they can explore and test.' },
         ],
+        // банер «Сайти під ключ» у кінці блоку (рішення Яни 24.11.2026)
+        banner: {
+          title: 'Need a Landing Page or a Simple Business Website?',
+          text: 'We offer a separate service for smaller websites — from design through development to launch.',
+          action: 'Complete Website Solutions',
+        },
       },
       projects: {
         eyebrow: 'Our work',
@@ -447,14 +459,14 @@ export const ui = {
         ],
         notes: [
           'The starting price covers the work listed in each card. Additional screens and changes outside the agreed scope are priced separately and approved before the work begins.',
-          'Not sure which option is right for you? Tell us about your project. After a short conversation, we’ll define the scope and prepare a proposal.',
         ],
-        small: 'All prices exclude VAT. TVA non applicable, art. 293 B du CGI.',
-        banner: {
-          title: 'Need a Landing Page or a Simple Business Website?',
-          text: 'We offer a separate service for smaller websites — from design through development to launch.',
-          action: 'Complete Website Solutions',
+        // ЧЕРНЕТКА перекладу — на вичитку
+        calcBanner: {
+          title: 'Not sure which package to choose?',
+          text: 'Answer a few questions and see the estimated budget for your project right away.',
+          action: 'Estimate the cost',
         },
+        small: 'All prices exclude VAT. TVA non applicable, art. 293 B du CGI.',
       },
       faq: {
         eyebrow: 'FAQ',
@@ -481,7 +493,7 @@ export const ui = {
       eyebrow: 'FAQ',
       title: 'FAQ',
       items: [
-        { q: 'How much does a project cost?', a: 'The price depends on the type of project, its complexity and the amount of work. We give the final price after the brief: it depends on what your project needs.' },
+        { q: 'How much does a project cost?', a: 'The price depends on the type of project, its complexity and the amount of work. We give the final price after the brief: it depends on what your project needs.', link: { lead: 'For a first estimate, use', text: `our${NBSP}calculator`, path: '/calculator/' } },
         { q: 'How does payment work?', a: `In instalments. For a website: 30${NBSP}% upfront, 50${NBSP}% after the design is approved and 20${NBSP}% on delivery. For a logo: 70${NBSP}% upfront and 30${NBSP}% on delivery.` },
         { q: 'How many revisions are included?', a: 'Three rounds of revisions at each stage. If you change the concept entirely, that’s new work and is billed separately.' },
         { q: 'Can I stop after the analysis?', a: `Yes. After the strategy and structure stage you can stop. You then pay only the 30${NBSP}% deposit and keep the results of the analysis: the sitemap and black-and-white wireframes.` },
@@ -650,7 +662,7 @@ export const ui = {
   },
   uk: {
     cta: { title: 'Розкажіть про свій проєкт', text: 'Перший дзвінок безкоштовний. Почнемо з питань про ваш бізнес.' },
-    footerNav: { site: 'Сайт', social: 'Соцмережі', contact: 'Зв’язок', email: 'Email', messenger: 'Месенджер', legal: 'Mentions légales', privacy: 'Confidentialité' },
+    footerNav: { site: 'Сайт', calculator: 'Калькулятор', social: 'Соцмережі', contact: 'Зв’язок', email: 'Email', messenger: 'Месенджер', legal: 'Mentions légales', privacy: 'Confidentialité' },
     // Заглушка сторінок, яких ще немає. ЧЕРНЕТКА — на вичитку
     stub: { text: 'Ця сторінка ще в роботі.' },
     // Сторінка послуги «UI/UX дизайн і прототипування» — тексти з макета Figma
@@ -677,6 +689,12 @@ export const ui = {
           { title: 'Оновлення продукту', text: 'Користувачі плутаються в меню або не знаходять потрібні функції? Перевіримо, де виникають труднощі, і запропонуємо зміни.' },
           { title: 'Прототип для презентації', text: 'Потрібно показати ідею команді, партнерам чи інвесторам? Створимо інтерактивний прототип, який можна відкрити й протестувати.' },
         ],
+        // банер «Сайти під ключ» у кінці блоку (рішення Яни 24.11.2026)
+        banner: {
+          title: 'Потрібен лендинг або сайт-візитівка?',
+          text: 'Для невеликих сайтів у нас є окрема послуга — від дизайну до розробки та запуску.',
+          action: 'Сайти під ключ',
+        },
       },
       projects: {
         eyebrow: 'Роботи',
@@ -753,14 +771,14 @@ export const ui = {
         ],
         notes: [
           'Стартова ціна охоплює роботи, перелічені в картці. Додаткові екрани та зміни поза погодженим обсягом оцінюємо окремо й узгоджуємо до початку роботи.',
-          'Не впевнені, який формат вам підходить? Розкажіть про свій проєкт. Після короткої розмови ми визначимо необхідний обсяг робіт і підготуємо пропозицію.',
         ],
-        small: 'Усі ціни вказані без ПДВ (HT). TVA non applicable, art. 293 B du CGI.',
-        banner: {
-          title: 'Потрібен лендинг або сайт-візитівка?',
-          text: 'Для невеликих сайтів у нас є окрема послуга — від дизайну до розробки та запуску.',
-          action: 'Сайти під ключ',
+        // ЧЕРНЕТКА перекладу — на вичитку
+        calcBanner: {
+          title: 'Не знаєте, який пакет обрати?',
+          text: 'Дайте відповідь на кілька питань і одразу побачите орієнтовний бюджет свого проєкту.',
+          action: 'Оцінити вартість',
         },
+        small: 'Усі ціни вказані без ПДВ (HT). TVA non applicable, art. 293 B du CGI.',
       },
       faq: {
         eyebrow: 'FAQ',
@@ -787,7 +805,7 @@ export const ui = {
       eyebrow: 'FAQ',
       title: 'Часті питання',
       items: [
-        { q: 'Скільки коштує проєкт?', a: 'Вартість залежить від типу проєкту, його складності й обсягу роботи. Остаточну вартість називаємо після брифінгу: вона залежить від потреб вашого проєкту.' },
+        { q: 'Скільки коштує проєкт?', a: 'Вартість залежить від типу проєкту, його складності й обсягу роботи. Остаточну вартість називаємо після брифінгу: вона залежить від потреб вашого проєкту.', link: { lead: 'Для першої оцінки скористайтеся', text: `нашим${NBSP}калькулятором`, path: '/calculator/' } },
         { q: 'Як проходить оплата?', a: `Частинами. Для сайту: 30${NBSP}% на старті, 50${NBSP}% після погодження дизайну і 20${NBSP}% під час здачі. Для логотипа: 70${NBSP}% на старті і 30${NBSP}% під час здачі.` },
         { q: 'Скільки правок входить у вартість?', a: 'Три кола правок на кожному етапі. Якщо ви повністю міняєте концепцію, це вже нова робота, і вона оплачується окремо.' },
         { q: 'Чи можна зупинитися після аналізу?', a: `Так. Після етапу стратегії й структури ви можете зупинитись. Тоді ви платите лише передоплату 30${NBSP}% і забираєте результати аналізу: карту сайту й чорно-білі макети.` },
