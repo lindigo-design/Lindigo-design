@@ -55,6 +55,8 @@ const contact = [
         <p class="footer__label">{f.site}</p>
         <ul>
           {menuPaths.map((p, i) => <li><a href={localePath(locale, p)}>{t.menu.nav[i]}</a></li>)}
+          {/* калькулятора немає в меню, у футері — п'ятий пункт (рішення Яни 24.11.2026) */}
+          <li><a href={localePath(locale, '/calculator/')}>{f.calculator}</a></li>
         </ul>
       </div>
       <div class="footer__col">

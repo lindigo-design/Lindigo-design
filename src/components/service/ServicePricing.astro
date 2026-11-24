@@ -3,12 +3,13 @@
  * Блок «05 Скільки коштує» сторінки послуги (Figma 231:3696 темна, 243:1100 світла).
  * Три картки цін: назва (H4) і для кого, ціна «від … € HT» (H3), лінія, що входить у стартову ціну,
  * кнопка внизу на всю ширину. Під картками — пояснення й дрібний текст про податки; далі банер
- * «Сайти під ключ» з головною кнопкою.
+ * калькулятора з головною кнопкою (ServiceBanner). Банер «Сайти під ключ» — у блоці «Коли потрібен…».
  * Картки суцільні, кожна свого кольору: --plan-1-bg … --plan-3-bg (Figma, 24.11.2026).
  * Фон: темна — --section-bg без картинки; світла — --bg і directions-light 20 % на весь блок.
  */
 import { Image } from 'astro:assets';
 import Button from '../Button.astro';
+import ServiceBanner from './ServiceBanner.astro';
 import bgLight from '../../assets/backgrounds/directions-light.jpg';
 import { keepLastWords, localePath, type Locale } from '../../i18n/ui';
 
@@ -23,14 +24,15 @@ interface Props {
     tax: string;
     plans: { title: string; for: string; price: string; items: string[]; action: string }[];
     notes: string[];
+    /** Банер калькулятора під картками (такий самий, як банер «Сайти під ключ») */
+    calcBanner?: { title: string; text: string; action: string };
     small: string;
-    banner: { title: string; text: string; action: string };
   };
-  /** Куди веде кнопка банера (сторінка сайтів під ключ) */
-  bannerHref: string;
+  /** Калькулятор з обраним напрямом (напр. /calculator/?service=uiux) */
+  calcHref?: string;
 }
 
-const { locale, content: t, bannerHref } = Astro.props;
+const { locale, content: t, calcHref } = Astro.props;
 ---
 
 <section class="pricing" aria-labelledby="pricing-title">
@@ -81,13 +83,8 @@ const { locale, content: t, bannerHref } = Astro.props;
     </div>
   </div>
 
-  <aside class="banner" aria-labelledby="pricing-banner-title">
-    <div class="banner__text">
-      <h3 class="banner__title" id="pricing-banner-title">{t.banner.title}</h3>
-      <p class="banner__desc">{keepLastWords(t.banner.text)}</p>
-    </div>
-    <Button href={bannerHref} variant="primary">{t.banner.action}</Button>
-  </aside>
+  <!-- Банер калькулятора під картками (рішення Яни 24.11.2026) -->
+  {calcHref && t.calcBanner && <ServiceBanner id="pricing-calc-title" content={t.calcBanner} href={calcHref} align="center" />}
 </section>
 
 <style>
@@ -264,49 +261,21 @@ const { locale, content: t, bannerHref } = Astro.props;
     width: 100%;
   }
 
+  /* Пояснення під картками: не ширше 760 px, щоб читалось за 2–3 рядки (рішення Яни 24.11.2026) */
   .pricing__notes {
     display: flex;
     flex-direction: column;
     gap: var(--space-12);
+    max-width: 760px;
     font-size: var(--text-body-m);
     line-height: var(--text-body-m--line-height);
   }
 
+  /* Юридична примітка про TVA: Body/S, приглушений колір */
   .pricing__notes .pricing__small {
     font-size: var(--text-body-s);
     line-height: var(--text-body-s--line-height);
-  }
-
-  /* Банер: текст і головна кнопка поруч; темна — скло, світла — Orchid dark (Figma, 24.11.2026) */
-  .banner {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: var(--space-24);
-    padding: var(--space-32);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius-32);
-    background: var(--banner-bg);
-    -webkit-backdrop-filter: blur(24px);
-    backdrop-filter: blur(24px);
-  }
-
-  .banner__text {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-8);
-  }
-
-  .banner__title {
-    font-family: var(--font-display);
-    font-weight: var(--text-h5--font-weight);
-    font-size: var(--text-h5);
-    line-height: var(--text-h5--line-height);
-  }
-
-  .banner__desc {
-    font-size: var(--text-body-m);
-    line-height: var(--text-body-m--line-height);
+    color: var(--text-muted);
   }
 
   @media (max-width: 1100px) {
@@ -332,8 +301,7 @@ const { locale, content: t, bannerHref } = Astro.props;
       font-size: var(--text-body-m);
       line-height: var(--text-body-m--line-height);
     }
-    .plan,
-    .banner {
+    .plan {
       gap: var(--space-24);
       padding: var(--space-24);
       border-radius: var(--radius-24);
@@ -341,10 +309,6 @@ const { locale, content: t, bannerHref } = Astro.props;
     .plan__title {
       font-size: var(--text-h4-mobile);
       line-height: var(--text-h4-mobile--line-height);
-    }
-    .banner :global(.btn) {
-      width: 100%;
-      height: 50px;
     }
   }
 </style>
