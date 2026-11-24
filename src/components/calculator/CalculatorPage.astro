@@ -158,6 +158,11 @@ const bgWidths = [768, 1280, 1920, 2752];
     .c-hero {
       padding: 112px var(--space-20) var(--space-56);
     }
+    /* На телефоні хлібних крихт немає (правило Яни 24.11.2026): екран і так завантажений,
+       а назад ведуть меню й кнопка браузера. display: none — щоб посилання не ловило фокус невидимим */
+    .c-hero__crumbs {
+      display: none;
+    }
     .c-hero__text {
       gap: var(--space-24);
       padding-top: var(--space-24);
