@@ -78,12 +78,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
     overflow-x: clip;
   }
 
-  /* Знизу 56: блок закінчується банером, далі «Nos réalisations» зі своїми 120 згори (рішення Яни 24.11.2026).
-     На телефоні й так 56 */
-  .audience:has(.banner) {
-    padding-bottom: var(--space-56);
-  }
-
   /* фон з медузою: обрізаний знизу й з боків, а згори відкритий на 70 % висоти секції */
   .audience__bg {
     position: absolute;

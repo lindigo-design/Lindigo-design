@@ -314,7 +314,8 @@
   --plan-1-bg: var(--blush-50);
   --plan-2-bg: var(--card-accent-light);
   --plan-3-bg: var(--orchid-dark);
-  --banner-bg: var(--orchid-dark);
+  /* Orchid dark на 30 %: видно, що це інша інформація, але банер не тягне увагу на себе (рішення Яни 24.11.2026) */
+  --banner-bg: color-mix(in srgb, var(--orchid-dark) 30%, transparent);
   --choice-bg: var(--beige-50);
   --choice-selected-bg: var(--card-accent-light);
   --choice-selected-border: var(--orchid-deep);

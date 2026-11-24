@@ -239,11 +239,12 @@ const cols = (q: CalcQuestion) => ((q.options?.length ?? 0) === 2 || (q.options?
 
 <style>
   /* ---------- Розкладка: питання ліворуч, підсумок праворуч ---------- */
+  /* відступ згори 120 (на телефоні 56), як у інших блоків (рішення Яни 24.11.2026) */
   .calc {
     display: flex;
     align-items: flex-start;
     gap: var(--space-56);
-    padding: var(--space-56) var(--gutter) var(--space-120);
+    padding: var(--space-120) var(--gutter);
     background: var(--section-bg);
   }
 
@@ -931,7 +932,7 @@ const cols = (q: CalcQuestion) => ((q.options?.length ?? 0) === 2 || (q.options?
   @media (max-width: 640px) {
     .calc {
       gap: var(--space-32);
-      padding: var(--space-32) var(--space-20) var(--space-56);
+      padding: var(--space-56) var(--space-20);
     }
     .calc-q__options,
     .calc-q__options--2,

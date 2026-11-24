@@ -35,7 +35,7 @@ interface Props {
 const { locale, content: t, calcHref } = Astro.props;
 ---
 
-<section class:list={['pricing', { 'pricing--banner': calcHref && t.calcBanner }]} aria-labelledby="pricing-title">
+<section class="pricing" aria-labelledby="pricing-title">
   <div class="pricing__bg" aria-hidden="true" data-theme-only="light">
     <Image src={bgLight} alt="" widths={[960, 1600, 2048, 2752]} sizes="100vw" loading="lazy" />
   </div>
@@ -285,12 +285,6 @@ const { locale, content: t, calcHref } = Astro.props;
     .plan__head {
       min-height: 0;
     }
-  }
-
-  /* Знизу 56: блок закінчується банером калькулятора, далі FAQ зі своїми 120 згори (рішення Яни 24.11.2026).
-     На телефоні й так 56 */
-  .pricing--banner {
-    padding-bottom: var(--space-56);
   }
 
   /* Телефон */
