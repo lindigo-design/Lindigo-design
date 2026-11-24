@@ -1,4 +1,5 @@
 import type { ImageMetadata } from 'astro';
+import type { Locale } from '../i18n/ui';
 import datatixx from '../assets/services/ui-ux/datatixx.jpg';
 import frelia from '../assets/services/ui-ux/frelia.jpg';
 import solvia from '../assets/services/ui-ux/solvia.jpg';
@@ -17,14 +18,17 @@ export type UiuxCategory = 'finance' | 'education' | 'ecommerce' | 'health' | 'h
 
 export interface UiuxProject {
   slug: string;
-  /** Назва — власна назва проєкту, не перекладається */
-  title: string;
+  /** Назва — власна назва проєкту; якщо в різних мовах різна — об'єкт за мовою (projectTitle) */
+  title: string | Record<Locale, string>;
   category: UiuxCategory;
   platform: 'app' | 'web';
   cover: ImageMetadata;
   /** Клієнтський проєкт (велика картка) чи власний / концепт */
   client?: boolean;
 }
+
+/** Назва проєкту потрібною мовою */
+export const projectTitle = (p: UiuxProject, locale: Locale) => (typeof p.title === 'string' ? p.title : p.title[locale]);
 
 /** Порядок кнопок фільтра (Figma) */
 export const filterCategories: UiuxCategory[] = ['finance', 'education', 'ecommerce', 'health', 'home'];
@@ -35,7 +39,8 @@ export const uiuxProjects: UiuxProject[] = [
   { slug: 'frelia', title: 'Frelia', category: 'health', platform: 'app', cover: frelia },
   { slug: 'solvia', title: 'Solvia', category: 'health', platform: 'web', cover: solvia },
   { slug: 'atlasona', title: 'Atlasona', category: 'ecommerce', platform: 'app', cover: atlasona },
-  { slug: 'stary-lev', title: 'Видавництво Старого Лева', category: 'education', platform: 'app', cover: staryLev },
+  // Назва перекладена (рішення Яни 24.11.2026)
+  { slug: 'stary-lev', title: { uk: 'Видавництво Старого Лева', en: 'The Old Lion Publishing House', fr: 'The Old Lion Publishing House' }, category: 'education', platform: 'app', cover: staryLev },
   { slug: 'greenthumbhub', title: 'GreenThumbHub', category: 'home', platform: 'web', cover: greenthumbhub },
   { slug: 'smart', title: 'SMART', category: 'education', platform: 'web', cover: smart },
 ];
