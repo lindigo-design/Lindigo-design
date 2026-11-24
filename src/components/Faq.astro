@@ -119,11 +119,17 @@ const t: { eyebrow: string; title: string; items: FaqItem[] } = content ?? ui[lo
   }
 
   /* Темна: велика 462 × 786 з центром (1126, 672) */
+  /* Висота — не більша за блок без 24 згори й знизу, по центру блоку: медуза не обрізається, навіть коли
+     FAQ нижчий (рішення Яни 24.11.2026); ширина — з пропорції */
   .faq__jelly--big {
     --x: 74.47%;
-    --y: 59.84%;
-    --w: 30.56%;
+    --y: 50%;
+    /* на 15 % більша за макет (462 × 786 → 531 × 903), далі не росте: на широких екранах однакова
+       на головній і на сторінках послуг (рішення Яни 24.11.2026) */
+    --w: min(35.14vw, 531px);
     --ratio: 462 / 786;
+    width: auto;
+    height: min(calc(100% - 2 * var(--space-24)), calc(var(--w) * 786 / 462));
   }
 
   /* Темна: мала 193 × 329, центр (252.6, 702.5), поворот 45°, 40 %, розмиття */
@@ -172,10 +178,15 @@ const t: { eyebrow: string; title: string; items: FaqItem[] } = content ?? ui[lo
     .faq__jelly--far-light {
       display: none;
     }
-    .faq__jelly--big,
+    .faq__jelly--big {
+      --w: 53vw;
+    }
     .faq__jelly--big-light {
       --w: 46%;
       --y: 62%;
+    }
+    .faq__jelly--big,
+    .faq__jelly--big-light {
       opacity: calc(var(--op, 1) * 0.55);
     }
   }
@@ -310,11 +321,13 @@ const t: { eyebrow: string; title: string; items: FaqItem[] } = content ?? ui[lo
     }
   }
 
-  /* Планшет: менший відступ до CTA під блоком — разом 80 (рішення Яни 23.11.2026) */
+  /* Під FAQ одразу банер «Заклик до дії»: знизу 56, у банера згори свої 120 (рішення Яни 24.11.2026); на телефоні й так 56 */
+  .faq:has(~ :global(.cta)) {
+    padding-bottom: var(--space-56);
+  }
+
+  /* Планшет */
   @media (min-width: 641px) and (max-width: 1100px) {
-    .faq {
-      padding-bottom: var(--space-80);
-    }
     .faq__q {
       font-size: 1.25rem; /* 20px */
       line-height: 140%; /* 28px */

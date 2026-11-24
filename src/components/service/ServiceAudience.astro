@@ -78,6 +78,12 @@ const pad = (n: number) => String(n).padStart(2, '0');
     overflow-x: clip;
   }
 
+  /* Знизу 56: блок закінчується банером, далі «Nos réalisations» зі своїми 120 згори (рішення Яни 24.11.2026).
+     На телефоні й так 56 */
+  .audience:has(.banner) {
+    padding-bottom: var(--space-56);
+  }
+
   /* фон з медузою: обрізаний знизу й з боків, а згори відкритий на 70 % висоти секції */
   .audience__bg {
     position: absolute;
@@ -115,6 +121,15 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
   .audience.is-inview .audience__track {
     animation-play-state: running;
+  }
+
+  /* Поки гість на першому екрані, медузи немає: вона вирушає, коли блок піднявся на третину екрана
+     (клас is-waiting ставить і знімає скрипт нижче; без JS медуза просто стоїть унизу). Рішення Яни 24.11.2026 */
+  .audience.is-waiting .audience__bg {
+    visibility: hidden;
+  }
+  .audience.is-waiting .audience__track {
+    animation-play-state: paused;
   }
 
   .audience__jelly :global(.audience__jelly-img) {
@@ -308,7 +323,20 @@ const pad = (n: number) => String(n).padStart(2, '0');
   import '../../scripts/reveal-row';
 
   // Медуза пливе тільки тоді, коли блок на екрані
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   document.querySelectorAll<HTMLElement>('.audience').forEach((section) => {
     new IntersectionObserver(([entry]) => section.classList.toggle('is-inview', entry.isIntersecting)).observe(section);
+    if (reduce) return; // «менше руху»: медуза стоїть на місці й видна одразу
+    // Вирушає з початку шляху, коли верх блоку піднявся вище 65 % висоти екрана
+    section.classList.add('is-waiting');
+    const start = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        section.classList.remove('is-waiting');
+        start.disconnect();
+      },
+      { rootMargin: '0px 0px -35% 0px' },
+    );
+    start.observe(section);
   });
 </script>
