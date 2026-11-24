@@ -7,6 +7,12 @@
  *  2. Полотно малює ту саму картинку. Поки зсув дорівнює нулю, кадр збігається з постером.
  *  3. Мишка додає лише швидкість. Рідина переносить зсув, і картинка тече.
  *  4. Зсув щокадру згасає (uRestore) — картинка збирається назад.
+ *
+ * Режим «фарба» (options.paint, перший екран сторінки послуги; рішення Яни 24.11.2026):
+ * картинки немає, полотно прозоре — у спокої видно звичайний фон блоку. Мишка лишає мазки
+ * кольорами палітри (найчастіше --orchid-deep і --orange, також --orchid, --indigo-600), які течуть і згасають за 2–3 с.
+ * Тільки мишка: без поштовхів у спокої, без дотику й прокрутки на телефоні. Коли мазки згасли,
+ * цикл засинає і прокидається від руху мишки.
  */
 import { config as C } from './config';
 import * as S from './shaders';
@@ -51,6 +57,8 @@ export interface FluidOptions {
   mask?: boolean;
   /** У якій частині ширини (0–1) робимо тихі поштовхи без мишки й поштовхи від прокрутки */
   area?: [number, number];
+  /** Режим «фарба»: без картинки, мишка малює кольорами палітри на прозорому полотні */
+  paint?: boolean;
 }
 
 const started = new WeakSet<HTMLElement>();
@@ -65,6 +73,7 @@ export function initFluid(root: HTMLElement | null, options: FluidOptions = {}):
   const useMask = options.mask ?? false;
   const [areaFrom, areaTo] = options.area ?? [0, 1];
   const inArea = () => areaFrom + Math.random() * (areaTo - areaFrom);
+  const paint = options.paint ?? false;
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (reduceMotion.matches) return;
@@ -72,7 +81,8 @@ export function initFluid(root: HTMLElement | null, options: FluidOptions = {}):
   if (connection?.saveData) return;
 
   const gl = canvas.getContext('webgl2', {
-    alpha: false,
+    alpha: paint,
+    premultipliedAlpha: true,
     depth: false,
     stencil: false,
     antialias: false,
@@ -167,6 +177,7 @@ export function initFluid(root: HTMLElement | null, options: FluidOptions = {}):
       pressure: new Program(vertex, S.pressureShader),
       gradientSubtract: new Program(vertex, S.gradientSubtractShader),
       display: new Program(vertex, S.displayShader),
+      paintDisplay: new Program(vertex, S.paintDisplayShader),
     };
   } catch (error) {
     console.warn('[fluid] shader error, showing the static image', error);
@@ -264,20 +275,33 @@ export function initFluid(root: HTMLElement | null, options: FluidOptions = {}):
   let divergence: FBO;
   let curl: FBO;
   let pressure: DoubleFBO;
+  /** Фарба (лише в режимі paint) */
+  let dye: DoubleFBO | null = null;
   let buffersReady = false;
 
   function initFramebuffers() {
     if (buffersReady) {
       [velocity.read, velocity.write, displacement.read, displacement.write, pressure.read, pressure.write, divergence, curl].forEach(deleteFBO);
+      if (dye) [dye.read, dye.write].forEach(deleteFBO);
     }
     const sim = getResolution(C.SIM_RESOLUTION);
-    const dye = getResolution(dyeResolution);
+    const dyeSize = getResolution(dyeResolution);
     glc.disable(glc.BLEND);
     velocity = createDoubleFBO(sim.width, sim.height, formatRG!);
-    displacement = createDoubleFBO(dye.width, dye.height, formatRG!);
+    displacement = createDoubleFBO(dyeSize.width, dyeSize.height, formatRG!);
     divergence = createFBO(sim.width, sim.height, formatR!);
     curl = createFBO(sim.width, sim.height, formatR!);
     pressure = createDoubleFBO(sim.width, sim.height, formatR!);
+    if (paint) {
+      const d = getResolution(C.PAINT_RESOLUTION);
+      dye = createDoubleFBO(d.width, d.height, rgba);
+      // createFBO заливає чорним з альфою 1; фарбі потрібен нуль у всіх каналах
+      [dye.read, dye.write].forEach((f) => {
+        glc.bindFramebuffer(glc.FRAMEBUFFER, f.fbo);
+        glc.clearColor(0, 0, 0, 0);
+        glc.clear(glc.COLOR_BUFFER_BIT);
+      });
+    }
     buffersReady = true;
   }
 
@@ -350,7 +374,7 @@ export function initFluid(root: HTMLElement | null, options: FluidOptions = {}):
   }
 
   /* ---------- Поштовхи ---------- */
-  function splat(x: number, y: number, dx: number, dy: number) {
+  function splat(x: number, y: number, dx: number, dy: number, color?: [number, number, number]) {
     if (!buffersReady) return;
     const aspect = canvasEl.width / canvasEl.height;
     P.splat.bind();
@@ -363,6 +387,38 @@ export function initFluid(root: HTMLElement | null, options: FluidOptions = {}):
     glc.uniform1f(P.splat.uniforms.radius, radius);
     blit(velocity.write);
     velocity.swap();
+
+    if (color && dye) {
+      glc.uniform1i(P.splat.uniforms.uTarget, dye.read.attach(0));
+      glc.uniform3f(P.splat.uniforms.color, ...color);
+      let r = C.PAINT_RADIUS / 100;
+      if (aspect > 1) r *= aspect;
+      glc.uniform1f(P.splat.uniforms.radius, r);
+      blit(dye.write);
+      dye.swap();
+    }
+  }
+
+  /* ---------- Кольори фарби: палітра сайту, по черзі перетікають одна в одну ---------- */
+  const hex = (name: string): [number, number, number] => {
+    const v = getComputedStyle(document.documentElement).getPropertyValue(name).trim().replace('#', '');
+    const n = parseInt(v, 16);
+    return Number.isNaN(n) || v.length !== 6 ? [0, 0, 0] : [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
+  };
+  /** Темна орхідея й помаранчевий частіше за інші й трохи яскравіші (рішення Яни 24.11.2026) */
+  const boost = (name: string, k: number) => hex(name).map((v) => v * k) as [number, number, number];
+  const deep = () => boost('--orchid-deep', C.PAINT_ORCHID_BOOST);
+  const orange = () => boost('--orange', C.PAINT_ORANGE_BOOST);
+  const palette = paint ? [deep(), orange(), deep(), hex('--orchid'), deep(), orange(), hex('--indigo-600')] : [];
+
+  function paintColor(now: number, amount: number): [number, number, number] {
+    const t = (now / 1000 / C.PAINT_COLOR_TIME) % palette.length;
+    const i = Math.floor(t);
+    const k = t - i;
+    const a = palette[i];
+    const b = palette[(i + 1) % palette.length];
+    const strength = amount * (currentTheme() === 'light' ? C.PAINT_INTENSITY_LIGHT : C.PAINT_INTENSITY);
+    return [0, 1, 2].map((c) => (a[c] + (b[c] - a[c]) * k) * strength) as [number, number, number];
   }
 
   /** Лівіше 45 % ширини сила плавно падає до нуля, щоб рідина не затікала під заголовок (якщо mask). */
@@ -372,11 +428,18 @@ export function initFluid(root: HTMLElement | null, options: FluidOptions = {}):
     return t * t * (3 - 2 * t);
   }
 
-  function push(x: number, y: number, dxUv: number, dyUv: number, force = C.SPLAT_FORCE) {
+  function push(x: number, y: number, dxUv: number, dyUv: number, force: number = C.SPLAT_FORCE) {
     const aspect = canvasEl.width / canvasEl.height;
     if (aspect < 1) dxUv *= aspect;
     if (aspect > 1) dyUv /= aspect;
     const m = mask(x);
+    if (paint) {
+      // Фарба лягає й під текстом, але слабше (не нижче PAINT_MASK_FLOOR), щоб текст читався
+      const speed = Math.min(1, Math.hypot(dxUv, dyUv) * C.PAINT_SPEED_SCALE);
+      const dyeM = C.PAINT_MASK_FLOOR + (1 - C.PAINT_MASK_FLOOR) * m;
+      splat(x, y, dxUv * force * m, dyUv * force * m, paintColor(performance.now(), speed * dyeM));
+      return;
+    }
     if (m <= 0) return;
     splat(x, y, dxUv * force * m, dyUv * force * m);
   }
@@ -390,10 +453,15 @@ export function initFluid(root: HTMLElement | null, options: FluidOptions = {}):
   let lastPointer: { x: number; y: number } | null = null;
 
   function move(clientX: number, clientY: number) {
+    if (paint && asleep && paintStarted && !menuOpen && !destroyed) {
+      asleep = false;
+      lastMove = performance.now();
+      updateRunning();
+    }
     // Під відкритим меню рідина не реагує на мишку й дотик
     if (!running || menuOpen) return;
     const p = toUv(clientX, clientY);
-    if (lastPointer) push(p.x, p.y, p.x - lastPointer.x, p.y - lastPointer.y);
+    if (lastPointer) push(p.x, p.y, p.x - lastPointer.x, p.y - lastPointer.y, paint ? C.PAINT_FORCE : C.SPLAT_FORCE);
     lastPointer = p;
     lastMove = performance.now();
   }
@@ -403,8 +471,8 @@ export function initFluid(root: HTMLElement | null, options: FluidOptions = {}):
     if (e.pointerType === 'mouse') move(e.clientX, e.clientY);
   });
   rootEl.addEventListener('pointerleave', () => (lastPointer = null));
-  // Телефон: дотик і прокрутка
-  rootEl.addEventListener(
+  // Телефон: дотик і прокрутка (у режимі «фарба» — ні: на телефоні фон лишається спокійним)
+  if (!paint) rootEl.addEventListener(
     'touchstart',
     (e) => {
       const t = e.touches[0];
@@ -412,7 +480,7 @@ export function initFluid(root: HTMLElement | null, options: FluidOptions = {}):
     },
     { passive: true },
   );
-  rootEl.addEventListener(
+  if (!paint) rootEl.addEventListener(
     'touchmove',
     (e) => {
       const t = e.touches[0];
@@ -420,7 +488,7 @@ export function initFluid(root: HTMLElement | null, options: FluidOptions = {}):
     },
     { passive: true },
   );
-  rootEl.addEventListener('touchend', () => (lastPointer = null), { passive: true });
+  if (!paint) rootEl.addEventListener('touchend', () => (lastPointer = null), { passive: true });
 
   const noHover = window.matchMedia('(hover: none)');
   let lastScrollY = window.scrollY;
@@ -428,7 +496,7 @@ export function initFluid(root: HTMLElement | null, options: FluidOptions = {}):
   window.addEventListener(
     'scroll',
     () => {
-      if (!noHover.matches || scrollQueued) return;
+      if (paint || !noHover.matches || scrollQueued) return;
       scrollQueued = true;
       requestAnimationFrame(() => {
         scrollQueued = false;
@@ -500,6 +568,16 @@ export function initFluid(root: HTMLElement | null, options: FluidOptions = {}):
     blit(velocity.write);
     velocity.swap();
 
+    if (paint && dye) {
+      // Фарба тече разом із рідиною і поступово згасає (програма advection ще прив'язана)
+      glc.uniform1i(P.advection.uniforms.uVelocity, velocity.read.attach(0));
+      glc.uniform1i(P.advection.uniforms.uSource, dye.read.attach(1));
+      glc.uniform1f(P.advection.uniforms.dissipation, C.PAINT_DISSIPATION);
+      blit(dye.write);
+      dye.swap();
+      return;
+    }
+
     P.displacement.bind();
     glc.uniform2f(P.displacement.uniforms.texelSize, tx, ty);
     glc.uniform1i(P.displacement.uniforms.uVelocity, velocity.read.attach(0));
@@ -512,6 +590,13 @@ export function initFluid(root: HTMLElement | null, options: FluidOptions = {}):
   }
 
   function render() {
+    if (paint) {
+      if (!dye) return;
+      P.paintDisplay.bind();
+      glc.uniform1i(P.paintDisplay.uniforms.uDye, dye.read.attach(0));
+      blit(null);
+      return;
+    }
     if (!image) return;
     const now = performance.now();
     const t = Math.min(1, (now - mixStart) / (C.THEME_BLEND * 1000));
@@ -557,6 +642,9 @@ export function initFluid(root: HTMLElement | null, options: FluidOptions = {}):
   /* Меню бургера закриває екран готовим розмитим фоном: рідину під ним не видно,
      тож поки меню відкрите, симуляція на паузі й не реагує на мишку */
   let menuOpen = false;
+  /** Режим «фарба»: мазки згасли, мишка не рухається — цикл спить до наступного руху */
+  let asleep = true;
+  let paintStarted = false;
 
   function currentRestore(now: number) {
     const sinceMove = (now - lastMove) / 1000;
@@ -570,7 +658,7 @@ export function initFluid(root: HTMLElement | null, options: FluidOptions = {}):
   }
 
   function idlePush(now: number) {
-    if (now < nextIdle) return;
+    if (paint || now < nextIdle) return;
     nextIdle = now + (C.IDLE_MIN + Math.random() * (C.IDLE_MAX - C.IDLE_MIN)) * 1000;
     if (now - lastMove < 1000) return;
     // У своїй зоні (перший екран — права половина), випадковий напрям, у 5–6 разів слабше за мишку
@@ -623,11 +711,17 @@ export function initFluid(root: HTMLElement | null, options: FluidOptions = {}):
       canvasEl.classList.add('is-ready');
     }
     watchFps(realDt);
+    if (paint && now - lastMove > C.PAINT_SLEEP * 1000) {
+      asleep = true;
+      updateRunning();
+      return;
+    }
     raf = requestAnimationFrame(frame);
   }
 
   function updateRunning() {
-    const should = !destroyed && image !== null && inView && !document.hidden && !menuOpen;
+    const has = paint ? paintStarted && !asleep : image !== null;
+    const should = !destroyed && has && inView && !document.hidden && !menuOpen;
     if (should === running) return;
     running = should;
     if (running) {
@@ -687,6 +781,11 @@ export function initFluid(root: HTMLElement | null, options: FluidOptions = {}):
   });
 
   /* ---------- Запуск ---------- */
+  if (paint) {
+    resize();
+    paintStarted = true;
+    return; // цикл стартує від першого руху мишки
+  }
   (async () => {
     const img = imageFor(currentTheme());
     if (!img || !(await whenLoaded(img)) || destroyed) {

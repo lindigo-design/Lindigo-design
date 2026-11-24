@@ -23,6 +23,8 @@ interface Props {
   content?: { title: string; text: string[]; call: string; message: string };
 }
 
+// Головна дія на всьому сайті — «Discuter de votre projet»: залита кнопка, перша; дзвінок — другою, контурна
+// (рішення Яни 24.11.2026; бронювання дзвінка з графіком — окрема дія, згодом окрема форма)
 const { locale, content } = Astro.props;
 const t = ui[locale].cta;
 const menu = ui[locale].menu;
@@ -37,8 +39,8 @@ const lines = content ? content.text : [t.text];
       <p class="cta__lead">{lines.map((line, i) => <>{i > 0 && <br />}{keepLastWords(line)}</>)}</p>
     </div>
     <div class="cta__actions">
-      <Button href={localePath(locale, '/contact/')} variant="primary">{content?.call ?? menu.call}</Button>
-      <Button href={localePath(locale, '/contact/#message')} variant="secondary">{content?.message ?? menu.message}</Button>
+      <Button href={localePath(locale, '/contact/#message')} variant="primary">{content?.message ?? t.message}</Button>
+      <Button href={localePath(locale, '/contact/')} variant="secondary">{content?.call ?? menu.call}</Button>
     </div>
   </div>
 </section>
@@ -87,13 +89,6 @@ const lines = content ? content.text : [t.text];
     flex-wrap: wrap;
     justify-content: center;
     gap: var(--space-16);
-  }
-
-  /* Планшет: менший відступ від блоку FAQ над CTA (рішення Яни 23.11.2026); тільки коли CTA йде одразу після FAQ */
-  @media (min-width: 641px) and (max-width: 1100px) {
-    :global(.faq) + .cta {
-      padding-top: 0;
-    }
   }
 
   @media (max-width: 640px) {

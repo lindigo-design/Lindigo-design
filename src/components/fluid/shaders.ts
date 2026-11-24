@@ -32,7 +32,8 @@
  *    а перший кадр (зсув = 0) точно збігається з <img> під полотном;
  *  - зсув щокадру згасає з силою uRestore — картинка збирається назад;
  *  - координати картинки рахуються як у object-fit: cover усередині її рамки (uBox);
- *  - під час зміни теми екран плавно змішує стару й нову картинку (uMix).
+ *  - під час зміни теми екран плавно змішує стару й нову картинку (uMix);
+ *  - режим «фарба» (paintDisplayShader): класична фарба WebGL-Fluid-Simulation на прозорому полотні.
  */
 
 export const baseVertex = /* glsl */ `
@@ -268,5 +269,21 @@ export const displayShader = /* glsl */ `
       color = mix(prev, color, uMix);
     }
     gl_FragColor = vec4(color, 1.0);
+  }
+`;
+
+/**
+ * Екран у режимі «фарба»: прозоре полотно, крізь яке видно фон блоку.
+ * Колір «премножений»: непрозорість = найяскравіший канал, тож тонкий шар майже прозорий.
+ */
+export const paintDisplayShader = /* glsl */ `
+  precision highp float;
+  varying vec2 vUv;
+  uniform sampler2D uDye;
+
+  void main () {
+    vec3 c = max(texture2D(uDye, vUv).rgb, 0.0);
+    float a = clamp(max(c.r, max(c.g, c.b)), 0.0, 1.0);
+    gl_FragColor = vec4(min(c, vec3(a)), a);
   }
 `;

@@ -5,6 +5,7 @@
  * Фон (Figma, 24.11.2026): темна — Background dark (--night, оновлено 24.11.2026) і градієнт 40 %; світла — світлий градієнт 50 % Multiply.
  * Ліворуч: хлібні крихти, заголовок (Display 72), опис, теги й дві кнопки; праворуч — картка проєкту
  * (спільний WorkCard, ширша, ніж на головній, зі своїм підписом). Текст і картка притиснуті донизу.
+ * paint — фарба від мишки над фоном (рідина в режимі «фарба», fluid.ts; рішення Яни 24.11.2026).
  */
 import { Image } from 'astro:assets';
 import Breath from '../Breath.astro';
@@ -30,19 +31,22 @@ interface Props {
   worksHref: string;
   /** Підпис на картці проєкту (напр. «Проєкт з UI/UX») */
   cardLabel?: string;
+  /** Фарба від мишки над фоном (лише мишка; телефон і «менше руху» — без неї) */
+  paint?: boolean;
 }
 
-const { locale, content: t, bgDark, bgLight, worksHref, cardLabel } = Astro.props;
+const { locale, content: t, bgDark, bgLight, worksHref, cardLabel, paint = false } = Astro.props;
 const bgWidths = [768, 1280, 1920, 2752];
 ---
 
-<section class="s-hero" aria-labelledby="s-hero-title">
+<section class="s-hero" aria-labelledby="s-hero-title" data-s-hero-paint={paint ? '' : undefined}>
   <div class="s-hero__bg" aria-hidden="true">
     <Image class="s-hero__bg-dark" src={bgDark} alt="" widths={bgWidths.filter((w) => w <= bgDark.width)} sizes="100vw" loading="eager" fetchpriority="high" data-theme-only="dark" />
     <Image class="s-hero__bg-light" src={bgLight} alt="" widths={bgWidths.filter((w) => w <= bgLight.width)} sizes="100vw" loading="lazy" data-theme-only="light" />
   </div>
   <!-- плями, що пливуть праворуч (пробний варіант для сторінок послуг); після фону — лежать над ним -->
   <Breath variant="service" />
+  {paint && <canvas class="s-hero__paint" aria-hidden="true" data-fluid />}
 
   <div class="s-hero__content">
     <div class="s-hero__text">
@@ -99,17 +103,9 @@ const bgWidths = [768, 1280, 1920, 2752];
     .s-hero {
       padding-bottom: min(160px, calc(64px + (100vw - 1600px) * 0.3));
     }
-    /* вміст більшає разом з екраном: заголовок як на головній (H1 86), ширші текст і картка */
-    /* .s-hero попереду: базові правила стоять нижче у файлі */
-    .s-hero .s-hero__text {
-      max-width: 920px;
-    }
-    .s-hero .s-hero__title {
-      font-size: var(--text-h1);
-      line-height: var(--text-h1--line-height);
-    }
+    /* картка росте разом з екраном, як на головній; .s-hero попереду: базові правила стоять нижче у файлі */
     .s-hero .s-hero__content > :global(.work-card) {
-      width: min(680px, 36.38vw);
+      width: min(460px, 25.93vw);
     }
   }
 
@@ -146,6 +142,22 @@ const bgWidths = [768, 1280, 1920, 2752];
     mix-blend-mode: multiply;
   }
 
+  /* Фарба від мишки: над фоном і плямами, під текстом; з'являється, коли готовий перший кадр */
+  .s-hero__paint {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.6s ease;
+  }
+
+  .s-hero__paint:global(.is-ready) {
+    opacity: 1;
+  }
+
   .s-hero__content {
     display: flex;
     align-items: flex-end;
@@ -156,7 +168,6 @@ const bgWidths = [768, 1280, 1920, 2752];
   .s-hero__text {
     flex: 1 1 0;
     min-width: 0;
-    max-width: 778px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -205,11 +216,20 @@ const bgWidths = [768, 1280, 1920, 2752];
     text-decoration: underline;
   }
 
+  /* Заголовок завжди у 3 рядки (рішення Яни 24.11.2026): ширина 12,5 em ламає його однаково на будь-якому екрані —
+     «Design UI/UX / d’applications et de / plateformes web». Display 72; на вужчих ноутбуках H2 56, щоб 12,5 em уміщалися */
   .s-hero__title {
+    max-width: 12.5em;
     font-family: var(--font-display);
     font-weight: var(--text-display--font-weight);
     font-size: var(--text-display);
     line-height: var(--text-display--line-height);
+  }
+  @media (min-width: 1101px) and (max-width: 1479px) {
+    .s-hero__title {
+      font-size: var(--text-h2);
+      line-height: var(--text-h2--line-height);
+    }
   }
 
   .s-hero__lead {
@@ -247,10 +267,11 @@ const bgWidths = [768, 1280, 1920, 2752];
     gap: var(--space-12);
   }
 
-  /* Картка проєкту: 550 px на макеті 1512; обкладинка — пропорція --aspect-work-card, як на головній */
+  /* Картка проєкту такого ж розміру, як на головній (392 px на 1512) — більше місця заголовку (рішення Яни 24.11.2026);
+     обкладинка — пропорція --aspect-work-card, як на головній */
   .s-hero__content > :global(.work-card) {
     flex-shrink: 0;
-    width: min(550px, 36.38vw);
+    width: min(392px, 25.93vw);
     margin-left: auto;
   }
   /* Вужчий екран: картка під текстом */
@@ -266,8 +287,9 @@ const bgWidths = [768, 1280, 1920, 2752];
     .s-hero__text {
       max-width: none;
     }
+    /* 7 vw: на планшеті 834 заголовок уміщається в 3 рядки */
     .s-hero__title {
-      font-size: clamp(1.875rem, 7.2vw, 4.5rem);
+      font-size: clamp(1.875rem, 7vw, 4.5rem);
     }
     /* планшет: картка на всю ширину між полями (рішення Яни 23.11.2026) */
     .s-hero__content > :global(.work-card) {
@@ -313,3 +335,13 @@ const bgWidths = [768, 1280, 1920, 2752];
     }
   }
 </style>
+
+<script>
+  // Фарба тільки там, де є мишка; рідину вантажимо пізно, щоб не гальмувала перший показ
+  const root = document.querySelector<HTMLElement>('[data-s-hero-paint]');
+  if (root && window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    const start = () => import('../fluid/fluid').then((m) => m.initFluid(root, { paint: true, mask: true }));
+    if ('requestIdleCallback' in window) requestIdleCallback(start, { timeout: 2000 });
+    else setTimeout(start, 200);
+  }
+</script>

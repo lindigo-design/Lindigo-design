@@ -32,19 +32,19 @@ export const languageNames: Record<Locale, string> = {
 export const ui = {
   fr: {
     // ЧЕРНЕТКА перекладу — на вичитку
-    cta: { title: 'Parlez-nous de votre projet', text: 'Le premier appel est gratuit. Nous commencerons par des questions sur votre activité.' },
+    cta: { title: 'Parlez-nous de votre projet', text: 'Le premier appel est gratuit. Nous commencerons par des questions sur votre activité.', message: 'Discuter de votre projet' },
     footerNav: { site: 'Site', calculator: 'Calculateur', social: 'Réseaux', contact: 'Nous joindre', email: 'E-mail', messenger: 'Messagerie', legal: 'Mentions légales', privacy: 'Confidentialité' },
     // Заглушка сторінок, яких ще немає. ЧЕРНЕТКА — на вичитку
     stub: { text: 'Cette page est en cours de création.' },
     // Сторінка послуги «UI/UX дизайн і прототипування» (Figma «UI дизайн», 231:3260 / 243:866). Переклад від Яни, 23.11.2026
     uiux: {
       meta: {
-        title: 'Design UI/UX et prototypage — Lindigo Design Studio',
+        title: 'Design UI/UX d’applications et de plateformes web — Lindigo Design Studio',
       },
       hero: {
-        crumbs: ['Services', 'Design UI/UX et prototypage'],
+        crumbs: ['Services', 'Design UI/UX d’applications et de plateformes web'],
         crumbsLabel: 'Fil d’Ariane',
-        title: 'Design UI/UX et prototypage',
+        title: `Design UI/UX d’applications et de plateformes${NBSP}web`,
         lead: 'Nous concevons des applications web, des applications mobiles et des sites web complexes. Nous aidons les utilisateurs à trouver rapidement ce dont ils ont besoin et à accomplir leurs tâches sans étapes inutiles.',
         tags: ['Recherche UX', 'Design UI', 'Prototypage', 'Applications web', 'Applications mobiles'],
         primary: 'Discuter de votre projet',
@@ -105,11 +105,11 @@ export const ui = {
           { title: 'Recherche UX', text: 'Nous étudions votre public cible, vos concurrents et les objectifs du produit. Nous identifions les besoins des utilisateurs et les difficultés qu’ils pourraient rencontrer.', result: 'Résultats de la recherche et recommandations.' },
           { title: 'Parcours utilisateurs et structure', text: 'Nous définissons les pages et les fonctionnalités nécessaires. Nous concevons le parcours de l’utilisateur, du premier écran jusqu’à l’action souhaitée.', result: 'Arborescence du site et parcours utilisateurs.' },
           { title: 'Wireframes', text: 'Nous créons des schémas d’écrans sans habillage graphique superflu. Nous vérifions l’emplacement des informations, des boutons et des éléments de navigation.', result: 'Wireframes en noir et blanc des écrans clés.' },
-          { title: 'Design UI', text: 'Nous choisissons les couleurs, les typographies et les composants, puis concevons les écrans. Nous créons une identité visuelle cohérente pour l’interface.', result: 'Maquettes graphiques dans Figma.' },
+          { title: 'Design UI', text: 'Nous choisissons les couleurs, les typographies et les composants, puis concevons les écrans. Nous créons une identité visuelle cohérente pour l’interface.', result: 'Maquettes graphiques.' },
           { title: 'Prototype et vérification', text: 'Nous réalisons un prototype interactif. Nous vérifions la logique de navigation et la clarté des actions principales, puis corrigeons les problèmes identifiés.', result: 'Prototype interactif et maquettes finales.' },
-          { title: 'Transmission aux développeurs', text: 'Nous préparons les fichiers de design, les composants et les explications nécessaires à l’équipe de développement.', result: 'Projet Figma organisé pour la mise en œuvre.' },
+          { title: 'Transmission aux développeurs', text: 'Nous préparons les fichiers de design, les composants et les explications nécessaires à l’équipe de développement.', result: 'Fichiers de design organisés pour la mise en œuvre.' },
         ],
-        action: 'Discuter de votre besoin',
+        action: 'Discuter de votre projet',
       },
       pricing: {
         eyebrow: 'Tarifs',
@@ -123,7 +123,7 @@ export const ui = {
             title: 'Prototype d’un parcours clé',
             for: 'Pour valider une idée avant le développement ou la présenter à des investisseurs.',
             price: `3${NBSP}200${NBSP}€`,
-            items: ['Un parcours utilisateur principal, par exemple l’inscription ou la commande', `Jusqu’à 10${NBSP}écrans`, 'Analyse succincte du public cible et des concurrents', 'Wireframes et design visuel adapté à votre marque', 'Prototype interactif dans Figma, à explorer et à tester', `3${NBSP}séries de modifications`],
+            items: ['Un parcours utilisateur principal, par exemple l’inscription ou la commande', `Jusqu’à 10${NBSP}écrans`, 'Analyse succincte du public cible et des concurrents', 'Wireframes et design visuel adapté à votre marque', 'Prototype interactif, à explorer et à tester', `3${NBSP}séries de modifications`],
             action: 'Discuter d’un prototype',
           },
           {
@@ -162,14 +162,14 @@ export const ui = {
           { q: `Peut-on commander uniquement une recherche UX${NBSP}?`, a: 'Oui. La recherche UX est disponible comme prestation indépendante. Vous recevrez des conclusions et des recommandations pour définir les prochaines étapes.' },
           { q: `Peut-on modifier le design en cours de projet${NBSP}?`, a: `Oui. Chaque étape comprend 3${NBSP}séries de modifications. Si des changements supplémentaires sont nécessaires, nous conviendrons de leur portée et de leur coût à l’avance.` },
           { q: `Combien de temps prend un projet de design UI/UX${NBSP}?`, a: 'Cela dépend de la complexité du produit, du nombre d’écrans et des vérifications nécessaires. Après le briefing, nous définissons les étapes et convenons des délais.' },
-          { q: `Puis-je transmettre vos maquettes à mes propres développeurs${NBSP}?`, a: 'Oui. Vous recevez un fichier Figma contenant tous les écrans validés, les composants et leurs différents états, afin que votre équipe puisse commencer le développement immédiatement.' },
+          { q: `Puis-je transmettre vos maquettes à mes propres développeurs${NBSP}?`, a: 'Oui. Vous recevez des fichiers de design contenant tous les écrans validés, les composants et leurs différents états, afin que votre équipe puisse commencer le développement immédiatement.' },
         ],
       },
       cta: {
         title: 'Parlez-nous de votre projet',
         text: [`Vous avez une idée, un cahier des charges prêt ou un produit existant à moderniser${NBSP}?`, 'Parlez-nous-en, et nous vous aiderons à déterminer par où commencer.'],
         call: 'Réserver un appel',
-        message: 'Nous contacter',
+        message: 'Discuter de votre projet',
       },
     },
     // ЧЕРНЕТКА перекладу — на вичитку (відповіді 2–8 з рішень у плані)
@@ -348,19 +348,19 @@ export const ui = {
   },
   en: {
     // ЧЕРНЕТКА перекладу — на вичитку
-    cta: { title: 'Tell us about your project', text: 'The first call is free. We’ll start with questions about your business.' },
+    cta: { title: 'Tell us about your project', text: 'The first call is free. We’ll start with questions about your business.', message: 'Discuss your project' },
     footerNav: { site: 'Site', calculator: 'Calculator', social: 'Social', contact: 'Get in touch', email: 'Email', messenger: 'Messenger', legal: 'Legal notice', privacy: 'Privacy' },
     // Заглушка сторінок, яких ще немає. ЧЕРНЕТКА — на вичитку
     stub: { text: 'This page is under construction.' },
     // Сторінка послуги «UI/UX дизайн і прототипування». Переклад від Яни, 23.11.2026
     uiux: {
       meta: {
-        title: 'UI/UX Design & Prototyping — Lindigo Design Studio',
+        title: 'UI/UX Design for Apps and Web Platforms — Lindigo Design Studio',
       },
       hero: {
-        crumbs: ['Services', 'UI/UX Design & Prototyping'],
+        crumbs: ['Services', 'UI/UX Design for Apps and Web Platforms'],
         crumbsLabel: 'Breadcrumbs',
-        title: 'UI/UX Design & Prototyping',
+        title: `UI/UX Design for${NBSP}Apps and Web${NBSP}Platforms`,
         lead: 'We design web applications, mobile apps, and complex websites. We help users find what they need quickly and complete tasks without unnecessary steps.',
         tags: ['UX Research', 'UI Design', 'Prototyping', 'Web Applications', 'Mobile Apps'],
         primary: 'Discuss Your Project',
@@ -421,11 +421,11 @@ export const ui = {
           { title: 'UX Research', text: 'We study your audience, competitors and product goals. We identify what users need and where they might encounter difficulties.', result: 'Research findings and recommendations.' },
           { title: 'User Flows & Structure', text: 'We define the necessary pages and features. We map the user’s journey from the first screen to their intended action.', result: 'Sitemap and user flows.' },
           { title: 'Wireframes', text: 'We create screen layouts without unnecessary visual styling. We check how information, buttons and navigation are arranged.', result: 'Black-and-white wireframes of key screens.' },
-          { title: 'UI Design', text: 'We choose colours, typography and components, and design the screens. We establish a consistent visual language for the interface.', result: 'Design mockups in Figma.' },
+          { title: 'UI Design', text: 'We choose colours, typography and components, and design the screens. We establish a consistent visual language for the interface.', result: 'Design mockups.' },
           { title: 'Prototyping & Testing', text: 'We build an interactive prototype. We check navigation logic and whether key actions are easy to understand, then address the issues we find.', result: 'Interactive prototype and final designs.' },
-          { title: 'Developer Handoff', text: 'We prepare design files, components and the necessary explanations for developers.', result: 'An organised Figma project ready for implementation.' },
+          { title: 'Developer Handoff', text: 'We prepare design files, components and the necessary explanations for developers.', result: 'Organised design files ready for implementation.' },
         ],
-        action: 'Discuss Your Requirements',
+        action: 'Discuss Your Project',
       },
       pricing: {
         eyebrow: 'Pricing',
@@ -439,7 +439,7 @@ export const ui = {
             title: 'Key User Flow Prototype',
             for: 'To validate an idea before development or present it to investors.',
             price: '€3,200',
-            items: ['One core user flow, such as registration or checkout', 'Up to 10 screens', 'Brief analysis of the target audience and competitors', 'Wireframes and visual design aligned with your brand', 'An interactive Figma prototype you can explore and test', '3 rounds of revisions'],
+            items: ['One core user flow, such as registration or checkout', 'Up to 10 screens', 'Brief analysis of the target audience and competitors', 'Wireframes and visual design aligned with your brand', 'An interactive prototype you can explore and test', '3 rounds of revisions'],
             action: 'Discuss a Prototype',
           },
           {
@@ -478,14 +478,14 @@ export const ui = {
           { q: 'Can I order UX research only?', a: 'Yes. UX research is available as a standalone service. You’ll receive findings and recommendations to help determine the next steps.' },
           { q: 'Can the design be changed during the project?', a: 'Yes. Each stage includes 3 rounds of revisions. If more changes are needed, we’ll discuss their scope and cost in advance.' },
           { q: 'How long does UI/UX design take?', a: 'It depends on the product’s complexity, number of screens and necessary testing. After the briefing, we define the stages and agree on a timeline.' },
-          { q: 'Can I hand your designs over to my own developers?', a: 'Yes. You’ll receive a Figma file with all approved screens, components and their states, so your team can start development right away.' },
+          { q: 'Can I hand your designs over to my own developers?', a: 'Yes. You’ll receive design files with all approved screens, components and their states, so your team can start development right away.' },
         ],
       },
       cta: {
         title: 'Tell Us About Your Project',
         text: ['Have an idea, a ready-made brief or an existing product that needs an update?', 'Tell us about it, and we’ll help you figure out where to start.'],
         call: 'Book a Call',
-        message: 'Contact Us',
+        message: 'Discuss Your Project',
       },
     },
     // ЧЕРНЕТКА перекладу — на вичитку (відповіді 2–8 з рішень у плані)
@@ -661,19 +661,19 @@ export const ui = {
     },
   },
   uk: {
-    cta: { title: 'Розкажіть про свій проєкт', text: 'Перший дзвінок безкоштовний. Почнемо з питань про ваш бізнес.' },
+    cta: { title: 'Розкажіть про свій проєкт', text: 'Перший дзвінок безкоштовний. Почнемо з питань про ваш бізнес.', message: 'Обговорити проєкт' },
     footerNav: { site: 'Сайт', calculator: 'Калькулятор', social: 'Соцмережі', contact: 'Зв’язок', email: 'Email', messenger: 'Месенджер', legal: 'Mentions légales', privacy: 'Confidentialité' },
     // Заглушка сторінок, яких ще немає. ЧЕРНЕТКА — на вичитку
     stub: { text: 'Ця сторінка ще в роботі.' },
     // Сторінка послуги «UI/UX дизайн і прототипування» — тексти з макета Figma
     uiux: {
       meta: {
-        title: 'UI/UX дизайн і прототипування — Lindigo Design Studio',
+        title: 'UI/UX дизайн застосунків і вебплатформ — Lindigo Design Studio',
       },
       hero: {
-        crumbs: ['Послуги', 'UI/UX дизайн і прототипування'],
+        crumbs: ['Послуги', 'UI/UX дизайн застосунків і вебплатформ'],
         crumbsLabel: 'Хлібні крихти',
-        title: 'UI/UX дизайн і прототипування',
+        title: `UI/UX дизайн застосунків і${NBSP}вебплатформ`,
         lead: 'Проєктуємо вебсервіси, мобільні застосунки та складні сайти. Робимо так, щоб людина швидко знаходила потрібне і виконувала дію без зайвих кроків.',
         tags: ['UX-дослідження', 'UI-дизайн', 'Прототипування', 'Вебсервіси', 'Застосунки'],
         primary: 'Обговорити проєкт',
@@ -733,11 +733,11 @@ export const ui = {
           { title: 'UX-дослідження', text: 'Вивчаємо вашу аудиторію, конкурентів і завдання продукту. З’ясовуємо, що людям потрібно та які труднощі можуть виникнути.', result: 'Висновки дослідження та рекомендації.' },
           { title: 'Сценарії та структура', text: 'Визначаємо, які сторінки й функції потрібні. Продумуємо шлях користувача від першого екрана до потрібної дії.', result: 'Карта сторінок і сценарії користування.' },
           { title: 'Схеми екранів', text: 'Створюємо схеми екранів без зайвого оформлення. Перевіряємо розташування інформації, кнопок і переходів.', result: 'Чорно-білі схеми ключових екранів.' },
-          { title: 'UI-дизайн', text: 'Підбираємо кольори, шрифти, компоненти та оформлюємо екрани. Створюємо єдиний візуальний стиль інтерфейсу.', result: 'Дизайн-макети у Figma.' },
+          { title: 'UI-дизайн', text: 'Підбираємо кольори, шрифти, компоненти та оформлюємо екрани. Створюємо єдиний візуальний стиль інтерфейсу.', result: 'Дизайн-макети.' },
           { title: 'Прототип і перевірка', text: 'Збираємо інтерактивний прототип. Перевіряємо логіку переходів і зрозумілість основних дій, виправляємо знайдені проблеми.', result: 'Інтерактивний прототип і фінальні макети.' },
-          { title: 'Передача в розробку', text: 'Готуємо дизайн-файли, компоненти та необхідні пояснення для розробників.', result: 'Організований Figma-проєкт для реалізації.' },
+          { title: 'Передача в розробку', text: 'Готуємо дизайн-файли, компоненти та необхідні пояснення для розробників.', result: 'Організовані дизайн-файли для реалізації.' },
         ],
-        action: 'Обговорити завдання',
+        action: 'Обговорити проєкт',
       },
       pricing: {
         eyebrow: 'Вартість',
@@ -751,7 +751,7 @@ export const ui = {
             title: 'Прототип ключового сценарію',
             for: 'Щоб перевірити ідею до початку розробки або представити її інвесторам.',
             price: `3${NBSP}200${NBSP}€`,
-            items: ['Один основний сценарій — наприклад, реєстрація або оформлення замовлення', `До 10${NBSP}екранів`, 'Короткий аналіз цільової аудиторії та конкурентів', 'Схеми екранів і візуальний дизайн у стилі вашого бренду', 'Інтерактивний прототип у Figma, який можна переглянути та протестувати', `3${NBSP}раунди правок`],
+            items: ['Один основний сценарій — наприклад, реєстрація або оформлення замовлення', `До 10${NBSP}екранів`, 'Короткий аналіз цільової аудиторії та конкурентів', 'Схеми екранів і візуальний дизайн у стилі вашого бренду', 'Інтерактивний прототип, який можна переглянути та протестувати', `3${NBSP}раунди правок`],
             action: 'Обговорити прототип',
           },
           {
@@ -790,14 +790,14 @@ export const ui = {
           { q: 'Чи можна замовити лише UX-дослідження?', a: 'Так. Дослідження можна замовити як окрему послугу. Ви отримаєте висновки та рекомендації, які допоможуть визначити подальші кроки.' },
           { q: 'Чи можна змінювати дизайн під час роботи?', a: `Так. На кожному етапі передбачено 3${NBSP}раунди правок. Якщо змін потрібно більше, обговорюємо їхній обсяг і вартість заздалегідь.` },
           { q: 'Скільки часу займає UI/UX дизайн?', a: 'Це залежить від складності продукту, кількості екранів і необхідних перевірок. Після брифінгу визначаємо етапи та погоджуємо строки.' },
-          { q: 'Чи можна передати ваш дизайн своїм розробникам?', a: 'Так. Ви отримуєте Figma-файл з усіма погодженими екранами, компонентами та їхніми станами, тож ваша команда може одразу почати розробку.' },
+          { q: 'Чи можна передати ваш дизайн своїм розробникам?', a: 'Так. Ви отримуєте дизайн-файли з усіма погодженими екранами, компонентами та їхніми станами, тож ваша команда може одразу почати розробку.' },
         ],
       },
       cta: {
         title: 'Розкажіть про свій проєкт',
         text: ['Маєте ідею, готове завдання чи продукт, який потрібно оновити?', 'Розкажіть про нього, і ми підкажемо, з чого почати.'],
         call: 'Записатися на дзвінок',
-        message: 'Написати нам',
+        message: 'Обговорити проєкт',
       },
     },
     // Відповідь 1 — з макета (без цін «від [XX €]»: їх ще не визначено). Відповіді 2–8 — ЧЕРНЕТКА з рішень у плані (розділи 11, 13)
