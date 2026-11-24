@@ -261,6 +261,19 @@ const pad = (n: number) => String(n).padStart(2, '0');
     pointer-events: none;
   }
 
+  /* Невеликий ноутбук (до 1366): текст і фото — рівні половини, щоб фото не ставало вузькою вертикальною смужкою.
+     Стовпчик, як на планшеті, тут не підходить: на низькому екрані ноутбука фото в ньому — тонка смужка (24.11.2026) */
+  @media (max-width: 1366px) {
+    .direction__text {
+      flex: 1 1 0;
+    }
+    /* фото заввишки з текст, а не 520: не витягується вертикально (у стопці висоту картки обмежує скрипт) */
+    .direction__media {
+      align-self: stretch;
+      height: auto;
+    }
+  }
+
   /* Вужчий комп'ютер і планшет: менші заголовки й відступи */
   @media (max-width: 1100px) {
     .direction {
@@ -383,6 +396,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
     const phone = window.matchMedia('(max-width: 599px)');
     const column = window.matchMedia('(max-width: 1100px)'); // картка в стовпчик (і на планшеті)
+    const smallLaptop = window.matchMedia('(min-width: 1101px) and (max-width: 1366px)'); // текст і фото — половини
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     // Висота екрана без адресного рядка (100svh): на телефоні рядок ховається під час гортання,
     // і window.innerHeight змінюється — від svh стопка не перебудовується і не смикається
@@ -420,13 +434,18 @@ const pad = (n: number) => String(n).padStart(2, '0');
       H = Math.min(MAX_H, room);
       // У стовпчик фото горизонтальне: картка не вища, ніж текст + фото в пропорції --aspect-photo-wide
       // (інакше на високому екрані фото забирає весь лишок і стає вертикальним; рішення Яни 23.11.2026)
+      const [aw, ah] = getComputedStyle(document.documentElement)
+        .getPropertyValue('--aspect-photo-wide')
+        .split('/')
+        .map((v) => parseFloat(v));
       if (column.matches) {
-        const [aw, ah] = getComputedStyle(document.documentElement)
-          .getPropertyValue('--aspect-photo-wide')
-          .split('/')
-          .map((v) => parseFloat(v));
         const mediaW = cards[0].clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
         if (aw && ah) H = Math.min(H, Math.ceil(textH + frame + parseFloat(cs.rowGap || '0') + (mediaW * ah) / aw));
+      } else if (smallLaptop.matches) {
+        // Невеликий ноутбук: картка заввишки з текст (фото не нижче пропорції --aspect-photo-wide),
+        // а не на весь екран — інакше фото у пів картки стає високим і вузьким (рішення Яни 24.11.2026)
+        const mediaW = (cards[0].querySelector('.direction__media') as HTMLElement).clientWidth;
+        if (aw && ah) H = Math.min(H, Math.ceil(Math.max(textH, (mediaW * ah) / aw) + frame));
       }
       L = list.getBoundingClientRect().top - stage.getBoundingClientRect().top;
       travel = L + (n - 1) * (H + GAP) - (T + (n - 1) * PEEK) + HOLD;
