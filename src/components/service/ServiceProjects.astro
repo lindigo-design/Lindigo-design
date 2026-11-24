@@ -11,13 +11,12 @@
  * Картка — посилання на сторінку проєкту (уся картка клікабельна через назву). Наведення й фокус
  * з клавіатури однакові: фото трохи збільшується, стрілка в колі повертається.
  *
- * Фон: темна — dark-vertical 20 % на --section-bg (як «Напрями» головної); світла — directions-light
+ * Фон: темна — плями світіння з макета (--glow-projects, 24.11.2026); світла — directions-light
  * 50 % Multiply унизу блоку (Breath, як «Напрями»).
  */
 import { Image } from 'astro:assets';
 import Breath from '../Breath.astro';
 import Button from '../Button.astro';
-import bgDark from '../../assets/backgrounds/dark-vertical.jpg';
 import bgLight from '../../assets/backgrounds/directions-light.jpg';
 import arrowDark from '../../assets/hero/arrow-card.svg';
 import arrowLight from '../../assets/services/ui-ux/arrow-card-light.svg';
@@ -44,7 +43,6 @@ const dt = t.texts.datatixx;
 ---
 
 <section class="projects" id={id} aria-labelledby="projects-title" data-projects>
-  <Image class="projects__bg-dark" src={bgDark} alt="" widths={[960, 1400, 1800]} sizes="100vw" loading="lazy" data-theme-only="dark" aria-hidden="true" />
   <Breath variant="directions" lightImage={bgLight} />
 
   <header class="projects__head">
@@ -166,15 +164,9 @@ const dt = t.texts.datatixx;
     scroll-margin-top: 0;
   }
 
-  .projects :global(.projects__bg-dark) {
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0.2;
-    pointer-events: none;
+  /* Темна тема: плями світіння з макета замість фонової картинки (рішення Яни 24.11.2026) */
+  :global(:root:not([data-theme='light'])) .projects {
+    background: var(--glow-projects), var(--section-bg);
   }
 
   /* ---------- Заголовок ---------- */

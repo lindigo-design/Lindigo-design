@@ -321,11 +321,6 @@ const t: { eyebrow: string; title: string; items: FaqItem[] } = content ?? ui[lo
     }
   }
 
-  /* Під FAQ одразу банер «Заклик до дії»: знизу 56, у банера згори свої 120 (рішення Яни 24.11.2026); на телефоні й так 56 */
-  .faq:has(~ :global(.cta)) {
-    padding-bottom: var(--space-56);
-  }
-
   /* Планшет */
   @media (min-width: 641px) and (max-width: 1100px) {
     .faq__q {
