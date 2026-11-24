@@ -13,7 +13,7 @@ import smart from '../assets/services/ui-ux/smart.jpg';
  * Обкладинки — цілі зображення (картки вищі, ніж у макеті), показуються з object-fit: cover.
  * Сфера — ключ ui[locale].uiux.projects.categories; фільтр показує лише сфери з переліку filterCategories.
  */
-export type UiuxCategory = 'finance' | 'education' | 'ecommerce' | 'health' | 'gardening';
+export type UiuxCategory = 'finance' | 'education' | 'ecommerce' | 'health' | 'home';
 
 export interface UiuxProject {
   slug: string;
@@ -27,7 +27,7 @@ export interface UiuxProject {
 }
 
 /** Порядок кнопок фільтра (Figma) */
-export const filterCategories: UiuxCategory[] = ['finance', 'education', 'ecommerce', 'health'];
+export const filterCategories: UiuxCategory[] = ['finance', 'education', 'ecommerce', 'health', 'home'];
 
 /** Порядок — як у перекладі: ліва колонка 1, 3, 5, права (зі зсувом) 2, 4, 6 */
 export const uiuxProjects: UiuxProject[] = [
@@ -36,6 +36,6 @@ export const uiuxProjects: UiuxProject[] = [
   { slug: 'solvia', title: 'Solvia', category: 'health', platform: 'web', cover: solvia },
   { slug: 'atlasona', title: 'Atlasona', category: 'ecommerce', platform: 'app', cover: atlasona },
   { slug: 'stary-lev', title: 'Видавництво Старого Лева', category: 'education', platform: 'app', cover: staryLev },
-  { slug: 'greenthumbhub', title: 'GreenThumbHub', category: 'gardening', platform: 'web', cover: greenthumbhub },
+  { slug: 'greenthumbhub', title: 'GreenThumbHub', category: 'home', platform: 'web', cover: greenthumbhub },
   { slug: 'smart', title: 'SMART', category: 'education', platform: 'web', cover: smart },
 ];
