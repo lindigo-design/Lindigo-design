@@ -68,7 +68,7 @@ export const ui = {
         // назва групи фільтрів для читачів екрана — з назви шару Figma «Фільтр за сферою». ЧЕРНЕТКА
         filterLabel: 'Filtrer par secteur',
         all: 'Tous',
-        categories: { finance: 'Finance et analyse', education: 'Éducation et culture', ecommerce: 'E-commerce et marketplaces', health: 'Santé et bien-être', gardening: 'Jardinage' },
+        categories: { finance: 'Finance et analyse', education: 'Éducation et culture', ecommerce: 'E-commerce et marketplaces', health: 'Santé et bien-être', home: 'Maison et nature' },
         platforms: { app: 'Application', web: 'Application web' },
         clientGroup: 'Projets clients',
         ownGroup: 'Nos projets et concepts',
@@ -378,7 +378,7 @@ export const ui = {
         // назва групи фільтрів для читачів екрана — з назви шару Figma «Фільтр за сферою». ЧЕРНЕТКА
         filterLabel: 'Filter by industry',
         all: 'All',
-        categories: { finance: 'Finance & Analytics', education: 'Education & Culture', ecommerce: 'E-commerce & Marketplaces', health: 'Health & Wellbeing', gardening: 'Gardening' },
+        categories: { finance: 'Finance & Analytics', education: 'Education & Culture', ecommerce: 'E-commerce & Marketplaces', health: 'Health & Wellbeing', home: 'Home & Nature' },
         platforms: { app: 'App', web: 'Web Application' },
         clientGroup: 'Client projects',
         ownGroup: 'Our projects & concepts',
@@ -684,7 +684,7 @@ export const ui = {
         lead: 'Перетворюємо складні процеси на зручні інтерфейси, а бізнес-ідеї — на продукти, якими приємно користуватися.',
         filterLabel: 'Фільтр за сферою',
         all: 'Усі',
-        categories: { finance: 'Фінанси й аналітика', education: 'Освіта й культура', ecommerce: 'E-commerce і маркетплейси', health: 'Здоров’я й добробут', gardening: 'Садівництво' },
+        categories: { finance: 'Фінанси й аналітика', education: 'Освіта й культура', ecommerce: 'E-commerce і маркетплейси', health: 'Здоров’я й добробут', home: 'Дім і природа' },
         platforms: { app: 'Застосунок', web: 'Вебсервіс' },
         clientGroup: 'Клієнтські проєкти',
         ownGroup: 'Власні проєкти та концепти',
