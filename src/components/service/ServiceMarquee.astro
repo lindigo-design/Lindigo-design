@@ -37,7 +37,7 @@ const rows = [
       <div class:list={['marquee__row', `marquee__row--${row.key}`]}>
         <div class="marquee__track">
           {[0, 1, 2, 3].map((copy) => (
-            <ul class="marquee__group" aria-label={copy === 0 ? row.label : undefined} aria-hidden={copy === 0 ? undefined : 'true'}>
+            <ul class="marquee__group" data-title-case aria-label={copy === 0 ? row.label : undefined} aria-hidden={copy === 0 ? undefined : 'true'}>
               {row.items.map((item) => (
                 <li class="marquee__item">
                   <span>{item}</span>

@@ -81,7 +81,7 @@ export function titleCaseHtml(html: string, locale: TitleLocale): string {
     .join('');
 }
 
-/** Застосовує Title Case до h1–h3 і кнопок (.btn) у готовій HTML-сторінці */
+/** Застосовує Title Case до h1–h3, кнопок (.btn) і списків з data-title-case у готовій HTML-сторінці */
 export function titleCasePage(page: string): string {
   const lang = (page.match(/<html[^>]*\blang="([a-z]{2})/i)?.[1] ?? 'fr').toLowerCase();
   const locale: TitleLocale = lang === 'en' || lang === 'uk' ? lang : 'fr';
@@ -93,5 +93,10 @@ export function titleCasePage(page: string): string {
   rest = rest.replace(/(<h([1-3])\b[^>]*>)([\s\S]*?)(<\/h\2>)/g, (_, open, _n, inner, close) => open + titleCaseHtml(inner, locale) + close);
   // кнопки: <a> або <button> з класом btn (усередині немає вкладених <a>/<button>)
   rest = rest.replace(/(<(a|button)\b[^>]*\bclass="[^"]*\bbtn\b[^"]*"[^>]*>)([\s\S]*?)(<\/\2>)/g, (_, open, _t, inner, close) => open + titleCaseHtml(inner, locale) + close);
+  // інші місця, де потрібен Title Case (біжучі стрічки): елемент з атрибутом data-title-case;
+  // кожен <li> — окремий заголовок, тож перше слово в кожному з великої
+  rest = rest.replace(/(<(ul|ol)\b[^>]*\bdata-title-case\b[^>]*>)([\s\S]*?)(<\/\2>)/g, (_, open, _t, inner, close) =>
+    open + inner.replace(/(<li\b[^>]*>)([\s\S]*?)(<\/li>)/g, (_m: string, o: string, i: string, c: string) => o + titleCaseHtml(i, locale) + c) + close,
+  );
   return head + rest;
 }
