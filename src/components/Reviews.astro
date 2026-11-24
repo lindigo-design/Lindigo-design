@@ -7,7 +7,6 @@
  */
 import { Image } from 'astro:assets';
 import Breath from './Breath.astro';
-import bgDark from '../assets/backgrounds/dark-horizontal.jpg';
 import SliderNav from './SliderNav.astro';
 import allDark from '../assets/works/all-dark.svg';
 import allLight from '../assets/works/all-light.svg';
@@ -24,7 +23,7 @@ const images: Record<string, ImageMetadata> = { datatixx };
 ---
 
 <section class="reviews" aria-labelledby="reviews-title" data-reviews>
-  <Breath variant="reviews" darkImage={bgDark} />
+  <Breath variant="reviews" />
 
   <header class="reviews__head">
     <p class="reviews__eyebrow">{t.eyebrow}</p>
@@ -80,6 +79,11 @@ const images: Record<string, ImageMetadata> = { datatixx };
     padding: var(--space-120) var(--gutter);
     background: var(--section-bg);
     overflow: hidden;
+  }
+
+  /* Темна тема: плями світіння з макета замість фонової картинки (рішення Яни 24.11.2026) */
+  :global(:root:not([data-theme='light'])) .reviews {
+    background: var(--glow-reviews), var(--section-bg);
   }
 
 

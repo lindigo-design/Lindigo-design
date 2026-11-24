@@ -116,6 +116,14 @@ const { variant, lightImage, darkImage } = Astro.props;
     display: none;
   }
 
+  /* Темна тема «Вибраних робіт» і «Відгуків»: плями з макета — у фоні самого блоку (--glow-*, global.css) */
+  :global(:root:not([data-theme='light'])) :is(.breath--works, .breath--reviews) {
+    background: none;
+  }
+  :global(:root:not([data-theme='light'])) :is(.breath--works, .breath--reviews) .breath__blob {
+    display: none;
+  }
+
   /* Світла тема: де є фон-градієнт або макет без фону — плями не показуємо */
   :global(:root[data-theme='light']) :is(.breath--has-photo, .breath--reviews) .breath__blob {
     display: none;

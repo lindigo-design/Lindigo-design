@@ -32,6 +32,10 @@
   --dusk-800: #1a203f;
   --night-800: #0e0b23;
   --night-950: #070415;
+  /* Градієнт «Як ми працюємо» / «Етапи» в темній темі (макет, 24.11.2026) */
+  --plum-700: #34285f;
+  --plum-900: #170f38;
+  --plum-950: #130c2d;
   /* Фіолетові плями світіння (Breath) */
   --violet-500: #7c52c9;
   --violet-600: #6246aa;
@@ -578,11 +582,32 @@ a {
 }
 
 
-/* ---------- Світіння «Light» з макета (темна тема «Принципів» і «Про студію») ----------
-   Індиго й помаранч ліворуч. Радіус ×0,7 і непрозорість ×0,75 від макета (м'якше),
-   на широких екранах не більше, ніж на 1512. Блок вмикає його класом .glow-studio. */
-.glow-studio {
+/* ---------- Світіння «Light» з макета (темна тема, рішення Яни 24.11.2026) ----------
+   Замість фонових картинок у темній темі — плями з макета: індиго й помаранч (радіальні градієнти,
+   непрозорість групи «Light» уже врахована; повернуті плями — описаним еліпсом без нахилу). Місця — у % від блоку 1512 × висота з макета, розмір росте
+   з екраном, але не більший, ніж на 1512. Блок бере потрібну змінну у фон темної теми.
+   --glow-studio — «Принципи» і «Про студію» (клас .glow-studio на блоці). */
+:root {
+  --glow-directions:
+    radial-gradient(min(26.52vw, 401px) min(16.37vw, 248px) at 20.83% 16.42%, color-mix(in srgb, var(--orange) 20.16%, transparent) 0%, color-mix(in srgb, var(--orange) 17.28%, transparent) 20%, color-mix(in srgb, var(--orange) 11.52%, transparent) 40%, color-mix(in srgb, var(--orange) 6.24%, transparent) 60%, color-mix(in srgb, var(--orange) 1.92%, transparent) 80%, transparent 100%),
+    radial-gradient(min(40.97vw, 620px) min(25.03vw, 378px) at 17.89% 11.05%, color-mix(in srgb, var(--indigo-600) 29.76%, transparent) 0%, color-mix(in srgb, var(--indigo-600) 25.44%, transparent) 20%, color-mix(in srgb, var(--indigo-600) 17.28%, transparent) 40%, color-mix(in srgb, var(--indigo-600) 9.12%, transparent) 60%, color-mix(in srgb, var(--indigo-600) 2.88%, transparent) 80%, transparent 100%),
+    radial-gradient(min(21.88vw, 331px) min(20.55vw, 311px) at 75.07% 51.11%, color-mix(in srgb, var(--orange) 20.16%, transparent) 0%, color-mix(in srgb, var(--orange) 17.28%, transparent) 20%, color-mix(in srgb, var(--orange) 11.52%, transparent) 40%, color-mix(in srgb, var(--orange) 6.24%, transparent) 60%, color-mix(in srgb, var(--orange) 1.92%, transparent) 80%, transparent 100%),
+    radial-gradient(min(33.71vw, 510px) min(31.64vw, 478px) at 80.56% 46.35%, color-mix(in srgb, var(--indigo-600) 29.76%, transparent) 0%, color-mix(in srgb, var(--indigo-600) 25.44%, transparent) 20%, color-mix(in srgb, var(--indigo-600) 17.28%, transparent) 40%, color-mix(in srgb, var(--indigo-600) 9.12%, transparent) 60%, color-mix(in srgb, var(--indigo-600) 2.88%, transparent) 80%, transparent 100%),
+    radial-gradient(min(49.07vw, 742px) min(30.26vw, 458px) at 40.28% 84.6%, color-mix(in srgb, var(--orange) 17.64%, transparent) 0%, color-mix(in srgb, var(--orange) 15.12%, transparent) 20%, color-mix(in srgb, var(--orange) 10.08%, transparent) 40%, color-mix(in srgb, var(--orange) 5.46%, transparent) 60%, color-mix(in srgb, var(--orange) 1.68%, transparent) 80%, transparent 100%),
+    radial-gradient(min(75.79vw, 1146px) min(46.3vw, 700px) at 34.85% 74.66%, color-mix(in srgb, var(--indigo-600) 37.2%, transparent) 0%, color-mix(in srgb, var(--indigo-600) 31.8%, transparent) 20%, color-mix(in srgb, var(--indigo-600) 21.6%, transparent) 40%, color-mix(in srgb, var(--indigo-600) 11.4%, transparent) 60%, color-mix(in srgb, var(--indigo-600) 3.6%, transparent) 80%, transparent 100%);
   --glow-studio:
-    radial-gradient(min(28.7vw, 434px) min(18.8vw, 285px) at 17.89% 47.18%, rgb(82 48 201 / 0.22) 0%, rgb(82 48 201 / 0.19) 20%, rgb(82 48 201 / 0.13) 40%, rgb(82 48 201 / 0.07) 60%, rgb(82 48 201 / 0.02) 80%, rgb(82 48 201 / 0) 100%),
-    radial-gradient(min(18.6vw, 281px) min(12.3vw, 186px) at 20.83% 70.45%, rgb(242 99 42 / 0.15) 0%, rgb(242 99 42 / 0.13) 20%, rgb(242 99 42 / 0.09) 40%, rgb(242 99 42 / 0.045) 60%, rgb(242 99 42 / 0.015) 80%, rgb(242 99 42 / 0) 100%);
+    radial-gradient(min(26.52vw, 401px) min(16.37vw, 248px) at 20.83% 59.71%, color-mix(in srgb, var(--orange) 20.16%, transparent) 0%, color-mix(in srgb, var(--orange) 17.28%, transparent) 20%, color-mix(in srgb, var(--orange) 11.52%, transparent) 40%, color-mix(in srgb, var(--orange) 6.24%, transparent) 60%, color-mix(in srgb, var(--orange) 1.92%, transparent) 80%, transparent 100%),
+    radial-gradient(min(40.97vw, 620px) min(25.03vw, 378px) at 17.89% 40.18%, color-mix(in srgb, var(--indigo-600) 29.76%, transparent) 0%, color-mix(in srgb, var(--indigo-600) 25.44%, transparent) 20%, color-mix(in srgb, var(--indigo-600) 17.28%, transparent) 40%, color-mix(in srgb, var(--indigo-600) 9.12%, transparent) 60%, color-mix(in srgb, var(--indigo-600) 2.88%, transparent) 80%, transparent 100%);
+  --glow-works:
+    radial-gradient(min(13.52vw, 204px) min(20.19vw, 305px) at 51.59% 54.56%, color-mix(in srgb, var(--orange) 16.8%, transparent) 0%, color-mix(in srgb, var(--orange) 14.4%, transparent) 20%, color-mix(in srgb, var(--orange) 9.6%, transparent) 40%, color-mix(in srgb, var(--orange) 5.2%, transparent) 60%, color-mix(in srgb, var(--orange) 1.6%, transparent) 80%, transparent 100%),
+    radial-gradient(min(23.66vw, 358px) min(28.97vw, 438px) at 39.42% 71.29%, color-mix(in srgb, var(--indigo-600) 24.8%, transparent) 0%, color-mix(in srgb, var(--indigo-600) 21.2%, transparent) 20%, color-mix(in srgb, var(--indigo-600) 14.4%, transparent) 40%, color-mix(in srgb, var(--indigo-600) 7.6%, transparent) 60%, color-mix(in srgb, var(--indigo-600) 2.4%, transparent) 80%, transparent 100%);
+  --glow-reviews:
+    radial-gradient(min(17.13vw, 259px) min(11.34vw, 172px) at 65.74% 48.03%, color-mix(in srgb, var(--orange) 20.16%, transparent) 0%, color-mix(in srgb, var(--orange) 17.28%, transparent) 20%, color-mix(in srgb, var(--orange) 11.52%, transparent) 40%, color-mix(in srgb, var(--orange) 6.24%, transparent) 60%, color-mix(in srgb, var(--orange) 1.92%, transparent) 80%, transparent 100%),
+    radial-gradient(min(26.49vw, 400px) min(17.36vw, 262px) at 63.86% 34.41%, color-mix(in srgb, var(--indigo-600) 29.76%, transparent) 0%, color-mix(in srgb, var(--indigo-600) 25.44%, transparent) 20%, color-mix(in srgb, var(--indigo-600) 17.28%, transparent) 40%, color-mix(in srgb, var(--indigo-600) 9.12%, transparent) 60%, color-mix(in srgb, var(--indigo-600) 2.88%, transparent) 80%, transparent 100%);
+  --glow-projects:
+    radial-gradient(min(26.52vw, 401px) min(16.37vw, 248px) at 72.49% 19.68%, color-mix(in srgb, var(--orange) 20.16%, transparent) 0%, color-mix(in srgb, var(--orange) 17.28%, transparent) 20%, color-mix(in srgb, var(--orange) 11.52%, transparent) 40%, color-mix(in srgb, var(--orange) 6.24%, transparent) 60%, color-mix(in srgb, var(--orange) 1.92%, transparent) 80%, transparent 100%),
+    radial-gradient(min(40.97vw, 620px) min(25.03vw, 378px) at 69.54% 14.36%, color-mix(in srgb, var(--indigo-600) 29.76%, transparent) 0%, color-mix(in srgb, var(--indigo-600) 25.44%, transparent) 20%, color-mix(in srgb, var(--indigo-600) 17.28%, transparent) 40%, color-mix(in srgb, var(--indigo-600) 9.12%, transparent) 60%, color-mix(in srgb, var(--indigo-600) 2.88%, transparent) 80%, transparent 100%),
+    radial-gradient(min(49.07vw, 742px) min(30.26vw, 458px) at 40.28% 83.84%, color-mix(in srgb, var(--orange) 17.64%, transparent) 0%, color-mix(in srgb, var(--orange) 15.12%, transparent) 20%, color-mix(in srgb, var(--orange) 10.08%, transparent) 40%, color-mix(in srgb, var(--orange) 5.46%, transparent) 60%, color-mix(in srgb, var(--orange) 1.68%, transparent) 80%, transparent 100%),
+    radial-gradient(min(75.79vw, 1146px) min(46.3vw, 700px) at 34.85% 73.99%, color-mix(in srgb, var(--indigo-600) 37.2%, transparent) 0%, color-mix(in srgb, var(--indigo-600) 31.8%, transparent) 20%, color-mix(in srgb, var(--indigo-600) 21.6%, transparent) 40%, color-mix(in srgb, var(--indigo-600) 11.4%, transparent) 60%, color-mix(in srgb, var(--indigo-600) 3.6%, transparent) 80%, transparent 100%),
+    radial-gradient(min(21.96vw, 332px) min(28.51vw, 431px) at 34.85% 89.73%, color-mix(in srgb, var(--indigo-600) 24.8%, transparent) 0%, color-mix(in srgb, var(--indigo-600) 21.2%, transparent) 20%, color-mix(in srgb, var(--indigo-600) 14.4%, transparent) 40%, color-mix(in srgb, var(--indigo-600) 7.6%, transparent) 60%, color-mix(in srgb, var(--indigo-600) 2.4%, transparent) 80%, transparent 100%);
 }
