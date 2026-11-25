@@ -735,7 +735,7 @@ export function initCalculator(root: HTMLElement) {
     els.form.reset();
     els.callLink.hidden = true;
     clearErrors();
-    els.status.hidden = true;
+    els.status.replaceChildren();
     shown = { low: 0, high: 0 };
     selectService(null);
     focusStep();
@@ -873,14 +873,13 @@ export function initCalculator(root: HTMLElement) {
     open.href = link.href;
     open.textContent = t.contact.failedLink;
     els.status.replaceChildren(before ?? '', link, after ?? '', ' ', open);
-    els.status.hidden = false;
   }
 
   let sending = false;
   els.form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (sending || !serviceId) return;
-    els.status.hidden = true;
+    els.status.replaceChildren();
     if (!validate()) return;
 
     // посилання на сайт: доповнюємо https://, помилку показуємо, але відправку не блокуємо

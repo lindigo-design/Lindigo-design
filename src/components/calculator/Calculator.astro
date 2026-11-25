@@ -218,9 +218,10 @@ const isPills = (q: CalcQuestion) => q.role === 'languages' || (q.role === 'cont
               <Field id="calc-site" name="site" type="url" inputmode="url" label={t.contact.site} autocomplete="url" liveError />
             </div>
             <Field id="calc-comment" name="comment" type="textarea" label={t.contact.comment} hint={t.contact.commentHint} />
-            <!-- Пастка для ботів: людина поле не бачить і не заповнює -->
+            <!-- Пастка для ботів: людина поле не бачить (за екраном, без Tab, приховане від скрінрідерів).
+                 Назва й підпис нейтральні — не website/company/phone, щоб автозаповнення браузера сюди нічого не вписало -->
             <div class="calc-form__trap" aria-hidden="true">
-              <label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+              <label>Ne pas remplir <input type="text" name="ld_extra" tabindex="-1" autocomplete="off" /></label>
             </div>
           </div>
         </fieldset>
@@ -252,7 +253,8 @@ const isPills = (q: CalcQuestion) => q.role === 'languages' || (q.role === 'cont
           <p class="calc-form__note">
             {keepLastWords(t.contact.note)} <a href={privacy}>{t.contact.privacy}</a>
           </p>
-          <p class="calc-form__status" data-status role="status" hidden></p>
+          <!-- role="status" на сторінці від початку, порожній: тоді скрінрідер точно прочитає повідомлення, коли воно з'явиться -->
+          <p class="calc-form__status" data-status role="status"></p>
         </div>
       </form>
 
@@ -797,8 +799,9 @@ const isPills = (q: CalcQuestion) => q.role === 'languages' || (q.role === 'cont
   .calc-form__status {
     color: var(--danger);
   }
-  .calc-form__status[hidden] {
-    display: none;
+  /* Порожній — не займає місця й не додає проміжок, але лишається на сторінці для скрінрідерів */
+  .calc-form__status:empty {
+    position: absolute;
   }
 
   /* ---------- Подяка після відправки ---------- */
