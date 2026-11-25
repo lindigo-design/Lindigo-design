@@ -70,7 +70,6 @@ export interface CalcTexts {
     recommended: string;
     nothing: string;
     units: { screens: string; pages: string };
-    siteHint: string;
     dateLabel: string;
     /** Чому «Далі» неактивна на кроці 1 */
     needChoice: string;
@@ -92,6 +91,10 @@ export interface CalcTexts {
     privacy: string;
     errName: string;
     errEmail: string;
+    /** Посилання на сайт (крок 6, лише якщо сайт є) */
+    site: string;
+    siteShort: string;
+    errSite: string;
     /** {email} — адреса студії */
     failed: string;
     failedLink: string;
@@ -155,6 +158,15 @@ export const calcUi: Record<Locale, CalcTexts> = {
         },
       },
       sites: {
+        siteGoal: {
+          title: 'Що хочете зробити із сайтом?',
+          short: 'Що зробити',
+          options: {
+            redesign: { title: 'Оновити дизайн', text: 'Сторінки й тексти лишаються, змінюється вигляд і зручність', line: 'оновити дизайн' },
+            rebuild: { title: 'Зробити новий сайт замість старого', text: 'Новий сайт з нуля, старий — лише відправна точка', line: 'новий сайт замість старого' },
+            partial: { title: 'Змінити окремі сторінки або додати функцію', text: 'Нова сторінка, форма, запис, блог у наявному сайті', line: 'змінити окремі сторінки або додати функцію' },
+          },
+        },
         type: {
           title: 'Який сайт?',
           options: {
@@ -189,6 +201,7 @@ export const calcUi: Record<Locale, CalcTexts> = {
           title: 'Що додати?',
           hint: 'Можна нічого не обирати.',
           options: {
+            content_migration: { title: 'Перенесення вмісту зі старого сайту', text: 'Тексти, фото й сторінки переносимо самі' },
             logo: { title: 'Потрібен логотип', text: 'Логотип з логобуком: правила, як ним користуватися' },
             rebrand: { title: 'Потрібен ребрендинг', text: 'Новий логотип і фірмовий стиль замість старого' },
             blog: { title: 'Блог', text: 'Публікації, які ви додаєте самі' },
@@ -198,6 +211,15 @@ export const calcUi: Record<Locale, CalcTexts> = {
         },
       },
       shop: {
+        siteGoal: {
+          title: 'Що хочете зробити з магазином?',
+          short: 'Що зробити',
+          options: {
+            redesign: { title: 'Оновити дизайн магазину', text: 'Сторінки й тексти лишаються, змінюється вигляд і зручність', line: 'оновити дизайн магазину' },
+            rebuild: { title: 'Зробити новий магазин замість старого', text: 'Новий магазин з нуля, старий — лише відправна точка', line: 'новий магазин замість старого' },
+            partial: { title: 'Змінити окремі сторінки або додати функцію', text: 'Нова сторінка, форма, запис, блог у наявному магазині', line: 'змінити окремі сторінки або додати функцію' },
+          },
+        },
         platform: {
           title: 'На чому зробити магазин?',
           options: {
@@ -222,6 +244,7 @@ export const calcUi: Record<Locale, CalcTexts> = {
           title: 'Що додати?',
           hint: 'Можна нічого не обирати.',
           options: {
+            content_migration: { title: 'Перенесення товарів і сторінок зі старого магазину', text: 'Товари, фото й сторінки переносимо самі' },
             photos: { title: 'Фото товарів від студії', text: 'Зйомка пів дня з обробкою' },
             logo: { title: 'Потрібен логотип', text: 'Логотип з логобуком: правила, як ним користуватися' },
             rebrand: { title: 'Потрібен ребрендинг', text: 'Новий логотип і фірмовий стиль замість старого' },
@@ -286,6 +309,19 @@ export const calcUi: Record<Locale, CalcTexts> = {
           title: 'Чи є у вас сайт?',
           short: 'Сайт є',
           options: { yes: { title: 'Так', line: 'так' }, no: { title: 'Ні', line: 'ні' } },
+        },
+        sitePains: {
+          title: 'Що зараз не працює?',
+          hint: 'Можна пропустити. Це допоможе нам підготуватися до розмови.',
+          short: 'Що не працює',
+          options: {
+            outdated: { title: 'Застарілий вигляд', line: 'застарілий вигляд' },
+            few_leads: { title: 'Мало заявок', line: 'мало заявок' },
+            mobile: { title: 'Незручно з телефону', line: 'незручно з телефону' },
+            hard_to_update: { title: 'Важко оновлювати самим', line: 'важко оновлювати самим' },
+            slow: { title: 'Повільно завантажується', line: 'повільно завантажується' },
+            off_brand: { title: 'Не схожий на наш бренд', line: 'не схожий на наш бренд' },
+          },
         },
         brand: {
           title: 'Чи є у вас бренд?',
@@ -414,9 +450,8 @@ export const calcUi: Record<Locale, CalcTexts> = {
       recommended: 'Рекомендовано',
       nothing: 'нічого не обрано',
       units: { screens: `{n}${N}екранів`, pages: `{n}${N}стор.` },
-      siteHint: 'Ми можемо оновити наявний сайт, а не робити з нуля. Обговоримо на дзвінку.',
       dateLabel: 'Бажана дата завершення',
-      needChoice: 'Оберіть напрям, щоб продовжити.',
+      needChoice: 'Оберіть варіант, щоб продовжити.',
     },
     contact: {
       title: 'Куди надіслати точну оцінку?',
@@ -435,6 +470,9 @@ export const calcUi: Record<Locale, CalcTexts> = {
       privacy: `Політика${N}конфіденційності`,
       errName: 'Напишіть, як до вас звертатися.',
       errEmail: 'Перевірте email: схоже, в ньому помилка.',
+      site: 'Посилання на ваш сайт',
+      siteShort: 'Посилання',
+      errSite: 'Схоже, в адресі помилка. Перевірте, будь ласка.',
       failed: `Не вдалося надіслати запит. Напишіть нам на {email}: ваш вибір уже в${N}листі.`,
       failedLink: 'Відкрити лист',
       subject: 'Запит з калькулятора: {service}',
@@ -498,6 +536,15 @@ export const calcUi: Record<Locale, CalcTexts> = {
         },
       },
       sites: {
+        siteGoal: {
+          title: `Que voulez-vous faire de votre site${N}?`,
+          short: 'À faire',
+          options: {
+            redesign: { title: 'Refaire le design', text: 'Les pages et les textes restent, l’apparence et l’ergonomie changent', line: 'refaire le design' },
+            rebuild: { title: 'Créer un nouveau site à la place de l’ancien', text: 'Un nouveau site de zéro, l’ancien sert de point de départ', line: 'nouveau site à la place de l’ancien' },
+            partial: { title: 'Modifier des pages ou ajouter une fonction', text: 'Une nouvelle page, un formulaire, la réservation, un blog sur votre site actuel', line: 'modifier des pages ou ajouter une fonction' },
+          },
+        },
         type: {
           title: `Quel site${N}?`,
           options: {
@@ -532,6 +579,7 @@ export const calcUi: Record<Locale, CalcTexts> = {
           title: `Que souhaitez-vous ajouter${N}?`,
           hint: 'Vous pouvez ne rien choisir.',
           options: {
+            content_migration: { title: 'Migration du contenu de l’ancien site', text: 'Nous transférons nous-mêmes les textes, les photos et les pages' },
             logo: { title: 'Besoin d’un logo', text: `Logo avec logobook${N}: les règles pour bien l’utiliser` },
             rebrand: { title: 'Besoin d’un rebranding', text: 'Un nouveau logo et une nouvelle identité à la place des anciens' },
             blog: { title: 'Blog', text: 'Des articles que vous publiez vous-même' },
@@ -541,6 +589,15 @@ export const calcUi: Record<Locale, CalcTexts> = {
         },
       },
       shop: {
+        siteGoal: {
+          title: `Que voulez-vous faire de votre boutique${N}?`,
+          short: 'À faire',
+          options: {
+            redesign: { title: 'Refaire le design de la boutique', text: 'Les pages et les textes restent, l’apparence et l’ergonomie changent', line: 'refaire le design de la boutique' },
+            rebuild: { title: 'Créer une nouvelle boutique à la place de l’ancienne', text: 'Une nouvelle boutique de zéro, l’ancienne sert de point de départ', line: 'nouvelle boutique à la place de l’ancienne' },
+            partial: { title: 'Modifier des pages ou ajouter une fonction', text: 'Une nouvelle page, un formulaire, la réservation, un blog sur votre boutique actuelle', line: 'modifier des pages ou ajouter une fonction' },
+          },
+        },
         platform: {
           title: `Sur quelle plateforme${N}?`,
           options: {
@@ -565,6 +622,7 @@ export const calcUi: Record<Locale, CalcTexts> = {
           title: `Que souhaitez-vous ajouter${N}?`,
           hint: 'Vous pouvez ne rien choisir.',
           options: {
+            content_migration: { title: 'Migration des produits et des pages de l’ancienne boutique', text: 'Nous transférons nous-mêmes les produits, les photos et les pages' },
             photos: { title: 'Photos produits par le studio', text: 'Une demi-journée de shooting, retouches comprises' },
             logo: { title: 'Besoin d’un logo', text: `Logo avec logobook${N}: les règles pour bien l’utiliser` },
             rebrand: { title: 'Besoin d’un rebranding', text: 'Un nouveau logo et une nouvelle identité à la place des anciens' },
@@ -629,6 +687,19 @@ export const calcUi: Record<Locale, CalcTexts> = {
           title: `Avez-vous déjà un site${N}?`,
           short: 'Site existant',
           options: { yes: { title: 'Oui', line: 'oui' }, no: { title: 'Non', line: 'non' } },
+        },
+        sitePains: {
+          title: `Qu’est-ce qui ne fonctionne pas aujourd’hui${N}?`,
+          hint: 'Vous pouvez passer cette question. Elle nous aide à préparer l’échange.',
+          short: 'Ce qui ne va pas',
+          options: {
+            outdated: { title: 'Un look daté', line: 'un look daté' },
+            few_leads: { title: 'Peu de demandes', line: 'peu de demandes' },
+            mobile: { title: 'Pas pratique sur mobile', line: 'pas pratique sur mobile' },
+            hard_to_update: { title: 'Difficile à mettre à jour', line: 'difficile à mettre à jour' },
+            slow: { title: 'Lent à charger', line: 'lent à charger' },
+            off_brand: { title: 'Ne ressemble pas à notre marque', line: 'ne ressemble pas à notre marque' },
+          },
         },
         brand: {
           title: `Avez-vous déjà une identité de marque${N}?`,
@@ -757,9 +828,8 @@ export const calcUi: Record<Locale, CalcTexts> = {
       recommended: 'Recommandé',
       nothing: 'rien de choisi',
       units: { screens: `{n}${N}écrans`, pages: `{n}${N}pages` },
-      siteHint: 'Nous pouvons faire évoluer votre site actuel plutôt que de repartir de zéro. On en parle lors de l’appel.',
       dateLabel: 'Date de fin souhaitée',
-      needChoice: 'Choisissez un domaine pour continuer.',
+      needChoice: 'Choisissez une option pour continuer.',
     },
     contact: {
       title: `Où envoyer l’estimation précise${N}?`,
@@ -778,6 +848,9 @@ export const calcUi: Record<Locale, CalcTexts> = {
       privacy: `Politique de${N}confidentialité`,
       errName: 'Indiquez votre nom.',
       errEmail: `Vérifiez l’adresse e-mail${N}: elle semble incorrecte.`,
+      site: 'Lien vers votre site',
+      siteShort: 'Lien',
+      errSite: 'L’adresse semble incorrecte. Vérifiez-la, s’il vous plaît.',
       failed: `La demande n’a pas pu être envoyée. Écrivez-nous à {email}${N}: vos choix sont déjà dans le${N}message.`,
       failedLink: 'Ouvrir le message',
       subject: `Demande depuis le calculateur${N}: {service}`,
@@ -841,6 +914,15 @@ export const calcUi: Record<Locale, CalcTexts> = {
         },
       },
       sites: {
+        siteGoal: {
+          title: 'What do you want to do with your website?',
+          short: 'Goal',
+          options: {
+            redesign: { title: 'Refresh the design', text: 'Pages and copy stay; the look and usability change', line: 'refresh the design' },
+            rebuild: { title: 'Build a new site to replace the old one', text: 'A new site from scratch; the old one is just a starting point', line: 'a new site to replace the old one' },
+            partial: { title: 'Change some pages or add a feature', text: 'A new page, a form, booking or a blog on your current site', line: 'change some pages or add a feature' },
+          },
+        },
         type: {
           title: 'Which website?',
           options: {
@@ -875,6 +957,7 @@ export const calcUi: Record<Locale, CalcTexts> = {
           title: 'What would you like to add?',
           hint: 'You can leave this empty.',
           options: {
+            content_migration: { title: 'Content migration from the old site', text: 'We move the copy, photos and pages for you' },
             logo: { title: 'I need a logo', text: 'Logo with a logo book: rules on how to use it' },
             rebrand: { title: 'I need a rebrand', text: 'A new logo and visual identity to replace the old ones' },
             blog: { title: 'Blog', text: 'Posts you add yourself' },
@@ -884,6 +967,15 @@ export const calcUi: Record<Locale, CalcTexts> = {
         },
       },
       shop: {
+        siteGoal: {
+          title: 'What do you want to do with your store?',
+          short: 'Goal',
+          options: {
+            redesign: { title: 'Refresh the store design', text: 'Pages and copy stay; the look and usability change', line: 'refresh the store design' },
+            rebuild: { title: 'Build a new store to replace the old one', text: 'A new store from scratch; the old one is just a starting point', line: 'a new store to replace the old one' },
+            partial: { title: 'Change some pages or add a feature', text: 'A new page, a form, booking or a blog on your current store', line: 'change some pages or add a feature' },
+          },
+        },
         platform: {
           title: 'Which platform?',
           options: {
@@ -908,6 +1000,7 @@ export const calcUi: Record<Locale, CalcTexts> = {
           title: 'What would you like to add?',
           hint: 'You can leave this empty.',
           options: {
+            content_migration: { title: 'Moving products and pages from the old store', text: 'We move the products, photos and pages for you' },
             photos: { title: 'Product photos by the studio', text: 'A half-day shoot with editing' },
             logo: { title: 'I need a logo', text: 'Logo with a logo book: rules on how to use it' },
             rebrand: { title: 'I need a rebrand', text: 'A new logo and visual identity to replace the old ones' },
@@ -972,6 +1065,19 @@ export const calcUi: Record<Locale, CalcTexts> = {
           title: 'Do you already have a website?',
           short: 'Existing site',
           options: { yes: { title: 'Yes', line: 'yes' }, no: { title: 'No', line: 'no' } },
+        },
+        sitePains: {
+          title: 'What isn’t working right now?',
+          hint: 'You can skip this. It helps us prepare for the call.',
+          short: 'What isn’t working',
+          options: {
+            outdated: { title: 'Outdated look', line: 'outdated look' },
+            few_leads: { title: 'Too few leads', line: 'too few leads' },
+            mobile: { title: 'Hard to use on a phone', line: 'hard to use on a phone' },
+            hard_to_update: { title: 'Hard to update ourselves', line: 'hard to update ourselves' },
+            slow: { title: 'Slow to load', line: 'slow to load' },
+            off_brand: { title: 'Doesn’t match our brand', line: 'doesn’t match our brand' },
+          },
         },
         brand: {
           title: 'Do you have a brand?',
@@ -1100,9 +1206,8 @@ export const calcUi: Record<Locale, CalcTexts> = {
       recommended: 'Recommended',
       nothing: 'nothing selected',
       units: { screens: `{n}${N}screens`, pages: `{n}${N}pages` },
-      siteHint: 'We can update your current site instead of starting from scratch. Let’s discuss it on a call.',
       dateLabel: 'Target completion date',
-      needChoice: 'Choose a service to continue.',
+      needChoice: 'Choose an option to continue.',
     },
     contact: {
       title: 'Where should we send the exact quote?',
@@ -1121,6 +1226,9 @@ export const calcUi: Record<Locale, CalcTexts> = {
       privacy: `Privacy${N}policy`,
       errName: 'Please tell us your name.',
       errEmail: 'Please check your email: it looks incorrect.',
+      site: 'Link to your website',
+      siteShort: 'Link',
+      errSite: 'The address looks wrong. Please check it.',
       failed: `We couldn’t send your request. Write to us at {email}: your choices are already in the${N}message.`,
       failedLink: 'Open the email',
       subject: 'Calculator request: {service}',

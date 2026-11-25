@@ -91,8 +91,9 @@ export function titleCasePage(page: string): string {
   let rest = page.slice(body);
   // заголовки
   rest = rest.replace(/(<h([1-3])\b[^>]*>)([\s\S]*?)(<\/h\2>)/g, (_, open, _n, inner, close) => open + titleCaseHtml(inner, locale) + close);
-  // кнопки: <a> або <button> з класом btn (усередині немає вкладених <a>/<button>)
-  rest = rest.replace(/(<(a|button)\b[^>]*\bclass="[^"]*\bbtn\b[^"]*"[^>]*>)([\s\S]*?)(<\/\2>)/g, (_, open, _t, inner, close) => open + titleCaseHtml(inner, locale) + close);
+  // кнопки: <a> або <button> з класом btn — саме таким класом, а не частиною іншого (calc__step-btn);
+  // усередині немає вкладених <a>/<button>
+  rest = rest.replace(/(<(a|button)\b[^>]*\bclass="(?:[^"]*\s)?btn(?:\s[^"]*)?"[^>]*>)([\s\S]*?)(<\/\2>)/g, (_, open, _t, inner, close) => open + titleCaseHtml(inner, locale) + close);
   // інші місця, де потрібен Title Case (біжучі стрічки): елемент з атрибутом data-title-case;
   // кожен <li> — окремий заголовок, тож перше слово в кожному з великої
   rest = rest.replace(/(<(ul|ol)\b[^>]*\bdata-title-case\b[^>]*>)([\s\S]*?)(<\/\2>)/g, (_, open, _t, inner, close) =>

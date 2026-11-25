@@ -33,6 +33,14 @@ export interface CalcOption {
   draft?: boolean;
   /** Взаємовиключні варіанти: обрати цей — зняти ці (логотип / ребрендинг) */
   excludes?: string[];
+  /** Варіант видно (і рахується), лише коли в іншому питанні обрано один із варіантів */
+  showIf?: { question: string; in: string[] };
+  /** Обрано — ці кроки пропускаються («Змінити окремі сторінки»: без параметрів, доповнень і темпу) */
+  skipSteps?: number[];
+  /** Обрано — у цих питаннях ставимо відповідь, поки людина їх ще не бачила (оновлення дизайну → тексти вже готові) */
+  defaults?: Record<string, string>;
+  /** Ціна множиться на коефіцієнт обраного варіанта цього питання (напр. 'products'); поки не використовується */
+  multiplierBy?: string;
 }
 
 export type QuestionRole =
@@ -65,6 +73,8 @@ export interface CalcQuestion {
   draft?: boolean;
   /** Необов'язкове: на старті нічого не обрано */
   optional?: boolean;
+  /** Без відповіді «Далі» неактивна (лише для питань без відповіді за замовчуванням) */
+  required?: boolean;
   /** Не показувати, коли потрібна індивідуальна оцінка («Ця сума вам підходить?») */
   hideWhenCustom?: boolean;
 }
@@ -106,6 +116,22 @@ const sea = ctx('sea', 4, ['sea', 'mountains', 'both']);
 /** Крок 5 — після темпу, бо сума вже остаточна */
 const budget = ctx('budget', 5, ['yes', 'cheaper', 'discuss'], { hideWhenCustom: true });
 const project = [start, deadline, sea];
+
+/* Сайт уже є (завдання «Калькулятор: блок „Сайт уже є“»): два питання під «Чи є у вас сайт?» — лише за відповіді «Так» */
+const ifSite = { question: 'hasSite', in: ['yes'] };
+const siteGoal = ctx('siteGoal', 1, [], {
+  required: true,
+  showIf: ifSite,
+  options: [
+    { id: 'redesign', defaults: { copy: 'ready' } },
+    { id: 'rebuild' },
+    // окремі сторінки чи функція: ціну наперед не рахуємо, параметри, доповнення й темп пропускаємо
+    { id: 'partial', custom: true, skipSteps: [2, 3, 5] },
+  ],
+});
+const sitePains = ctx('sitePains', 1, ['outdated', 'few_leads', 'mobile', 'hard_to_update', 'slow', 'off_brand'], { kind: 'multi', showIf: ifSite });
+/** Перенесення вмісту зі старого сайту чи магазину — лише для оновлення дизайну й нового сайту замість старого */
+const migrationAddon: CalcOption = { id: 'content_migration', price: 300, draft: true, showIf: { question: 'siteGoal', in: ['redesign', 'rebuild'] } };
 
 /** Доповнення «Потрібен логотип» і «Потрібен ребрендинг» — взаємовиключні */
 const logoAddon: CalcOption = { id: 'logo', price: LOGO_PRICE, excludes: ['rebrand'] };
@@ -186,6 +212,8 @@ export const calculator = {
       id: 'sites',
       questions: [
         hasSite,
+        siteGoal,
+        sitePains,
         {
           id: 'type',
           kind: 'single',
@@ -224,6 +252,7 @@ export const calculator = {
           role: 'addon',
           step: 3,
           options: [
+            migrationAddon,
             logoAddon,
             rebrandAddon,
             { id: 'blog', price: 500, draft: true },
@@ -240,6 +269,8 @@ export const calculator = {
       id: 'shop',
       questions: [
         hasSite,
+        siteGoal,
+        sitePains,
         {
           id: 'platform',
           kind: 'single',
@@ -272,6 +303,7 @@ export const calculator = {
           role: 'addon',
           step: 3,
           options: [
+            migrationAddon,
             { id: 'photos', price: 650 },
             logoAddon,
             rebrandAddon,
@@ -444,6 +476,24 @@ export function addonEffects(answers: Answers): { hidden: string[]; recommended:
   }
 }
 
+/** Чи доступний варіант за поточних відповідей (option.showIf) */
+export function optionVisible(o: CalcOption, answers: Answers): boolean {
+  if (!o.showIf) return true;
+  const v = answers[o.showIf.question];
+  return typeof v === 'string' && o.showIf.in.includes(v);
+}
+
+/** Кроки, які пропускаються за обраними відповідями (skipSteps) */
+export function skippedSteps(service: CalcService, answers: Answers): number[] {
+  const out = new Set<number>();
+  for (const q of service.questions) {
+    if (q.kind !== 'single' || !isVisible(q, answers)) continue;
+    const o = q.options?.find((x) => x.id === answers[q.id]);
+    for (const n of o?.skipSteps ?? []) out.add(n);
+  }
+  return [...out].sort();
+}
+
 /** «Пріоритет» рекомендуємо, якщо почати треба найближчим часом або є конкретна дата */
 export function priorityRecommended(answers: Answers): boolean {
   return answers.start === 'soon' || answers.deadline === 'date';
@@ -487,6 +537,11 @@ export function calculate(serviceId: ServiceId, answers: Answers): CalcResult {
   }
   const basePrice = base;
   lines.push({ kind: 'base', parts, amount: base });
+
+  // Питання про контекст на суму не впливають, але варіант може вимагати індивідуальної оцінки («Змінити окремі сторінки»)
+  for (const q of visible.filter((x) => x.role === 'context' && x.kind === 'single')) {
+    if (single(q)?.custom) custom = true;
+  }
 
   // Коефіцієнт до бази (кількість товарів)
   for (const q of visible.filter((x) => x.role === 'multiplier')) {
@@ -539,12 +594,16 @@ export function calculate(serviceId: ServiceId, answers: Answers): CalcResult {
   for (const q of visible.filter((x) => x.role === 'addon')) {
     const chosen = Array.isArray(answers[q.id]) ? (answers[q.id] as string[]) : [];
     for (const o of q.options ?? []) {
-      if (!chosen.includes(o.id) || hidden.includes(o.id)) continue;
+      if (!chosen.includes(o.id) || hidden.includes(o.id) || !optionVisible(o, answers)) continue;
       if (o.monthly !== undefined) {
         lines.push({ kind: 'monthly', question: q.id, option: o.id, amount: o.monthly });
         continue;
       }
-      const amount = o.percentOfBase !== undefined ? (base + unitsAmount) * o.percentOfBase : priceOf(o.price, scope);
+      let amount = o.percentOfBase !== undefined ? (base + unitsAmount) * o.percentOfBase : priceOf(o.price, scope);
+      if (o.multiplierBy) {
+        const mq = visible.find((x) => x.id === o.multiplierBy);
+        amount *= mq ? (single(mq)?.multiplier ?? 1) : 1;
+      }
       total += amount;
       lines.push({ kind: 'addon', question: q.id, option: o.id, amount });
     }

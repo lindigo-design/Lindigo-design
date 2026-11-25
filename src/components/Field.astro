@@ -14,7 +14,8 @@ interface Props {
   id: string;
   label: string;
   name?: string;
-  type?: 'text' | 'email' | 'tel' | 'date' | 'textarea';
+  type?: 'text' | 'email' | 'tel' | 'url' | 'date' | 'textarea';
+  inputmode?: 'text' | 'email' | 'tel' | 'url' | 'numeric';
   value?: string;
   placeholder?: string;
   autocomplete?: string;
@@ -39,6 +40,7 @@ const {
   required = false,
   disabled = false,
   liveError = false,
+  inputmode,
 } = Astro.props;
 
 const hintId = hint ? `${id}-hint` : undefined;
@@ -49,6 +51,7 @@ const common = {
   name,
   placeholder,
   autocomplete,
+  inputmode,
   required,
   disabled,
   'aria-invalid': error ? 'true' : undefined,
