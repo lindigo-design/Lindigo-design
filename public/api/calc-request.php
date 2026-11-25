@@ -4,7 +4,7 @@
  * Працює на хостингу з PHP (Hostinger). На GitHub Pages PHP не виконується: форма тоді
  * пропонує людині надіслати той самий лист зі своєї пошти (calculator-client.ts, showFailed).
  *
- * Приймає POST (FormData): name, email, comment, call, service, estimate, subject, locale, page, website (пастка для ботів).
+ * Приймає POST (FormData): name, email, site, comment, call, service, estimate, subject, locale, page, website (пастка для ботів).
  * Відповідь — JSON { "ok": true } або { "ok": false, "error": "..." }.
  * Ключів і паролів тут немає: лист надсилає стандартна функція mail() хостингу.
  */
@@ -49,6 +49,7 @@ if (field('website') !== '') {
 
 $name = oneLine(field('name', 200));
 $email = oneLine(field('email', 200));
+$site = oneLine(field('site', 500));
 $comment = field('comment');
 $estimate = field('estimate');
 $service = oneLine(field('service', 200));
@@ -64,6 +65,7 @@ if ($name === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
 $body = implode("\n", [
     "Ім'я / Nom: $name",
     "Email: $email",
+    'Сайт / Site: ' . ($site !== '' ? $site : '—'),
     "Подзвонити / Appel: $call",
     "Мова / Langue: $locale",
     '',

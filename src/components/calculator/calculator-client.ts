@@ -6,6 +6,9 @@
  * Показ по кроках: видно лише питання поточного кроку, пройдені згорнуті в рядки з «Змінити».
  * «Змінити» (або клік по пройденому кроку на смузі) повертає до кроку; наступні кроки людина проходить знову.
  * Крок 6 — форма запиту: POST на обробник хостингу; якщо його немає — лист через пошту людини (mailto).
+ *
+ * Сайт уже є (сайти й магазини): під «Чи є у вас сайт?» — «Що хочете зробити?» (обов'язкове) і «Що не працює?».
+ * «Змінити окремі сторінки» — без суми й без кроків 2, 3 і 5 (skipSteps у конфігу).
  */
 import {
   addonEffects,
@@ -15,9 +18,11 @@ import {
   getService,
   includedUnits,
   isVisible,
+  optionVisible,
   priorityRecommended,
   scopeOf,
   serviceIds,
+  skippedSteps,
   STEP_COUNT,
   type Answers,
   type CalcLine,
@@ -117,6 +122,20 @@ export function initCalculator(root: HTMLElement) {
   let busy = false;
   /** Людина сама редагувала коментар — не перезаписуємо його зведенням */
   let commentEdited = false;
+  /** Кроки, які людина вже бачила (відповіді за замовчуванням з defaults ставимо лише в ще не бачені) */
+  const visited = new Set<number>([1]);
+
+  const skipped = () => (service ? skippedSteps(service, answers) : []);
+  /** Наступний / попередній крок з урахуванням пропущених */
+  const nextStep = (from: number) => {
+    for (let n = from + 1; n <= STEP_COUNT; n++) if (!skipped().includes(n)) return n;
+    return 0;
+  };
+  const prevStep = (from: number) => {
+    for (let n = from - 1; n >= 1; n--) if (!skipped().includes(n)) return n;
+    return 0;
+  };
+  const siteUrl = () => $('[data-site-url]');
 
   const qText = (sid: string, qid: string) => t.questions[sid]?.[qid] ?? t.questions.common?.[qid];
   const optText = (sid: string, qid: string, oid: string) => qText(sid, qid)?.options?.[oid];
@@ -247,17 +266,13 @@ export function initCalculator(root: HTMLElement) {
         if (o && priceEl) priceEl.textContent = optionPrice(service, q, o);
         if (!card) continue;
         // доповнення: «Потрібен логотип» ховається, якщо логотип уже є; рекомендоване — з позначкою
-        if (q.role === 'addon') card.hidden = effects.hidden.includes(input.value);
+        if (q.role === 'addon') card.hidden = effects.hidden.includes(input.value) || (!!o && !optionVisible(o, answers));
         const badge = card.querySelector<HTMLElement>('[data-badge]');
         if (badge) {
           const rec = (q.role === 'addon' && effects.recommended.includes(input.value)) || (q.role === 'pace' && input.value === 'priority' && priority);
           badge.hidden = !rec;
         }
       }
-
-      // «Ми можемо оновити наявний сайт…» — під типом сайту чи магазину, якщо сайт є
-      const siteHint = el.querySelector<HTMLElement>('[data-site-hint]');
-      if (siteHint) siteHint.hidden = answers.hasSite !== 'yes';
 
       // «Є конкретна дата» — поле дати
       const date = el.querySelector<HTMLElement>('[data-date]');
@@ -352,8 +367,11 @@ export function initCalculator(root: HTMLElement) {
       els.live.textContent = fill(t.summary.range, { low: money(result.low), high: money(result.high) });
     }
 
+    // «Змінити окремі сторінки»: параметри не питали — рядків розрахунку немає
+    const priced = !skipped().includes(2);
+    els.lines.parentElement!.hidden = !priced;
     els.lines.replaceChildren(
-      ...result.lines.map((line) => {
+      ...(priced ? result.lines : []).map((line) => {
         const [name, amount] = lineText(serviceId!, line);
         const li = document.createElement('li');
         li.className = 'calc-sum__line';
@@ -397,9 +415,17 @@ export function initCalculator(root: HTMLElement) {
       return fill(q.id === 'screens' ? t.flow.units.screens : t.flow.units.pages, { n });
     }
     if (q.role === 'languages') return t.languages[String(v)] ?? '';
+    if (q.kind === 'multi' && q.role === 'context') {
+      const list = Array.isArray(v) ? v : [];
+      if (!list.length) return '';
+      const qt = qText(serviceId, q.id);
+      const value = list.map((id) => optText(serviceId!, q.id, id)?.line ?? optText(serviceId!, q.id, id)?.title ?? '').join(', ');
+      return qt?.short ? `${qt.short}${COLON}${value}` : value;
+    }
     if (q.kind === 'multi') {
       const hidden = addonEffects(answers).hidden;
-      const list = (Array.isArray(v) ? v : []).filter((id) => !hidden.includes(id));
+      const opts = q.options ?? [];
+      const list = (Array.isArray(v) ? v : []).filter((id) => !hidden.includes(id) && optionVisible(opts.find((o) => o.id === id) ?? { id }, answers));
       return list.map((id) => optText(serviceId!, q.id, id)?.title ?? '').filter(Boolean).join(', ');
     }
     if (typeof v !== 'string') return '';
@@ -426,8 +452,8 @@ export function initCalculator(root: HTMLElement) {
   function stepSummary(n: number): string {
     if (n === 1) {
       if (!serviceId) return '';
-      const site = service?.questions.find((q) => q.id === 'hasSite');
-      return joinParts([t.services[serviceId].title, site && shown_(site) ? answerText(site) : ''].filter(Boolean));
+      const extra = (service?.questions ?? []).filter((q) => q.step === 1 && shown_(q)).map(answerText);
+      return joinParts([t.services[serviceId].title, ...extra].filter(Boolean));
     }
     if (!service) return '';
     const parts = service.questions.filter((q) => q.step === n && shown_(q)).map(answerText).filter(Boolean);
@@ -437,9 +463,12 @@ export function initCalculator(root: HTMLElement) {
   /* ---------- Кроки ---------- */
 
   function renderSteps() {
+    const skip = skipped();
     els.steps.forEach((li, i) => {
       const n = i + 1;
-      const done = sent || n < step;
+      const isSkipped = skip.includes(n);
+      const done = !isSkipped && (sent || n < step);
+      li.classList.toggle('is-skipped', isSkipped);
       li.classList.toggle('is-done', done);
       li.classList.toggle('is-now', !sent && n === step);
       const btn = li.querySelector<HTMLButtonElement>('[data-goto]')!;
@@ -450,7 +479,7 @@ export function initCalculator(root: HTMLElement) {
     els.stepNow.textContent = sent ? t.thanks.eyebrow : `${step} ${t.steps[step - 1]}`;
 
     // згорнуті пройдені кроки
-    const rows = sent ? [] : Array.from({ length: step - 1 }, (_, i) => i + 1);
+    const rows = sent ? [] : Array.from({ length: step - 1 }, (_, i) => i + 1).filter((n) => !skip.includes(n));
     els.done.hidden = rows.length === 0;
     els.done.replaceChildren(
       ...rows.map((n) => {
@@ -486,9 +515,11 @@ export function initCalculator(root: HTMLElement) {
     els.form.hidden = sent || step !== 6;
     els.thanks.hidden = !sent;
 
-    // «Далі» під кроком: на кроці 1 — лише коли обрано напрям; на кроці 6 замість неї кнопка форми
-    const canNext = step > 1 || !!serviceId;
-    els.next.hidden = step >= STEP_COUNT;
+    // «Далі» під кроком: на кроці 1 — коли обрано напрям і є відповіді на обов'язкові питання; на кроці 6 замість неї кнопка форми
+    const missing = !!service && service.questions.some((q) => q.step === step && q.required && shown_(q) && !answers[q.id]);
+    const canNext = (step > 1 || !!serviceId) && !missing;
+    const next = nextStep(step);
+    els.next.hidden = !next || next > STEP_COUNT || step >= STEP_COUNT;
     if (canNext) {
       nextBtn.removeAttribute('aria-disabled');
       nextBtn.removeAttribute('aria-describedby');
@@ -496,20 +527,26 @@ export function initCalculator(root: HTMLElement) {
       nextBtn.setAttribute('aria-disabled', 'true');
       nextBtn.setAttribute('aria-describedby', 'calc-need-choice');
     }
-    els.back.hidden = step === 1;
+    els.back.hidden = !prevStep(step);
     els.nav.hidden = sent;
 
     // кнопка панелі дублює «Далі» й називає наступний крок
-    const panelOn = !sent && !!serviceId && step < STEP_COUNT;
+    const panelOn = !sent && !!serviceId && step < STEP_COUNT && !!next;
     els.panelNext.hidden = !panelOn;
-    if (panelOn) panelBtn.querySelector<HTMLElement>('.btn__label')!.textContent = tc(t.flow.nextTo[step]);
+    if (panelOn) panelBtn.querySelector<HTMLElement>('.btn__label')!.textContent = tc(t.flow.nextTo[next - 1]);
+    if (canNext) panelBtn.removeAttribute('aria-disabled');
+    else panelBtn.setAttribute('aria-disabled', 'true');
+
+    // посилання на сайт у формі — лише якщо сайт є
+    siteUrl().hidden = answers.hasSite !== 'yes';
   }
 
   async function goTo(n: number, { focus = true } = {}) {
-    if (busy || n < 1 || n > STEP_COUNT || (n > 1 && !serviceId)) return;
+    if (busy || n < 1 || n > STEP_COUNT || (n > 1 && !serviceId) || skipped().includes(n)) return;
     const forward = n > step;
     if (forward && step === 4) track('calc_context', serviceId ?? undefined);
-    if (forward && step === 5) track('calc_result', serviceId ?? undefined);
+    if (forward && step <= 5 && n > 5) track('calc_result', serviceId ?? undefined);
+    visited.add(n);
     if (n === 6) fillComment();
 
     const animate = !reduceMotion.matches && 'animate' in HTMLElement.prototype;
@@ -584,8 +621,22 @@ export function initCalculator(root: HTMLElement) {
       update();
       return;
     }
+    const before = q.kind === 'single' ? q.options?.find((o) => o.id === answers[q.id]) : undefined;
     if (q.kind === 'single') {
       answers[q.id] = input.value;
+      const chosen = q.options?.find((o) => o.id === input.value);
+      if (q.id === 'siteGoal') {
+        (window as unknown as { dataLayer?: unknown[] }).dataLayer?.push({ event: 'calc_site_goal', goal: input.value });
+        // «Оновити дизайн» → тексти вже готові, якщо крок 2 людина ще не бачила
+        for (const [qid, val] of Object.entries(chosen?.defaults ?? {})) if (!visited.has(2)) answers[qid] = val;
+        // з «окремих сторінок» на інше: пропущені кроки повертаються й заповнюються з нуля
+        const back = (before?.skipSteps ?? []).filter((n) => !(chosen?.skipSteps ?? []).includes(n));
+        if (back.length) {
+          const fresh = defaultAnswers(service);
+          for (const x of service.questions) if (back.includes(x.step) && x.role !== 'context') answers[x.id] = fresh[x.id];
+          for (const n of back) visited.delete(n);
+        }
+      }
       // новий тип: лічильник стартує з включених одиниць
       if (q.role === 'base') {
         const counter = service.questions.find((x) => x.kind === 'counter');
@@ -604,12 +655,29 @@ export function initCalculator(root: HTMLElement) {
       setCounter(q, Number(input.value));
       return;
     }
-    // доповнення, сховані відповіддю про бренд, знімаємо
+    // питання про контекст, що сховались (сайт «Ні»), — без відповідей
+    for (const x of service.questions.filter((y) => y.role === 'context' && !isVisible(y, answers))) {
+      answers[x.id] = x.kind === 'multi' ? [] : undefined;
+    }
+    // доповнення, сховані відповіддю про бренд або недоступні (перенесення вмісту), знімаємо
     const { hidden } = addonEffects(answers);
     for (const aq of service.questions.filter((x) => x.role === 'addon')) {
-      if (Array.isArray(answers[aq.id])) answers[aq.id] = (answers[aq.id] as string[]).filter((id) => !hidden.includes(id));
+      if (Array.isArray(answers[aq.id]))
+        answers[aq.id] = (answers[aq.id] as string[]).filter((id) => !hidden.includes(id) && optionVisible(aq.options?.find((o) => o.id === id) ?? { id }, answers));
     }
+    if (answers.hasSite !== 'yes') {
+      const url = field('site');
+      url.value = '';
+      setError('site', '');
+    }
+    const appeared = q.id === 'hasSite' && input.value === 'yes';
     update();
+    // «Так» — нові питання плавно з'являються під «Чи є у вас сайт?»
+    if (appeared && !reduceMotion.matches && 'animate' in HTMLElement.prototype) {
+      for (const el of questionEls(serviceId).filter((x) => ['siteGoal', 'sitePains'].includes(x.dataset.question ?? '') && !x.hidden)) {
+        el.animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: 250, easing: 'ease-out' });
+      }
+    }
   });
 
   function setCounter(q: CalcQuestion, value: number) {
@@ -652,16 +720,18 @@ export function initCalculator(root: HTMLElement) {
 
   const onNext = () => {
     if (nextBtn.getAttribute('aria-disabled') === 'true') return;
-    goTo(step + 1);
+    goTo(nextStep(step));
   };
   nextBtn.addEventListener('click', onNext);
-  panelBtn.addEventListener('click', () => goTo(step + 1));
-  els.back.addEventListener('click', () => goTo(step - 1));
+  panelBtn.addEventListener('click', onNext);
+  els.back.addEventListener('click', () => goTo(prevStep(step)));
 
   els.restart.addEventListener('click', () => {
     sent = false;
     step = 1;
     commentEdited = false;
+    visited.clear();
+    visited.add(1);
     els.form.reset();
     els.callLink.hidden = true;
     clearErrors();
@@ -692,18 +762,21 @@ export function initCalculator(root: HTMLElement) {
   function estimatePairs(): { k: string; v: string; line?: boolean; group?: number }[] {
     if (!result || !serviceId || !service) return [];
     const pairs: { k: string; v: string; line?: boolean; group?: number }[] = [{ k: t.estimate.service, v: t.services[serviceId].title }];
-    for (const line of result.lines) {
+    for (const line of skipped().includes(2) ? [] : result.lines) {
       const [name, amount] = lineText(serviceId, line);
       const hideAmount = result.custom && line.kind !== 'pace' && line.kind !== 'multiplier' && line.kind !== 'monthly';
       pairs.push({ k: name, v: hideAmount ? '' : amount, line: true });
     }
     pairs.push({ k: t.estimate.total, v: result.custom ? t.summary.custom : `${rangeText(result.low, result.high)} ${t.summary.tax}` });
     // контекст парами в рядок, як у специфікації: «Сайт є · Бренд», «Початок · Термін», «Сума · Море чи гори»
-    const groups: Record<string, number> = { hasSite: 1, brand: 1, start: 2, deadline: 2, budget: 3, sea: 3 };
+    const groups: Record<string, number> = { start: 2, deadline: 2, budget: 3, sea: 3 };
+    const url = normalizeUrl(field('site').value);
     for (const q of service.questions.filter((x) => x.role === 'context' && shown_(x))) {
       const text = answerText(q);
       const i = text.indexOf(COLON);
       if (text && i > 0) pairs.push({ k: text.slice(0, i), v: text.slice(i + COLON.length), group: groups[q.id] });
+      // посилання на сайт — одразу після питань про сайт
+      if (q.id === 'sitePains' && answers.hasSite === 'yes' && url) pairs.push({ k: t.contact.siteShort, v: url });
     }
     return pairs;
   }
@@ -719,6 +792,21 @@ export function initCalculator(root: HTMLElement) {
     }
     return rows.join('\n');
   }
+
+  /** «lindigo.fr» → «https://lindigo.fr»; порожнє — порожнє */
+  function normalizeUrl(raw: string): string {
+    const v = raw.trim();
+    if (!v) return '';
+    return /^[a-z][a-z0-9+.-]*:\/\//i.test(v) ? v : `https://${v}`;
+  }
+  const urlLooksValid = (v: string) => {
+    try {
+      const u = new URL(v);
+      return /^https?:$/.test(u.protocol) && /\.[a-z]{2,}$/i.test(u.hostname);
+    } catch {
+      return false;
+    }
+  };
 
   function fillComment() {
     const c = field('comment');
@@ -794,6 +882,12 @@ export function initCalculator(root: HTMLElement) {
     if (sending || !serviceId) return;
     els.status.hidden = true;
     if (!validate()) return;
+
+    // посилання на сайт: доповнюємо https://, помилку показуємо, але відправку не блокуємо
+    const url = normalizeUrl(field('site').value);
+    if (url) field('site').value = url;
+    setError('site', url && !urlLooksValid(url) ? t.contact.errSite : '');
+    if (!commentEdited) fillComment();
 
     const data = new FormData(els.form);
     data.set('name', field('name').value.trim());

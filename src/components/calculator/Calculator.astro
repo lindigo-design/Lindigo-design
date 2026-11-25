@@ -37,8 +37,8 @@ const stepLabel = (n: number) => fill(t.stepLabel, { n, name: t.steps[n - 1] });
 const cols = (q: CalcQuestion) => ((q.options?.length ?? 0) === 2 || (q.options?.length ?? 0) === 4 ? 2 : 3);
 /** Мітка кроку — лише над першим питанням кроку (скрипт оновлює, коли питання ховаються) */
 const firstOfStep = (qs: CalcQuestion[], i: number) => i === 0 || qs[i - 1].step !== qs[i].step;
-/** Пігулки: мови й питання про контекст */
-const isPills = (q: CalcQuestion) => q.role === 'languages' || q.role === 'context';
+/** Пігулки: мови й питання про контекст; «Що хочете зробити із сайтом?» — картки з підписами */
+const isPills = (q: CalcQuestion) => q.role === 'languages' || (q.role === 'context' && q.id !== 'siteGoal');
 ---
 
 <section class="calc" data-calc data-locale={locale} data-service={service} data-endpoint={endpoint} data-email={calculator.contactEmail} aria-label={t.hero.title}>
@@ -103,7 +103,6 @@ const isPills = (q: CalcQuestion) => q.role === 'languages' || q.role === 'conte
               const qt = qText(s.id, q.id);
               const name = `calc-${s.id}-${q.id}`;
               const hintId = `${name}-hint`;
-              const withSiteHint = q.role === 'base' && s.questions.some((x) => x.id === 'hasSite');
               return (
                 <fieldset class="calc-q" data-question={q.id} data-step={q.step} aria-describedby={qt?.hint ? hintId : undefined}>
                   <legend class="calc-q__head" tabindex="-1">
@@ -140,7 +139,7 @@ const isPills = (q: CalcQuestion) => q.role === 'languages' || q.role === 'conte
                       <div class="calc-pills">
                         {q.options?.map((o) => (
                           <label class="calc-pill">
-                            <input class="calc-pill__input" type="radio" name={name} value={o.id} />
+                            <input class="calc-pill__input" type={q.kind === 'multi' ? 'checkbox' : 'radio'} name={name} value={o.id} />
                             <span>{q.role === 'languages' ? t.languages[o.id] : qt?.options?.[o.id]?.title}</span>
                           </label>
                         ))}
@@ -174,13 +173,7 @@ const isPills = (q: CalcQuestion) => q.role === 'languages' || q.role === 'conte
                       </div>
                     )}
 
-                    {withSiteHint && (
-                      <p class="calc-q__note" data-site-hint hidden>
-                        {keepLastWords(t.flow.siteHint)}
-                      </p>
-                    )}
-
-                    {q.kind === 'multi' && (
+                    {q.kind === 'multi' && !isPills(q) && (
                       <div class="calc-q__list">
                         {q.options?.map((o) => {
                           const ot = qt?.options?.[o.id];
@@ -220,6 +213,10 @@ const isPills = (q: CalcQuestion) => q.role === 'languages' || q.role === 'conte
           <div class="calc-q__body">
             <Field id="calc-name" name="name" label={`${t.contact.name} *`} autocomplete="name" required liveError />
             <Field id="calc-email" name="email" type="email" label={`${t.contact.email} *`} autocomplete="email" required liveError />
+            <!-- Лише якщо сайт є (крок 1); необов'язкове, адресу без https:// доповнюємо самі -->
+            <div data-site-url hidden>
+              <Field id="calc-site" name="site" type="url" inputmode="url" label={t.contact.site} autocomplete="url" liveError />
+            </div>
             <Field id="calc-comment" name="comment" type="textarea" label={t.contact.comment} hint={t.contact.commentHint} />
             <!-- Пастка для ботів: людина поле не бачить і не заповнює -->
             <div class="calc-form__trap" aria-hidden="true">
@@ -437,6 +434,11 @@ const isPills = (q: CalcQuestion) => q.role === 'languages' || q.role === 'conte
   .calc__step.is-now .calc__step-bar {
     background: var(--accent-text);
   }
+  /* Пропущений крок («Змінити окремі сторінки»): сірий, не клікабельний */
+  .calc__step.is-skipped .calc__step-btn {
+    opacity: var(--disabled-opacity);
+  }
+
   /* Поточний — підпис кольору акценту */
   .calc__step.is-now .calc__step-btn {
     color: var(--accent-text);
@@ -1107,6 +1109,9 @@ const isPills = (q: CalcQuestion) => q.role === 'languages' || q.role === 'conte
     display: flex;
     flex-direction: column;
     gap: var(--space-12);
+  }
+  .calc-sum__parts[hidden] {
+    display: none;
   }
 
   .calc-sum__lines {

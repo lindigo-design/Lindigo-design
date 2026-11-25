@@ -4,7 +4,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { addonEffects, calculate, defaultAnswers, getService, priorityRecommended, roundTo, type Answers, type ServiceId } from '../src/data/calculator.ts';
+import { addonEffects, calculate, defaultAnswers, getService, priorityRecommended, roundTo, skippedSteps, type Answers, type ServiceId } from '../src/data/calculator.ts';
 
 function run(service: ServiceId, patch: Answers) {
   const answers = { ...defaultAnswers(getService(service)!), ...patch };
@@ -130,4 +130,30 @@ test('Питання про контекст необов’язкові й на
   assert.equal(d.brand, undefined);
   const r = run('sites', { type: 'corporate', pages: 10, languages: '2', copy: 'studio', hasSite: 'yes', start: 'soon', budget: 'cheaper', sea: 'sea' });
   assert.equal(r.total, 8300);
+});
+
+/* ---------- Сайт уже є ---------- */
+
+test('Сайт є → оновлення дизайну → візитівка, 5 стор., 1 мова, + перенесення вмісту', () => {
+  const r = run('sites', { hasSite: 'yes', siteGoal: 'redesign', type: 'vitrine', pages: 5, addons: ['content_migration'] });
+  assert.equal(r.total, 4100);
+  assert.deepEqual(range(r), [4100, 5150]);
+});
+
+test('Сайт є → новий замість старого → корпоративний, тексти готові', () => {
+  assert.deepEqual(range(run('sites', { hasSite: 'yes', siteGoal: 'rebuild', type: 'corporate', pages: 10 })), [6350, 7950]);
+});
+
+test('Сайт є → окремі сторінки: індивідуальна оцінка, кроки 2, 3, 5 пропускаються', () => {
+  const answers = { ...defaultAnswers(getService('sites')!), hasSite: 'yes', siteGoal: 'partial' };
+  assert.equal(calculate('sites', answers).custom, true);
+  assert.deepEqual(skippedSteps(getService('sites')!, answers), [2, 3, 5]);
+});
+
+test('Перенесення вмісту не рахується без сайту чи для окремих сторінок', () => {
+  assert.equal(run('sites', { type: 'vitrine', addons: ['content_migration'] }).total, 3800);
+  assert.equal(run('shop', { hasSite: 'yes', siteGoal: 'redesign', addons: ['content_migration'] }).total, 5100 + 300);
+  // «Так» → «Ні»: питання про сайт сховані, їх відповіді не враховуються
+  const r = run('sites', { hasSite: 'no', siteGoal: 'partial', type: 'vitrine' });
+  assert.equal(r.custom, false);
 });
