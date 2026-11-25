@@ -224,6 +224,8 @@
   /* ---------- Темна тема (основна) ---------- */
   --bg: var(--indigo-950);
   --fg: var(--beige-50);
+  /* Заголовки h1–h3: у темній — як основний текст, у світлій — Indigo 800 (рішення Яни, 25.11.2026) */
+  --heading: var(--fg);
   --text-muted: var(--muted-dark);
   --accent-text: var(--orchid);
   /* Перемикач теми (Figma, шапка): у темній обводка бежева, у світлій — Orchid Deep */
@@ -295,6 +297,7 @@
 :root[data-theme='light'] {
   --bg: var(--beige-50);
   --fg: var(--indigo-950);
+  --heading: var(--indigo-800);
   --text-muted: var(--muted-light);
   --accent-text: var(--orchid-deep);
   --switch-border: var(--orchid-deep);
@@ -381,6 +384,11 @@ h1,
 h2,
 h3 {
   text-wrap: balance;
+}
+
+/* Колір заголовків — роль --heading; :where без ваги, тож блок може задати свій колір (напр. на темній картці) */
+:where(h1, h2, h3) {
+  color: var(--heading);
 }
 
 p {
