@@ -6,6 +6,7 @@
  * Ліворуч: хлібні крихти, заголовок (Display 72), опис і дві кнопки (теги — у ServiceMarquee під екраном); праворуч — картка проєкту
  * (спільний WorkCard, ширша, ніж на головній, зі своїм підписом). Текст і картка притиснуті донизу.
  * Фарба від мишки над фоном — спільний HeroPaint (на перших екранах усіх сторінок, крім головної).
+ * Сторінка «Послуги»: замість картки проєкту — картинка праворуч (слот aside), одна кнопка, крихти «Головна / Послуги».
  */
 import { Image } from 'astro:assets';
 import Breath from '../Breath.astro';
@@ -24,17 +25,21 @@ interface Props {
     lead: string;
     tags: string[];
     primary: string;
-    secondary: string;
+    /** Друга кнопка (контурна); без неї — лише «Обговорити проєкт» */
+    secondary?: string;
   };
   bgDark: ImageMetadata;
   bgLight: ImageMetadata;
   /** Куди веде «Переглянути роботи» (якір блоку робіт на цій сторінці) */
-  worksHref: string;
+  worksHref?: string;
+  /** Куди веде перша хлібна крихта (за замовчуванням — «Послуги») */
+  crumbsHref?: string;
   /** Підпис на картці проєкту (напр. «Проєкт з UI/UX») */
   cardLabel?: string;
 }
 
-const { locale, content: t, bgDark, bgLight, worksHref, cardLabel } = Astro.props;
+const { locale, content: t, bgDark, bgLight, worksHref, cardLabel, crumbsHref = '/services/' } = Astro.props;
+const aside = Astro.slots.has('aside');
 const bgWidths = [768, 1280, 1920, 2752];
 ---
 
@@ -52,7 +57,7 @@ const bgWidths = [768, 1280, 1920, 2752];
       <div class="s-hero__heading">
         <nav class="s-hero__crumbs" aria-label={t.crumbsLabel}>
           <ol>
-            <li><a href={localePath(locale, '/services/')}>{t.crumbs[0]}</a></li>
+            <li><a href={localePath(locale, crumbsHref)}>{t.crumbs[0]}</a></li>
             <li aria-current="page">{t.crumbs[1]}</li>
           </ol>
         </nav>
@@ -64,11 +69,19 @@ const bgWidths = [768, 1280, 1920, 2752];
       <!-- теги послуги не тут, а в біжучому рядку під першим екраном (ServiceMarquee; рішення Яни 24.11.2026) -->
       <div class="s-hero__actions">
         <Button href={localePath(locale, '/contact/')} variant="primary">{t.primary}</Button>
-        <Button href={worksHref} variant="secondary">{t.secondary}</Button>
+        {t.secondary && worksHref && <Button href={worksHref} variant="secondary">{t.secondary}</Button>}
       </div>
     </div>
 
-    <WorkCard locale={locale} works={featuredWorks} label={cardLabel} />
+    {
+      aside ? (
+        <div class="s-hero__aside">
+          <slot name="aside" />
+        </div>
+      ) : (
+        <WorkCard locale={locale} works={featuredWorks} label={cardLabel} />
+      )
+    }
   </div>
 </section>
 
@@ -243,6 +256,30 @@ const bgWidths = [768, 1280, 1920, 2752];
     width: min(392px, 25.93vw);
     margin-left: auto;
   }
+  /* Картинка праворуч замість картки (сторінка «Послуги»): 541 × 574 на 1512, по центру своєї колонки */
+  .s-hero__aside {
+    flex-shrink: 0;
+    width: min(541px, 35.78vw);
+    margin-left: auto;
+    align-self: center;
+  }
+  .s-hero__aside :global(img) {
+    width: 100%;
+    height: auto;
+  }
+  @media (max-width: 1100px) {
+    .s-hero__aside {
+      order: -1;
+      width: min(360px, 60%);
+      margin-inline: auto;
+    }
+  }
+  @media (max-width: 640px) {
+    .s-hero__aside {
+      width: min(240px, 70%);
+    }
+  }
+
   /* Вужчий екран: картка під текстом */
   @media (max-width: 1100px) {
     /* планшет: відступ знизу 48, як на головній (120 тільки для ноутбука; рішення Яни 24.11.2026) */

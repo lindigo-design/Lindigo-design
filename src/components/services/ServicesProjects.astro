@@ -1,0 +1,126 @@
+---
+/**
+ * «Вибрані проєкти» (Figma 413:5950): заголовок з посиланням «Усі проєкти» і дві обкладинки (DataTixx, Frelia).
+ * Обкладинка — посилання на кейс; назва кейса для скрінрідера — у підписі (visually-hidden).
+ * У макеті блок підписаний «рухається»: рух ще не вирішено, поки обкладинки стоять.
+ */
+import { Image } from 'astro:assets';
+import ServicesHead from './ServicesHead.astro';
+import arrowDark from '../../assets/works/all-dark.svg';
+import arrowLight from '../../assets/works/all-light.svg';
+import { uiuxProjects } from '../../data/uiux-projects';
+import { localePath, type Locale } from '../../i18n/ui';
+import type { ServicesText } from '../../i18n/services';
+
+interface Props {
+  locale: Locale;
+  content: ServicesText['projects'];
+}
+
+const { locale, content: t } = Astro.props;
+const items = t.items.map((item) => ({ ...item, cover: uiuxProjects.find((p) => p.slug === item.slug)!.cover }));
+---
+
+<section class="sv-projects" aria-labelledby="sv-projects-title">
+  <ServicesHead eyebrow={t.eyebrow} title={t.title} id="sv-projects-title">
+    <a class="sv-projects__all" href={localePath(locale, '/realisations/')} slot="action">
+      {t.all}
+      <span class="sv-projects__all-icon" aria-hidden="true">
+        <img src={arrowDark.src} width="36" height="36" alt="" data-theme-only="dark" />
+        <img src={arrowLight.src} width="36" height="36" alt="" data-theme-only="light" />
+      </span>
+    </a>
+  </ServicesHead>
+
+  <ul class="sv-projects__list">
+    {
+      items.map((item) => (
+        <li>
+          <a class="sv-project" href={localePath(locale, `/realisations/${item.slug}/`)}>
+            <Image class="sv-project__cover" src={item.cover} alt="" widths={[664, 1328]} sizes="(max-width: 640px) 100vw, 50vw" loading="lazy" />
+            <span class="visually-hidden">{item.caption}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<style>
+  .sv-projects {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-40);
+    padding: var(--space-56) var(--gutter);
+    background: var(--section-bg);
+  }
+
+  .sv-projects__all {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-12);
+    font-weight: var(--text-title-16--font-weight);
+    font-size: var(--text-title-16);
+    line-height: var(--text-title-16--line-height);
+    text-decoration: none;
+    border-radius: var(--radius-full);
+  }
+  .sv-projects__all-icon img {
+    display: block;
+    transition: transform var(--dur-btn) var(--ease-out-in);
+  }
+  @media (hover: hover) {
+    .sv-projects__all:hover .sv-projects__all-icon img {
+      transform: rotate(45deg);
+    }
+  }
+  .sv-projects__all:focus-visible .sv-projects__all-icon img {
+    transform: rotate(45deg);
+  }
+
+  .sv-projects__list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-24);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* Обкладинка: наведення й фокус — легке збільшення фото (видно однаково мишкою і з клавіатури) */
+  .sv-project {
+    display: block;
+    overflow: hidden;
+    border-radius: var(--radius-16);
+  }
+  .sv-project :global(.sv-project__cover) {
+    width: 100%;
+    height: auto;
+    aspect-ratio: var(--aspect-project-cover);
+    object-fit: cover;
+    transition: transform var(--dur-btn) var(--ease-out-in);
+  }
+  @media (hover: hover) {
+    .sv-project:hover :global(.sv-project__cover) {
+      transform: scale(1.04);
+    }
+  }
+  .sv-project:focus-visible :global(.sv-project__cover) {
+    transform: scale(1.04);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sv-project :global(.sv-project__cover),
+    .sv-projects__all-icon img {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .sv-projects__list {
+      grid-template-columns: 1fr;
+      gap: var(--space-16);
+    }
+  }
+</style>
