@@ -1,0 +1,283 @@
+---
+/**
+ * «Як ми працюємо» (Figma 413:6111): чотири етапи, у кожного три вкладки з коротким текстом і картинка праворуч.
+ * Вкладки — role="tablist": клік, стрілки ← →, Home/End. Активна — повний колір і підкреслення Orchid 2 px;
+ * наведення й фокус з клавіатури — повний колір і підкреслення (як в активної).
+ * Без JS видно першу вкладку кожного етапу.
+ */
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+import ServicesHead from './ServicesHead.astro';
+import stage1 from '../../assets/services/overview/stage-1.jpg';
+import stage2 from '../../assets/services/overview/stage-2.webp';
+import stage3 from '../../assets/services/overview/stage-3.jpg';
+import { keepLastWords, type Locale } from '../../i18n/ui';
+import type { ServicesText } from '../../i18n/services';
+
+interface Props {
+  locale: Locale;
+  content: ServicesText['stages'];
+}
+
+const { content: t } = Astro.props;
+// Етап 4: у макеті на місці картинки відео, яке не експортується (443:3510) — поки без картинки
+const images: (ImageMetadata | undefined)[] = [stage1, stage2, stage3, undefined];
+const pad = (n: number) => String(n).padStart(2, '0');
+const total = pad(t.items.length);
+---
+
+<section class="sv-stages" aria-labelledby="sv-stages-title" data-stages>
+  <ServicesHead eyebrow={t.eyebrow} title={t.title} lead={t.lead} id="sv-stages-title" />
+
+  <ol class="sv-stages__list">
+    {
+      t.items.map((stage, s) => (
+        <li class="sv-stage">
+          <div class="sv-stage__text">
+            <p class="sv-stage__counter">{t.counter.replace('{n}', pad(s + 1)).replace('{total}', total)}</p>
+            <h3 class="sv-stage__title">
+              <span class="sv-stage__dot" aria-hidden="true" />
+              {stage.title}
+            </h3>
+            <div class="sv-stage__tabs" role="tablist" aria-label={stage.title}>
+              {stage.tabs.map((tab, i) => (
+                <button
+                  class="sv-tab"
+                  type="button"
+                  role="tab"
+                  id={`stage-${s}-tab-${i}`}
+                  aria-controls={`stage-${s}-panel-${i}`}
+                  aria-selected={i === 0 ? 'true' : 'false'}
+                  tabindex={i === 0 ? 0 : -1}
+                >
+                  {tab.title}
+                </button>
+              ))}
+            </div>
+            {stage.tabs.map((tab, i) => (
+              <p
+                class:list={['sv-stage__panel', { 'is-draft': tab.draft }]}
+                role="tabpanel"
+                id={`stage-${s}-panel-${i}`}
+                aria-labelledby={`stage-${s}-tab-${i}`}
+                hidden={i !== 0}
+              >
+                {keepLastWords(tab.text)}
+              </p>
+            ))}
+          </div>
+          {/* етап 2 — анімація (webp з кадрами): віддаємо як є, без перетворення, інакше лишився б один кадр */}
+          {!images[s] ? null : s === 1 ? (
+            <img class="sv-stage__img" src={images[s]!.src} width={images[s]!.width} height={images[s]!.height} alt="" loading="lazy" decoding="async" />
+          ) : (
+            <Image class="sv-stage__img" src={images[s]!} alt="" widths={[560, 1120]} sizes="(max-width: 1100px) 100vw, 560px" loading="lazy" />
+          )}
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .sv-stages {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-56);
+    padding: var(--space-120) var(--gutter);
+    background: var(--section-bg);
+  }
+
+  .sv-stages__list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sv-stage {
+    display: flex;
+    align-items: center;
+    gap: var(--space-80);
+    padding-block: var(--space-56);
+    border-top: 1px solid var(--rule);
+  }
+
+  .sv-stage__text {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-24);
+  }
+
+  .sv-stage__counter {
+    font-family: var(--font-mono);
+    font-weight: var(--text-label-m--font-weight);
+    font-size: var(--text-label-m);
+    line-height: var(--text-label-m--line-height);
+    letter-spacing: var(--text-label-m--letter-spacing);
+    color: var(--text-muted);
+  }
+
+  .sv-stage__title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-20);
+    font-family: var(--font-display);
+    font-weight: var(--text-h3--font-weight);
+    font-size: var(--text-h3);
+    line-height: var(--text-h3--line-height);
+  }
+
+  /* Крапка Orchid зі світінням (Figma «Крапка» 16 px) */
+  .sv-stage__dot {
+    flex-shrink: 0;
+    width: var(--space-16);
+    height: var(--space-16);
+    border-radius: 50%;
+    background: var(--accent-text);
+    box-shadow: 0 0 var(--space-16) var(--accent-text);
+  }
+
+  .sv-stage__tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-8) var(--space-32);
+  }
+
+  .sv-tab {
+    position: relative;
+    padding: 0 0 var(--space-8);
+    border: 0;
+    background: none;
+    color: var(--text-muted);
+    font: inherit;
+    font-weight: var(--text-title-18--font-weight);
+    font-size: var(--text-title-18);
+    line-height: var(--text-title-18--line-height);
+    cursor: pointer;
+    transition: color var(--dur-btn) var(--ease-out-in);
+  }
+
+  /* Підкреслення: 2 px Orchid; з'являється в активної, при наведенні й фокусі */
+  .sv-tab::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 0;
+    height: 2px;
+    background: var(--accent-text);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur-btn) var(--ease-out-in);
+  }
+
+  .sv-tab[aria-selected='true'] {
+    color: var(--fg);
+  }
+  .sv-tab[aria-selected='true']::after {
+    transform: none;
+  }
+  @media (hover: hover) {
+    .sv-tab:hover {
+      color: var(--fg);
+    }
+    .sv-tab:hover::after {
+      transform: none;
+    }
+  }
+  .sv-tab:focus-visible {
+    color: var(--fg);
+  }
+  .sv-tab:focus-visible::after {
+    transform: none;
+  }
+
+  .sv-stage__panel {
+    max-width: 600px;
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
+  }
+  .sv-stage__panel.is-draft {
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .sv-stage :global(.sv-stage__img) {
+    flex-shrink: 0;
+    width: min(560px, 41%);
+    height: auto;
+    aspect-ratio: var(--aspect-stage-photo);
+    object-fit: cover;
+    border-radius: var(--radius-16);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sv-tab,
+    .sv-tab::after {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .sv-stage {
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--space-32);
+    }
+    .sv-stage :global(.sv-stage__img) {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .sv-stages {
+      gap: var(--space-40);
+      padding-block: var(--space-56);
+    }
+    .sv-stage {
+      padding-block: var(--space-40);
+    }
+    .sv-stage__title {
+      gap: var(--space-12);
+      font-size: var(--text-h2-mobile);
+      line-height: var(--text-h2-mobile--line-height);
+    }
+    .sv-stage__tabs {
+      gap: var(--space-8) var(--space-20);
+    }
+    .sv-tab {
+      font-size: var(--text-title-16);
+      line-height: var(--text-title-16--line-height);
+    }
+    .sv-stage__panel {
+      font-size: var(--text-body-m);
+      line-height: var(--text-body-m--line-height);
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-stages] [role="tablist"]').forEach((list) => {
+    const tabs = Array.from(list.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    const select = (i: number, focus = false) => {
+      tabs.forEach((tab, k) => {
+        const on = k === i;
+        tab.setAttribute('aria-selected', String(on));
+        tab.tabIndex = on ? 0 : -1;
+        const panel = document.getElementById(tab.getAttribute('aria-controls') || '');
+        if (panel) panel.hidden = !on;
+      });
+      if (focus) tabs[i].focus();
+    };
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(i));
+      tab.addEventListener('keydown', (e) => {
+        const n = tabs.length;
+        const to = { ArrowRight: i + 1, ArrowLeft: i - 1, Home: 0, End: n - 1 }[e.key];
+        if (to === undefined) return;
+        e.preventDefault();
+        select((to + n) % n, true);
+      });
+    });
+  });
+</script>

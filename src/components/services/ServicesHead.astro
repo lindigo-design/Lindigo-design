@@ -1,0 +1,79 @@
+---
+/**
+ * Заголовок блоку сторінки «Послуги» (Figma «Заголовок блоку»): підпис (Label/S Caps), заголовок H2 і опис (Body/L, до 760 px).
+ * Праворуч від заголовка можна поставити посилання (слот action), як «Усі проєкти».
+ */
+import { keepLastWords } from '../../i18n/ui';
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  lead?: string;
+  /** id заголовка — для aria-labelledby секції */
+  id: string;
+}
+
+const { eyebrow, title, lead, id } = Astro.props;
+---
+
+<header class="sv-head">
+  <p class="sv-head__eyebrow">{eyebrow}</p>
+  <div class="sv-head__row">
+    <h2 class="sv-head__title" id={id}>{title}</h2>
+    <slot name="action" />
+  </div>
+  {lead && <p class="sv-head__lead">{keepLastWords(lead)}</p>}
+</header>
+
+<style>
+  .sv-head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+  }
+
+  .sv-head__eyebrow {
+    font-family: var(--font-mono);
+    font-weight: var(--text-label-s--font-weight);
+    font-size: var(--text-label-s);
+    line-height: var(--text-label-s--line-height);
+    letter-spacing: var(--text-label-s--letter-spacing);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .sv-head__row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-24);
+  }
+
+  .sv-head__title {
+    font-family: var(--font-display);
+    font-weight: var(--text-h2--font-weight);
+    font-size: var(--text-h2);
+    line-height: var(--text-h2--line-height);
+  }
+
+  .sv-head__lead {
+    max-width: 760px;
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
+  }
+
+  @media (max-width: 640px) {
+    .sv-head__row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .sv-head__title {
+      font-size: var(--text-h2-mobile);
+      line-height: var(--text-h2-mobile--line-height);
+    }
+    .sv-head__lead {
+      font-size: var(--text-body-m);
+      line-height: var(--text-body-m--line-height);
+    }
+  }
+</style>

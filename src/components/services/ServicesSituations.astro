@@ -1,0 +1,308 @@
+---
+/**
+ * «Почніть з вашої ситуації» (Figma 413:5915): ліворуч 8 ситуацій, праворуч картка рішення для обраної.
+ * Розмітка — вкладки (role="tablist", вертикальні): клік, Enter/Пробіл або стрілки ↑ ↓ міняють картку.
+ * Без JS видно першу ситуацію і її картку.
+ * Неактивна ситуація — приглушена (--text-muted, а не 35 % з макета: так контраст тексту не нижчий за 4,5);
+ * наведення й фокус — повний колір і стрілка, як в активної.
+ */
+import { Image } from 'astro:assets';
+import ServicesHead from './ServicesHead.astro';
+import arrowDark from '../../assets/works/all-dark.svg';
+import arrowLight from '../../assets/works/all-light.svg';
+import situationSites from '../../assets/services/overview/situation-sites.jpg';
+import { directionImages, directionPath } from '../../data/services';
+import { keepLastWords, localePath, type Locale } from '../../i18n/ui';
+import type { ServicesText } from '../../i18n/services';
+
+interface Props {
+  locale: Locale;
+  content: ServicesText['situations'];
+  directions: ServicesText['directions']['items'];
+}
+
+const { locale, content: t, directions } = Astro.props;
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+
+<section class="situations" aria-labelledby="situations-title" data-situations>
+  <ServicesHead eyebrow={t.eyebrow} title={t.title} lead={t.lead} id="situations-title" />
+
+  <div class="situations__body">
+    <div class="situations__list" role="tablist" aria-orientation="vertical" aria-label={t.listLabel}>
+      {
+        t.items.map((item, i) => (
+          <button
+            class="situation"
+            type="button"
+            role="tab"
+            id={`situation-tab-${i}`}
+            aria-controls={`situation-panel-${i}`}
+            aria-selected={i === 0 ? 'true' : 'false'}
+            tabindex={i === 0 ? 0 : -1}
+          >
+            <span class="situation__num" aria-hidden="true">{pad(i + 1)}</span>
+            <span class="situation__title">{keepLastWords(item.title)}</span>
+            <span class="situation__arrow" aria-hidden="true">
+              <img src={arrowDark.src} width="36" height="36" alt="" data-theme-only="dark" />
+              <img src={arrowLight.src} width="36" height="36" alt="" data-theme-only="light" />
+            </span>
+          </button>
+        ))
+      }
+    </div>
+
+    {
+      t.items.map((item, i) => {
+        const dir = directions[item.direction];
+        const image = i === 0 ? situationSites : directionImages[item.direction];
+        return (
+          <div class="solution" role="tabpanel" id={`situation-panel-${i}`} aria-labelledby={`situation-tab-${i}`} hidden={i !== 0}>
+            <Image class="solution__img" src={image} alt="" widths={[496, 992]} sizes="(max-width: 1100px) 100vw, 496px" loading="lazy" />
+            <h3 class="solution__title">{item.solution?.title ?? dir.title}</h3>
+            <p class:list={['solution__text', { 'is-pending': !item.solution }]}>{keepLastWords(item.solution?.text ?? t.pending)}</p>
+            <a class="solution__link" href={localePath(locale, directionPath(item.direction))}>
+              {t.link}
+              <span class="solution__link-icon" aria-hidden="true">
+                <img src={arrowDark.src} width="36" height="36" alt="" data-theme-only="dark" />
+                <img src={arrowLight.src} width="36" height="36" alt="" data-theme-only="light" />
+              </span>
+            </a>
+          </div>
+        );
+      })
+    }
+  </div>
+</section>
+
+<style>
+  .situations {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-56);
+    padding: var(--space-120) var(--gutter);
+    background: var(--section-bg);
+  }
+
+  .situations__body {
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-80);
+  }
+
+  .situations__list {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid var(--rule);
+  }
+
+  /* Ситуація: номер, текст (H5), стрілка в колі в активної */
+  .situation {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-24);
+    width: 100%;
+    padding: var(--space-20) 0;
+    border: 0;
+    border-bottom: 1px solid var(--rule);
+    background: none;
+    color: var(--text-muted);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: color var(--dur-btn) var(--ease-out-in);
+  }
+
+  .situation__num {
+    flex-shrink: 0;
+    font-family: var(--font-mono);
+    font-weight: var(--text-label-m--font-weight);
+    font-size: var(--text-label-m);
+    line-height: var(--text-label-m--line-height);
+    letter-spacing: var(--text-label-m--letter-spacing);
+  }
+
+  .situation__title {
+    flex: 1 1 0;
+    font-family: var(--font-display);
+    font-weight: var(--text-h5--font-weight);
+    font-size: var(--text-h5);
+    line-height: var(--text-h5--line-height);
+  }
+
+  .situation__arrow {
+    flex-shrink: 0;
+    opacity: 0;
+    transition:
+      opacity var(--dur-btn) var(--ease-out-in),
+      transform var(--dur-btn) var(--ease-out-in);
+  }
+  /* стрілка «↗» з «Усі проєкти», повернута на 45° — «→», як у макеті */
+  .situation__arrow img {
+    display: block;
+    transform: rotate(45deg);
+  }
+
+  .situation[aria-selected='true'] {
+    color: var(--fg);
+  }
+  .situation[aria-selected='true'] .situation__num {
+    color: var(--accent-text);
+  }
+  .situation[aria-selected='true'] .situation__arrow {
+    opacity: 1;
+  }
+
+  /* Наведення і фокус з клавіатури: те саме, що в активної */
+  @media (hover: hover) {
+    .situation:hover {
+      color: var(--fg);
+    }
+    .situation:hover .situation__arrow {
+      opacity: 1;
+    }
+  }
+  .situation:focus-visible {
+    color: var(--fg);
+  }
+  .situation:focus-visible .situation__arrow {
+    opacity: 1;
+  }
+
+  /* Картка рішення: 560 px, фото, назва (H4), опис, посилання */
+  .solution {
+    flex-shrink: 0;
+    width: min(560px, 40%);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-20);
+    padding: var(--space-32);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-32);
+    background: var(--card-bg);
+  }
+  .solution[hidden] {
+    display: none;
+  }
+
+  .solution :global(.solution__img) {
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 0;
+    height: 100%;
+    object-fit: cover;
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-16);
+  }
+
+  .solution__title {
+    font-family: var(--font-display);
+    font-weight: var(--text-h4--font-weight);
+    font-size: var(--text-h4);
+    line-height: var(--text-h4--line-height);
+  }
+
+  .solution__text {
+    font-size: var(--text-body-m);
+    line-height: var(--text-body-m--line-height);
+  }
+  .solution__text.is-pending {
+    color: var(--text-muted);
+    font-style: italic;
+  }
+
+  .solution__link {
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: var(--space-12);
+    font-weight: var(--text-title-16--font-weight);
+    font-size: var(--text-title-16);
+    line-height: var(--text-title-16--line-height);
+    text-decoration: none;
+    border-radius: var(--radius-full);
+  }
+  .solution__link-icon img {
+    display: block;
+    transition: transform var(--dur-btn) var(--ease-out-in);
+  }
+  @media (hover: hover) {
+    .solution__link:hover .solution__link-icon img {
+      transform: rotate(45deg);
+    }
+  }
+  .solution__link:focus-visible .solution__link-icon img {
+    transform: rotate(45deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .situation,
+    .situation__arrow,
+    .solution__link-icon img {
+      transition: none;
+    }
+  }
+
+  /* Планшет: картка під списком */
+  @media (max-width: 1100px) {
+    .situations__body {
+      flex-direction: column;
+      gap: var(--space-40);
+    }
+    .solution {
+      width: 100%;
+    }
+    .solution :global(.solution__img) {
+      height: auto;
+      aspect-ratio: var(--aspect-photo-wide);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .situations {
+      gap: var(--space-40);
+      padding-block: var(--space-56);
+    }
+    .situation {
+      gap: var(--space-16);
+      padding: var(--space-16) 0;
+    }
+    .situation__title {
+      font-size: var(--text-title-18);
+      line-height: var(--text-title-18--line-height);
+    }
+    .solution {
+      padding: var(--space-20);
+      border-radius: var(--radius-24);
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-situations]').forEach((root) => {
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
+    const select = (i: number, focus = false) => {
+      tabs.forEach((tab, k) => {
+        const on = k === i;
+        tab.setAttribute('aria-selected', String(on));
+        tab.tabIndex = on ? 0 : -1;
+        const panel = root.querySelector<HTMLElement>(`#${tab.getAttribute('aria-controls')}`);
+        if (panel) panel.hidden = !on;
+      });
+      if (focus) tabs[i].focus();
+    };
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => select(i));
+      tab.addEventListener('keydown', (e) => {
+        const n = tabs.length;
+        const to = { ArrowDown: i + 1, ArrowRight: i + 1, ArrowUp: i - 1, ArrowLeft: i - 1, Home: 0, End: n - 1 }[e.key];
+        if (to === undefined) return;
+        e.preventDefault();
+        select((to + n) % n, true);
+      });
+    });
+  });
+</script>

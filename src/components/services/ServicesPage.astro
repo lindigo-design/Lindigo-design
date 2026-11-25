@@ -1,0 +1,66 @@
+---
+/**
+ * Сторінка «Послуги» (/services/). Figma «UI дизайн»: «Послуги — UI (темна)» 413:5734, «(світла)» 439:2913.
+ * Блоки: перший екран (спільний ServiceHero з картинкою праворуч), «Почніть з вашої ситуації», «Вибрані проєкти»,
+ * «Напрями», «Як ми працюємо», FAQ і «Заклик до дії» (спільні Faq і Cta з текстами сторінки), футер.
+ * Тексти — src/i18n/services.ts (fr і en чекають перекладу).
+ */
+import { Image } from 'astro:assets';
+import Base from '../../layouts/Base.astro';
+import Header from '../Header.astro';
+import Menu from '../Menu.astro';
+import Faq from '../Faq.astro';
+import Cta from '../Cta.astro';
+import Footer from '../Footer.astro';
+import ServiceHero from '../service/ServiceHero.astro';
+import ServicesSituations from './ServicesSituations.astro';
+import ServicesProjects from './ServicesProjects.astro';
+import ServicesDirections from './ServicesDirections.astro';
+import ServicesStages from './ServicesStages.astro';
+import heroDark from '../../assets/backgrounds/service-dark.jpg';
+import heroLight from '../../assets/backgrounds/service-light.jpg';
+// Хмара фарби (кадр з відео в макеті; згодом — відео, кероване мишкою)
+// Макет: темна — відео з накладанням Linear dodge, світла — окреме відео (Darken). Тут в обох картинках тло прибране (прозоре):
+// накладання давало помітний квадрат, бо тло кадру не чисто чорне/біле
+import cloudDark from '../../assets/services/overview/hero-cloud-dark.png';
+import cloudLight from '../../assets/services/overview/hero-cloud-light.png';
+import { ui, type Locale } from '../../i18n/ui';
+import { servicesText } from '../../i18n/services';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = servicesText[locale];
+const path = '/services/';
+const hero = {
+  crumbs: t.hero.crumbs,
+  crumbsLabel: ui[locale].uiux.hero.crumbsLabel,
+  title: t.hero.title,
+  lead: t.hero.lead,
+  tags: [],
+  primary: ui[locale].cta.message,
+};
+---
+
+<Base locale={locale} title={t.meta.title} description={t.meta.description} path={path}>
+  <Header locale={locale} path={path} />
+  <Menu locale={locale} path={path} />
+  <main>
+    <ServiceHero locale={locale} content={hero} bgDark={heroDark} bgLight={heroLight} crumbsHref="/">
+      <Fragment slot="aside">
+        <Image class="sv-cloud sv-cloud--dark" src={cloudDark} alt="" widths={[541, 1082]} sizes="(max-width: 1100px) 360px, 541px" loading="eager" data-theme-only="dark" />
+        <Image class="sv-cloud sv-cloud--light" src={cloudLight} alt="" widths={[541, 1082]} sizes="(max-width: 1100px) 360px, 541px" loading="lazy" data-theme-only="light" />
+      </Fragment>
+    </ServiceHero>
+    <ServicesSituations locale={locale} content={t.situations} directions={t.directions.items} />
+    <ServicesProjects locale={locale} content={t.projects} />
+    <ServicesDirections locale={locale} content={t.directions} />
+    <ServicesStages locale={locale} content={t.stages} />
+    <Faq locale={locale} content={t.faq} />
+    <Cta locale={locale} content={t.cta} />
+  </main>
+  <Footer locale={locale} path={path} />
+</Base>
+

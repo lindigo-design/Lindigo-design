@@ -8,7 +8,7 @@ import { uiuxProjects } from './uiux-projects';
  */
 export const stubPaths: string[] = [
   ...new Set([
-    ...menuPaths,
+    ...menuPaths.filter((p) => p !== '/services/'), // сторінка «Послуги» готова: src/pages/services/index.astro
     ...directionPaths.filter((p) => p !== '/services/ui-ux/'), // сторінка UI/UX готова: src/pages/services/ui-ux.astro
     ...featuredWorks.map((w) => `/realisations/${w.slug}/`),
     ...uiuxProjects.map((p) => `/realisations/${p.slug}/`),
