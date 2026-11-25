@@ -20,7 +20,8 @@ import ServicesStages from './ServicesStages.astro';
 import heroDark from '../../assets/backgrounds/service-dark.jpg';
 import heroLight from '../../assets/backgrounds/service-light.jpg';
 // Хмара фарби (кадр з відео в макеті; згодом — відео, кероване мишкою)
-// Макет: темна — відео з накладанням Linear dodge; світла — окреме відео (Darken), тут тло прибране з картинки (прозоре)
+// Макет: темна — відео з накладанням Linear dodge, світла — окреме відео (Darken). Тут в обох картинках тло прибране (прозоре):
+// накладання давало помітний квадрат, бо тло кадру не чисто чорне/біле
 import cloudDark from '../../assets/services/overview/hero-cloud-dark.png';
 import cloudLight from '../../assets/services/overview/hero-cloud-light.png';
 import { ui, type Locale } from '../../i18n/ui';
@@ -63,9 +64,3 @@ const hero = {
   <Footer locale={locale} path={path} />
 </Base>
 
-<style>
-  /* Хмара лягає на фон без темного (світлого) квадрата: як накладання в макеті */
-  :global(.sv-cloud--dark) {
-    mix-blend-mode: plus-lighter;
-  }
-</style>
