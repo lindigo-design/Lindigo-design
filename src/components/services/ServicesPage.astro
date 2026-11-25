@@ -5,7 +5,6 @@
  * «Напрями», «Як ми працюємо», FAQ і «Заклик до дії» (спільні Faq і Cta з текстами сторінки), футер.
  * Тексти — src/i18n/services.ts (fr і en чекають перекладу).
  */
-import { Image } from 'astro:assets';
 import Base from '../../layouts/Base.astro';
 import Header from '../Header.astro';
 import Menu from '../Menu.astro';
@@ -19,11 +18,8 @@ import ServicesDirections from './ServicesDirections.astro';
 import ServicesStages from './ServicesStages.astro';
 import heroDark from '../../assets/backgrounds/service-dark.jpg';
 import heroLight from '../../assets/backgrounds/service-light.jpg';
-// Хмара фарби (кадр з відео в макеті; згодом — відео, кероване мишкою)
-// Макет: темна — відео з накладанням Linear dodge, світла — окреме відео (Darken). Тут в обох картинках тло прибране (прозоре):
-// накладання давало помітний квадрат, бо тло кадру не чисто чорне/біле
-import cloudDark from '../../assets/services/overview/hero-cloud-dark.png';
-import cloudLight from '../../assets/services/overview/hero-cloud-light.png';
+// Хмара фарби → медуза, керована мишкою (кадри з відео Яни)
+import ServicesCloud from './ServicesCloud.astro';
 import { ui, type Locale } from '../../i18n/ui';
 import { servicesText } from '../../i18n/services';
 
@@ -49,10 +45,7 @@ const hero = {
   <Menu locale={locale} path={path} />
   <main>
     <ServiceHero locale={locale} content={hero} bgDark={heroDark} bgLight={heroLight} crumbsHref="/">
-      <Fragment slot="aside">
-        <Image class="sv-cloud sv-cloud--dark" src={cloudDark} alt="" widths={[541, 1082]} sizes="(max-width: 1100px) 360px, 541px" loading="eager" data-theme-only="dark" />
-        <Image class="sv-cloud sv-cloud--light" src={cloudLight} alt="" widths={[541, 1082]} sizes="(max-width: 1100px) 360px, 541px" loading="lazy" data-theme-only="light" />
-      </Fragment>
+      <ServicesCloud slot="aside" />
     </ServiceHero>
     <ServicesSituations locale={locale} content={t.situations} directions={t.directions.items} />
     <ServicesProjects locale={locale} content={t.projects} />

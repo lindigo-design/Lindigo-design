@@ -1,0 +1,164 @@
+---
+/**
+ * Хмара фарби → медуза на першому екрані «Послуг» (варіант 1, рішення Яни 25.11.2026).
+ * Відео Яни (docs/Smoke_transforms_into_jellyfish_*.mp4) розкладене на 60 кадрів для кожної теми (public/media/services/cloud-*):
+ * перемотування самого відео смикається (~100 мс на кадр), а кадри гортаються плавно.
+ * Мишка зліва направо по першому екрану — хмара перетворюється на медузу; медуза ледь зсувається за курсором.
+ * Без мишки (телефон, планшет) — перетворення програється саме, туди й назад. «Зменшити рух» — нерухомий перший кадр.
+ * Тло кадрів: темна тема — чорне (накладання screen), світла — біле (multiply); квадрата навколо хмари немає.
+ * Кадри вантажаться лише для поточної теми і лише після завантаження сторінки; до того — перший кадр картинкою.
+ */
+const base = (import.meta.env.BASE_URL ?? '/').replace(/\/+$/, '');
+const frames = 60;
+const dir = { dark: `${base}/media/services/cloud-dark`, light: `${base}/media/services/cloud-light` };
+---
+
+<div class="sv-cloud" data-cloud data-frames={frames} data-dark={dir.dark} data-light={dir.light} aria-hidden="true">
+  <img class="sv-cloud__poster" src={`${dir.dark}/000.webp`} width="640" height="1138" alt="" fetchpriority="high" data-theme-only="dark" />
+  <img class="sv-cloud__poster" src={`${dir.light}/000.webp`} width="640" height="1138" alt="" loading="lazy" data-theme-only="light" />
+  <canvas class="sv-cloud__canvas" width="640" height="1138" hidden></canvas>
+</div>
+
+<style>
+  /* розмір задає перший кадр (картинка в потоці), полотно лежить поверх */
+  .sv-cloud {
+    position: relative;
+    display: grid;
+    /* зсув за курсором ставить скрипт */
+    translate: var(--cloud-x, 0) var(--cloud-y, 0);
+    transition: translate 0.6s var(--ease-out-in);
+    /* накладання — на обгортці: translate робить її окремим шаром, і накладання дітей не бачило б фону */
+    mix-blend-mode: screen;
+    /* щупальця й дим доходять до країв кадру — м'яко гасимо ліву й праву межу (маска, не колір) */
+    -webkit-mask-image: linear-gradient(to right, transparent, black 14%, black 86%, transparent);
+    mask-image: linear-gradient(to right, transparent, black 14%, black 86%, transparent);
+  }
+
+  .sv-cloud__poster,
+  .sv-cloud__canvas {
+    grid-area: 1 / 1;
+    width: 100%;
+    height: auto;
+  }
+  .sv-cloud__canvas[hidden] {
+    display: none;
+  }
+
+  :global(:root[data-theme='light']) .sv-cloud {
+    mix-blend-mode: multiply;
+  }
+
+  /* коли кадри готові — замість картинки полотно */
+  .sv-cloud.is-ready .sv-cloud__poster {
+    visibility: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sv-cloud {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
+
+  document.querySelectorAll<HTMLElement>('[data-cloud]').forEach((root) => {
+    if (reduceMotion.matches) return;
+    const canvas = root.querySelector('canvas')!;
+    const ctx = canvas.getContext('2d')!;
+    const count = Number(root.dataset.frames);
+    const hero = root.closest('section') ?? document.body;
+    const cache: Record<string, HTMLImageElement[]> = {};
+
+    const theme = () => (document.documentElement.dataset.theme === 'light' ? 'light' : 'dark');
+    let frames: HTMLImageElement[] = [];
+    let ready = false;
+    let target = 0; // 0 — хмара, 1 — медуза
+    let progress = 0;
+    let shown = -1;
+    let visible = true;
+    let auto = !finePointer.matches;
+    let autoDir = 1;
+    let raf = 0;
+
+    const load = (t: string) =>
+      (cache[t] ??= Array.from({ length: count }, (_, i) => {
+        const img = new Image();
+        img.decoding = 'async';
+        img.src = `${root.dataset[t]}/${String(i).padStart(3, '0')}.webp`;
+        return img;
+      }));
+
+    const use = async (t: string) => {
+      ready = false;
+      root.classList.remove('is-ready');
+      frames = load(t);
+      await Promise.all(frames.map((img) => img.decode().catch(() => undefined)));
+      if (theme() !== t) return;
+      ready = true;
+      shown = -1;
+      canvas.hidden = false;
+      root.classList.add('is-ready');
+      tick();
+    };
+
+    const draw = () => {
+      const i = Math.round(progress * (count - 1));
+      if (i === shown || !frames[i]?.complete) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(frames[i], 0, 0, canvas.width, canvas.height);
+      shown = i;
+    };
+
+    const tick = () => {
+      raf = 0;
+      if (!ready || !visible) return;
+      if (auto) {
+        // туди й назад приблизно за 6 секунд у кожен бік
+        target += autoDir / 360;
+        if (target >= 1 || target <= 0) {
+          target = Math.min(1, Math.max(0, target));
+          autoDir = -autoDir;
+        }
+      }
+      progress += (target - progress) * 0.08;
+      draw();
+      if (auto || Math.abs(target - progress) > 0.001) raf = requestAnimationFrame(tick);
+    };
+    const wake = () => {
+      if (!raf) raf = requestAnimationFrame(tick);
+    };
+
+    // мишка: положення по ширині першого екрана → кадр; легкий зсув за курсором
+    hero.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      auto = false;
+      const r = hero.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width;
+      const y = (e.clientY - r.top) / r.height;
+      target = Math.min(1, Math.max(0, x));
+      root.style.setProperty('--cloud-x', `${(x - 0.5) * 24}px`);
+      root.style.setProperty('--cloud-y', `${(y - 0.5) * 16}px`);
+      wake();
+    });
+    hero.addEventListener('pointerleave', () => {
+      root.style.setProperty('--cloud-x', '0px');
+      root.style.setProperty('--cloud-y', '0px');
+    });
+
+    // не крутимо кадри, коли перший екран прокручено
+    new IntersectionObserver(([entry]) => {
+      visible = entry.isIntersecting;
+      if (visible) wake();
+    }).observe(root);
+
+    // зміна теми — інший набір кадрів
+    new MutationObserver(() => use(theme())).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+    const start = () => use(theme());
+    if (document.readyState === 'complete') start();
+    else window.addEventListener('load', start, { once: true });
+  });
+</script>
