@@ -4,7 +4,7 @@
  * Працює на хостингу з PHP (Hostinger). На GitHub Pages PHP не виконується: форма тоді
  * пропонує людині надіслати той самий лист зі своєї пошти (calculator-client.ts, showFailed).
  *
- * Приймає POST (FormData): name, email, site, comment, call, service, estimate, subject, locale, page, website (пастка для ботів).
+ * Приймає POST (FormData): name, email, site, comment, call, service, estimate, subject, locale, page, ld_extra (пастка для ботів: нейтральна назва, щоб автозаповнення її не чіпало).
  * Відповідь — JSON { "ok": true } або { "ok": false, "error": "..." }.
  * Ключів і паролів тут немає: лист надсилає стандартна функція mail() хостингу.
  */
@@ -43,7 +43,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
 }
 
 // Бот заповнив приховане поле — відповідаємо «гаразд», але лист не надсилаємо
-if (field('website') !== '') {
+if (field('ld_extra') !== '') {
     reply(200, ['ok' => true]);
 }
 
