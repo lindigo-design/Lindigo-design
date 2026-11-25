@@ -337,7 +337,9 @@ const storybookHref = `${(import.meta.env.BASE_URL ?? '/').replace(/\/+$/, '')}/
     display: flex;
     align-items: center;
     gap: var(--space-24);
-    color: var(--fg);
+    /* Необрані сторінки — Second supplement, без стрілки; поточна — акцент зі стрілкою «→»;
+       наведення й фокус — акцент і стрілка «↗», інші пункти не змінюються (рішення Яни, 25.11.2026) */
+    color: var(--text-supplement);
     text-decoration: none;
     transition:
       color 0.3s var(--ease-out-in),
@@ -363,8 +365,13 @@ const storybookHref = `${(import.meta.env.BASE_URL ?? '/').replace(/\/+$/, '')}/
     text-underline-offset: 0.18em;
   }
 
-  .menu__nav a[aria-current='page'] .menu__word {
-    text-decoration-line: underline;
+  /* Поточна сторінка: Orchid у темній, Orchid deep у світлій (--accent-text), стрілка горизонтально */
+  .menu__nav a[aria-current='page'] {
+    color: var(--accent-text);
+  }
+  .menu__nav a[aria-current='page'] .menu__go {
+    opacity: 1;
+    transform: rotate(45deg);
   }
 
   /* Стрілка в колі 56 px: з'являється при наведенні */
@@ -400,9 +407,6 @@ const storybookHref = `${(import.meta.env.BASE_URL ?? '/').replace(/\/+$/, '')}/
   }
 
   @media (hover: hover) {
-    .menu__nav ul:hover a:not(:hover) {
-      opacity: 0.45;
-    }
     .menu__nav a:hover {
       color: var(--accent-text);
     }
@@ -412,12 +416,8 @@ const storybookHref = `${(import.meta.env.BASE_URL ?? '/').replace(/\/+$/, '')}/
     }
   }
 
-  .menu__nav ul:has(a:focus-visible) a:not(:focus-visible) {
-    opacity: 0.45;
-  }
   .menu__nav a:focus-visible {
     color: var(--accent-text);
-    opacity: 1;
   }
   .menu__nav a:focus-visible .menu__go {
     opacity: 1;
@@ -625,10 +625,13 @@ const storybookHref = `${(import.meta.env.BASE_URL ?? '/').replace(/\/+$/, '')}/
     .menu .menu__settings--top,
     .menu .menu__aside,
     .menu .menu__bottom,
-    .menu .menu__close span,
-    .menu__go {
+    .menu .menu__close span {
       transform: none;
       opacity: 1;
+      transition: none !important;
+    }
+    /* стрілка без руху, але так само лише в поточної сторінки й при наведенні/фокусі */
+    .menu__go {
       transition: none !important;
     }
     .menu__nav a {
