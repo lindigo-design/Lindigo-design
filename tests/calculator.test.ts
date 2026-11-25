@@ -4,7 +4,7 @@
  */
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calculate, defaultAnswers, getService, roundTo, type Answers, type ServiceId } from '../src/data/calculator.ts';
+import { addonEffects, calculate, defaultAnswers, getService, priorityRecommended, roundTo, type Answers, type ServiceId } from '../src/data/calculator.ts';
 
 function run(service: ServiceId, patch: Answers) {
   const answers = { ...defaultAnswers(getService(service)!), ...patch };
@@ -101,4 +101,33 @@ test('Округлення до 50 €', () => {
   assert.equal(roundTo(3437.5), 3450);
   assert.equal(roundTo(1562.5), 1550);
   assert.equal(roundTo(10375), 10400);
+});
+
+/* ---------- Версія 3: бренд, ребрендинг, контекст ---------- */
+
+test('Сайт → доповнення «Потрібен ребрендинг» +2 550 €', () => {
+  const r = run('sites', { type: 'vitrine', addons: ['rebrand'] });
+  assert.equal(r.total, 3800 + 2550);
+});
+
+test('Бренд «Лише логотип» ховає «Потрібен логотип» — його ціна не рахується', () => {
+  assert.equal(run('sites', { type: 'vitrine', addons: ['logo'], brand: 'logo' }).total, 3800);
+  assert.equal(run('sites', { type: 'vitrine', addons: ['logo'], brand: 'none' }).total, 3800 + 1600);
+});
+
+test('Рекомендації: бренд і пріоритет', () => {
+  assert.deepEqual(addonEffects({ brand: 'none' }).recommended, ['logo']);
+  assert.deepEqual(addonEffects({ brand: 'rebrand' }).recommended, ['rebrand']);
+  assert.deepEqual(addonEffects({ brand: 'full' }).hidden, ['logo']);
+  assert.equal(priorityRecommended({ start: 'soon' }), true);
+  assert.equal(priorityRecommended({ deadline: 'date' }), true);
+  assert.equal(priorityRecommended({ start: 'months', deadline: 'flexible' }), false);
+});
+
+test('Питання про контекст необов’язкові й на суму не впливають', () => {
+  const d = defaultAnswers(getService('sites')!);
+  assert.equal(d.hasSite, undefined);
+  assert.equal(d.brand, undefined);
+  const r = run('sites', { type: 'corporate', pages: 10, languages: '2', copy: 'studio', hasSite: 'yes', start: 'soon', budget: 'cheaper', sea: 'sea' });
+  assert.equal(r.total, 8300);
 });

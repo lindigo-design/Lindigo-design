@@ -20,6 +20,8 @@ export interface CalcOptionText {
 export interface CalcQuestionText {
   title: string;
   hint?: string;
+  /** Коротка назва у зведенні запиту: «Бренд: лише логотип» */
+  short?: string;
   options?: Record<string, CalcOptionText>;
 }
 export interface CalcIncludedItem {
@@ -30,7 +32,7 @@ export interface CalcIncludedItem {
 export interface CalcTexts {
   meta: { title: string; description: string };
   hero: { crumbs: [string, string]; crumbsLabel: string; title: string; lead: string };
-  steps: [string, string, string, string];
+  steps: [string, string, string, string, string, string];
   stepsLabel: string;
   /** «Крок {n} · {name}» */
   stepLabel: string;
@@ -51,14 +53,52 @@ export interface CalcTexts {
     note: string;
     vat: string;
     advice: string;
-    exact: string;
     call: string;
     restart: string;
     /** Для екранного читача: «Орієнтовно: від {low} до {high} HT» */
     range: string;
   };
   included: { eyebrow: string; lead: string; titles: Record<string, string>; items: Record<string, CalcIncludedItem[]> };
-  mobile: { back: string; next: string; result: string; bar: string; toResult: string };
+  mobile: { bar: string; toResult: string };
+  /** Покроковий показ */
+  flow: {
+    next: string;
+    back: string;
+    change: string;
+    /** Кнопка панелі за номером наступного кроку: nextTo[n - 1] — «Далі: <крок n>» */
+    nextTo: [string, string, string, string, string, string];
+    recommended: string;
+    nothing: string;
+    units: { screens: string; pages: string };
+    siteHint: string;
+    dateLabel: string;
+    /** Чому «Далі» неактивна на кроці 1 */
+    needChoice: string;
+  };
+  contact: {
+    title: string;
+    name: string;
+    email: string;
+    comment: string;
+    commentHint: string;
+    callTitle: string;
+    callHint: string;
+    yes: string;
+    no: string;
+    callLink: string;
+    submit: string;
+    sending: string;
+    note: string;
+    privacy: string;
+    errName: string;
+    errEmail: string;
+    /** {email} — адреса студії */
+    failed: string;
+    failedLink: string;
+    /** Тема листа: {service} */
+    subject: string;
+  };
+  thanks: { eyebrow: string; title: string; text: string; summary: string; call: string };
   noscript: { text: string; link: string };
   estimate: { service: string; total: string };
 }
@@ -78,7 +118,7 @@ export const calcUi: Record<Locale, CalcTexts> = {
       title: 'Скільки коштує ваш проєкт?',
       lead: 'Оберіть, що потрібно, і дайте відповідь на кілька питань. Ви одразу побачите орієнтовну вартість і з чого вона складається. Точну ціну назвемо після короткої розмови.',
     },
-    steps: ['Напрям', 'Параметри', 'Доповнення', 'Темп'],
+    steps: ['Напрям', 'Параметри', 'Доповнення', 'Про проєкт', 'Темп', 'Контакти'],
     stepsLabel: 'Кроки калькулятора',
     stepLabel: 'Крок {n} · {name}',
     serviceQuestion: 'Що потрібно?',
@@ -150,6 +190,7 @@ export const calcUi: Record<Locale, CalcTexts> = {
           hint: 'Можна нічого не обирати.',
           options: {
             logo: { title: 'Потрібен логотип', text: 'Логотип з логобуком: правила, як ним користуватися' },
+            rebrand: { title: 'Потрібен ребрендинг', text: 'Новий логотип і фірмовий стиль замість старого' },
             blog: { title: 'Блог', text: 'Публікації, які ви додаєте самі' },
             booking: { title: 'Онлайн-запис', text: 'Клієнти бронюють час просто на сайті' },
             support: { title: 'Підтримка після запуску', text: 'Оновлення, резервні копії, дрібні правки. Оплата щомісяця, у суму не входить' },
@@ -183,6 +224,7 @@ export const calcUi: Record<Locale, CalcTexts> = {
           options: {
             photos: { title: 'Фото товарів від студії', text: 'Зйомка пів дня з обробкою' },
             logo: { title: 'Потрібен логотип', text: 'Логотип з логобуком: правила, як ним користуватися' },
+            rebrand: { title: 'Потрібен ребрендинг', text: 'Новий логотип і фірмовий стиль замість старого' },
           },
         },
       },
@@ -240,6 +282,52 @@ export const calcUi: Record<Locale, CalcTexts> = {
             priority: { title: 'Пріоритет', text: 'Ваш проєкт іде першим у черзі', line: 'пріоритет' },
           },
         },
+        hasSite: {
+          title: 'Чи є у вас сайт?',
+          short: 'Сайт є',
+          options: { yes: { title: 'Так', line: 'так' }, no: { title: 'Ні', line: 'ні' } },
+        },
+        brand: {
+          title: 'Чи є у вас бренд?',
+          short: 'Бренд',
+          options: {
+            none: { title: 'Ще немає', line: 'ще немає' },
+            logo: { title: 'Лише логотип', line: 'лише логотип' },
+            full: { title: 'Логотип і брендбук', line: 'логотип і брендбук' },
+            rebrand: { title: 'Потрібен ребрендинг', line: 'потрібен ребрендинг' },
+          },
+        },
+        start: {
+          title: 'Коли плануєте почати?',
+          hint: 'Точний строк погоджуємо в пропозиції для вашого проєкту.',
+          short: 'Початок',
+          options: {
+            exploring: { title: 'Поки вивчаю варіанти', line: 'поки вивчаю варіанти' },
+            soon: { title: 'Найближчим часом', line: 'найближчим часом' },
+            months: { title: `За 1–3${N}місяці`, line: `за 1–3${N}місяці` },
+            later: { title: 'Пізніше', line: 'пізніше' },
+          },
+        },
+        deadline: {
+          title: 'Чи є бажаний термін завершення?',
+          short: 'Термін',
+          options: { flexible: { title: 'Гнучкий', line: 'гнучкий' }, date: { title: 'Є конкретна дата', line: 'конкретна дата' } },
+        },
+        sea: {
+          title: 'Що ви любите більше: море чи гори?',
+          hint: 'Необов’язкове питання. Нам просто цікаво.',
+          short: 'Море чи гори',
+          options: { sea: { title: 'Море', line: 'море' }, mountains: { title: 'Гори', line: 'гори' }, both: { title: 'Обидва', line: 'обидва' } },
+        },
+        budget: {
+          title: 'Ця сума вам підходить?',
+          short: 'Сума',
+          options: {
+            yes: { title: 'Так', line: 'так' },
+            cheaper: { title: 'Хочу дешевший варіант', line: 'хочу дешевший варіант' },
+            discuss: { title: 'Обговоримо', line: 'обговоримо' },
+          },
+        },
       },
     },
     price: { from: 'від {price}', perPage: '+ {price} за сторінку', plus: '+ {price}', perMonth: 'від {price} / міс.', custom: 'Індивідуально', percent: '+ {n} %' },
@@ -264,7 +352,6 @@ export const calcUi: Record<Locale, CalcTexts> = {
       note: 'Це орієнтовна вартість. Точну назвемо після короткої розмови, коли дізнаємося деталі проєкту.',
       vat: VAT,
       advice: 'Платформу підкажемо на дзвінку.',
-      exact: 'Отримати точну оцінку',
       call: 'Записатися на дзвінок',
       restart: 'Почати спочатку',
       range: 'Орієнтовно: від {low} до {high} HT',
@@ -318,7 +405,47 @@ export const calcUi: Record<Locale, CalcTexts> = {
         ],
       },
     },
-    mobile: { back: 'Назад', next: 'Далі', result: 'Показати результат', bar: 'Орієнтовно', toResult: 'До результату' },
+    mobile: { bar: 'Орієнтовно', toResult: 'До результату' },
+    flow: {
+      next: 'Далі',
+      back: 'Назад',
+      change: 'Змінити',
+      nextTo: ['Далі: напрям', 'Далі: параметри', 'Далі: доповнення', 'Далі: про ваш проєкт', 'Далі: темп', 'Далі: контакти'],
+      recommended: 'Рекомендовано',
+      nothing: 'нічого не обрано',
+      units: { screens: `{n}${N}екранів`, pages: `{n}${N}стор.` },
+      siteHint: 'Ми можемо оновити наявний сайт, а не робити з нуля. Обговоримо на дзвінку.',
+      dateLabel: 'Бажана дата завершення',
+      needChoice: 'Оберіть напрям, щоб продовжити.',
+    },
+    contact: {
+      title: 'Куди надіслати точну оцінку?',
+      name: 'Ім’я',
+      email: 'Email',
+      comment: 'Розкажіть про проєкт',
+      commentHint: 'Ваш вибір у калькуляторі вже тут — можете доповнити.',
+      callTitle: 'Подзвонити вам, щоб обговорити оцінку?',
+      callHint: 'Якщо так, ви оберете зручний час для дзвінка.',
+      yes: 'Так',
+      no: 'Ні',
+      callLink: 'Обрати час для дзвінка',
+      submit: 'Отримати точну оцінку',
+      sending: 'Надсилаємо…',
+      note: 'Кожен запит ми переглядаємо особисто і відповідаємо протягом двох робочих днів.',
+      privacy: `Політика${N}конфіденційності`,
+      errName: 'Напишіть, як до вас звертатися.',
+      errEmail: 'Перевірте email: схоже, в ньому помилка.',
+      failed: `Не вдалося надіслати запит. Напишіть нам на {email}: ваш вибір уже в${N}листі.`,
+      failedLink: 'Відкрити лист',
+      subject: 'Запит з калькулятора: {service}',
+    },
+    thanks: {
+      eyebrow: 'Запит надіслано',
+      title: 'Дякуємо! Ми отримали ваш запит',
+      text: 'Переглянемо його особисто й відповімо протягом двох робочих днів.',
+      summary: 'Ваш вибір',
+      call: 'Дзвінок',
+    },
     noscript: { text: 'Увімкніть JavaScript, щоб скористатися калькулятором, або напишіть нам.', link: 'Написати нам' },
     estimate: { service: 'Напрям', total: 'Орієнтовно' },
   },
@@ -334,7 +461,7 @@ export const calcUi: Record<Locale, CalcTexts> = {
       title: `Combien coûte votre projet${N}?`,
       lead: 'Choisissez ce dont vous avez besoin et répondez à quelques questions. Vous verrez tout de suite le coût estimé et ce qui le compose. Nous vous donnerons le prix exact après un court échange.',
     },
-    steps: ['Domaine', 'Paramètres', 'Options', 'Rythme'],
+    steps: ['Domaine', 'Paramètres', 'Options', 'Votre projet', 'Rythme', 'Contact'],
     stepsLabel: 'Étapes du calculateur',
     stepLabel: 'Étape {n} · {name}',
     serviceQuestion: `De quoi avez-vous besoin${N}?`,
@@ -406,6 +533,7 @@ export const calcUi: Record<Locale, CalcTexts> = {
           hint: 'Vous pouvez ne rien choisir.',
           options: {
             logo: { title: 'Besoin d’un logo', text: `Logo avec logobook${N}: les règles pour bien l’utiliser` },
+            rebrand: { title: 'Besoin d’un rebranding', text: 'Un nouveau logo et une nouvelle identité à la place des anciens' },
             blog: { title: 'Blog', text: 'Des articles que vous publiez vous-même' },
             booking: { title: 'Réservation en ligne', text: 'Vos clients réservent directement sur le site' },
             support: { title: 'Maintenance après la mise en ligne', text: 'Mises à jour, sauvegardes, petites modifications. Paiement mensuel, non inclus dans le total' },
@@ -439,6 +567,7 @@ export const calcUi: Record<Locale, CalcTexts> = {
           options: {
             photos: { title: 'Photos produits par le studio', text: 'Une demi-journée de shooting, retouches comprises' },
             logo: { title: 'Besoin d’un logo', text: `Logo avec logobook${N}: les règles pour bien l’utiliser` },
+            rebrand: { title: 'Besoin d’un rebranding', text: 'Un nouveau logo et une nouvelle identité à la place des anciens' },
           },
         },
       },
@@ -496,6 +625,52 @@ export const calcUi: Record<Locale, CalcTexts> = {
             priority: { title: 'Prioritaire', text: 'Votre projet passe en premier', line: 'prioritaire' },
           },
         },
+        hasSite: {
+          title: `Avez-vous déjà un site${N}?`,
+          short: 'Site existant',
+          options: { yes: { title: 'Oui', line: 'oui' }, no: { title: 'Non', line: 'non' } },
+        },
+        brand: {
+          title: `Avez-vous déjà une identité de marque${N}?`,
+          short: 'Marque',
+          options: {
+            none: { title: 'Pas encore', line: 'pas encore' },
+            logo: { title: 'Seulement un logo', line: 'seulement un logo' },
+            full: { title: 'Logo et charte graphique', line: 'logo et charte graphique' },
+            rebrand: { title: 'Besoin d’un rebranding', line: 'besoin d’un rebranding' },
+          },
+        },
+        start: {
+          title: `Quand souhaitez-vous commencer${N}?`,
+          hint: 'Le délai précis est fixé dans la proposition pour votre projet.',
+          short: 'Démarrage',
+          options: {
+            exploring: { title: 'Je compare les options', line: 'je compare les options' },
+            soon: { title: 'Dès que possible', line: 'dès que possible' },
+            months: { title: `Dans 1 à 3${N}mois`, line: `dans 1 à 3${N}mois` },
+            later: { title: 'Plus tard', line: 'plus tard' },
+          },
+        },
+        deadline: {
+          title: `Avez-vous une date de fin souhaitée${N}?`,
+          short: 'Échéance',
+          options: { flexible: { title: 'Flexible', line: 'flexible' }, date: { title: 'Une date précise', line: 'date précise' } },
+        },
+        sea: {
+          title: `Vous préférez la mer ou la montagne${N}?`,
+          hint: 'Question facultative. Simple curiosité.',
+          short: 'Mer ou montagne',
+          options: { sea: { title: 'La mer', line: 'la mer' }, mountains: { title: 'La montagne', line: 'la montagne' }, both: { title: 'Les deux', line: 'les deux' } },
+        },
+        budget: {
+          title: `Ce montant vous convient-il${N}?`,
+          short: 'Montant',
+          options: {
+            yes: { title: 'Oui', line: 'oui' },
+            cheaper: { title: 'Je cherche moins cher', line: 'je cherche moins cher' },
+            discuss: { title: 'À discuter', line: 'à discuter' },
+          },
+        },
       },
     },
     price: { from: 'à partir de {price}', perPage: '+ {price} par page', plus: '+ {price}', perMonth: 'à partir de {price} / mois', custom: 'Sur mesure', percent: `+ {n}${N}%` },
@@ -520,7 +695,6 @@ export const calcUi: Record<Locale, CalcTexts> = {
       note: 'Il s’agit d’un coût estimé. Nous vous donnerons le prix exact après un court échange, une fois les détails du projet connus.',
       vat: VAT,
       advice: 'Nous vous conseillerons sur la plateforme lors de l’appel.',
-      exact: 'Obtenir une estimation précise',
       call: 'Réserver un appel',
       restart: 'Recommencer',
       range: `Coût estimé${N}: de {low} à {high} HT`,
@@ -574,7 +748,47 @@ export const calcUi: Record<Locale, CalcTexts> = {
         ],
       },
     },
-    mobile: { back: 'Retour', next: 'Suivant', result: 'Voir le résultat', bar: 'Estimation', toResult: 'Voir le résultat' },
+    mobile: { bar: 'Estimation', toResult: 'Voir le résultat' },
+    flow: {
+      next: 'Suivant',
+      back: 'Retour',
+      change: 'Modifier',
+      nextTo: [`Suivant${N}: domaine`, `Suivant${N}: paramètres`, `Suivant${N}: options`, `Suivant${N}: votre projet`, `Suivant${N}: rythme`, `Suivant${N}: contact`],
+      recommended: 'Recommandé',
+      nothing: 'rien de choisi',
+      units: { screens: `{n}${N}écrans`, pages: `{n}${N}pages` },
+      siteHint: 'Nous pouvons faire évoluer votre site actuel plutôt que de repartir de zéro. On en parle lors de l’appel.',
+      dateLabel: 'Date de fin souhaitée',
+      needChoice: 'Choisissez un domaine pour continuer.',
+    },
+    contact: {
+      title: `Où envoyer l’estimation précise${N}?`,
+      name: 'Nom',
+      email: 'E-mail',
+      comment: 'Parlez-nous de votre projet',
+      commentHint: `Vos choix dans le calculateur sont déjà là${N}: complétez-les si vous le souhaitez.`,
+      callTitle: `Souhaitez-vous qu’on vous appelle pour en parler${N}?`,
+      callHint: 'Si oui, vous choisirez un créneau qui vous convient.',
+      yes: 'Oui',
+      no: 'Non',
+      callLink: 'Choisir un créneau',
+      submit: 'Obtenir une estimation précise',
+      sending: 'Envoi…',
+      note: 'Nous lisons chaque demande personnellement et répondons sous deux jours ouvrés.',
+      privacy: `Politique de${N}confidentialité`,
+      errName: 'Indiquez votre nom.',
+      errEmail: `Vérifiez l’adresse e-mail${N}: elle semble incorrecte.`,
+      failed: `La demande n’a pas pu être envoyée. Écrivez-nous à {email}${N}: vos choix sont déjà dans le${N}message.`,
+      failedLink: 'Ouvrir le message',
+      subject: `Demande depuis le calculateur${N}: {service}`,
+    },
+    thanks: {
+      eyebrow: 'Demande envoyée',
+      title: `Merci${N}! Nous avons bien reçu votre demande`,
+      text: 'Nous la lisons personnellement et vous répondons sous deux jours ouvrés.',
+      summary: 'Vos choix',
+      call: 'Appel',
+    },
     noscript: { text: 'Activez JavaScript pour utiliser le calculateur, ou écrivez-nous.', link: 'Nous écrire' },
     estimate: { service: 'Domaine', total: 'Estimation' },
   },
@@ -590,7 +804,7 @@ export const calcUi: Record<Locale, CalcTexts> = {
       title: 'How much does your project cost?',
       lead: 'Choose what you need and answer a few questions. You’ll see the estimated cost right away, and what it’s made of. We’ll give you the exact price after a short call.',
     },
-    steps: ['Service', 'Details', 'Extras', 'Pace'],
+    steps: ['Service', 'Details', 'Extras', 'Your project', 'Pace', 'Contact'],
     stepsLabel: 'Calculator steps',
     stepLabel: 'Step {n} · {name}',
     serviceQuestion: 'What do you need?',
@@ -662,6 +876,7 @@ export const calcUi: Record<Locale, CalcTexts> = {
           hint: 'You can leave this empty.',
           options: {
             logo: { title: 'I need a logo', text: 'Logo with a logo book: rules on how to use it' },
+            rebrand: { title: 'I need a rebrand', text: 'A new logo and visual identity to replace the old ones' },
             blog: { title: 'Blog', text: 'Posts you add yourself' },
             booking: { title: 'Online booking', text: 'Clients book a time right on the site' },
             support: { title: 'Support after launch', text: 'Updates, backups, small edits. Paid monthly, not included in the total' },
@@ -695,6 +910,7 @@ export const calcUi: Record<Locale, CalcTexts> = {
           options: {
             photos: { title: 'Product photos by the studio', text: 'A half-day shoot with editing' },
             logo: { title: 'I need a logo', text: 'Logo with a logo book: rules on how to use it' },
+            rebrand: { title: 'I need a rebrand', text: 'A new logo and visual identity to replace the old ones' },
           },
         },
       },
@@ -752,6 +968,52 @@ export const calcUi: Record<Locale, CalcTexts> = {
             priority: { title: 'Priority', text: 'Your project goes first in the queue', line: 'priority' },
           },
         },
+        hasSite: {
+          title: 'Do you already have a website?',
+          short: 'Existing site',
+          options: { yes: { title: 'Yes', line: 'yes' }, no: { title: 'No', line: 'no' } },
+        },
+        brand: {
+          title: 'Do you have a brand?',
+          short: 'Brand',
+          options: {
+            none: { title: 'Not yet', line: 'not yet' },
+            logo: { title: 'Logo only', line: 'logo only' },
+            full: { title: 'Logo and brand book', line: 'logo and brand book' },
+            rebrand: { title: 'Need a rebrand', line: 'need a rebrand' },
+          },
+        },
+        start: {
+          title: 'When do you plan to start?',
+          hint: 'We agree on the exact timeline in the proposal for your project.',
+          short: 'Start',
+          options: {
+            exploring: { title: 'Still exploring', line: 'still exploring' },
+            soon: { title: 'As soon as possible', line: 'as soon as possible' },
+            months: { title: `In 1–3${N}months`, line: `in 1–3${N}months` },
+            later: { title: 'Later', line: 'later' },
+          },
+        },
+        deadline: {
+          title: 'Do you have a target completion date?',
+          short: 'Deadline',
+          options: { flexible: { title: 'Flexible', line: 'flexible' }, date: { title: 'A specific date', line: 'specific date' } },
+        },
+        sea: {
+          title: 'Which do you prefer: the sea or the mountains?',
+          hint: 'Optional question. We’re just curious.',
+          short: 'Sea or mountains',
+          options: { sea: { title: 'The sea', line: 'the sea' }, mountains: { title: 'The mountains', line: 'the mountains' }, both: { title: 'Both', line: 'both' } },
+        },
+        budget: {
+          title: 'Does this amount work for you?',
+          short: 'Amount',
+          options: {
+            yes: { title: 'Yes', line: 'yes' },
+            cheaper: { title: 'I’d like a cheaper option', line: 'a cheaper option' },
+            discuss: { title: 'Let’s discuss', line: 'let’s discuss' },
+          },
+        },
       },
     },
     price: { from: 'from {price}', perPage: '+ {price} per page', plus: '+ {price}', perMonth: 'from {price} / month', custom: 'Custom quote', percent: '+ {n}%' },
@@ -776,7 +1038,6 @@ export const calcUi: Record<Locale, CalcTexts> = {
       note: 'This is an estimated cost. We’ll give you the exact price after a short call, once we know the project details.',
       vat: VAT,
       advice: 'We’ll help you choose the platform on the call.',
-      exact: 'Get an exact quote',
       call: 'Book a call',
       restart: 'Start over',
       range: 'Estimated: {low} to {high}, excl. VAT',
@@ -830,7 +1091,47 @@ export const calcUi: Record<Locale, CalcTexts> = {
         ],
       },
     },
-    mobile: { back: 'Back', next: 'Next', result: 'Show result', bar: 'Estimate', toResult: 'See result' },
+    mobile: { bar: 'Estimate', toResult: 'See result' },
+    flow: {
+      next: 'Next',
+      back: 'Back',
+      change: 'Change',
+      nextTo: ['Next: service', 'Next: details', 'Next: extras', 'Next: your project', 'Next: pace', 'Next: contact'],
+      recommended: 'Recommended',
+      nothing: 'nothing selected',
+      units: { screens: `{n}${N}screens`, pages: `{n}${N}pages` },
+      siteHint: 'We can update your current site instead of starting from scratch. Let’s discuss it on a call.',
+      dateLabel: 'Target completion date',
+      needChoice: 'Choose a service to continue.',
+    },
+    contact: {
+      title: 'Where should we send the exact quote?',
+      name: 'Name',
+      email: 'Email',
+      comment: 'Tell us about your project',
+      commentHint: 'Your calculator choices are already here. Add anything you like.',
+      callTitle: 'Shall we call you to discuss the estimate?',
+      callHint: 'If yes, you’ll pick a time that suits you.',
+      yes: 'Yes',
+      no: 'No',
+      callLink: 'Pick a time for a call',
+      submit: 'Get an exact quote',
+      sending: 'Sending…',
+      note: 'We review every request personally and reply within two working days.',
+      privacy: `Privacy${N}policy`,
+      errName: 'Please tell us your name.',
+      errEmail: 'Please check your email: it looks incorrect.',
+      failed: `We couldn’t send your request. Write to us at {email}: your choices are already in the${N}message.`,
+      failedLink: 'Open the email',
+      subject: 'Calculator request: {service}',
+    },
+    thanks: {
+      eyebrow: 'Request sent',
+      title: 'Thank you! We’ve received your request',
+      text: 'We’ll review it personally and reply within two working days.',
+      summary: 'Your choices',
+      call: 'Call',
+    },
     noscript: { text: 'Turn on JavaScript to use the calculator, or write to us.', link: 'Write to us' },
     estimate: { service: 'Service', total: 'Estimate' },
   },

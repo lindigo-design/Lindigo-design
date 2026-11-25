@@ -1,19 +1,24 @@
 /**
- * Калькулятор вартості: поведінка в браузері.
- * Стан — відповіді на питання обраного напряму; на кожну зміну рахуємо calculate() з src/data/calculator.ts
- * і перемальовуємо підсумок. Розмітку питань збирає Calculator.astro, тексти — JSON у <script data-calc-texts>.
+ * Калькулятор вартості: поведінка в браузері (специфікація, версія 3).
+ * Стан — обраний напрям, відповіді на питання і поточний крок (1–6). На кожну зміну рахуємо calculate()
+ * з src/data/calculator.ts і перемальовуємо підсумок. Розмітку збирає Calculator.astro, тексти — JSON у <script data-calc-texts>.
  *
- * Телефон (до 640 px): одне питання на екран, кнопки «Назад / Далі», панель із сумою внизу.
+ * Показ по кроках: видно лише питання поточного кроку, пройдені згорнуті в рядки з «Змінити».
+ * «Змінити» (або клік по пройденому кроку на смузі) повертає до кроку; наступні кроки людина проходить знову.
+ * Крок 6 — форма запиту: POST на обробник хостингу; якщо його немає — лист через пошту людини (mailto).
  */
 import {
+  addonEffects,
   calculate,
   calculator,
   defaultAnswers,
   getService,
   includedUnits,
   isVisible,
+  priorityRecommended,
   scopeOf,
   serviceIds,
+  STEP_COUNT,
   type Answers,
   type CalcLine,
   type CalcOption,
@@ -28,9 +33,10 @@ import { titleCase, type TitleLocale } from '../../i18n/title-case';
 
 const LOCALE_TAGS: Record<string, string> = { fr: 'fr-FR', en: 'en-GB', uk: 'uk-UA' };
 const STORAGE_KEY = 'lindigo-estimate';
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 /** Нерозривний пробіл між двома останніми словами (як keepLastWords) */
-const keepLast = (s: string) => s.replace(/ (\S+)$/, ' $1');
+const keepLast = (s: string) => s.replace(/ (\S+)$/, ' $1');
 
 /** Аналітика, якщо підключена (dataLayer); без персональних даних */
 function track(event: string, service?: string) {
@@ -42,11 +48,13 @@ export function initCalculator(root: HTMLElement) {
   const textsEl = root.querySelector<HTMLScriptElement>('script[data-calc-texts]');
   if (!textsEl) return;
   const t = JSON.parse(textsEl.textContent || '{}') as CalcTexts;
-  const tag = LOCALE_TAGS[root.dataset.locale || 'fr'] || 'fr-FR';
-  // заголовки h2/h3, які калькулятор пише сам, — Title Case, як усі заголовки сайту (src/i18n/title-case.ts)
-  const tc = (s: string) => titleCase(s, (root.dataset.locale || 'fr') as TitleLocale);
+  const locale = root.dataset.locale || 'fr';
+  const tag = LOCALE_TAGS[locale] || 'fr-FR';
+  // заголовки й кнопки, які калькулятор пише сам, — Title Case, як усі заголовки й кнопки сайту (src/i18n/title-case.ts)
+  const tc = (s: string) => titleCase(s, locale as TitleLocale);
   const moneyFmt = new Intl.NumberFormat(tag, { style: 'currency', currency: calculator.currency, currencyDisplay: 'narrowSymbol', maximumFractionDigits: 0 });
   const numFmt = new Intl.NumberFormat(tag, { maximumFractionDigits: 2 });
+  const dateFmt = new Intl.DateTimeFormat(tag, { day: 'numeric', month: 'long', year: 'numeric' });
   const money = (n: number) => moneyFmt.format(n);
   /** «8 300–10 400 €» (символ після числа) або «€8,300–€10,400» (символ перед) */
   const rangeText = (low: number, high: number) => {
@@ -57,41 +65,58 @@ export function initCalculator(root: HTMLElement) {
   };
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  const phone = window.matchMedia('(max-width: 640px)');
+  /** «Назва: значення»; у французькій — нерозривний пробіл перед двокрапкою */
+  const COLON = locale === 'fr' ? ' : ' : ': ';
 
+  const $ = <T extends HTMLElement = HTMLElement>(sel: string) => root.querySelector<T>(sel)!;
   const els = {
     steps: [...root.querySelectorAll<HTMLElement>('[data-step-item]')],
+    stepsList: $('[data-steps]'),
+    stepNow: $('[data-step-now]'),
+    done: $('[data-done]'),
+    stage: $('[data-stage]'),
     serviceInputs: [...root.querySelectorAll<HTMLInputElement>('input[name="calc-service"]')],
     groups: [...root.querySelectorAll<HTMLElement>('[data-service-group]')],
-    range: root.querySelector<HTMLElement>('[data-range]')!,
-    meta: root.querySelector<HTMLElement>('[data-meta]')!,
-    live: root.querySelector<HTMLElement>('[data-live]')!,
-    empty: root.querySelector<HTMLElement>('[data-empty]')!,
-    breakdown: root.querySelector<HTMLElement>('[data-breakdown]')!,
-    lines: root.querySelector<HTMLElement>('[data-lines]')!,
-    customText: root.querySelector<HTMLElement>('[data-custom-text]')!,
-    advice: root.querySelector<HTMLElement>('[data-advice]')!,
-    note: root.querySelector<HTMLElement>('[data-note]')!,
-    exact: root.querySelector<HTMLAnchorElement>('[data-exact] a, a[data-exact]'),
-    call: root.querySelector<HTMLAnchorElement>('[data-call] a, a[data-call]'),
-    restart: root.querySelector<HTMLButtonElement>('[data-restart]')!,
-    summary: root.querySelector<HTMLElement>('[data-summary]')!,
-    bar: root.querySelector<HTMLElement>('[data-bar]')!,
-    barRange: root.querySelector<HTMLElement>('[data-bar-range]')!,
-    nav: root.querySelector<HTMLElement>('[data-nav]')!,
-    back: root.querySelector<HTMLButtonElement>('[data-back]')!,
-    next: root.querySelector<HTMLButtonElement>('[data-next]')!,
+    range: $('[data-range]'),
+    meta: $('[data-meta]'),
+    live: $('[data-live]'),
+    empty: $('[data-empty]'),
+    breakdown: $('[data-breakdown]'),
+    lines: $('[data-lines]'),
+    customText: $('[data-custom-text]'),
+    advice: $('[data-advice]'),
+    panelNext: $('[data-panel-next]'),
+    call: root.querySelector<HTMLAnchorElement>('[data-call] a'),
+    restart: $<HTMLButtonElement>('[data-restart]'),
+    summary: $('[data-summary]'),
+    barRange: $('[data-bar-range]'),
+    nav: $('[data-nav]'),
+    next: $('[data-next]'),
+    back: $<HTMLButtonElement>('[data-back]'),
+    form: $<HTMLFormElement>('[data-form]'),
+    status: $('[data-status]'),
+    callLink: $('[data-call-link]'),
+    thanks: $('[data-thanks]'),
+    thanksList: $('[data-thanks-list]'),
     included: document.querySelector<HTMLElement>('[data-calc-included]'),
   };
-  const exactHref = els.exact?.getAttribute('href') || '';
+  const nextBtn = els.next.querySelector<HTMLButtonElement>('button')!;
+  const panelBtn = els.panelNext.querySelector<HTMLButtonElement>('button')!;
+  const submitBtn = els.form.querySelector<HTMLButtonElement>('button[type="submit"]')!;
+  const submitLabel = submitBtn.querySelector<HTMLElement>('.btn__label')!;
+  const field = (name: string) => els.form.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[name="${name}"]`)!;
 
   let serviceId: ServiceId | null = null;
   let service: CalcService | null = null;
   let answers: Answers = {};
   let result: CalcResult | null = null;
   let shown = { low: 0, high: 0 };
-  let wizardIndex = 0;
+  let step = 1;
+  let sent = false;
   let started = false;
+  let busy = false;
+  /** Людина сама редагувала коментар — не перезаписуємо його зведенням */
+  let commentEdited = false;
 
   const qText = (sid: string, qid: string) => t.questions[sid]?.[qid] ?? t.questions.common?.[qid];
   const optText = (sid: string, qid: string, oid: string) => qText(sid, qid)?.options?.[oid];
@@ -139,23 +164,53 @@ export function initCalculator(root: HTMLElement) {
     }
   }
 
-  /* ---------- Синхронізація розмітки зі станом ---------- */
+  /* ---------- Видимість питань ---------- */
 
   function questionEls(sid: string) {
     return [...root.querySelectorAll<HTMLElement>(`[data-service-group="${sid}"] [data-question]`)];
   }
 
+  /** Чи показується питання напряму за поточних відповідей */
+  function shown_(q: CalcQuestion): boolean {
+    if (!service) return false;
+    if (!isVisible(q, answers)) return false;
+    if (q.kind === 'counter' && includedUnits(service, answers) <= 1) return false; // лендинг: лічильника немає
+    if (q.hideWhenCustom && result?.custom) return false;
+    return true;
+  }
+
+  /** Усі блоки кроку в порядку на сторінці: питання напряму, крок 1 — ще й вибір напряму, крок 6 — форма */
+  function stepEls(n: number): HTMLElement[] {
+    const list: HTMLElement[] = [];
+    if (n === 1) list.push($('[data-question="service"]'));
+    if (serviceId) list.push(...questionEls(serviceId).filter((el) => Number(el.dataset.step) === n && !el.hidden));
+    if (n === 6) list.push(...els.form.querySelectorAll<HTMLElement>('[data-step="6"], [data-step-extra="6"]'));
+    return list;
+  }
+
+  /* ---------- Синхронізація розмітки зі станом ---------- */
+
   function syncInputs() {
     if (!service || !serviceId) return;
+    const effects = addonEffects(answers);
+    const priority = priorityRecommended(answers);
+    const firstSeen = new Set<string>();
+
     for (const el of questionEls(serviceId)) {
       const q = service.questions.find((x) => x.id === el.dataset.question);
       if (!q) continue;
-      el.hidden = !isVisible(q, answers);
+      el.hidden = !shown_(q);
+
+      // мітка «Крок N · …» — лише над першим видимим питанням кроку (на кроці 1 вона над вибором напряму)
+      const eyebrow = el.querySelector<HTMLElement>('[data-eyebrow]');
+      if (eyebrow) {
+        const first = !el.hidden && q.step !== 1 && !firstSeen.has(String(q.step));
+        eyebrow.hidden = !first;
+        if (!el.hidden) firstSeen.add(String(q.step));
+      }
 
       if (q.kind === 'counter') {
         const inc = includedUnits(service, answers);
-        // лендинг (одна сторінка): лічильника немає
-        if (inc <= 1) el.hidden = true;
         const input = el.querySelector<HTMLInputElement>('input')!;
         input.min = String(inc);
         input.max = String((q.customAbove ?? 999) + 1);
@@ -183,12 +238,32 @@ export function initCalculator(root: HTMLElement) {
       const hint = el.querySelector<HTMLElement>('[data-hint]');
       if (hint && q.role === 'languages') hint.textContent = keepLast(fill(qText(serviceId, q.id)?.hint ?? '', { price: money(calculator.extraLanguage) }));
 
-      for (const input of el.querySelectorAll<HTMLInputElement>('input')) {
+      for (const input of el.querySelectorAll<HTMLInputElement>('input[type="radio"], input[type="checkbox"]')) {
         const v = answers[q.id];
         input.checked = Array.isArray(v) ? v.includes(input.value) : v === input.value;
         const o = q.options?.find((x) => x.id === input.value);
-        const priceEl = input.closest('label')?.querySelector<HTMLElement>('[data-price]');
+        const card = input.closest<HTMLElement>('label');
+        const priceEl = card?.querySelector<HTMLElement>('[data-price]');
         if (o && priceEl) priceEl.textContent = optionPrice(service, q, o);
+        if (!card) continue;
+        // доповнення: «Потрібен логотип» ховається, якщо логотип уже є; рекомендоване — з позначкою
+        if (q.role === 'addon') card.hidden = effects.hidden.includes(input.value);
+        const badge = card.querySelector<HTMLElement>('[data-badge]');
+        if (badge) {
+          const rec = (q.role === 'addon' && effects.recommended.includes(input.value)) || (q.role === 'pace' && input.value === 'priority' && priority);
+          badge.hidden = !rec;
+        }
+      }
+
+      // «Ми можемо оновити наявний сайт…» — під типом сайту чи магазину, якщо сайт є
+      const siteHint = el.querySelector<HTMLElement>('[data-site-hint]');
+      if (siteHint) siteHint.hidden = answers.hasSite !== 'yes';
+
+      // «Є конкретна дата» — поле дати
+      const date = el.querySelector<HTMLElement>('[data-date]');
+      if (date) {
+        date.hidden = answers.deadline !== 'date';
+        date.querySelector<HTMLInputElement>('input')!.value = String(answers.deadlineDate ?? '');
       }
     }
   }
@@ -232,17 +307,17 @@ export function initCalculator(root: HTMLElement) {
       return;
     }
     const start = performance.now();
-    const step = (now: number) => {
+    const tick = (now: number) => {
       const k = Math.min(1, (now - start) / 300);
       const e = 1 - Math.pow(1 - k, 3);
       // проміжні числа кратні 50, як і підсумок
       const lo = Math.round((from.low + (to.low - from.low) * e) / 50) * 50;
       const hi = Math.round((from.high + (to.high - from.high) * e) / 50) * 50;
       els.range.textContent = rangeText(lo, hi);
-      if (k < 1) animFrame = requestAnimationFrame(step);
+      if (k < 1) animFrame = requestAnimationFrame(tick);
       else shown = to;
     };
-    animFrame = requestAnimationFrame(step);
+    animFrame = requestAnimationFrame(tick);
   }
 
   function renderSummary() {
@@ -291,8 +366,6 @@ export function initCalculator(root: HTMLElement) {
         return li;
       }),
     );
-
-    if (els.exact) els.exact.href = exactHref;
     renderIncluded();
   }
 
@@ -313,67 +386,158 @@ export function initCalculator(root: HTMLElement) {
     });
   }
 
+  /* ---------- Відповіді кроку одним рядком (згорнуті кроки, зведення) ---------- */
+
+  /** Відповідь на одне питання текстом; '' — немає відповіді */
+  function answerText(q: CalcQuestion): string {
+    if (!service || !serviceId) return '';
+    const v = answers[q.id];
+    if (q.kind === 'counter') {
+      const n = Number(v ?? includedUnits(service, answers));
+      return fill(q.id === 'screens' ? t.flow.units.screens : t.flow.units.pages, { n });
+    }
+    if (q.role === 'languages') return t.languages[String(v)] ?? '';
+    if (q.kind === 'multi') {
+      const hidden = addonEffects(answers).hidden;
+      const list = (Array.isArray(v) ? v : []).filter((id) => !hidden.includes(id));
+      return list.map((id) => optText(serviceId!, q.id, id)?.title ?? '').filter(Boolean).join(', ');
+    }
+    if (typeof v !== 'string') return '';
+    const o = optText(serviceId, q.id, v);
+    if (q.role === 'context') {
+      const qt = qText(serviceId, q.id);
+      let value = o?.line ?? o?.title ?? '';
+      if (q.id === 'deadline' && v === 'date' && answers.deadlineDate) value = formatDate(String(answers.deadlineDate));
+      return qt?.short ? `${qt.short}${COLON}${value}` : value;
+    }
+    // друге питання бази (лише дизайн / зйомка): коротка форма
+    return q.role === 'variant' || (q.role === 'base' && q.showIf) ? (o?.line ?? o?.title ?? '') : (o?.title ?? '');
+  }
+
+  function formatDate(iso: string): string {
+    const d = new Date(`${iso}T12:00:00`);
+    return Number.isNaN(d.getTime()) ? iso : dateFmt.format(d);
+  }
+
+  /** Друга й далі відповіді в рядку — з малої літери, крім назв на кшталт UI/UX чи Shopify */
+  const lowerFirst = (x: string) => (/^\p{Lu}\p{Ll}/u.test(x) && !/^Shopify/.test(x) ? x[0].toLocaleLowerCase(tag) + x.slice(1) : x);
+  const joinParts = (parts: string[]) => parts.map((x, i) => (i === 0 ? x : lowerFirst(x))).join(', ');
+
+  function stepSummary(n: number): string {
+    if (n === 1) {
+      if (!serviceId) return '';
+      const site = service?.questions.find((q) => q.id === 'hasSite');
+      return joinParts([t.services[serviceId].title, site && shown_(site) ? answerText(site) : ''].filter(Boolean));
+    }
+    if (!service) return '';
+    const parts = service.questions.filter((q) => q.step === n && shown_(q)).map(answerText).filter(Boolean);
+    return parts.length ? joinParts(parts) : t.flow.nothing;
+  }
+
   /* ---------- Кроки ---------- */
 
-  /** Видимі питання в порядку на сторінці (для телефона й смуги кроків) */
-  function visibleQuestions(): HTMLElement[] {
-    const list: HTMLElement[] = [root.querySelector<HTMLElement>('[data-question="service"]')!];
-    if (serviceId) list.push(...questionEls(serviceId).filter((el) => !el.hidden));
-    return list;
-  }
-
-  function setStep(current: number) {
-    els.steps.forEach((el, i) => {
-      el.classList.toggle('is-done', i + 1 <= current);
-      if (i + 1 === current) el.setAttribute('aria-current', 'step');
-      else el.removeAttribute('aria-current');
+  function renderSteps() {
+    els.steps.forEach((li, i) => {
+      const n = i + 1;
+      const done = sent || n < step;
+      li.classList.toggle('is-done', done);
+      li.classList.toggle('is-now', !sent && n === step);
+      const btn = li.querySelector<HTMLButtonElement>('[data-goto]')!;
+      btn.disabled = !done || sent;
+      if (!sent && n === step) btn.setAttribute('aria-current', 'step');
+      else btn.removeAttribute('aria-current');
     });
-  }
+    els.stepNow.textContent = sent ? t.thanks.eyebrow : `${step} ${t.steps[step - 1]}`;
 
-  function stepFromScroll() {
-    if (root.classList.contains('is-wizard')) return;
-    const line = window.innerHeight * 0.5;
-    let current = 1;
-    for (const el of visibleQuestions()) {
-      if (el.getBoundingClientRect().top < line) current = Math.max(current, Number(el.dataset.step || 1));
+    // згорнуті пройдені кроки
+    const rows = sent ? [] : Array.from({ length: step - 1 }, (_, i) => i + 1);
+    els.done.hidden = rows.length === 0;
+    els.done.replaceChildren(
+      ...rows.map((n) => {
+        const li = document.createElement('li');
+        li.className = 'calc-done__row';
+        const check = document.createElement('span');
+        check.className = 'calc-done__check';
+        check.setAttribute('aria-hidden', 'true');
+        const body = document.createElement('span');
+        body.className = 'calc-done__body';
+        const name = document.createElement('span');
+        name.className = 'calc-done__name';
+        name.textContent = `${n} ${t.steps[n - 1]}`;
+        const answer = document.createElement('span');
+        answer.className = 'calc-done__answer';
+        answer.textContent = stepSummary(n);
+        body.append(name, answer);
+        const change = document.createElement('button');
+        change.type = 'button';
+        change.className = 'calc-done__change';
+        change.dataset.goto = String(n);
+        change.textContent = t.flow.change;
+        change.setAttribute('aria-label', `${t.flow.change}: ${n} ${t.steps[n - 1]}`);
+        li.append(check, body, change);
+        return li;
+      }),
+    );
+
+    // видно лише поточний крок
+    root.classList.add('is-flow');
+    for (const el of root.querySelectorAll<HTMLElement>('[data-question], [data-step-extra]')) el.classList.remove('is-current');
+    if (!sent) for (const el of stepEls(step)) el.classList.add('is-current');
+    els.form.hidden = sent || step !== 6;
+    els.thanks.hidden = !sent;
+
+    // «Далі» під кроком: на кроці 1 — лише коли обрано напрям; на кроці 6 замість неї кнопка форми
+    const canNext = step > 1 || !!serviceId;
+    els.next.hidden = step >= STEP_COUNT;
+    if (canNext) {
+      nextBtn.removeAttribute('aria-disabled');
+      nextBtn.removeAttribute('aria-describedby');
+    } else {
+      nextBtn.setAttribute('aria-disabled', 'true');
+      nextBtn.setAttribute('aria-describedby', 'calc-need-choice');
     }
-    if (!serviceId) current = 1;
-    setStep(current);
+    els.back.hidden = step === 1;
+    els.nav.hidden = sent;
+
+    // кнопка панелі дублює «Далі» й називає наступний крок
+    const panelOn = !sent && !!serviceId && step < STEP_COUNT;
+    els.panelNext.hidden = !panelOn;
+    if (panelOn) panelBtn.querySelector<HTMLElement>('.btn__label')!.textContent = tc(t.flow.nextTo[step]);
   }
 
-  /* ---------- Телефон: одне питання на екран ---------- */
+  async function goTo(n: number, { focus = true } = {}) {
+    if (busy || n < 1 || n > STEP_COUNT || (n > 1 && !serviceId)) return;
+    const forward = n > step;
+    if (forward && step === 4) track('calc_context', serviceId ?? undefined);
+    if (forward && step === 5) track('calc_result', serviceId ?? undefined);
+    if (n === 6) fillComment();
 
-  function renderWizard() {
-    const on = phone.matches;
-    root.classList.toggle('is-wizard', on);
-    const list = visibleQuestions();
-    for (const el of root.querySelectorAll<HTMLElement>('[data-question]')) el.classList.remove('is-current');
-    if (!on) {
-      els.summary.classList.remove('is-current');
-      stepFromScroll();
-      return;
+    const animate = !reduceMotion.matches && 'animate' in HTMLElement.prototype;
+    busy = true;
+    if (animate) {
+      // поточний крок плавно йде вгору й зникає
+      const out = [...root.querySelectorAll<HTMLElement>('.is-current')];
+      await Promise.all(
+        out.map((el) => el.animate([{ opacity: 1, transform: 'none' }, { opacity: 0, transform: 'translateY(-16px)' }], { duration: 200, easing: 'ease-in' }).finished.catch(() => {})),
+      );
     }
-    // останній «крок» — результат
-    wizardIndex = Math.max(0, Math.min(wizardIndex, list.length));
-    const atResult = wizardIndex === list.length;
-    if (!atResult) list[wizardIndex].classList.add('is-current');
-    els.summary.classList.toggle('is-current', atResult);
-    root.classList.toggle('is-result', atResult);
-    els.back.hidden = wizardIndex === 0;
-    els.next.disabled = !serviceId;
-    els.next.textContent = wizardIndex >= list.length - 1 ? t.mobile.result : t.mobile.next;
-    els.nav.hidden = atResult;
-    setStep(atResult ? 4 : Number(list[wizardIndex].dataset.step || 1));
+    step = n;
+    renderSteps();
+    if (animate) {
+      // новий з'являється знизу
+      for (const el of root.querySelectorAll<HTMLElement>('.is-current')) {
+        el.animate([{ opacity: 0, transform: 'translateY(16px)' }, { opacity: 1, transform: 'none' }], { duration: 250, easing: 'ease-out' });
+      }
+    }
+    busy = false;
+    if (focus) focusStep();
   }
 
-  function goWizard(delta: number) {
-    wizardIndex += delta;
-    renderWizard();
-    const target = root.querySelector<HTMLElement>('.is-current');
-    // до смуги кроків, щоб було видно, на якому ви кроці
-    root.querySelector<HTMLElement>('.calc__steps')?.scrollIntoView({ block: 'start', behavior: reduceMotion.matches ? 'auto' : 'smooth' });
-    const focusable = target?.querySelector<HTMLElement>('legend, h2, [tabindex="-1"]');
-    focusable?.focus({ preventScroll: true });
+  /** До смуги кроків і фокус на заголовок нового кроку */
+  function focusStep() {
+    els.stepsList.scrollIntoView({ block: 'start', behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+    const target = sent ? $('[data-thanks-title]') : root.querySelector<HTMLElement>('.calc-q.is-current .calc-q__head');
+    target?.focus({ preventScroll: true });
   }
 
   /* ---------- Зміни ---------- */
@@ -388,7 +552,7 @@ export function initCalculator(root: HTMLElement) {
     } else result = null;
     syncInputs();
     renderSummary();
-    renderWizard();
+    renderSteps();
   }
 
   function selectService(id: ServiceId | null) {
@@ -403,13 +567,23 @@ export function initCalculator(root: HTMLElement) {
   root.addEventListener('change', (e) => {
     const input = e.target as HTMLInputElement;
     if (input.name === 'calc-service') {
+      // зміна напряму скидає відповіді наступних кроків
       selectService(input.value as ServiceId);
+      return;
+    }
+    if (input.name === 'call') {
+      els.callLink.hidden = input.value !== 'yes';
       return;
     }
     if (!service || !serviceId) return;
     const qEl = input.closest<HTMLElement>('[data-question]');
     const q = service.questions.find((x) => x.id === qEl?.dataset.question);
     if (!q) return;
+    if (input.type === 'date') {
+      answers.deadlineDate = input.value || undefined;
+      update();
+      return;
+    }
     if (q.kind === 'single') {
       answers[q.id] = input.value;
       // новий тип: лічильник стартує з включених одиниць
@@ -417,14 +591,23 @@ export function initCalculator(root: HTMLElement) {
         const counter = service.questions.find((x) => x.kind === 'counter');
         if (counter) answers[counter.id] = includedUnits(service, answers);
       }
+      if (q.id === 'deadline' && input.value !== 'date') answers.deadlineDate = undefined;
     } else if (q.kind === 'multi') {
       const set = new Set((answers[q.id] as string[]) ?? []);
-      if (input.checked) set.add(input.value);
-      else set.delete(input.value);
+      if (input.checked) {
+        set.add(input.value);
+        // «Потрібен логотип» і «Потрібен ребрендинг» — взаємовиключні
+        for (const x of q.options?.find((o) => o.id === input.value)?.excludes ?? []) set.delete(x);
+      } else set.delete(input.value);
       answers[q.id] = [...set];
     } else if (q.kind === 'counter') {
       setCounter(q, Number(input.value));
       return;
+    }
+    // доповнення, сховані відповіддю про бренд, знімаємо
+    const { hidden } = addonEffects(answers);
+    for (const aq of service.questions.filter((x) => x.role === 'addon')) {
+      if (Array.isArray(answers[aq.id])) answers[aq.id] = (answers[aq.id] as string[]).filter((id) => !hidden.includes(id));
     }
     update();
   });
@@ -438,7 +621,13 @@ export function initCalculator(root: HTMLElement) {
   }
 
   root.addEventListener('click', (e) => {
-    const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-dec], [data-inc]');
+    const target = e.target as HTMLElement;
+    const goto = target.closest<HTMLButtonElement>('[data-goto]');
+    if (goto && !goto.disabled) {
+      goTo(Number(goto.dataset.goto));
+      return;
+    }
+    const btn = target.closest<HTMLButtonElement>('[data-dec], [data-inc]');
     if (!btn || !service) return;
     const q = service.questions.find((x) => x.id === btn.closest<HTMLElement>('[data-question]')?.dataset.question);
     if (!q) return;
@@ -448,6 +637,10 @@ export function initCalculator(root: HTMLElement) {
   // Число в полі лічильника: рахуємо одразу, обмеження — коли поле втрачає фокус
   root.addEventListener('input', (e) => {
     const input = e.target as HTMLInputElement;
+    if (input === field('comment')) {
+      commentEdited = true;
+      return;
+    }
     if (input.type !== 'number' || !service) return;
     const q = service.questions.find((x) => x.id === input.closest<HTMLElement>('[data-question]')?.dataset.question);
     const n = Number(input.value);
@@ -457,66 +650,207 @@ export function initCalculator(root: HTMLElement) {
     renderSummary();
   });
 
+  const onNext = () => {
+    if (nextBtn.getAttribute('aria-disabled') === 'true') return;
+    goTo(step + 1);
+  };
+  nextBtn.addEventListener('click', onNext);
+  panelBtn.addEventListener('click', () => goTo(step + 1));
+  els.back.addEventListener('click', () => goTo(step - 1));
+
   els.restart.addEventListener('click', () => {
-    selectService(null);
-    wizardIndex = 0;
+    sent = false;
+    step = 1;
+    commentEdited = false;
+    els.form.reset();
+    els.callLink.hidden = true;
+    clearErrors();
+    els.status.hidden = true;
     shown = { low: 0, high: 0 };
-    renderWizard();
-    root.scrollIntoView({ block: 'start', behavior: reduceMotion.matches ? 'auto' : 'smooth' });
+    selectService(null);
+    focusStep();
     els.serviceInputs[0]?.focus({ preventScroll: true });
   });
 
-  els.back.addEventListener('click', () => goWizard(-1));
-  els.next.addEventListener('click', () => {
-    const atLast = wizardIndex >= visibleQuestions().length - 1;
-    if (atLast) track('calc_result', serviceId ?? undefined);
-    goWizard(1);
-  });
-  els.bar.querySelector('[data-bar-link]')?.addEventListener('click', (e) => {
-    if (!root.classList.contains('is-wizard')) return;
-    e.preventDefault();
-    wizardIndex = visibleQuestions().length;
-    goWizard(0);
+  els.call?.addEventListener('click', () => {
+    if (serviceId) {
+      try {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ service: serviceId, answers, text: estimateText() }));
+      } catch {
+        /* приватний режим: без передачі */
+      }
+    }
+    track('calc_to_call', serviceId ?? undefined);
   });
 
-  /* ---------- Передача у форму запиту ---------- */
+  /* ---------- Зведення запиту (специфікація, розділ 7) ---------- */
 
-  function estimateText(): string {
-    if (!result || !serviceId) return '';
-    const rows = [`${t.estimate.service}: ${t.services[serviceId].title}`];
+  /**
+   * Зведення: напрям, рядки розрахунку (назва, сума), орієнтовна сума і питання про контекст.
+   * line: true — рядок розрахунку («2 мови (+ 450 €)»), інакше пара «Назва: значення».
+   */
+  function estimatePairs(): { k: string; v: string; line?: boolean; group?: number }[] {
+    if (!result || !serviceId || !service) return [];
+    const pairs: { k: string; v: string; line?: boolean; group?: number }[] = [{ k: t.estimate.service, v: t.services[serviceId].title }];
     for (const line of result.lines) {
       const [name, amount] = lineText(serviceId, line);
-      rows.push(line.kind === 'base' || result.custom ? name : `${name} (${amount})`);
+      const hideAmount = result.custom && line.kind !== 'pace' && line.kind !== 'multiplier' && line.kind !== 'monthly';
+      pairs.push({ k: name, v: hideAmount ? '' : amount, line: true });
     }
-    rows.push(`${t.estimate.total}: ${result.custom ? t.summary.custom : `${rangeText(result.low, result.high)} ${t.summary.tax}`}`);
+    pairs.push({ k: t.estimate.total, v: result.custom ? t.summary.custom : `${rangeText(result.low, result.high)} ${t.summary.tax}` });
+    // контекст парами в рядок, як у специфікації: «Сайт є · Бренд», «Початок · Термін», «Сума · Море чи гори»
+    const groups: Record<string, number> = { hasSite: 1, brand: 1, start: 2, deadline: 2, budget: 3, sea: 3 };
+    for (const q of service.questions.filter((x) => x.role === 'context' && shown_(x))) {
+      const text = answerText(q);
+      const i = text.indexOf(COLON);
+      if (text && i > 0) pairs.push({ k: text.slice(0, i), v: text.slice(i + COLON.length), group: groups[q.id] });
+    }
+    return pairs;
+  }
+
+  function estimateText(): string {
+    const rows: string[] = [];
+    let lastGroup: number | undefined;
+    for (const p of estimatePairs()) {
+      const text = p.line ? (p.v ? `${p.k} (${p.v})` : p.k) : `${p.k}${COLON}${p.v}`;
+      if (p.group && p.group === lastGroup) rows[rows.length - 1] += ` · ${text}`;
+      else rows.push(text);
+      lastGroup = p.group;
+    }
     return rows.join('\n');
   }
 
-  function toBase64(s: string) {
-    const bytes = new TextEncoder().encode(s);
-    let bin = '';
-    bytes.forEach((b) => (bin += String.fromCharCode(b)));
-    return btoa(bin);
+  function fillComment() {
+    const c = field('comment');
+    if (!commentEdited) c.value = estimateText();
   }
 
-  els.exact?.addEventListener('click', () => {
-    if (!serviceId || !els.exact) return;
-    const payload = { service: serviceId, answers, text: estimateText() };
+  /* ---------- Крок 6: форма ---------- */
+
+  function setError(name: string, message: string) {
+    const input = field(name);
+    const wrap = input.closest<HTMLElement>('.field')!;
+    const err = wrap.querySelector<HTMLElement>('[data-field-error]');
+    wrap.classList.toggle('field--error', !!message);
+    if (message) input.setAttribute('aria-invalid', 'true');
+    else input.removeAttribute('aria-invalid');
+    if (!err) return;
+    err.textContent = message;
+    err.hidden = !message;
+    const ids = new Set((input.getAttribute('aria-describedby') || '').split(' ').filter(Boolean));
+    if (message) ids.add(err.id);
+    else ids.delete(err.id);
+    if (ids.size) input.setAttribute('aria-describedby', [...ids].join(' '));
+    else input.removeAttribute('aria-describedby');
+  }
+
+  function clearErrors() {
+    setError('name', '');
+    setError('email', '');
+  }
+
+  function validate(): boolean {
+    const name = field('name').value.trim();
+    const email = field('email').value.trim();
+    setError('name', name ? '' : t.contact.errName);
+    setError('email', EMAIL_RE.test(email) ? '' : t.contact.errEmail);
+    const firstBad = !name ? field('name') : !EMAIL_RE.test(email) ? field('email') : null;
+    firstBad?.focus();
+    return !firstBad;
+  }
+
+  // помилка зникає, щойно поле виправлено
+  for (const name of ['name', 'email']) {
+    field(name).addEventListener('input', () => {
+      const wrap = field(name).closest('.field');
+      if (!wrap?.classList.contains('field--error')) return;
+      const v = field(name).value.trim();
+      if (name === 'name' ? v : EMAIL_RE.test(v)) setError(name, '');
+    });
+  }
+
+  function mailtoHref(): string {
+    const subject = fill(t.contact.subject, { service: serviceId ? t.services[serviceId].title : '' });
+    const body = [field('name').value.trim(), field('email').value.trim(), '', field('comment').value.trim() || estimateText()].join('\n');
+    return `mailto:${root.dataset.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  }
+
+  function showFailed() {
+    const email = root.dataset.email || '';
+    const [before, after] = t.contact.failed.split('{email}');
+    const link = document.createElement('a');
+    link.href = mailtoHref();
+    link.textContent = email;
+    const open = document.createElement('a');
+    open.href = link.href;
+    open.textContent = t.contact.failedLink;
+    els.status.replaceChildren(before ?? '', link, after ?? '', ' ', open);
+    els.status.hidden = false;
+  }
+
+  let sending = false;
+  els.form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (sending || !serviceId) return;
+    els.status.hidden = true;
+    if (!validate()) return;
+
+    const data = new FormData(els.form);
+    data.set('name', field('name').value.trim());
+    data.set('email', field('email').value.trim());
+    data.set('comment', field('comment').value.trim());
+    data.set('service', t.services[serviceId].title);
+    data.set('estimate', estimateText());
+    data.set('subject', fill(t.contact.subject, { service: t.services[serviceId].title }));
+    data.set('locale', locale);
+    data.set('page', location.href);
+
+    sending = true;
+    const label = submitLabel.textContent;
+    submitLabel.textContent = t.contact.sending;
+    submitBtn.setAttribute('aria-disabled', 'true');
+    let ok = false;
     try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 15000);
+      const res = await fetch(root.dataset.endpoint || '', { method: 'POST', body: data, signal: ctrl.signal, headers: { Accept: 'application/json' } });
+      clearTimeout(timer);
+      const json = res.ok ? ((await res.json().catch(() => null)) as { ok?: boolean } | null) : null;
+      ok = !!json?.ok;
     } catch {
-      /* приватний режим: лишається параметр в адресі */
+      ok = false;
     }
-    const [path, hash] = exactHref.split('#');
-    els.exact.href = `${path}?estimate=${encodeURIComponent(toBase64(JSON.stringify({ service: serviceId, text: payload.text })))}${hash ? `#${hash}` : ''}`;
-    track('calc_to_form', serviceId);
+    sending = false;
+    submitLabel.textContent = label;
+    submitBtn.removeAttribute('aria-disabled');
+
+    if (!ok) {
+      showFailed();
+      return;
+    }
+    track('calc_submit', serviceId);
+    renderThanks();
+    sent = true;
+    renderSteps();
+    focusStep();
   });
-  els.call?.addEventListener('click', () => track('calc_to_call', serviceId ?? undefined));
+
+  function renderThanks() {
+    const pairs = estimatePairs();
+    const call = new FormData(els.form).get('call');
+    if (call) pairs.push({ k: t.thanks.call, v: call === 'yes' ? t.contact.yes.toLowerCase() : t.contact.no.toLowerCase() });
+    els.thanksList.replaceChildren(
+      ...pairs.flatMap(({ k, v }) => {
+        const dt = document.createElement('dt');
+        dt.textContent = k;
+        const dd = document.createElement('dd');
+        dd.textContent = v;
+        return [dt, dd];
+      }),
+    );
+  }
 
   /* ---------- Старт ---------- */
-
-  window.addEventListener('scroll', () => requestAnimationFrame(stepFromScroll), { passive: true });
-  phone.addEventListener('change', renderWizard);
 
   const fromUrl = new URLSearchParams(location.search).get('service');
   const preset = (serviceIds as readonly string[]).includes(fromUrl ?? '') ? (fromUrl as ServiceId) : (root.dataset.service as ServiceId | undefined);

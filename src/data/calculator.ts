@@ -1,5 +1,6 @@
 /**
- * Калькулятор орієнтовної вартості проєкту: усі ціни й коефіцієнти (специфікація «Калькулятор вартості», версія 2).
+ * Калькулятор орієнтовної вартості проєкту: усі ціни й коефіцієнти (специфікація «Калькулятор вартості», версія 3).
+ * Кроки: 1 напрям, 2 параметри, 3 доповнення, 4 про проєкт, 5 темп, 6 контакти (форма, без питань конфігу).
  * Ціни звірені з таблицею «Ціноутворення Lindigo»: ставка 530 € / день, запас 20 %, округлення до 50 €.
  * Тексти (назви, підписи) — у src/i18n/calculator.ts за тими самими id; тут лише числа й логіка.
  *
@@ -30,6 +31,8 @@ export interface CalcOption {
   advice?: boolean;
   /** Тестова ціна */
   draft?: boolean;
+  /** Взаємовиключні варіанти: обрати цей — зняти ці (логотип / ребрендинг) */
+  excludes?: string[];
 }
 
 export type QuestionRole =
@@ -40,14 +43,15 @@ export type QuestionRole =
   | 'languages' // 1 / 2 / 3 мови
   | 'copy' // хто пише тексти
   | 'addon' // доповнення, можна кілька
-  | 'pace'; // темп, спільне останнє питання
+  | 'pace' // темп
+  | 'context'; // питання про контекст (сайт, бренд, терміни, сума): на ціну не впливає, йде у зведення запиту
 
 export interface CalcQuestion {
   id: string;
   kind: 'single' | 'multi' | 'counter';
   role: QuestionRole;
-  /** Крок: 2 параметри, 3 доповнення, 4 темп (крок 1 — вибір напряму) */
-  step: 2 | 3 | 4;
+  /** Крок: 1 напрям, 2 параметри, 3 доповнення, 4 про проєкт, 5 темп (6 — контакти, форма) */
+  step: 1 | 2 | 3 | 4 | 5;
   options?: CalcOption[];
   /** Варіант, обраний на старті (для single) */
   defaultOption?: string;
@@ -59,6 +63,10 @@ export interface CalcQuestion {
   showIf?: { question: string; in: string[] };
   /** Ціна одиниці лічильника — тестова */
   draft?: boolean;
+  /** Необов'язкове: на старті нічого не обрано */
+  optional?: boolean;
+  /** Не показувати, коли потрібна індивідуальна оцінка («Ця сума вам підходить?») */
+  hideWhenCustom?: boolean;
 }
 
 export interface CalcService {
@@ -69,14 +77,45 @@ export interface CalcService {
 export const serviceIds = ['uiux', 'sites', 'shop', 'branding', 'content'] as const;
 export type ServiceId = (typeof serviceIds)[number];
 
+/** Кроки калькулятора; 6-й — форма контактів */
+export const STEP_COUNT = 6;
+
 /** Логотип з логобуком: та сама ціна в брендингу і як доповнення до сайту чи магазину */
 const LOGO_PRICE = 1600;
+/** Логотип + фірмовий стиль: та сама ціна в брендингу і як доповнення «Потрібен ребрендинг» */
+const IDENTITY_PRICE = 2550;
+
+/* Питання про контекст (специфікація, розділ 5а): усі необов'язкові, на суму не впливають */
+const ctx = (id: string, step: CalcQuestion['step'], options: string[], extra: Partial<CalcQuestion> = {}): CalcQuestion => ({
+  id,
+  kind: 'single',
+  role: 'context',
+  step,
+  optional: true,
+  options: options.map((o) => ({ id: o })),
+  ...extra,
+});
+/** Крок 1, сайти й магазини */
+const hasSite = ctx('hasSite', 1, ['yes', 'no']);
+/** Крок 3, усі напрями, крім брендингу */
+const brand = ctx('brand', 3, ['none', 'logo', 'full', 'rebrand']);
+/** Крок 4 — про проєкт */
+const start = ctx('start', 4, ['exploring', 'soon', 'months', 'later']);
+const deadline = ctx('deadline', 4, ['flexible', 'date']);
+const sea = ctx('sea', 4, ['sea', 'mountains', 'both']);
+/** Крок 5 — після темпу, бо сума вже остаточна */
+const budget = ctx('budget', 5, ['yes', 'cheaper', 'discuss'], { hideWhenCustom: true });
+const project = [start, deadline, sea];
+
+/** Доповнення «Потрібен логотип» і «Потрібен ребрендинг» — взаємовиключні */
+const logoAddon: CalcOption = { id: 'logo', price: LOGO_PRICE, excludes: ['rebrand'] };
+const rebrandAddon: CalcOption = { id: 'rebrand', price: IDENTITY_PRICE, excludes: ['logo'] };
 
 const pace: CalcQuestion = {
   id: 'pace',
   kind: 'single',
   role: 'pace',
-  step: 4,
+  step: 5,
   defaultOption: 'normal',
   options: [
     { id: 'normal', multiplier: 1 },
@@ -95,6 +134,10 @@ const languages: CalcQuestion = {
 
 export const calculator = {
   currency: 'EUR',
+  /** Куди приходять заявки з кроку 6 (та сама адреса в public/api/calc-request.php) */
+  contactEmail: 'contact@lindigo-design.com',
+  /** Обробник форми на хостингу (Hostinger, PHP), відносно кореня сайту */
+  endpoint: 'api/calc-request.php',
   /** Верхня межа = разом × rangeSpread */
   rangeSpread: 1.25,
   roundTo: 50,
@@ -121,6 +164,7 @@ export const calculator = {
           ],
         },
         { id: 'screens', kind: 'counter', role: 'extraUnits', step: 2, unitPrice: 300, customAbove: 60 },
+        brand,
         {
           id: 'addons',
           kind: 'multi',
@@ -133,12 +177,15 @@ export const calculator = {
             { id: 'platform2', percentOfBase: 0.4, draft: true },
           ],
         },
+        ...project,
         pace,
+        budget,
       ],
     },
     {
       id: 'sites',
       questions: [
+        hasSite,
         {
           id: 'type',
           kind: 'single',
@@ -170,24 +217,29 @@ export const calculator = {
           defaultOption: 'ready',
           options: [{ id: 'ready' }, { id: 'studio' }],
         },
+        brand,
         {
           id: 'addons',
           kind: 'multi',
           role: 'addon',
           step: 3,
           options: [
-            { id: 'logo', price: LOGO_PRICE },
+            logoAddon,
+            rebrandAddon,
             { id: 'blog', price: 500, draft: true },
             { id: 'booking', price: 550, draft: true },
             { id: 'support', monthly: 80, draft: true },
           ],
         },
+        ...project,
         pace,
+        budget,
       ],
     },
     {
       id: 'shop',
       questions: [
+        hasSite,
         {
           id: 'platform',
           kind: 'single',
@@ -213,6 +265,7 @@ export const calculator = {
           ],
         },
         languages,
+        brand,
         {
           id: 'addons',
           kind: 'multi',
@@ -220,10 +273,13 @@ export const calculator = {
           step: 3,
           options: [
             { id: 'photos', price: 650 },
-            { id: 'logo', price: LOGO_PRICE },
+            logoAddon,
+            rebrandAddon,
           ],
         },
+        ...project,
         pace,
+        budget,
       ],
     },
     {
@@ -237,7 +293,7 @@ export const calculator = {
           defaultOption: 'logo',
           options: [
             { id: 'logo', price: LOGO_PRICE },
-            { id: 'identity', price: 2550 },
+            { id: 'identity', price: IDENTITY_PRICE },
             { id: 'full', price: 4450 },
             { id: 'logobook', price: 800 },
             { id: 'brandbook', price: 1750 },
@@ -254,7 +310,9 @@ export const calculator = {
             { id: 'deck', price: 600, draft: true },
           ],
         },
+        ...project,
         pace,
+        budget,
       ],
     },
     {
@@ -285,6 +343,7 @@ export const calculator = {
             { id: 'multi', custom: true },
           ],
         },
+        brand,
         {
           id: 'addons',
           kind: 'multi',
@@ -295,7 +354,9 @@ export const calculator = {
             { id: 'retouch', price: 300, draft: true },
           ],
         },
+        ...project,
         pace,
+        budget,
       ],
     },
   ] satisfies CalcService[],
@@ -364,11 +425,35 @@ export function scopeOf(service: CalcService, answers: Answers): string {
   return typeof v === 'string' ? v : 'full';
 }
 
+/**
+ * Як відповідь «Чи є у вас бренд?» впливає на доповнення (розділ 5а):
+ * «Ще немає» — рекомендуємо логотип; «Потрібен ребрендинг» — рекомендуємо ребрендинг;
+ * «Лише логотип» або «Логотип і брендбук» — «Потрібен логотип» ховаємо.
+ */
+export function addonEffects(answers: Answers): { hidden: string[]; recommended: string[] } {
+  switch (answers.brand) {
+    case 'none':
+      return { hidden: [], recommended: ['logo'] };
+    case 'rebrand':
+      return { hidden: [], recommended: ['rebrand'] };
+    case 'logo':
+    case 'full':
+      return { hidden: ['logo'], recommended: [] };
+    default:
+      return { hidden: [], recommended: [] };
+  }
+}
+
+/** «Пріоритет» рекомендуємо, якщо почати треба найближчим часом або є конкретна дата */
+export function priorityRecommended(answers: Answers): boolean {
+  return answers.start === 'soon' || answers.deadline === 'date';
+}
+
 /** Відповіді на старті для напряму: варіанти за замовчуванням, лічильник = включені одиниці */
 export function defaultAnswers(service: CalcService): Answers {
   const answers: Answers = {};
   for (const q of service.questions) {
-    if (q.kind === 'single') answers[q.id] = q.defaultOption ?? q.options?.[0]?.id;
+    if (q.kind === 'single' && !q.optional) answers[q.id] = q.defaultOption ?? q.options?.[0]?.id;
     if (q.kind === 'multi') answers[q.id] = [];
   }
   for (const q of service.questions) {
@@ -449,11 +534,12 @@ export function calculate(serviceId: ServiceId, answers: Answers): CalcResult {
     lines.push({ kind: 'copy', pages: units, landing, amount });
   }
 
-  // Доповнення
+  // Доповнення (сховані відповіддю про бренд — не рахуємо)
+  const { hidden } = addonEffects(answers);
   for (const q of visible.filter((x) => x.role === 'addon')) {
     const chosen = Array.isArray(answers[q.id]) ? (answers[q.id] as string[]) : [];
     for (const o of q.options ?? []) {
-      if (!chosen.includes(o.id)) continue;
+      if (!chosen.includes(o.id) || hidden.includes(o.id)) continue;
       if (o.monthly !== undefined) {
         lines.push({ kind: 'monthly', question: q.id, option: o.id, amount: o.monthly });
         continue;

@@ -14,7 +14,7 @@ interface Props {
   id: string;
   label: string;
   name?: string;
-  type?: 'text' | 'email' | 'tel' | 'textarea';
+  type?: 'text' | 'email' | 'tel' | 'date' | 'textarea';
   value?: string;
   placeholder?: string;
   autocomplete?: string;
@@ -22,6 +22,8 @@ interface Props {
   error?: string;
   required?: boolean;
   disabled?: boolean;
+  /** Помилку показує скрипт (перевірка форми в браузері): під полем — порожній прихований абзац для тексту помилки */
+  liveError?: boolean;
 }
 
 const {
@@ -36,11 +38,12 @@ const {
   error,
   required = false,
   disabled = false,
+  liveError = false,
 } = Astro.props;
 
 const hintId = hint ? `${id}-hint` : undefined;
-const errorId = error ? `${id}-error` : undefined;
-const describedBy = [hintId, errorId].filter(Boolean).join(' ') || undefined;
+const errorId = error || liveError ? `${id}-error` : undefined;
+const describedBy = [hintId, error ? errorId : undefined].filter(Boolean).join(' ') || undefined;
 const common = {
   id,
   name,
@@ -59,6 +62,7 @@ const common = {
   {type === 'textarea' ? <textarea {...common} rows="5">{value}</textarea> : <input {...common} type={type} value={value} />}
   {hint && <p class="field__hint" id={hintId}>{hint}</p>}
   {error && <p class="field__error" id={errorId}>{error}</p>}
+  {!error && liveError && <p class="field__error" id={errorId} data-field-error hidden />}
 </div>
 
 <style>

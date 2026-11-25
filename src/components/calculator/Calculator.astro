@@ -1,15 +1,20 @@
 ---
 /**
- * Калькулятор вартості проєкту (Figma «Калькулятор — UI dark (1512)» 353:2854 / light 353:3564:
- * блоки «02 Калькулятор» і «03 Що входить у вартість»).
- * Ліворуч — питання (крок 1 — напрям, далі параметри, доповнення, темп), праворуч — панель «Підсумок»,
- * що липне під шапкою. Ціни й логіка — src/data/calculator.ts, тексти — src/i18n/calculator.ts.
+ * Калькулятор вартості проєкту (Figma «Калькулятор — UI dark (1512)» 353:2854 / light 353:3564 — усі питання;
+ * покроковий показ і подяка — фрейми «покроково: крок 3 / крок 5» і «подяка після відправки»).
+ * Специфікація, версія 3: шість кроків — 1 напрям, 2 параметри, 3 доповнення, 4 про проєкт, 5 темп, 6 контакти.
+ *
+ * На екрані лише поточний крок; пройдені згорнуті над ним у рядки «✓ 1 Напрям — … · Змінити».
+ * Під кроком — «Далі» і «Назад»; праворуч — панель «Підсумок», що липне під шапкою, її кнопка називає наступний крок.
+ * Ціни й логіка — src/data/calculator.ts, тексти — src/i18n/calculator.ts.
  *
  * Розмітку всіх напрямів збираємо одразу; скрипт показує лише обраний. Варіанти — нативні radio / checkbox
  * у картках-label. Без JavaScript калькулятор схований, замість нього — текст і посилання на форму.
- * Телефон (до 640 px): одне питання на екран, «Назад / Далі», внизу — панель із сумою.
+ * Крок 6 — форма запиту: надсилається на public/api/calc-request.php (PHP на хостингу); якщо обробника немає
+ * (прев'ю на GitHub Pages), пропонуємо надіслати той самий лист зі своєї пошти.
  */
 import Button from '../Button.astro';
+import Field from '../Field.astro';
 import { calculator, type CalcQuestion, type ServiceId } from '../../data/calculator';
 import { calcUi, fill } from '../../i18n/calculator';
 import { keepLastWords, localePath, type Locale } from '../../i18n/ui';
@@ -23,14 +28,20 @@ interface Props {
 const { locale, service } = Astro.props;
 const t = calcUi[locale];
 const contact = localePath(locale, '/contact/');
+const privacy = localePath(locale, '/confidentialite/');
+const endpoint = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}${calculator.endpoint}`;
 
 const qText = (sid: string, qid: string) => t.questions[sid]?.[qid] ?? t.questions.common?.[qid];
 const stepLabel = (n: number) => fill(t.stepLabel, { n, name: t.steps[n - 1] });
-/** Сітка варіантів: 3 у ряд, для двох варіантів — 2 */
+/** Сітка варіантів: 3 у ряд, для двох і чотирьох варіантів — 2 */
 const cols = (q: CalcQuestion) => ((q.options?.length ?? 0) === 2 || (q.options?.length ?? 0) === 4 ? 2 : 3);
+/** Мітка кроку — лише над першим питанням кроку (скрипт оновлює, коли питання ховаються) */
+const firstOfStep = (qs: CalcQuestion[], i: number) => i === 0 || qs[i - 1].step !== qs[i].step;
+/** Пігулки: мови й питання про контекст */
+const isPills = (q: CalcQuestion) => q.role === 'languages' || q.role === 'context';
 ---
 
-<section class="calc" data-calc data-locale={locale} data-service={service} aria-label={t.hero.title}>
+<section class="calc" data-calc data-locale={locale} data-service={service} data-endpoint={endpoint} data-email={calculator.contactEmail} aria-label={t.hero.title}>
   <script type="application/json" data-calc-texts set:html={JSON.stringify(t)} />
 
   <noscript>
@@ -40,137 +51,233 @@ const cols = (q: CalcQuestion) => ((q.options?.length ?? 0) === 2 || (q.options?
   </noscript>
 
   <div class="calc__questions">
-    <ol class="calc__steps" aria-label={t.stepsLabel}>
+    <!-- Смуга кроків: пройдені — кнопки («Змінити»), поточний — aria-current -->
+    <ol class="calc__steps" aria-label={t.stepsLabel} data-steps>
       {
         t.steps.map((name, i) => (
           <li class="calc__step" data-step-item>
-            <span class="calc__step-bar" aria-hidden="true" />
-            <span class="calc__step-name">
-              {i + 1} {name}
-            </span>
+            <button class="calc__step-btn" type="button" data-goto={i + 1} disabled>
+              <span class="calc__step-bar" aria-hidden="true" />
+              <span class="calc__step-name">
+                {i + 1} {name}
+              </span>
+            </button>
           </li>
         ))
       }
     </ol>
+    <!-- Телефон: під смугою — лише назва поточного кроку -->
+    <p class="calc__step-now" data-step-now aria-hidden="true"></p>
 
-    <!-- Крок 1. Напрям -->
-    <fieldset class="calc-q" data-question="service" data-step="1">
-      <legend class="calc-q__head" tabindex="-1">
-        <span class="calc-q__eyebrow">{stepLabel(1)}</span>
-        <span class="calc-q__title">{t.serviceQuestion}</span>
-      </legend>
-      <div class="calc-q__body">
-      <div class="calc-q__options calc-q__options--3">
-        {
-          calculator.services.map((s) => (
-            <label class="calc-opt">
-              <span class="calc-opt__top">
-                <input class="calc-opt__input" type="radio" name="calc-service" value={s.id} />
-                <span class="calc-opt__title">{t.services[s.id].title}</span>
-              </span>
-              <span class="calc-opt__text">{keepLastWords(t.services[s.id].text)}</span>
-            </label>
-          ))
-        }
-      </div>
-      </div>
-    </fieldset>
+    <!-- Пройдені кроки, згорнуті в рядки (заповнює скрипт) -->
+    <ol class="calc-done" data-done hidden></ol>
 
-    {
-      calculator.services.map((s) => (
-        <div class="calc__group" data-service-group={s.id} hidden>
-          {s.questions.map((q) => {
-            const qt = qText(s.id, q.id);
-            const name = `calc-${s.id}-${q.id}`;
-            const hintId = `${name}-hint`;
-            return (
-              <fieldset class="calc-q" data-question={q.id} data-step={q.step} aria-describedby={qt?.hint ? hintId : undefined}>
-                <legend class="calc-q__head" tabindex="-1">
-                  <span class="calc-q__eyebrow">{stepLabel(q.step)}</span>
-                  <span class="calc-q__title">{qt?.title}</span>
-                </legend>
-                <div class="calc-q__body">
-                {qt?.hint && (
-                  <p class="calc-q__hint" id={hintId} data-hint>
-                    {keepLastWords(qt.hint)}
-                  </p>
-                )}
-
-                {q.kind === 'counter' && (
-                  <div class="calc-counter-wrap">
-                    <div class="calc-counter">
-                      <button class="calc-counter__btn" type="button" data-dec aria-label={t.counter.minus}>
-                        <span aria-hidden="true">−</span>
-                      </button>
-                      <input class="calc-counter__input" type="number" inputmode="numeric" name={name} aria-label={qt?.title} />
-                      <button class="calc-counter__btn" type="button" data-inc aria-label={t.counter.plus}>
-                        <span aria-hidden="true">+</span>
-                      </button>
-                    </div>
-                    <p class="calc-q__over" data-over hidden>
-                      {fill(t.counter.over, { n: q.customAbove ?? 0 })}
-                    </p>
-                  </div>
-                )}
-
-                {q.role === 'languages' && (
-                  <div class="calc-pills">
-                    {q.options?.map((o) => (
-                      <label class="calc-pill">
-                        <input class="calc-pill__input" type="radio" name={name} value={o.id} />
-                        <span>{t.languages[o.id]}</span>
-                      </label>
-                    ))}
-                  </div>
-                )}
-
-                {q.kind === 'single' && q.role !== 'languages' && (
-                  <div class={`calc-q__options calc-q__options--${cols(q)}`}>
-                    {q.options?.map((o) => {
-                      const ot = qt?.options?.[o.id];
-                      return (
-                        <label class="calc-opt">
-                          <span class="calc-opt__top">
-                            <input class="calc-opt__input" type="radio" name={name} value={o.id} />
-                            <span class="calc-opt__title">{ot?.title}</span>
-                          </span>
-                          {ot?.text && <span class="calc-opt__text">{keepLastWords(ot.text)}</span>}
-                          <span class="calc-opt__price" data-price />
-                        </label>
-                      );
-                    })}
-                  </div>
-                )}
-
-                {q.kind === 'multi' && (
-                  <div class="calc-q__list">
-                    {q.options?.map((o) => {
-                      const ot = qt?.options?.[o.id];
-                      return (
-                        <label class="calc-opt calc-opt--row">
-                          <input class="calc-opt__input calc-opt__input--check" type="checkbox" name={name} value={o.id} />
-                          <span class="calc-opt__body">
-                            <span class="calc-opt__title">{ot?.title}</span>
-                            {ot?.text && <span class="calc-opt__text">{keepLastWords(ot.text)}</span>}
-                          </span>
-                          <span class="calc-opt__price" data-price />
-                        </label>
-                      );
-                    })}
-                  </div>
-                )}
-                </div>
-              </fieldset>
-            );
-          })}
+    <div class="calc__stage" data-stage>
+      <!-- Крок 1. Напрям -->
+      <fieldset class="calc-q" data-question="service" data-step="1">
+        <legend class="calc-q__head" tabindex="-1">
+          <span class="calc-q__eyebrow" data-eyebrow>{stepLabel(1)}</span>
+          <span class="calc-q__title">{t.serviceQuestion}</span>
+        </legend>
+        <div class="calc-q__body">
+          <div class="calc-q__options calc-q__options--3">
+            {
+              calculator.services.map((s) => (
+                <label class="calc-opt">
+                  <span class="calc-opt__top">
+                    <input class="calc-opt__input" type="radio" name="calc-service" value={s.id} />
+                    <span class="calc-opt__title">{t.services[s.id].title}</span>
+                  </span>
+                  <span class="calc-opt__text">{keepLastWords(t.services[s.id].text)}</span>
+                </label>
+              ))
+            }
+          </div>
         </div>
-      ))
-    }
+      </fieldset>
 
-    <!-- Телефон: «Назад / Далі» -->
+      {
+        calculator.services.map((s) => (
+          <div class="calc__group" data-service-group={s.id} hidden>
+            {s.questions.map((q, qi) => {
+              const qt = qText(s.id, q.id);
+              const name = `calc-${s.id}-${q.id}`;
+              const hintId = `${name}-hint`;
+              const withSiteHint = q.role === 'base' && s.questions.some((x) => x.id === 'hasSite');
+              return (
+                <fieldset class="calc-q" data-question={q.id} data-step={q.step} aria-describedby={qt?.hint ? hintId : undefined}>
+                  <legend class="calc-q__head" tabindex="-1">
+                    <span class="calc-q__eyebrow" data-eyebrow hidden={!firstOfStep(s.questions, qi)}>
+                      {stepLabel(q.step)}
+                    </span>
+                    <span class="calc-q__title">{qt?.title}</span>
+                  </legend>
+                  <div class="calc-q__body">
+                    {qt?.hint && (
+                      <p class="calc-q__hint" id={hintId} data-hint>
+                        {keepLastWords(qt.hint)}
+                      </p>
+                    )}
+
+                    {q.kind === 'counter' && (
+                      <div class="calc-counter-wrap">
+                        <div class="calc-counter">
+                          <button class="calc-counter__btn" type="button" data-dec aria-label={t.counter.minus}>
+                            <span aria-hidden="true">−</span>
+                          </button>
+                          <input class="calc-counter__input" type="number" inputmode="numeric" name={name} aria-label={qt?.title} />
+                          <button class="calc-counter__btn" type="button" data-inc aria-label={t.counter.plus}>
+                            <span aria-hidden="true">+</span>
+                          </button>
+                        </div>
+                        <p class="calc-q__over" data-over hidden>
+                          {fill(t.counter.over, { n: q.customAbove ?? 0 })}
+                        </p>
+                      </div>
+                    )}
+
+                    {isPills(q) && (
+                      <div class="calc-pills">
+                        {q.options?.map((o) => (
+                          <label class="calc-pill">
+                            <input class="calc-pill__input" type="radio" name={name} value={o.id} />
+                            <span>{q.role === 'languages' ? t.languages[o.id] : qt?.options?.[o.id]?.title}</span>
+                          </label>
+                        ))}
+                      </div>
+                    )}
+
+                    {q.id === 'deadline' && (
+                      <div class="calc-date" data-date hidden>
+                        <Field id={`${name}-date`} name={`${name}-date`} type="date" label={t.flow.dateLabel} />
+                      </div>
+                    )}
+
+                    {q.kind === 'single' && !isPills(q) && (
+                      <div class={`calc-q__options calc-q__options--${cols(q)}`}>
+                        {q.options?.map((o) => {
+                          const ot = qt?.options?.[o.id];
+                          return (
+                            <label class="calc-opt" data-option={o.id}>
+                              <span class="calc-opt__top">
+                                <input class="calc-opt__input" type="radio" name={name} value={o.id} />
+                                <span class="calc-opt__title">{ot?.title}</span>
+                                <span class="calc-badge" data-badge hidden>
+                                  {t.flow.recommended}
+                                </span>
+                              </span>
+                              {ot?.text && <span class="calc-opt__text">{keepLastWords(ot.text)}</span>}
+                              <span class="calc-opt__price" data-price />
+                            </label>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {withSiteHint && (
+                      <p class="calc-q__note" data-site-hint hidden>
+                        {keepLastWords(t.flow.siteHint)}
+                      </p>
+                    )}
+
+                    {q.kind === 'multi' && (
+                      <div class="calc-q__list">
+                        {q.options?.map((o) => {
+                          const ot = qt?.options?.[o.id];
+                          return (
+                            <label class="calc-opt calc-opt--row" data-option={o.id}>
+                              <input class="calc-opt__input calc-opt__input--check" type="checkbox" name={name} value={o.id} />
+                              <span class="calc-opt__body">
+                                <span class="calc-opt__head">
+                                  <span class="calc-opt__title">{ot?.title}</span>
+                                  <span class="calc-badge" data-badge hidden>
+                                    {t.flow.recommended}
+                                  </span>
+                                </span>
+                                {ot?.text && <span class="calc-opt__text">{keepLastWords(ot.text)}</span>}
+                              </span>
+                              <span class="calc-opt__price" data-price />
+                            </label>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </fieldset>
+              );
+            })}
+          </div>
+        ))
+      }
+
+      <!-- Крок 6. Контакти: форма запиту -->
+      <form class="calc-form" data-form novalidate>
+        <fieldset class="calc-q" data-question="contact" data-step="6">
+          <legend class="calc-q__head" tabindex="-1">
+            <span class="calc-q__eyebrow" data-eyebrow>{stepLabel(6)}</span>
+            <span class="calc-q__title">{t.contact.title}</span>
+          </legend>
+          <div class="calc-q__body">
+            <Field id="calc-name" name="name" label={`${t.contact.name} *`} autocomplete="name" required liveError />
+            <Field id="calc-email" name="email" type="email" label={`${t.contact.email} *`} autocomplete="email" required liveError />
+            <Field id="calc-comment" name="comment" type="textarea" label={t.contact.comment} hint={t.contact.commentHint} />
+            <!-- Пастка для ботів: людина поле не бачить і не заповнює -->
+            <div class="calc-form__trap" aria-hidden="true">
+              <label>Website <input type="text" name="website" tabindex="-1" autocomplete="off" /></label>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset class="calc-q" data-question="call" data-step="6" aria-describedby="calc-call-hint">
+          <legend class="calc-q__head" tabindex="-1">
+            <span class="calc-q__title">{t.contact.callTitle}</span>
+          </legend>
+          <div class="calc-q__body">
+            <p class="calc-q__hint" id="calc-call-hint">{keepLastWords(t.contact.callHint)}</p>
+            <div class="calc-pills">
+              <label class="calc-pill">
+                <input class="calc-pill__input" type="radio" name="call" value="yes" />
+                <span>{t.contact.yes}</span>
+              </label>
+              <label class="calc-pill">
+                <input class="calc-pill__input" type="radio" name="call" value="no" />
+                <span>{t.contact.no}</span>
+              </label>
+            </div>
+            <p class="calc-q__note" data-call-link hidden>
+              <a href={contact}>{t.contact.callLink}</a>
+            </p>
+          </div>
+        </fieldset>
+
+        <div class="calc-form__submit" data-step-extra="6">
+          <Button type="submit">{t.contact.submit}</Button>
+          <p class="calc-form__note">
+            {keepLastWords(t.contact.note)} <a href={privacy}>{t.contact.privacy}</a>
+          </p>
+          <p class="calc-form__status" data-status role="status" hidden></p>
+        </div>
+      </form>
+
+      <!-- Після відправки: подяка з коротким зведенням -->
+      <div class="calc-thanks" data-thanks hidden>
+        <div class="calc-thanks__head">
+          <p class="calc-q__eyebrow">{t.thanks.eyebrow}</p>
+          <h2 class="calc-thanks__title" tabindex="-1" data-thanks-title>{t.thanks.title}</h2>
+          <p class="calc-q__hint">{keepLastWords(t.thanks.text)}</p>
+        </div>
+        <div class="calc-thanks__card">
+          <p class="calc-sum__label">{t.thanks.summary}</p>
+          <dl class="calc-thanks__list" data-thanks-list></dl>
+        </div>
+      </div>
+    </div>
+
+    <!-- Під кроком: «Далі» (головна) і «Назад» (текстове посилання) -->
     <div class="calc__nav" data-nav>
-      <button class="calc__nav-back ring-hover" type="button" data-back hidden>{t.mobile.back}</button>
-      <button class="calc__nav-next" type="button" data-next>{t.mobile.next}</button>
+      <span data-next><Button type="button" describedBy="calc-need-choice">{t.flow.next}</Button></span>
+      <button class="calc__back" type="button" data-back hidden>{t.flow.back}</button>
+      <p class="visually-hidden" id="calc-need-choice" data-need-choice>{t.flow.needChoice}</p>
     </div>
   </div>
 
@@ -199,7 +306,8 @@ const cols = (q: CalcQuestion) => ((q.options?.length ?? 0) === 2 || (q.options?
     <p class="visually-hidden" aria-live="polite" data-live></p>
 
     <div class="calc-sum__actions">
-      <span data-exact><Button href={`${contact}#message`} variant="primary">{t.summary.exact}</Button></span>
+      <!-- Дублює «Далі» і називає наступний крок; текст ставить скрипт -->
+      <span data-panel-next hidden><Button type="button">{t.flow.next}</Button></span>
       <span data-call><Button href={contact} variant="secondary">{t.summary.call}</Button></span>
     </div>
     <button class="calc-sum__restart" type="button" data-restart>{t.summary.restart}</button>
@@ -283,23 +391,30 @@ const cols = (q: CalcQuestion) => ((q.options?.length ?? 0) === 2 || (q.options?
   /* ---------- Смуга кроків ---------- */
   .calc__steps {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: var(--space-8);
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  .calc__step {
+  /* Пункт смуги — кнопка: пройдені кроки клікабельні (= «Змінити»), решта вимкнені */
+  .calc__step-btn {
     display: flex;
     flex-direction: column;
     gap: var(--space-8);
+    width: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    text-align: left;
     font-family: var(--font-mono);
     font-weight: var(--text-label-s--font-weight);
     font-size: var(--text-label-s);
     line-height: var(--text-label-s--line-height);
     letter-spacing: var(--text-label-s--letter-spacing);
     color: var(--text-muted);
+    cursor: default;
   }
 
   .calc__step-bar {
@@ -309,11 +424,147 @@ const cols = (q: CalcQuestion) => ((q.options?.length ?? 0) === 2 || (q.options?
     transition: background-color 0.4s var(--ease-out-in);
   }
 
-  .calc__step.is-done {
-    color: var(--fg);
+  .calc__step-bar {
+    width: 100%;
   }
-  .calc__step.is-done .calc__step-bar {
+
+  /* Пройдені: смуга й підпис акценту / тексту, по кліку — повернутися до кроку */
+  .calc__step.is-done .calc__step-btn {
+    color: var(--fg);
+    cursor: pointer;
+  }
+  .calc__step.is-done .calc__step-bar,
+  .calc__step.is-now .calc__step-bar {
     background: var(--accent-text);
+  }
+  /* Поточний — підпис кольору акценту */
+  .calc__step.is-now .calc__step-btn {
+    color: var(--accent-text);
+  }
+  @media (hover: hover) {
+    .calc__step.is-done .calc__step-btn:hover .calc__step-name {
+      text-decoration: underline;
+    }
+  }
+  .calc__step-btn:focus-visible .calc__step-name {
+    text-decoration: underline;
+  }
+
+  /* Назва поточного кроку під смугою — лише на телефоні */
+  .calc__step-now {
+    display: none;
+  }
+
+  /* ---------- Пройдені кроки, згорнуті в рядки (Figma «Пройдені кроки») ---------- */
+  .calc-done {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .calc-done[hidden] {
+    display: none;
+  }
+
+  .calc-done :global(.calc-done__row) {
+    display: flex;
+    align-items: center;
+    gap: var(--space-16);
+    padding: var(--space-16) var(--space-24);
+    border: 1px solid var(--choice-border);
+    border-radius: var(--radius-16);
+    background: var(--choice-bg);
+  }
+
+  /* Галочка в колі акцентного кольору */
+  .calc-done :global(.calc-done__check) {
+    flex-shrink: 0;
+    display: grid;
+    place-content: center;
+    width: var(--space-24);
+    height: var(--space-24);
+    border-radius: 50%;
+    background: var(--accent-text);
+  }
+  .calc-done :global(.calc-done__check)::before {
+    content: '';
+    width: var(--space-12);
+    height: var(--space-12);
+    background: var(--bg);
+    clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0, 43% 62%);
+  }
+
+  .calc-done :global(.calc-done__body) {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+  }
+
+  .calc-done :global(.calc-done__name) {
+    font-weight: var(--text-title-18--font-weight);
+    font-size: var(--text-title-18);
+    line-height: var(--text-title-18--line-height);
+  }
+
+  .calc-done :global(.calc-done__answer) {
+    font-size: var(--text-body-s);
+    line-height: var(--text-body-s--line-height);
+    color: var(--text-muted);
+  }
+
+  .calc-done :global(.calc-done__change),
+  .calc__back {
+    flex-shrink: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--fg);
+    font: inherit;
+    font-weight: var(--text-button-s--font-weight);
+    font-size: var(--text-button-s);
+    line-height: var(--text-button-s--line-height);
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  @media (hover: hover) {
+    .calc-done :global(.calc-done__change:hover),
+    .calc__back:hover {
+      color: var(--accent-text);
+    }
+  }
+  .calc-done :global(.calc-done__change:focus-visible),
+  .calc__back:focus-visible {
+    color: var(--accent-text);
+  }
+
+  /* ---------- Поточний крок ---------- */
+  .calc__stage {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-56);
+  }
+
+  /* Видно лише питання поточного кроку (клас is-current ставить скрипт) */
+  :global(.calc.is-flow) .calc-q:not(.is-current),
+  :global(.calc.is-flow) [data-step-extra]:not(.is-current) {
+    display: none;
+  }
+
+  /* Під кроком: «Далі» і текстове «Назад» */
+  .calc__nav {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-32);
+  }
+  .calc__nav[hidden],
+  .calc__nav > [hidden],
+  .calc__back[hidden] {
+    display: none;
   }
 
   /* ---------- Питання ---------- */
@@ -409,6 +660,11 @@ const cols = (q: CalcQuestion) => ((q.options?.length ?? 0) === 2 || (q.options?
       box-shadow 0.2s ease;
   }
 
+  /* Доповнення, сховане відповіддю про бренд */
+  .calc-opt[hidden] {
+    display: none;
+  }
+
   .calc-opt--row {
     flex-direction: row;
     gap: var(--space-16);
@@ -429,8 +685,15 @@ const cols = (q: CalcQuestion) => ((q.options?.length ?? 0) === 2 || (q.options?
     gap: var(--space-4);
   }
 
+  .calc-opt__head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-8) var(--space-12);
+  }
+
   .calc-opt__title {
-    flex: 1 1 0;
+    flex: 0 1 auto;
     min-width: 0;
     font-weight: var(--text-title-18--font-weight);
     font-size: var(--text-title-18);
@@ -453,6 +716,138 @@ const cols = (q: CalcQuestion) => ((q.options?.length ?? 0) === 2 || (q.options?
   }
   .calc-opt__price:empty {
     display: none;
+  }
+
+  /* «Рекомендовано»: обвідна пігулка акцентного кольору (Figma, «Позначка: Рекомендовано») */
+  .calc-badge {
+    flex-shrink: 0;
+    padding: var(--space-4) var(--space-12);
+    border: 1px solid var(--accent-text);
+    border-radius: var(--radius-full);
+    font-family: var(--font-mono);
+    font-weight: var(--text-label-s--font-weight);
+    font-size: var(--text-label-s);
+    line-height: var(--text-label-s--line-height);
+    letter-spacing: var(--text-label-s--letter-spacing);
+    text-transform: uppercase;
+    color: var(--accent-text);
+    white-space: nowrap;
+  }
+  .calc-badge[hidden] {
+    display: none;
+  }
+
+  /* Підказка під варіантами: «Ми можемо оновити наявний сайт…», посилання на дзвінок */
+  .calc-q__note {
+    font-size: var(--text-body-m);
+    line-height: var(--text-body-m--line-height);
+    color: var(--accent-text);
+  }
+  .calc-q__note[hidden],
+  .calc-date[hidden] {
+    display: none;
+  }
+  .calc-q__note a {
+    color: inherit;
+  }
+
+  .calc-date {
+    max-width: 320px;
+  }
+
+  /* ---------- Крок 6: форма ---------- */
+  .calc-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-56);
+  }
+  .calc-form[hidden] {
+    display: none;
+  }
+
+  /* Пастка для ботів: поза екраном, не в порядку фокусу */
+  .calc-form__trap {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .calc-form__submit {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-16);
+  }
+
+  .calc-form__note,
+  .calc-form__status {
+    max-width: 665px;
+    font-size: var(--text-body-s);
+    line-height: var(--text-body-s--line-height);
+    color: var(--text-muted);
+  }
+  .calc-form__note a,
+  .calc-form__status a {
+    color: var(--fg);
+  }
+  .calc-form__status {
+    color: var(--danger);
+  }
+  .calc-form__status[hidden] {
+    display: none;
+  }
+
+  /* ---------- Подяка після відправки ---------- */
+  .calc-thanks {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-40);
+  }
+  .calc-thanks[hidden] {
+    display: none;
+  }
+
+  .calc-thanks__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .calc-thanks__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: var(--text-h4--font-weight);
+    font-size: var(--text-h4);
+    line-height: var(--text-h4--line-height);
+    text-wrap: balance;
+  }
+
+  .calc-thanks__card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+    padding: var(--space-32);
+    border: 1px solid var(--choice-border);
+    border-radius: var(--radius-24);
+    background: var(--choice-bg);
+  }
+
+  .calc-thanks__list {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: var(--space-12) var(--space-24);
+    margin: 0;
+    font-size: var(--text-body-m);
+    line-height: var(--text-body-m--line-height);
+  }
+  .calc-thanks__list :global(dt) {
+    color: var(--text-muted);
+  }
+  .calc-thanks__list :global(dd) {
+    margin: 0;
+    text-align: right;
   }
 
   /* Радіо: кільце 20 px, обране — з точкою кольору акценту */
@@ -755,6 +1150,9 @@ const cols = (q: CalcQuestion) => ((q.options?.length ?? 0) === 2 || (q.options?
     display: flex;
     width: 100%;
   }
+  .calc-sum__actions > span[hidden] {
+    display: none;
+  }
 
   .calc-sum__restart {
     align-self: flex-start;
@@ -778,9 +1176,8 @@ const cols = (q: CalcQuestion) => ((q.options?.length ?? 0) === 2 || (q.options?
     color: var(--fg);
   }
 
-  /* ---------- Нижня панель із сумою і кнопки «Назад / Далі»: лише телефон і планшет ---------- */
-  .calc-bar,
-  .calc__nav {
+  /* ---------- Нижня панель із сумою: лише телефон і планшет ---------- */
+  .calc-bar {
     display: none;
   }
 
@@ -986,50 +1383,45 @@ const cols = (q: CalcQuestion) => ((q.options?.length ?? 0) === 2 || (q.options?
     .calc-bar {
       padding-inline: var(--space-20);
     }
-
-    /* Майстер (клас ставить скрипт): видно лише поточне питання або результат */
-    :global(.calc.is-wizard) .calc-q:not(.is-current),
-    :global(.calc.is-wizard) .calc-sum:not(.is-current) {
-      display: none;
-    }
-    :global(.calc.is-wizard.is-result) .calc-bar {
-      display: none;
-    }
     /* Місце під нижню панель, щоб вона не закривала кнопки */
-    :global(.calc.is-wizard:not(.is-result):not(.is-empty)) {
+    :global(.calc:not(.is-empty)) {
       padding-bottom: calc(var(--space-120) + var(--space-24));
     }
 
-    .calc__nav {
-      display: flex;
+    /* Доповнення: ціна під описом, на рівні тексту (після чекбокса 20 px і проміжку 16) — інакше налазить на назву */
+    .calc-opt--row {
+      flex-wrap: wrap;
+    }
+    .calc-opt--row .calc-opt__price {
+      flex-basis: 100%;
+      margin-top: 0;
+      padding-left: calc(var(--space-20) + var(--space-16));
+    }
+
+    /* Смуга кроків: лише смужки, назва поточного кроку — окремим рядком під ними */
+    .calc__step-name {
+      display: none;
+    }
+    .calc__step-now {
+      display: block;
+      margin-top: calc(-1 * var(--space-40));
+      font-family: var(--font-mono);
+      font-weight: var(--text-label-s--font-weight);
+      font-size: var(--text-label-s);
+      line-height: var(--text-label-s--line-height);
+      letter-spacing: var(--text-label-s--letter-spacing);
+      color: var(--accent-text);
+    }
+    .calc-done :global(.calc-done__row) {
+      padding: var(--space-12) var(--space-16);
       gap: var(--space-12);
     }
-    .calc__nav[hidden] {
-      display: none;
+    .calc-thanks__card {
+      padding: var(--space-20);
     }
-    .calc__nav-back,
-    .calc__nav-next {
-      flex: 1 1 0;
-      height: 50px;
-      padding-inline: var(--space-24);
-      border-radius: var(--radius-full);
-      font: inherit;
-      font-weight: var(--text-button-m--font-weight);
-      font-size: var(--text-button-m);
-      line-height: var(--text-button-m--line-height);
-      cursor: pointer;
-    }
-    .calc__nav-back[hidden] {
-      display: none;
-    }
-    .calc__nav-next {
-      border: 0;
-      background: var(--btn-primary-bg);
-      color: var(--btn-primary-fg);
-    }
-    .calc__nav-next:disabled {
-      opacity: var(--disabled-opacity);
-      cursor: not-allowed;
+    .calc-thanks__title {
+      font-size: var(--text-h4-mobile);
+      line-height: var(--text-h4-mobile--line-height);
     }
   }
 
