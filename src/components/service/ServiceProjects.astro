@@ -20,7 +20,7 @@ import Button from '../Button.astro';
 import bgLight from '../../assets/backgrounds/directions-light.jpg';
 import arrowDark from '../../assets/hero/arrow-card.svg';
 import arrowLight from '../../assets/services/ui-ux/arrow-card-light.svg';
-import { filterCategories, uiuxProjects } from '../../data/uiux-projects';
+import { filterCategories, projectTitle, uiuxProjects } from '../../data/uiux-projects';
 import { keepLastWords, localePath, ui, type Locale } from '../../i18n/ui';
 
 interface Props {
@@ -80,7 +80,7 @@ const dt = t.texts.datatixx;
                 <div class="big-card__facts">
                   <h4 class="big-card__name">
                     <a class="big-card__link" href={caseHref(p.slug)}>
-                      {p.title}
+                      {projectTitle(p, locale)}
                       <span class="visually-hidden">: {t.viewCase}</span>
                     </a>
                   </h4>
@@ -121,7 +121,7 @@ const dt = t.texts.datatixx;
                     <div class="card__heading">
                       <h4 class="card__name">
                         <a class="card__link" href={caseHref(p.slug)}>
-                          {p.title}
+                          {projectTitle(p, locale)}
                           <span class="visually-hidden">: {t.viewCase}</span>
                         </a>
                       </h4>

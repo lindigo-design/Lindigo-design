@@ -24,6 +24,7 @@ import {
   type ServiceId,
 } from '../../data/calculator';
 import { fill, type CalcTexts } from '../../i18n/calculator';
+import { titleCase, type TitleLocale } from '../../i18n/title-case';
 
 const LOCALE_TAGS: Record<string, string> = { fr: 'fr-FR', en: 'en-GB', uk: 'uk-UA' };
 const STORAGE_KEY = 'lindigo-estimate';
@@ -42,6 +43,8 @@ export function initCalculator(root: HTMLElement) {
   if (!textsEl) return;
   const t = JSON.parse(textsEl.textContent || '{}') as CalcTexts;
   const tag = LOCALE_TAGS[root.dataset.locale || 'fr'] || 'fr-FR';
+  // заголовки h2/h3, які калькулятор пише сам, — Title Case, як усі заголовки сайту (src/i18n/title-case.ts)
+  const tc = (s: string) => titleCase(s, (root.dataset.locale || 'fr') as TitleLocale);
   const moneyFmt = new Intl.NumberFormat(tag, { style: 'currency', currency: calculator.currency, currencyDisplay: 'narrowSymbol', maximumFractionDigits: 0 });
   const numFmt = new Intl.NumberFormat(tag, { maximumFractionDigits: 2 });
   const money = (n: number) => moneyFmt.format(n);
@@ -299,13 +302,13 @@ export function initCalculator(root: HTMLElement) {
     box.hidden = !serviceId;
     if (!serviceId || !service) return;
     const key = serviceId === 'sites' && scopeOf(service, answers) === 'design' ? 'sites-design' : serviceId;
-    box.querySelector<HTMLElement>('[data-incl-title]')!.textContent = t.included.titles[serviceId];
+    box.querySelector<HTMLElement>('[data-incl-title]')!.textContent = tc(t.included.titles[serviceId]);
     const items = t.included.items[key] ?? [];
     box.querySelectorAll<HTMLElement>('[data-incl-item]').forEach((card, i) => {
       const it = items[i];
       card.hidden = !it;
       if (!it) return;
-      card.querySelector('[data-incl-name]')!.textContent = it.title;
+      card.querySelector('[data-incl-name]')!.textContent = tc(it.title);
       card.querySelector('[data-incl-text]')!.textContent = keepLast(it.text);
     });
   }
