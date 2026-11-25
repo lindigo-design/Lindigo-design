@@ -85,7 +85,8 @@ const t: { eyebrow: string; title: string; items: FaqItem[] } = content ?? ui[lo
        там, де друга картка (рішення Яни 23.11.2026; у макеті головної було 380 px + 80 px).
        На вужчих екранах — одна колонка (правило нижче). */
     grid-template-columns: calc((100% - 2 * var(--space-24)) / 3) minmax(0, 1fr);
-    column-gap: var(--space-24);
+    /* між заголовком і питаннями 80, як у першому макеті (24 було затісно — рішення Яни 25.11.2026) */
+    column-gap: var(--space-80);
     align-items: start;
     padding: var(--space-120) var(--gutter);
     background: var(--section-bg);
