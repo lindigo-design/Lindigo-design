@@ -3,7 +3,7 @@
  * Хмара фарби → медуза на першому екрані «Послуг» (варіант 1, рішення Яни 25.11.2026).
  * Відео Яни (темна — docs/Ink_smoke_transforms_into_jellyfish_top_1080p.mp4, світла — docs/Smoke_transforms_into_jellyfish_ light_1080p.mp4) розкладене на 60 кадрів для кожної теми (public/media/services/cloud-*):
  * перемотування самого відео смикається (~100 мс на кадр), а кадри гортаються плавно.
- * Мишка зліва направо по першому екрану — хмара перетворюється на медузу; медуза ледь зсувається за курсором.
+ * Мишка зліва направо по першому екрану — хмара перетворюється на медузу; сама медуза стоїть на місці.
  * Без мишки (телефон, планшет) — перетворення програється саме, туди й назад. «Зменшити рух» — нерухомий перший кадр.
  * Тло кадрів: темна тема — чорне (накладання screen), світла — біле (multiply); квадрата навколо хмари немає.
  * Кадри вантажаться лише для поточної теми і лише після завантаження сторінки; до того — перший кадр картинкою.
@@ -24,10 +24,7 @@ const dir = { dark: `${base}/media/services/cloud-dark`, light: `${base}/media/s
   .sv-cloud {
     position: relative;
     display: grid;
-    /* зсув за курсором ставить скрипт */
-    translate: var(--cloud-x, 0) var(--cloud-y, 0);
-    transition: translate 0.6s var(--ease-out-in);
-    /* накладання — на обгортці: translate робить її окремим шаром, і накладання дітей не бачило б фону */
+    /* накладання — на обгортці (filter і mask роблять її окремим шаром, і накладання дітей не бачило б фону) */
     mix-blend-mode: screen;
     /* темна тема: screen додає фон сторінки, і медуза бліднула — робимо кадр контрастнішим і насиченішим,
        середні тони трохи темнішими (чорне тло лишається чорним; рішення Яни 26.11.2026) */
@@ -55,12 +52,6 @@ const dir = { dark: `${base}/media/services/cloud-dark`, light: `${base}/media/s
   /* коли кадри готові — замість картинки полотно */
   .sv-cloud.is-ready .sv-cloud__poster {
     visibility: hidden;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .sv-cloud {
-      transition: none;
-    }
   }
 </style>
 
@@ -135,21 +126,13 @@ const dir = { dark: `${base}/media/services/cloud-dark`, light: `${base}/media/s
       if (!raf) raf = requestAnimationFrame(tick);
     };
 
-    // мишка: положення по ширині першого екрана → кадр; легкий зсув за курсором
+    // мишка: положення по ширині першого екрана → кадр (медуза стоїть на місці — без зсуву за курсором, рішення Яни 26.11.2026)
     hero.addEventListener('pointermove', (e) => {
       if (e.pointerType !== 'mouse') return;
       auto = false;
       const r = hero.getBoundingClientRect();
-      const x = (e.clientX - r.left) / r.width;
-      const y = (e.clientY - r.top) / r.height;
-      target = Math.min(1, Math.max(0, x));
-      root.style.setProperty('--cloud-x', `${(x - 0.5) * 24}px`);
-      root.style.setProperty('--cloud-y', `${(y - 0.5) * 16}px`);
+      target = Math.min(1, Math.max(0, (e.clientX - r.left) / r.width));
       wake();
-    });
-    hero.addEventListener('pointerleave', () => {
-      root.style.setProperty('--cloud-x', '0px');
-      root.style.setProperty('--cloud-y', '0px');
     });
 
     // не крутимо кадри, коли перший екран прокручено
