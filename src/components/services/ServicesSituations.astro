@@ -3,6 +3,8 @@
  * «Почніть з вашої ситуації» (Figma 413:5915): ліворуч 8 ситуацій, праворуч картка рішення для обраної.
  * Розмітка — вкладки (role="tablist", вертикальні): клік, Enter/Пробіл або стрілки ↑ ↓ міняють картку.
  * Без JS видно першу ситуацію і її картку.
+ * Телефон (до 640 px): акордеон — картка рішення розкривається під обраною ситуацією (aria-expanded замість вкладок).
+ * «Дивитися напрям» — плавна прокрутка до цього напряму на сторінці (якорі #uiux, #sites, #shops, #branding, #content).
  * Неактивна ситуація — приглушена (--text-muted, а не 35 % з макета: так контраст тексту не нижчий за 4,5);
  * наведення й фокус — повний колір і стрілка, як в активної.
  */
@@ -11,8 +13,8 @@ import ServicesHead from './ServicesHead.astro';
 import arrowDark from '../../assets/works/all-dark.svg';
 import arrowLight from '../../assets/works/all-light.svg';
 import situationSites from '../../assets/services/overview/situation-sites.jpg';
-import { directionImages, directionPath } from '../../data/services';
-import { keepLastWords, localePath, type Locale } from '../../i18n/ui';
+import { directionAnchors, directionImages } from '../../data/services';
+import { keepLastWords, type Locale } from '../../i18n/ui';
 import type { ServicesText } from '../../i18n/services';
 
 interface Props {
@@ -21,7 +23,7 @@ interface Props {
   directions: ServicesText['directions']['items'];
 }
 
-const { locale, content: t, directions } = Astro.props;
+const { content: t, directions } = Astro.props;
 const pad = (n: number) => String(n).padStart(2, '0');
 ---
 
@@ -61,7 +63,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
             <Image class="solution__img" src={image} alt="" widths={[496, 992]} sizes="(max-width: 1100px) 100vw, 496px" loading="lazy" />
             <h3 class="solution__title">{item.solution?.title ?? dir.title}</h3>
             <p class:list={['solution__text', { 'is-pending': !item.solution }]}>{keepLastWords(item.solution?.text ?? t.pending)}</p>
-            <a class="solution__link" href={localePath(locale, directionPath(item.direction))}>
+            <a class="solution__link" href={`#${directionAnchors[item.direction]}`} data-scroll>
               {t.link}
               <span class="solution__link-icon" aria-hidden="true">
                 <img src={arrowDark.src} width="36" height="36" alt="" data-theme-only="dark" />
@@ -146,13 +148,16 @@ const pad = (n: number) => String(n).padStart(2, '0');
     transform: rotate(45deg);
   }
 
-  .situation[aria-selected='true'] {
+  .situation[aria-selected='true'],
+  .situation[aria-expanded='true'] {
     color: var(--fg);
   }
-  .situation[aria-selected='true'] .situation__num {
+  .situation[aria-selected='true'] .situation__num,
+  .situation[aria-expanded='true'] .situation__num {
     color: var(--accent-text);
   }
-  .situation[aria-selected='true'] .situation__arrow {
+  .situation[aria-selected='true'] .situation__arrow,
+  .situation[aria-expanded='true'] .situation__arrow {
     opacity: 1;
   }
 
@@ -246,6 +251,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
     }
   }
 
+  /* Телефон, акордеон: картка — одразу під своєю ситуацією */
+  .situations__list .solution {
+    margin-block: 0 var(--space-20);
+  }
+
   /* Планшет: картка під списком */
   @media (max-width: 1100px) {
     .situations__body {
@@ -282,21 +292,75 @@ const pad = (n: number) => String(n).padStart(2, '0');
 </style>
 
 <script>
+  const phone = window.matchMedia('(max-width: 640px)');
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
   document.querySelectorAll<HTMLElement>('[data-situations]').forEach((root) => {
-    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
-    const select = (i: number, focus = false) => {
+    const list = root.querySelector<HTMLElement>('.situations__list')!;
+    const body = root.querySelector<HTMLElement>('.situations__body')!;
+    const tabs = Array.from(root.querySelectorAll<HTMLButtonElement>('.situation'));
+    const panels = tabs.map((tab) => root.querySelector<HTMLElement>(`#${tab.getAttribute('aria-controls')}`)!);
+    let current = 0;
+
+    /* Комп'ютер і планшет — вкладки (картка праворуч / під списком); телефон — акордеон (картка під ситуацією) */
+    const layout = () => {
+      const acc = phone.matches;
+      if (acc) list.removeAttribute('role');
+      else list.setAttribute('role', 'tablist');
       tabs.forEach((tab, k) => {
-        const on = k === i;
-        tab.setAttribute('aria-selected', String(on));
-        tab.tabIndex = on ? 0 : -1;
-        const panel = root.querySelector<HTMLElement>(`#${tab.getAttribute('aria-controls')}`);
-        if (panel) panel.hidden = !on;
+        if (acc) {
+          tab.removeAttribute('role');
+          tab.removeAttribute('aria-selected');
+          tab.tabIndex = 0;
+          tab.setAttribute('aria-expanded', String(k === current));
+          panels[k].removeAttribute('role');
+          tab.after(panels[k]);
+        } else {
+          tab.setAttribute('role', 'tab');
+          tab.removeAttribute('aria-expanded');
+          tab.setAttribute('aria-selected', String(k === current));
+          tab.tabIndex = k === current ? 0 : -1;
+          panels[k].setAttribute('role', 'tabpanel');
+          body.append(panels[k]);
+        }
+        panels[k].hidden = k !== current;
       });
+    };
+
+    const select = (i: number, focus = false) => {
+      // акордеон: повторне натискання згортає
+      current = phone.matches && i === current && !panels[i].hidden ? -1 : i;
+      tabs.forEach((tab, k) => {
+        const on = k === current;
+        if (phone.matches) tab.setAttribute('aria-expanded', String(on));
+        else {
+          tab.setAttribute('aria-selected', String(on));
+          tab.tabIndex = on ? 0 : -1;
+        }
+        panels[k].hidden = !on;
+      });
+      if (current < 0) current = i;
       if (focus) tabs[i].focus();
     };
+
+    layout();
+    phone.addEventListener('change', layout);
+
+    // «Дивитися напрям»: плавна прокрутка (без руху — одразу)
+    root.querySelectorAll<HTMLAnchorElement>('[data-scroll]').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        const target = document.querySelector(a.getAttribute('href')!);
+        if (!target) return;
+        e.preventDefault();
+        target.scrollIntoView({ behavior: reduceMotion.matches ? 'auto' : 'smooth', block: 'start' });
+        history.replaceState(null, '', a.getAttribute('href'));
+      });
+    });
+
     tabs.forEach((tab, i) => {
       tab.addEventListener('click', () => select(i));
       tab.addEventListener('keydown', (e) => {
+        if (phone.matches) return;
         const n = tabs.length;
         const to = { ArrowDown: i + 1, ArrowRight: i + 1, ArrowUp: i - 1, ArrowLeft: i - 1, Home: 0, End: n - 1 }[e.key];
         if (to === undefined) return;

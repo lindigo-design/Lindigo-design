@@ -12,4 +12,7 @@ export const directionKeys: DirectionKey[] = ['uiux', 'sites', 'shop', 'branding
 
 export const directionPath = (key: DirectionKey) => directionPaths[directionKeys.indexOf(key)];
 
+/** Якір напряму на сторінці «Послуги»: посилання «Дивитися напрям» з картки ситуації прокручує сюди */
+export const directionAnchors: Record<DirectionKey, string> = { uiux: 'uiux', sites: 'sites', shop: 'shops', branding: 'branding', photo: 'content' };
+
 export const directionImages: Record<DirectionKey, ImageMetadata> = { uiux, sites, shop, branding, photo };

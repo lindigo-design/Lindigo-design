@@ -8,7 +8,7 @@
 import { Image } from 'astro:assets';
 import Button from '../Button.astro';
 import ServicesHead from './ServicesHead.astro';
-import { directionImages, directionKeys, directionPath } from '../../data/services';
+import { directionAnchors, directionImages, directionKeys, directionPath } from '../../data/services';
 import { keepLastWords, localePath, type Locale } from '../../i18n/ui';
 import type { ServicesText } from '../../i18n/services';
 
@@ -29,7 +29,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       directionKeys.map((key, i) => {
         const d = t.items[key];
         return (
-          <li class="sv-dir">
+          <li class="sv-dir" id={directionAnchors[key]}>
             <div class="sv-dir__side">
               <p class="sv-dir__num" aria-hidden="true">{pad(i + 1)}</p>
               <h3 class="sv-dir__title">{d.title}</h3>
@@ -76,6 +76,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
 
   .sv-dir {
+    /* якір з картки ситуації: зупинка нижче шапки */
+    scroll-margin-top: var(--space-96);
     display: flex;
     align-items: flex-start;
     gap: var(--space-80);
