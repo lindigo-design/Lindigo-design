@@ -62,7 +62,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     {lead && <p class="process__lead">{keepLastWords(lead)}</p>}
   </header>
 
-  <ol class="process__steps">
+  <!-- Картки з'являються по одній під час прокрутки (data-reveal-each, src/scripts/reveal-row.ts) -->
+  <ol class="process__steps" data-reveal-each data-reveal-at="0.85">
     {
       t.steps.map((step: { title: string; text: string; result?: string }, i: number) => (
         <li class:list={['step', `step--${i + 1}`]}>
@@ -360,3 +361,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     }
   }
 </style>
+
+<script>
+  import '../scripts/reveal-row';
+</script>
