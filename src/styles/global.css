@@ -268,7 +268,8 @@
      панель «Підсумок», доріжка смуги кроків і розділювач у панелі (Beige 50 на 20 % / Indigo 950 на 20 %) */
   --choice-bg: var(--card-bg);
   --choice-border: var(--card-border);
-  --choice-selected-bg: var(--indigo-850);
+  /* обраний варіант калькулятора — спокійніше, не перетягує увагу (Figma, 25.11.2026) */
+  --choice-selected-bg: var(--indigo-950);
   --choice-selected-border: color-mix(in srgb, var(--fg) 20%, transparent);
   --calc-panel-bg: var(--indigo-900);
   --calc-panel-border: var(--card-border);
@@ -322,7 +323,7 @@
   --banner-bg: color-mix(in srgb, var(--orchid-dark) 30%, transparent);
   --choice-bg: var(--beige-50);
   --choice-selected-bg: var(--card-accent-light);
-  --choice-selected-border: var(--orchid-deep);
+  --choice-selected-border: color-mix(in srgb, var(--orchid-deep) 40%, transparent); /* Figma: Orchid deep 40 */
   --calc-panel-bg: var(--orchid-dark);
   --glass-bg: rgba(248, 238, 221, 0.6);
   --glass-border: rgba(21, 11, 46, 0.16);
