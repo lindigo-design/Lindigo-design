@@ -150,6 +150,20 @@ const bgWidths = [768, 1280, 1920, 2752];
     line-height: var(--text-body-lead--line-height);
   }
 
+  /* Великий екран (від 1600): заголовок 92, опис 28 — як на сторінках послуг; висота першого екрана лишається короткою,
+     щоб калькулятор було видно одразу (рішення Яни 26.11.2026) */
+  @media (min-width: 1600px) {
+    .c-hero__title {
+      font-size: var(--text-h1-xl);
+      line-height: var(--text-h1-xl--line-height);
+    }
+    .c-hero__lead {
+      max-width: 931px;
+      font-size: var(--text-body-xl);
+      line-height: var(--text-body-xl--line-height);
+    }
+  }
+
   @media (max-width: 1100px) {
     .c-hero__title {
       font-size: clamp(1.875rem, 7.2vw, 4.5rem);
