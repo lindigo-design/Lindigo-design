@@ -4,11 +4,12 @@
  * Ліворуч (480 px) номер, назва (H3) і кнопка «Детальніше» — прилипають під шапкою, поки прокручується права колонка:
  * опис (Body/L), фото проєкту з підписом і «Що входить» (назва Title/18 + опис Body/M, лінії між пунктами).
  * Посилання «Детальніше» — на сторінку напряму (поки що там заглушка, крім UI/UX).
+ * Кожен напрям — на картці, як картки напрямів на головній (Directions.astro): --card-bg, рамка, радіус 32 (рішення Яни, 25.11.2026).
  */
 import { Image } from 'astro:assets';
 import Button from '../Button.astro';
 import ServicesHead from './ServicesHead.astro';
-import { directionImages, directionKeys, directionPath } from '../../data/services';
+import { directionAnchors, directionImages, directionKeys, directionPath } from '../../data/services';
 import { keepLastWords, localePath, type Locale } from '../../i18n/ui';
 import type { ServicesText } from '../../i18n/services';
 
@@ -29,7 +30,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       directionKeys.map((key, i) => {
         const d = t.items[key];
         return (
-          <li class="sv-dir">
+          <li class="sv-dir" id={directionAnchors[key]}>
             <div class="sv-dir__side">
               <p class="sv-dir__num" aria-hidden="true">{pad(i + 1)}</p>
               <h3 class="sv-dir__title">{d.title}</h3>
@@ -70,16 +71,26 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
 
   .sv-dirs__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
   .sv-dir {
+    /* якір з картки ситуації: зупинка нижче шапки */
+    scroll-margin-top: var(--space-96);
     display: flex;
     align-items: flex-start;
     gap: var(--space-80);
-    padding-block: var(--space-56);
+    padding: var(--space-48);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-32);
+    background: var(--card-bg);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
   }
 
   /* Ліва колонка прилипає під шапкою (шапка 82 + 16 згори + запас) */
@@ -192,6 +203,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     .sv-dir {
       flex-direction: column;
       gap: var(--space-32);
+      padding: var(--space-32);
     }
     .sv-dir__side {
       position: static;
@@ -204,9 +216,13 @@ const pad = (n: number) => String(n).padStart(2, '0');
       gap: var(--space-40);
       padding-block: var(--space-56);
     }
+    .sv-dirs__list {
+      gap: var(--space-16);
+    }
     .sv-dir {
       gap: var(--space-24);
-      padding-block: var(--space-40);
+      padding: var(--space-24);
+      border-radius: var(--radius-24);
     }
     .sv-dir__title {
       font-size: var(--text-h2-mobile);
