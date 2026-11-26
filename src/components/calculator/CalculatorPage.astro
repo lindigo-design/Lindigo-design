@@ -56,10 +56,16 @@ const bgWidths = [768, 1280, 1920, 2752];
 </Base>
 
 <style>
-  /* Короткий перший екран: місце під шапку (як на сторінці послуги — 136), знизу 120 (рішення Яни 24.11.2026) */
+  /* Перший екран на всю висоту вікна, текст притиснутий донизу, як на сторінках послуг (рішення Яни 26.11.2026;
+     раніше — короткий екран). Місце під шапку 136, знизу 120 */
   .c-hero {
     position: relative;
     isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 100vh;
+    min-height: 100svh;
     padding: 136px var(--gutter) var(--space-120);
     overflow: hidden;
     background: var(--night);

@@ -43,7 +43,7 @@ const aside = Astro.slots.has('aside');
 const bgWidths = [768, 1280, 1920, 2752];
 ---
 
-<section class="s-hero" aria-labelledby="s-hero-title">
+<section class:list={['s-hero', { 's-hero--card': !aside }]} aria-labelledby="s-hero-title">
   <div class="s-hero__bg" aria-hidden="true">
     <Image class="s-hero__bg-dark" src={bgDark} alt="" widths={bgWidths.filter((w) => w <= bgDark.width)} sizes="100vw" loading="eager" fetchpriority="high" data-theme-only="dark" />
     <Image class="s-hero__bg-light" src={bgLight} alt="" widths={bgWidths.filter((w) => w <= bgLight.width)} sizes="100vw" loading="lazy" data-theme-only="light" />
@@ -133,6 +133,15 @@ const bgWidths = [768, 1280, 1920, 2752];
       line-height: var(--text-body-xl--line-height);
     }
   }
+  /* З карткою проєкту (UI/UX) довгий заголовок не вміщається в 3 рядки поруч із карткою при 92 до ~1780 px
+     (французький рядок «d’Applications et de» — 1130 px): до 1780 лишаємо 72, як на ноутбуці (26.11.2026) */
+  @media (min-width: 1600px) and (max-width: 1779px) {
+    .s-hero.s-hero--card .s-hero__title {
+      font-size: var(--text-display);
+      line-height: var(--text-display--line-height);
+    }
+  }
+
   /* від 1920 — заголовок 100 */
   @media (min-width: 1920px) {
     .s-hero .s-hero__title {
