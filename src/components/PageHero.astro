@@ -1,0 +1,197 @@
+---
+/**
+ * Перший екран внутрішньої сторінки: хлібні крихти, заголовок Display, опис. Фон — той самий, що на сторінках послуг
+ * (service-dark / світлий градієнт) з плямою фарби під курсором (HeroPaint). На всю висоту вікна, текст притиснутий донизу.
+ * Зараз на сторінках «Калькулятор» і «Контакти». Під описом — слот (наприклад, речення з посиланням).
+ */
+import { Image } from 'astro:assets';
+import HeroPaint from './HeroPaint.astro';
+import heroDark from '../assets/backgrounds/service-dark.jpg';
+import heroLight from '../assets/backgrounds/service-light.jpg';
+import { keepLastWords, localePath, type Locale } from '../i18n/ui';
+
+interface Props {
+  locale: Locale;
+  crumbs: [string, string];
+  crumbsLabel: string;
+  title: string;
+  lead: string;
+}
+
+const { locale, crumbs, crumbsLabel, title, lead } = Astro.props;
+const bgWidths = [768, 1280, 1920, 2752];
+---
+
+<section class="c-hero" aria-labelledby="c-hero-title">
+  <div class="c-hero__bg" aria-hidden="true">
+    <Image class="c-hero__bg-dark" src={heroDark} alt="" widths={bgWidths.filter((w) => w <= heroDark.width)} sizes="100vw" loading="eager" fetchpriority="high" data-theme-only="dark" />
+    <Image class="c-hero__bg-light" src={heroLight} alt="" widths={bgWidths.filter((w) => w <= heroLight.width)} sizes="100vw" loading="lazy" data-theme-only="light" />
+  </div>
+  <HeroPaint />
+  <div class="c-hero__text">
+    <div class="c-hero__heading">
+      <nav class="c-hero__crumbs" aria-label={crumbsLabel}>
+        <ol>
+          <li><a href={localePath(locale)}>{crumbs[0]}</a></li>
+          <li aria-current="page">{crumbs[1]}</li>
+        </ol>
+      </nav>
+      <h1 class="c-hero__title" id="c-hero-title">{title}</h1>
+    </div>
+    <p class="c-hero__lead">{keepLastWords(lead)}<slot /></p>
+  </div>
+</section>
+
+<style>
+  /* Перший екран на всю висоту вікна, текст притиснутий донизу, як на сторінках послуг (рішення Яни 26.11.2026;
+     раніше — короткий екран). Місце під шапку 136, знизу 120 */
+  .c-hero {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 100vh;
+    min-height: 100svh;
+    padding: 136px var(--gutter) var(--space-120);
+    overflow: hidden;
+    background: var(--night);
+  }
+  :global(:root[data-theme='light']) .c-hero {
+    background: var(--bg);
+  }
+
+  .c-hero__bg {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+  }
+  .c-hero__bg :global(img) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+  }
+  .c-hero__bg :global(.c-hero__bg-dark) {
+    opacity: 0.4;
+  }
+  .c-hero__bg :global(.c-hero__bg-light) {
+    opacity: 0.5;
+    mix-blend-mode: multiply;
+  }
+
+  .c-hero__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-40);
+    padding-top: var(--space-80);
+  }
+
+  .c-hero__heading {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
+  }
+
+  .c-hero__crumbs ol {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-weight: var(--text-label-s--font-weight);
+    font-size: var(--text-label-s);
+    line-height: var(--text-label-s--line-height);
+    letter-spacing: var(--text-label-s--letter-spacing);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+  .c-hero__crumbs li:not(:last-child)::after {
+    content: '/';
+    padding-inline: var(--space-8);
+  }
+  .c-hero__crumbs a {
+    color: inherit;
+    text-decoration: none;
+  }
+  @media (hover: hover) {
+    .c-hero__crumbs a:hover {
+      text-decoration: underline;
+    }
+  }
+  .c-hero__crumbs a:focus-visible {
+    text-decoration: underline;
+  }
+
+  /* Заголовок у 2 рядки (рішення Яни 25.11.2026): ширина до 17 em, рядки рівні (balance); опис лишається вужчим */
+  .c-hero__title {
+    max-width: 17em;
+    text-wrap: balance;
+    font-family: var(--font-display);
+    font-weight: var(--text-display--font-weight);
+    font-size: var(--text-display);
+    line-height: var(--text-display--line-height);
+  }
+
+  .c-hero__lead {
+    max-width: 665px;
+    font-size: var(--text-body-lead);
+    line-height: var(--text-body-lead--line-height);
+  }
+  .c-hero__lead :global(a) {
+    color: inherit;
+  }
+
+  /* Великий екран (від 1600): заголовок 92, опис 28 — як на сторінках послуг; висота першого екрана лишається короткою,
+     щоб калькулятор було видно одразу (рішення Яни 26.11.2026) */
+  @media (min-width: 1600px) {
+    .c-hero__title {
+      font-size: var(--text-h1-xl);
+      line-height: var(--text-h1-xl--line-height);
+    }
+    .c-hero__lead {
+      max-width: 931px;
+      font-size: var(--text-body-xl);
+      line-height: var(--text-body-xl--line-height);
+    }
+  }
+  @media (min-width: 1920px) {
+    .c-hero__title {
+      font-size: var(--text-h1-2xl);
+      line-height: var(--text-h1-2xl--line-height);
+    }
+  }
+
+  @media (max-width: 1100px) {
+    .c-hero__title {
+      font-size: clamp(1.875rem, 7.2vw, 4.5rem);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .c-hero {
+      padding: 112px var(--space-20) var(--space-56);
+    }
+    /* На телефоні хлібних крихт немає (правило Яни 24.11.2026): екран і так завантажений,
+       а назад ведуть меню й кнопка браузера. display: none — щоб посилання не ловило фокус невидимим */
+    .c-hero__crumbs {
+      display: none;
+    }
+    .c-hero__text {
+      gap: var(--space-24);
+      padding-top: var(--space-24);
+    }
+    .c-hero__title {
+      font-size: var(--text-h1-mobile);
+      line-height: var(--text-h1-mobile--line-height);
+    }
+    .c-hero__lead {
+      font-size: var(--text-body-m);
+      line-height: var(--text-body-m--line-height);
+    }
+  }
+</style>

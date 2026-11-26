@@ -1,0 +1,159 @@
+---
+/**
+ * Поле «Додати файл». Figma «Контакти — UI (темна)», «Вкладення»: картка з пунктирною обводкою, скріпка й текст Body/S.
+ * Справжнє <input type="file"> прозоре й лежить поверх картки: клік, клавіатура й перетягування файлу працюють самі.
+ * Обраний файл скрипт сторінки показує в рядку під карткою (data-file-chosen) з кнопкою «Прибрати».
+ *
+ * Стани:
+ *  - hover    — обводка кольору акценту;
+ *  - focus    — контур кольору акценту навколо картки;
+ *  - disabled — атрибут disabled, прозорість --disabled-opacity;
+ *  - error    — обводка й текст помилки --danger (liveError — помилку показує скрипт, як у Field).
+ */
+import clipDark from '../assets/contact/paperclip-dark.svg';
+import clipLight from '../assets/contact/paperclip-light.svg';
+
+interface Props {
+  id: string;
+  name?: string;
+  /** Текст у картці: що можна додати і обмеження */
+  label: string;
+  accept?: string;
+  /** Текст кнопки, що прибирає обраний файл */
+  removeLabel: string;
+  disabled?: boolean;
+  liveError?: boolean;
+}
+
+const { id, name = id, label, accept, removeLabel, disabled = false, liveError = false } = Astro.props;
+const errorId = `${id}-error`;
+---
+
+<div class:list={['file-field', { 'file-field--disabled': disabled }]} data-file-field>
+  <div class="file-field__drop">
+    <span class="file-field__icon" aria-hidden="true">
+      <img src={clipDark.src} width={clipDark.width} height={clipDark.height} alt="" data-theme-only="dark" />
+      <img src={clipLight.src} width={clipLight.width} height={clipLight.height} alt="" data-theme-only="light" />
+    </span>
+    <label class="file-field__label" for={id}>{label}</label>
+    <input class="file-field__input" type="file" id={id} name={name} accept={accept} disabled={disabled} />
+  </div>
+  <p class="file-field__chosen" data-file-chosen hidden>
+    <span data-file-name></span>
+    <button class="file-field__remove" type="button" data-file-remove>{removeLabel}</button>
+  </p>
+  {liveError && <p class="file-field__error" id={errorId} data-field-error hidden />}
+</div>
+
+<style>
+  .file-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .file-field__drop {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: var(--space-16);
+    padding: var(--space-24);
+    border: 1px dashed var(--fg);
+    border-radius: var(--radius-16);
+    background: var(--card-bg);
+    transition: border-color 0.2s ease;
+  }
+
+  .file-field__icon {
+    display: flex;
+    flex-shrink: 0;
+  }
+  .file-field__icon img {
+    display: block;
+  }
+
+  /* Body/S, приглушений */
+  .file-field__label {
+    font-family: var(--font-body);
+    font-weight: var(--text-body-s--font-weight);
+    font-size: var(--text-body-s);
+    line-height: var(--text-body-s--line-height);
+    color: var(--text-muted);
+  }
+
+  .file-field__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  @media (hover: hover) {
+    .file-field__drop:hover:not(:has(:disabled)) {
+      border-color: var(--accent-text);
+    }
+  }
+  .file-field__drop:has(:focus-visible) {
+    border-color: var(--accent-text);
+    outline: 2px solid var(--accent-text);
+    outline-offset: 3px;
+  }
+
+  .file-field--disabled .file-field__drop {
+    opacity: var(--disabled-opacity);
+  }
+  .file-field__input:disabled {
+    cursor: not-allowed;
+  }
+
+  .file-field--error .file-field__drop {
+    border-color: var(--danger);
+  }
+  .file-field--error .file-field__drop:has(:focus-visible) {
+    outline-color: var(--danger);
+  }
+
+  /* Обраний файл і помилка — Body/S */
+  .file-field__chosen,
+  .file-field__error {
+    margin: 0;
+    font-family: var(--font-body);
+    font-weight: var(--text-body-s--font-weight);
+    font-size: var(--text-body-s);
+    line-height: var(--text-body-s--line-height);
+  }
+  .file-field__chosen {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: var(--space-4) var(--space-16);
+    overflow-wrap: anywhere;
+  }
+  .file-field__chosen[hidden],
+  .file-field__error[hidden] {
+    display: none;
+  }
+  .file-field__error {
+    color: var(--danger);
+  }
+
+  .file-field__remove {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--fg);
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+    border-radius: var(--radius-8);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .file-field__drop {
+      transition: none;
+    }
+  }
+</style>

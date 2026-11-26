@@ -1,0 +1,137 @@
+---
+/**
+ * Блок «03 Що буде далі» сторінки «Контакти» (Figma 450:5825): заголовок блоку і три картки з номером,
+ * назвою (H5) і текстом (Body/M). Картки — як «Що входить» у калькуляторі, лише три в ряд.
+ */
+import { keepLastWords, type Locale } from '../../i18n/ui';
+import { contactText } from '../../i18n/contact';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = contactText[locale].next;
+---
+
+<section class="next" aria-labelledby="next-title">
+  <header class="next__head">
+    <p class="next__eyebrow">{t.eyebrow}</p>
+    <h2 class="next__title" id="next-title">{t.title}</h2>
+    <p class="next__lead">{keepLastWords(t.lead)}</p>
+  </header>
+  <ol class="next__cards">
+    {
+      t.items.map((item, i) => (
+        <li class="next__card">
+          <span class="next__num">{String(i + 1).padStart(2, '0')}</span>
+          <h3 class="next__name">{item.title}</h3>
+          <p class="next__text">{keepLastWords(item.text)}</p>
+        </li>
+      ))
+    }
+  </ol>
+</section>
+
+<style>
+  .next {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-56);
+    padding: var(--space-120) var(--gutter);
+    background: var(--section-bg);
+  }
+
+  .next__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+  }
+
+  .next__eyebrow {
+    font-family: var(--font-mono);
+    font-weight: var(--text-label-s--font-weight);
+    font-size: var(--text-label-s);
+    line-height: var(--text-label-s--line-height);
+    letter-spacing: var(--text-label-s--letter-spacing);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .next__title {
+    font-family: var(--font-display);
+    font-weight: var(--text-h2--font-weight);
+    font-size: var(--text-h2);
+    line-height: var(--text-h2--line-height);
+  }
+
+  .next__lead {
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
+  }
+
+  .next__cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-16);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .next__card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-16);
+    padding: var(--space-32);
+    border: 1px solid var(--choice-border);
+    border-radius: var(--radius-32);
+    background: var(--choice-bg);
+  }
+
+  .next__num {
+    font-family: var(--font-mono);
+    font-weight: var(--text-label-m--font-weight);
+    font-size: var(--text-label-m);
+    line-height: var(--text-label-m--line-height);
+    letter-spacing: var(--text-label-m--letter-spacing);
+    color: var(--accent-text);
+  }
+
+  .next__name {
+    font-family: var(--font-display);
+    font-weight: var(--text-h5--font-weight);
+    font-size: var(--text-h5);
+    line-height: var(--text-h5--line-height);
+  }
+
+  .next__text {
+    font-size: var(--text-body-m);
+    line-height: var(--text-body-m--line-height);
+  }
+
+  @media (max-width: 1100px) {
+    .next__cards {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+
+  @media (max-width: 640px) {
+    .next {
+      gap: var(--space-40);
+      padding-block: var(--space-56);
+    }
+    .next__title {
+      font-size: var(--text-h2-mobile);
+      line-height: var(--text-h2-mobile--line-height);
+    }
+    .next__lead {
+      font-size: var(--text-body-m);
+      line-height: var(--text-body-m--line-height);
+    }
+    .next__card {
+      padding: var(--space-24);
+      border-radius: var(--radius-24);
+    }
+  }
+</style>

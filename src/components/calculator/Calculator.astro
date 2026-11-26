@@ -15,6 +15,7 @@
  */
 import Button from '../Button.astro';
 import Field from '../Field.astro';
+import Pills from '../Pills.astro';
 import { calculator, type CalcQuestion, type ServiceId } from '../../data/calculator';
 import { calcUi, fill } from '../../i18n/calculator';
 import { keepLastWords, localePath, type Locale } from '../../i18n/ui';
@@ -136,14 +137,11 @@ const isPills = (q: CalcQuestion) => q.role === 'languages' || (q.role === 'cont
                     )}
 
                     {isPills(q) && (
-                      <div class="calc-pills">
-                        {q.options?.map((o) => (
-                          <label class="calc-pill">
-                            <input class="calc-pill__input" type={q.kind === 'multi' ? 'checkbox' : 'radio'} name={name} value={o.id} />
-                            <span>{q.role === 'languages' ? t.languages[o.id] : qt?.options?.[o.id]?.title}</span>
-                          </label>
-                        ))}
-                      </div>
+                      <Pills
+                        name={name}
+                        type={q.kind === 'multi' ? 'checkbox' : 'radio'}
+                        options={(q.options ?? []).map((o) => ({ value: o.id, label: (q.role === 'languages' ? t.languages[o.id] : qt?.options?.[o.id]?.title) ?? '' }))}
+                      />
                     )}
 
                     {q.id === 'deadline' && (
@@ -232,16 +230,13 @@ const isPills = (q: CalcQuestion) => q.role === 'languages' || (q.role === 'cont
           </legend>
           <div class="calc-q__body">
             <p class="calc-q__hint" id="calc-call-hint">{keepLastWords(t.contact.callHint)}</p>
-            <div class="calc-pills">
-              <label class="calc-pill">
-                <input class="calc-pill__input" type="radio" name="call" value="yes" />
-                <span>{t.contact.yes}</span>
-              </label>
-              <label class="calc-pill">
-                <input class="calc-pill__input" type="radio" name="call" value="no" />
-                <span>{t.contact.no}</span>
-              </label>
-            </div>
+            <Pills
+              name="call"
+              options={[
+                { value: 'yes', label: t.contact.yes },
+                { value: 'no', label: t.contact.no },
+              ]}
+            />
             <p class="calc-q__note" data-call-link hidden>
               <a href={contact}>{t.contact.callLink}</a>
             </p>
@@ -990,49 +985,9 @@ const isPills = (q: CalcQuestion) => q.role === 'languages' || (q.role === 'cont
   }
 
   /* ---------- Перемикач мов: «таблетки» з radio ---------- */
-  .calc-pills {
-    display: flex;
-    flex-wrap: wrap;
+  /* Пігулки — спільний компонент Pills; у калькуляторі проміжок між рядками 8 (як було) */
+  .calc :global(.pills) {
     gap: var(--space-8);
-  }
-
-  .calc-pill {
-    position: relative;
-    padding: var(--space-12) var(--space-28);
-    border: 1px solid var(--fg);
-    border-radius: var(--radius-full);
-    font-weight: var(--text-button-m--font-weight);
-    font-size: var(--text-button-m);
-    line-height: var(--text-button-m--line-height);
-    white-space: nowrap;
-    cursor: pointer;
-    transition:
-      background-color 0.2s ease,
-      color 0.2s ease;
-  }
-
-  .calc-pill__input {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    margin: 0;
-    opacity: 0;
-    cursor: pointer;
-  }
-
-  @media (hover: hover) {
-    .calc-pill:hover:not(:has(:checked)) {
-      background: var(--ring-press);
-    }
-  }
-  .calc-pill:has(:checked) {
-    background: var(--selected-bg);
-    color: var(--bg);
-  }
-  .calc-pill:has(:focus-visible) {
-    outline: 2px solid var(--accent-text);
-    outline-offset: 3px;
   }
 
   /* ---------- Підсумок (липне під шапкою: шапка ~114 px + 32) ---------- */
@@ -1437,7 +1392,6 @@ const isPills = (q: CalcQuestion) => q.role === 'languages' || (q.role === 'cont
     .calc-opt,
     .calc-opt__input::before,
     .calc__step-bar,
-    .calc-pill,
     .calc-counter__btn {
       transition: none;
     }
