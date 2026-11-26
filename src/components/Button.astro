@@ -143,7 +143,11 @@ const attrs = href
   }
 
   /* ---------- Друга: кільце при наведенні — спільний клас .ring-hover (global.css) ---------- */
+  /* Друга кнопка: обводка кольору акценту й заливка 20 % того ж кольору (як «Записатися на дзвінок» у шапці),
+     щоб її не плутали з пігулками-тегами (рішення Яни 26.11.2026) */
   .btn--secondary {
+    border-color: var(--accent-text);
+    background-color: color-mix(in srgb, var(--accent-text) 20%, transparent);
     transition:
       border-color var(--dur-btn) var(--ease-out-in),
       background-color 0.2s ease,

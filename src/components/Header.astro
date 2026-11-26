@@ -165,21 +165,8 @@ const t = ui[locale].header;
     gap: var(--space-16);
   }
 
-  /* Кнопка дзвінка (Figma): заливка акцентом 20 %, обводка акцентом.
-     Темна тема — Orchid, світла — Orchid Deep (--accent-text). Наведення — те саме кільце, що й скрізь. */
-  .header__actions :global(.header__call) {
-    border-color: var(--accent-text);
-    background-color: color-mix(in srgb, var(--accent-text) 20%, transparent);
-  }
-
-  @media (hover: hover) {
-    .header__actions :global(.header__call:hover) {
-      border-color: transparent;
-    }
-  }
-  .header__actions :global(.header__call:focus-visible) {
-    border-color: transparent;
-  }
+  /* Кнопка дзвінка (Figma): заливка акцентом 20 %, обводка акцентом — тепер це вигляд усіх другорядних кнопок (Button.astro).
+     Наведення — те саме кільце, що й скрізь. */
 
   /* Планшет (Figma, 834): зовнішні відступи 24 px */
   @media (max-width: 1199px) {
