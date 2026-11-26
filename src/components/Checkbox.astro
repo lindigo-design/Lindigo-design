@@ -80,7 +80,8 @@ const errorId = error || liveError ? `${id}-error` : undefined;
     height: 100%;
     margin: 0;
     border: 1px solid var(--fg);
-    border-radius: var(--radius-8);
+    /* Figma: 4 px — найменший радіус шкали, поділений навпіл (окремого токена 4 немає) */
+    border-radius: calc(var(--radius-8) / 2);
     background: transparent;
     cursor: pointer;
     transition:

@@ -102,7 +102,7 @@ const telegram = contactInfo.telegram ? `https://t.me/${contactInfo.telegram}` :
         </div>
 
         <Checkbox id="contact-consent" name="consent" required liveError>
-          {f.consent} <a href={privacy}>{f.privacy}</a>
+          {f.consent}{' '}<a href={privacy}>{f.privacy}</a>
         </Checkbox>
 
         <div class="contact-form__submit">
@@ -418,12 +418,19 @@ const telegram = contactInfo.telegram ? `https://t.me/${contactInfo.telegram}` :
     border-top: 1px solid var(--rule);
   }
 
-  /* Body/M */
+  /* Body/L */
   .contact-aside__value {
-    font-size: var(--text-body-m);
-    line-height: var(--text-body-m--line-height);
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
     color: var(--fg);
     overflow-wrap: anywhere;
+  }
+  /* Email і соцмережі — Title/20 (крупніше, рішення Яни 26.11.2026); решта значень — Body/L */
+  a.contact-aside__value,
+  .contact-aside .contact-link {
+    font-weight: var(--text-title-16--font-weight); /* SemiBold, як інші посилання; Title/20 — Bold */
+    font-size: var(--text-title-20);
+    line-height: var(--text-title-20--line-height);
   }
   a.contact-aside__value {
     text-decoration: none;
@@ -442,7 +449,7 @@ const telegram = contactInfo.telegram ? `https://t.me/${contactInfo.telegram}` :
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: var(--space-12) var(--space-16);
+    gap: var(--space-12);
     padding-block: var(--space-8);
   }
 
