@@ -1,0 +1,158 @@
+---
+/**
+ * Позначка (чекбокс) з підписом. Figma «Контакти — UI (темна)», «Згода (GDPR)»: квадрат 20 px з обводкою кольору тексту,
+ * підпис Body/M приглушеним кольором; посилання в підписі — через слот.
+ *
+ * Стани:
+ *  - hover    — обводка кольору акценту;
+ *  - checked  — заливка --selected-bg і галочка кольору фону;
+ *  - focus    — загальний видимий контур :focus-visible (global.css);
+ *  - disabled — атрибут disabled, прозорість --disabled-opacity;
+ *  - error    — обводка й текст помилки --danger, aria-invalid, текст помилки через aria-describedby
+ *               (liveError — порожній абзац для помилки, яку покаже скрипт, як у Field).
+ */
+interface Props {
+  id: string;
+  name?: string;
+  value?: string;
+  checked?: boolean;
+  required?: boolean;
+  disabled?: boolean;
+  error?: string;
+  liveError?: boolean;
+}
+
+const { id, name = id, value = 'yes', checked = false, required = false, disabled = false, error, liveError = false } = Astro.props;
+const errorId = error || liveError ? `${id}-error` : undefined;
+---
+
+<div class:list={['checkbox', { 'field--error': error, 'checkbox--disabled': disabled }]}>
+  <div class="checkbox__row">
+    <span class="checkbox__box">
+      <input
+        class="checkbox__input"
+        type="checkbox"
+        id={id}
+        name={name}
+        value={value}
+        checked={checked}
+        required={required}
+        disabled={disabled}
+        aria-invalid={error ? 'true' : undefined}
+        aria-describedby={error ? errorId : undefined}
+      />
+      <svg class="checkbox__mark" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+        <path d="M5 10.5l3.2 3L15 6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </span>
+    <label class="checkbox__label" for={id}><slot /></label>
+  </div>
+  {error && <p class="field__error checkbox__error" id={errorId}>{error}</p>}
+  {!error && liveError && <p class="field__error checkbox__error" id={errorId} data-field-error hidden />}
+</div>
+
+<style>
+  .checkbox {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .checkbox__row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-12);
+  }
+
+  /* квадрат 20 px; підпис має рядок 24 — квадрат стоїть посередині першого рядка */
+  .checkbox__box {
+    position: relative;
+    flex-shrink: 0;
+    width: var(--space-20);
+    height: var(--space-20);
+    margin-top: calc((var(--space-24) - var(--space-20)) / 2);
+  }
+
+  .checkbox__input {
+    appearance: none;
+    display: block;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    border: 1px solid var(--fg);
+    /* Figma: 4 px — найменший радіус шкали, поділений навпіл (окремого токена 4 немає) */
+    border-radius: calc(var(--radius-8) / 2);
+    background: transparent;
+    cursor: pointer;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
+
+  .checkbox__mark {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    color: var(--bg);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .checkbox__input:checked {
+    border-color: var(--selected-bg);
+    background: var(--selected-bg);
+  }
+  .checkbox__input:checked + .checkbox__mark {
+    opacity: 1;
+  }
+
+  @media (hover: hover) {
+    .checkbox__input:hover:not(:disabled, :checked) {
+      border-color: var(--accent-text);
+    }
+  }
+
+  .checkbox__input:disabled,
+  .checkbox--disabled .checkbox__label {
+    opacity: var(--disabled-opacity);
+    cursor: not-allowed;
+  }
+
+  /* Body/M, приглушений; посилання — кольору тексту */
+  .checkbox__label {
+    font-family: var(--font-body);
+    font-weight: var(--text-body-m--font-weight);
+    font-size: var(--text-body-m);
+    line-height: var(--text-body-m--line-height);
+    color: var(--text-muted);
+    cursor: pointer;
+  }
+  .checkbox__label :global(a) {
+    color: var(--fg);
+  }
+
+  .field--error .checkbox__input:not(:checked) {
+    border-color: var(--danger);
+  }
+  .field--error .checkbox__input:focus-visible {
+    outline-color: var(--danger);
+  }
+
+  /* Body/S, як помилка поля (Field) */
+  .checkbox__error {
+    margin: 0;
+    padding-left: calc(var(--space-20) + var(--space-12));
+    font-family: var(--font-body);
+    font-weight: var(--text-body-s--font-weight);
+    font-size: var(--text-body-s);
+    line-height: var(--text-body-s--line-height);
+    color: var(--danger);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .checkbox__input {
+      transition: none;
+    }
+  }
+</style>

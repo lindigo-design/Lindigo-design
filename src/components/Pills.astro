@@ -1,0 +1,93 @@
+---
+/**
+ * Пігулки вибору: група radio (один варіант) або checkbox (кілька). Figma «Контакти — UI (темна)», «Пігулки»;
+ * ті самі пігулки — у калькуляторі. Назву групи дає обгортка (fieldset + legend) там, де пігулки стоять.
+ *
+ * Стани:
+ *  - hover    — легка заливка --ring-press (лише в невибраної);
+ *  - вибрана  — заливка --selected-bg, текст кольору фону;
+ *  - focus    — контур кольору акценту навколо пігулки (саме поле прозоре, лежить поверх);
+ *  - disabled — атрибут disabled на варіанті, прозорість --disabled-opacity.
+ */
+interface Props {
+  name: string;
+  type?: 'radio' | 'checkbox';
+  options: { value: string; label: string; checked?: boolean; disabled?: boolean }[];
+  class?: string;
+}
+
+const { name, type = 'radio', options, class: className } = Astro.props;
+---
+
+<div class:list={['pills', className]}>
+  {
+    options.map((o) => (
+      <label class="pill">
+        <input class="pill__input" type={type} name={name} value={o.value} checked={o.checked} disabled={o.disabled} />
+        <span>{o.label}</span>
+      </label>
+    ))
+  }
+</div>
+
+<style>
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-12) var(--space-8);
+  }
+
+  /* Button/M */
+  .pill {
+    position: relative;
+    padding: var(--space-12) var(--space-28);
+    border: 1px solid var(--fg);
+    border-radius: var(--radius-full);
+    font-weight: var(--text-button-m--font-weight);
+    font-size: var(--text-button-m);
+    line-height: var(--text-button-m--line-height);
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      background-color 0.2s ease,
+      color 0.2s ease;
+  }
+
+  /* Справжнє поле прозоре й лежить поверх пігулки: клік і фокус — його */
+  .pill__input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  @media (hover: hover) {
+    .pill:hover:not(:has(:checked, :disabled)) {
+      background: var(--ring-press);
+    }
+  }
+  .pill:has(:checked) {
+    background: var(--selected-bg);
+    color: var(--bg);
+  }
+  .pill:has(:focus-visible) {
+    outline: 2px solid var(--accent-text);
+    outline-offset: 3px;
+  }
+  .pill:has(:disabled) {
+    opacity: var(--disabled-opacity);
+    cursor: not-allowed;
+  }
+  .pill:has(:disabled) .pill__input {
+    cursor: not-allowed;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pill {
+      transition: none;
+    }
+  }
+</style>

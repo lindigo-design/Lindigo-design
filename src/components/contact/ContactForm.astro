@@ -1,0 +1,548 @@
+---
+/**
+ * Блок «02 Форма і контакти» сторінки «Контакти» (Figma 450:5680; світла — у 453:6272).
+ * Ліворуч картка з формою запиту: «Мене цікавить» (пігулки, кілька), ім'я, email, компанія, сайт, бюджет (пігулки, один),
+ * повідомлення, файл, згода, кнопка. Праворуч картка «Інші способи» (email з кнопкою «Скопіювати», месенджер,
+ * соцмережі, де ми, мови) — липне під шапкою.
+ * Після відправки на місці форми — подяка («02б Стани форми»); збій — повідомлення під кнопкою з листом на пошту.
+ * Логіка — contact-client.ts. Лист надсилає public/api/contact-request.php.
+ */
+import Button from '../Button.astro';
+import Field from '../Field.astro';
+import Pills from '../Pills.astro';
+import Checkbox from '../Checkbox.astro';
+import FileField from '../FileField.astro';
+import arrowDark from '../../assets/works/all-dark.svg';
+import arrowLight from '../../assets/works/all-light.svg';
+import { contactInfo, contactText } from '../../i18n/contact';
+import { keepLastWords, localePath, socialLinks, type Locale } from '../../i18n/ui';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = contactText[locale];
+const f = t.form;
+const a = t.aside;
+const endpoint = `${import.meta.env.BASE_URL.replace(/\/?$/, '/')}${contactInfo.endpoint}`;
+const privacy = localePath(locale, '/confidentialite/');
+const works = localePath(locale, '/realisations/');
+// тексти, потрібні скрипту (помилки, стани)
+const texts = {
+  sending: f.sending,
+  errName: f.errName,
+  errEmail: f.errEmail,
+  errConsent: f.errConsent,
+  errFileSize: f.errFileSize,
+  errFileType: f.errFileType,
+  fileChosen: f.fileChosen,
+  failed: f.failed,
+  subject: f.subject,
+  thanksTitle: t.thanks.title,
+  thanksText: t.thanks.text,
+  copy: a.copy,
+  copied: a.copied,
+  interest: Object.fromEntries(f.interest.options.map((o) => [o.value, o.label])),
+  budget: Object.fromEntries(f.budget.options.map((o) => [o.value, o.label])),
+  labels: { interest: f.interest.title, budget: f.budget.title, company: f.company, site: f.site },
+};
+const telegram = contactInfo.telegram ? `https://t.me/${contactInfo.telegram}` : '';
+---
+
+<section class="contact" aria-labelledby="contact-title">
+  <header class="contact__head">
+    <p class="contact__eyebrow">{f.eyebrow}</p>
+    <h2 class="contact__title" id="contact-title">{f.title}</h2>
+    <p class="contact__lead">{keepLastWords(f.lead)}</p>
+  </header>
+
+  <div class="contact__body">
+    <div
+      class="contact__card"
+      data-contact
+      data-locale={locale}
+      data-endpoint={endpoint}
+      data-email={contactInfo.email}
+      data-max-mb={contactInfo.maxFileMb}
+    >
+      <script type="application/json" data-contact-texts set:html={JSON.stringify(texts)} />
+
+      <form class="contact-form" data-contact-form novalidate>
+        <fieldset class="contact-form__group" aria-describedby="contact-interest-hint">
+          <legend class="contact-form__legend">
+            <h3 class="contact-form__title">{f.interest.title}</h3>
+          </legend>
+          <p class="contact-form__hint" id="contact-interest-hint">{f.interest.hint}</p>
+          <Pills name="interest[]" type="checkbox" options={f.interest.options} class="contact-form__pills" />
+        </fieldset>
+
+        <div class="contact-form__fields">
+          <Field id="contact-name" name="name" label={`${f.name} *`} autocomplete="name" required liveError />
+          <Field id="contact-email" name="email" type="email" label={`${f.email} *`} autocomplete="email" required liveError />
+          <Field id="contact-company" name="company" label={f.company} autocomplete="organization" />
+          <Field id="contact-site" name="site" type="url" inputmode="url" label={f.site} autocomplete="url" />
+        </div>
+
+        <fieldset class="contact-form__group" aria-describedby="contact-budget-hint">
+          <legend class="contact-form__legend">
+            <h3 class="contact-form__title">{f.budget.title}</h3>
+          </legend>
+          <p class="contact-form__hint" id="contact-budget-hint">{keepLastWords(f.budget.hint)}</p>
+          <Pills name="budget" options={f.budget.options} class="contact-form__pills" />
+        </fieldset>
+
+        <Field id="contact-message" name="message" type="textarea" label={f.message} placeholder={f.messagePlaceholder} />
+
+        <FileField id="contact-file" name="attachment" label={keepLastWords(f.file)} accept={contactInfo.fileAccept} removeLabel={f.fileRemove} liveError />
+
+        <!-- Пастка для ботів: людина поле не бачить (за екраном, без Tab, приховане від скрінрідерів) -->
+        <div class="contact-form__trap" aria-hidden="true">
+          <label>Ne pas remplir <input type="text" name="ld_extra" tabindex="-1" autocomplete="off" /></label>
+        </div>
+
+        <Checkbox id="contact-consent" name="consent" required liveError>
+          {f.consent}{' '}<a href={privacy}>{f.privacy}</a>
+        </Checkbox>
+
+        <div class="contact-form__submit">
+          <Button type="submit">{f.submit}</Button>
+          <p class="contact-form__note">{keepLastWords(f.note)}</p>
+          <!-- Збій відправки. role="status" на сторінці від початку, порожній: скрінрідер прочитає, коли з'явиться текст -->
+          <div class="contact-form__status" data-status role="status">
+            <div class="contact-form__failed" data-failed hidden>
+              <p class="contact-form__failed-title">{f.failedTitle}</p>
+              <p class="contact-form__failed-text" data-failed-text></p>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <!-- Подяка на місці форми -->
+      <div class="contact-thanks" data-thanks hidden>
+        <span class="contact-thanks__check" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="24" height="24" focusable="false">
+            <path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </span>
+        <h3 class="contact-thanks__title" tabindex="-1" data-thanks-title></h3>
+        <p class="contact-thanks__text" data-thanks-text></p>
+        <a class="contact-link" href={works}>
+          {t.thanks.works}
+          <span class="contact-link__icon" aria-hidden="true">
+            <img src={arrowDark.src} width="36" height="36" alt="" data-theme-only="dark" />
+            <img src={arrowLight.src} width="36" height="36" alt="" data-theme-only="light" />
+          </span>
+        </a>
+      </div>
+    </div>
+
+    <aside class="contact-aside" aria-labelledby="contact-aside-title">
+      <h3 class="contact-aside__title" id="contact-aside-title">{a.title}</h3>
+
+      <div class="contact-aside__item">
+        <p class="contact-aside__label">{a.email}</p>
+        <div class="contact-aside__email">
+          <a class="contact-aside__value" href={`mailto:${contactInfo.email}`}>{contactInfo.email}</a>
+          <span data-copy={contactInfo.email}>
+            <Button type="button" variant="secondary" size="sm">{a.copy}</Button>
+          </span>
+        </div>
+        <p class="visually-hidden" aria-live="polite" data-copy-status></p>
+      </div>
+
+      {
+        telegram && (
+          <div class="contact-aside__item">
+            <p class="contact-aside__label">{a.messenger}</p>
+            <a class="contact-link" href={telegram} target="_blank" rel="noopener noreferrer">
+              Telegram<span class="visually-hidden"> ({a.newTab})</span>
+              <span class="contact-link__icon" aria-hidden="true">
+                <img src={arrowDark.src} width="36" height="36" alt="" data-theme-only="dark" />
+                <img src={arrowLight.src} width="36" height="36" alt="" data-theme-only="light" />
+              </span>
+            </a>
+          </div>
+        )
+      }
+
+      <div class="contact-aside__item">
+        <p class="contact-aside__label">{a.social}</p>
+        <ul class="contact-aside__social">
+          {
+            socialLinks.map((s) => (
+              <li>
+                <a class="contact-link" href={s.href} target="_blank" rel="noopener noreferrer">
+                  {s.name}
+                  <span class="visually-hidden"> ({a.newTab})</span>
+                  <span class="contact-link__icon" aria-hidden="true">
+                    <img src={arrowDark.src} width="36" height="36" alt="" data-theme-only="dark" />
+                    <img src={arrowLight.src} width="36" height="36" alt="" data-theme-only="light" />
+                  </span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+
+      <div class="contact-aside__item">
+        <p class="contact-aside__label">{a.where}</p>
+        <p class="contact-aside__value">{a.place}</p>
+        <p class="contact-aside__muted">{keepLastWords(a.world)}</p>
+      </div>
+
+      <div class="contact-aside__item">
+        <p class="contact-aside__label">{a.languages}</p>
+        <p class="contact-aside__value" lang="mul">{a.languagesList}</p>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<script>
+  import { initContact } from './contact-client';
+  document.querySelectorAll<HTMLElement>('[data-contact]').forEach(initContact);
+</script>
+
+<style>
+  .contact {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-56);
+    padding: var(--space-120) var(--gutter);
+    background: var(--section-bg);
+  }
+
+  /* ---------- Заголовок блоку (як «Що входить» у калькуляторі) ---------- */
+  .contact__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-12);
+  }
+
+  .contact__eyebrow,
+  .contact-aside__label {
+    font-family: var(--font-mono);
+    font-weight: var(--text-label-s--font-weight);
+    font-size: var(--text-label-s);
+    line-height: var(--text-label-s--line-height);
+    letter-spacing: var(--text-label-s--letter-spacing);
+    text-transform: uppercase;
+    color: var(--accent-text);
+  }
+
+  .contact__title {
+    font-family: var(--font-display);
+    font-weight: var(--text-h2--font-weight);
+    font-size: var(--text-h2);
+    line-height: var(--text-h2--line-height);
+  }
+
+  .contact__lead {
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
+  }
+
+  /* ---------- Дві картки: форма і «Інші способи» ---------- */
+  .contact__body {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-48);
+  }
+
+  .contact__card,
+  .contact-aside {
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-32);
+    background: var(--card-bg);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+  }
+
+  .contact__card {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: var(--space-48);
+  }
+
+  /* ---------- Форма ---------- */
+  .contact-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-48);
+  }
+  .contact-form[hidden] {
+    display: none;
+  }
+
+  .contact-form__group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  .contact-form__legend {
+    padding: 0;
+  }
+
+  /* Heading/H4 */
+  .contact-form__title,
+  .contact-aside__title,
+  .contact-thanks__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: var(--text-h4--font-weight);
+    font-size: var(--text-h4);
+    line-height: var(--text-h4--line-height);
+  }
+
+  /* Body/M, приглушений */
+  .contact-form__hint,
+  .contact-form__note,
+  .contact-aside__muted {
+    font-size: var(--text-body-m);
+    line-height: var(--text-body-m--line-height);
+    color: var(--text-muted);
+  }
+
+  /* від підказки до пігулок 24 (у групі — 8 між назвою і підказкою) */
+  .contact-form__group :global(.contact-form__pills) {
+    margin-top: var(--space-16);
+  }
+
+  .contact-form__fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-16);
+  }
+
+  /* Пастка для ботів: поза екраном, не в порядку фокусу */
+  .contact-form__trap {
+    position: absolute;
+    left: -10000px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  .contact-form__submit {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-16);
+  }
+
+  /* Порожній статус не займає місця, але лишається на сторінці для скрінрідерів */
+  .contact-form__status:not(:has(:not([hidden]))) {
+    position: absolute;
+  }
+
+  .contact-form__failed {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    padding: var(--space-24);
+    border: 1px solid var(--danger);
+    border-radius: var(--radius-16);
+    background: var(--card-bg);
+  }
+  .contact-form__failed[hidden] {
+    display: none;
+  }
+
+  /* Title/16 і Body/M */
+  .contact-form__failed-title {
+    font-weight: var(--text-title-16--font-weight);
+    font-size: var(--text-title-16);
+    line-height: var(--text-title-16--line-height);
+  }
+  .contact-form__failed-text {
+    font-size: var(--text-body-m);
+    line-height: var(--text-body-m--line-height);
+    color: var(--text-muted);
+  }
+  .contact-form__failed-text :global(a) {
+    color: var(--fg);
+  }
+
+  /* ---------- Подяка ---------- */
+  .contact-thanks {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-24);
+  }
+  .contact-thanks[hidden] {
+    display: none;
+  }
+
+  .contact-thanks__check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--space-64);
+    height: var(--space-64);
+    border-radius: 50%;
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-fg);
+  }
+
+  .contact-thanks__text {
+    max-width: 554px;
+    font-size: var(--text-body-m);
+    line-height: var(--text-body-m--line-height);
+    color: var(--text-soft);
+  }
+
+  /* ---------- «Інші способи» ---------- */
+  .contact-aside {
+    position: sticky;
+    top: calc(var(--space-120) + var(--space-24));
+    flex: 0 0 440px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
+    padding: var(--space-32);
+  }
+
+  .contact-aside__item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+    padding-top: var(--space-24);
+    border-top: 1px solid var(--rule);
+  }
+
+  /* Body/L */
+  .contact-aside__value {
+    font-size: var(--text-body-l);
+    line-height: var(--text-body-l--line-height);
+    color: var(--fg);
+    overflow-wrap: anywhere;
+  }
+  /* Email і соцмережі — Title/20 (крупніше, рішення Яни 26.11.2026); решта значень — Body/L */
+  a.contact-aside__value,
+  .contact-aside .contact-link {
+    font-weight: var(--text-title-16--font-weight); /* SemiBold, як інші посилання; Title/20 — Bold */
+    font-size: var(--text-title-20);
+    line-height: var(--text-title-20--line-height);
+  }
+  a.contact-aside__value {
+    text-decoration: none;
+  }
+  @media (hover: hover) {
+    a.contact-aside__value:hover {
+      text-decoration: underline;
+    }
+  }
+  a.contact-aside__value:focus-visible {
+    text-decoration: underline;
+  }
+
+  .contact-aside__email {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-12);
+    padding-block: var(--space-8);
+  }
+
+  .contact-aside__social {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-12) var(--space-24);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* ---------- Посилання зі стрілкою в колі (як «Дивитися кейс» у відгуках) ---------- */
+  .contact-link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-12);
+    font-weight: var(--text-title-16--font-weight);
+    font-size: var(--text-title-16);
+    line-height: var(--text-title-16--line-height);
+    color: var(--fg);
+    text-decoration: none;
+    border-radius: var(--radius-full);
+  }
+
+  .contact-link__icon img {
+    display: block;
+    transition: transform var(--dur-btn) var(--ease-out-in);
+  }
+
+  @media (hover: hover) {
+    .contact-link:hover .contact-link__icon img {
+      transform: rotate(45deg);
+    }
+  }
+  .contact-link:focus-visible .contact-link__icon img {
+    transform: rotate(45deg);
+  }
+
+  /* ---------- Планшет: «Інші способи» під формою ---------- */
+  @media (max-width: 1100px) {
+    .contact__body {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .contact-aside {
+      position: static;
+      flex: none;
+    }
+  }
+
+  /* ---------- Телефон ---------- */
+  @media (max-width: 640px) {
+    .contact {
+      gap: var(--space-40);
+      padding-block: var(--space-56);
+    }
+    .contact__title {
+      font-size: var(--text-h2-mobile);
+      line-height: var(--text-h2-mobile--line-height);
+    }
+    .contact__lead {
+      font-size: var(--text-body-m);
+      line-height: var(--text-body-m--line-height);
+    }
+    .contact__card {
+      padding: var(--space-24);
+      border-radius: var(--radius-24);
+    }
+    .contact-aside {
+      padding: var(--space-24);
+      border-radius: var(--radius-24);
+    }
+    .contact-form {
+      gap: var(--space-40);
+    }
+    .contact-form__fields {
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .contact-form__title,
+    .contact-aside__title,
+    .contact-thanks__title {
+      font-size: var(--text-h4-mobile);
+      line-height: var(--text-h4-mobile--line-height);
+    }
+    .contact-form :global(.pill) {
+      white-space: normal;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .contact-link__icon img {
+      transition: none;
+    }
+  }
+</style>

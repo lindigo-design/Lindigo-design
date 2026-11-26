@@ -1,0 +1,46 @@
+---
+/**
+ * Сторінка «Контакти» (/contact/). Figma «UI дизайн»: «Контакти — UI (темна)» 450:5297, «(світла)» 453:6272.
+ * Блоки: перший екран (спільний PageHero, як у калькуляторі), форма і «Інші способи», «Що буде після запиту»,
+ * дві біжучі стрічки (спільний ServiceMarquee з текстами сторінки UI/UX), відгуки, FAQ (спільний Faq з текстами сторінки), футер.
+ * «02б Стани форми» з макета — це подяка й помилки на місці форми (ContactForm), окремим блоком не показуються.
+ * Тексти — src/i18n/contact.ts.
+ */
+import Base from '../../layouts/Base.astro';
+import Header from '../Header.astro';
+import Menu from '../Menu.astro';
+import Footer from '../Footer.astro';
+import PageHero from '../PageHero.astro';
+import Reviews from '../Reviews.astro';
+import Faq from '../Faq.astro';
+import ServiceMarquee from '../service/ServiceMarquee.astro';
+import ContactForm from './ContactForm.astro';
+import ContactNext from './ContactNext.astro';
+import { contactText } from '../../i18n/contact';
+import { localePath, ui, type Locale } from '../../i18n/ui';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = contactText[locale];
+const tags = ui[locale].uiux.hero;
+const path = '/contact/';
+---
+
+<Base locale={locale} title={t.meta.title} description={t.meta.description} path={path}>
+  <Header locale={locale} path={path} />
+  <Menu locale={locale} path={path} />
+  <main>
+    <PageHero locale={locale} crumbs={t.hero.crumbs} crumbsLabel={t.hero.crumbsLabel} title={t.hero.title} lead={t.hero.lead}>
+      {' '}{t.hero.calc.before}<a href={localePath(locale, '/calculator/')}>{t.hero.calc.link}</a>{t.hero.calc.after}
+    </PageHero>
+    <ContactForm locale={locale} />
+    <ContactNext locale={locale} />
+    <ServiceMarquee services={tags.tags} servicesLabel={tags.tagsLabel} industries={tags.industries} industriesLabel={tags.industriesLabel} />
+    <Reviews locale={locale} />
+    <Faq locale={locale} content={t.faq} />
+  </main>
+  <Footer locale={locale} path={path} />
+</Base>
