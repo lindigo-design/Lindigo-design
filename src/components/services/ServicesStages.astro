@@ -33,7 +33,7 @@ const total = pad(t.items.length);
   <ol class="sv-stages__list">
     {
       t.items.map((stage, s) => (
-        <li class="sv-stage">
+        <li class="sv-stage" style={`--n: ${s}`}>
           <div class="sv-stage__text">
             <p class="sv-stage__counter">{t.counter.replace('{n}', pad(s + 1)).replace('{total}', total)}</p>
             <h3 class="sv-stage__title">
@@ -112,6 +112,19 @@ const total = pad(t.items.length);
     background: var(--card-bg);
     -webkit-backdrop-filter: blur(24px);
     backdrop-filter: blur(24px);
+  }
+
+  /* Комп'ютер: картки накладаються одна на одну (рішення Яни 26.11.2026). Кожна прилипає під шапкою
+     трохи нижче за попередню (на 16 × номер), наступна насувається зверху; фон непрозорий —
+     колір картки поверх фону секції, щоб нижня картка не просвічувала */
+  @media (min-width: 1101px) {
+    .sv-stage {
+      position: sticky;
+      top: calc(var(--space-120) + var(--n, 0) * var(--space-16));
+      background: linear-gradient(var(--card-bg), var(--card-bg)), var(--section-bg);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
   }
 
   .sv-stage__text {
