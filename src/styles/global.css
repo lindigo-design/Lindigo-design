@@ -103,6 +103,11 @@
   --text-h1-xl--line-height: 120%;
   --text-h1-xl--font-weight: 600;
   --text-h1-xl--letter-spacing: 0;
+  /* ще більший — від 1920 px (рішення Яни 26.11.2026) */
+  --text-h1-2xl: 6.25rem; /* 100px */
+  --text-h1-2xl--line-height: 120%;
+  --text-h1-2xl--font-weight: 600;
+  --text-h1-2xl--letter-spacing: 0;
   --text-display: 4.5rem; /* 72px */
   --text-display--line-height: 119.4444%; /* 86px */
   --text-display--font-weight: 600;
