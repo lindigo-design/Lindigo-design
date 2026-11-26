@@ -100,7 +100,6 @@ export function initCalculator(root: HTMLElement) {
     back: $<HTMLButtonElement>('[data-back]'),
     form: $<HTMLFormElement>('[data-form]'),
     status: $('[data-status]'),
-    callLink: $('[data-call-link]'),
     thanks: $('[data-thanks]'),
     thanksList: $('[data-thanks-list]'),
     included: document.querySelector<HTMLElement>('[data-calc-included]'),
@@ -530,11 +529,12 @@ export function initCalculator(root: HTMLElement) {
     els.back.hidden = !prevStep(step);
     els.nav.hidden = sent;
 
-    // кнопка панелі дублює «Далі» й називає наступний крок
-    const panelOn = !sent && !!serviceId && step < STEP_COUNT && !!next;
+    // кнопка панелі дублює «Далі» й називає наступний крок; на кроці 6 — дублює кнопку відправки форми
+    const panelSubmit = !sent && !!serviceId && step === STEP_COUNT;
+    const panelOn = panelSubmit || (!sent && !!serviceId && step < STEP_COUNT && !!next);
     els.panelNext.hidden = !panelOn;
-    if (panelOn) panelBtn.querySelector<HTMLElement>('.btn__label')!.textContent = tc(t.flow.nextTo[next - 1]);
-    if (canNext) panelBtn.removeAttribute('aria-disabled');
+    if (panelOn) panelBtn.querySelector<HTMLElement>('.btn__label')!.textContent = panelSubmit ? tc(t.contact.submit) : tc(t.flow.nextTo[next - 1]);
+    if (canNext || panelSubmit) panelBtn.removeAttribute('aria-disabled');
     else panelBtn.setAttribute('aria-disabled', 'true');
 
     // посилання на сайт у формі — лише якщо сайт є
@@ -606,10 +606,6 @@ export function initCalculator(root: HTMLElement) {
     if (input.name === 'calc-service') {
       // зміна напряму скидає відповіді наступних кроків
       selectService(input.value as ServiceId);
-      return;
-    }
-    if (input.name === 'call') {
-      els.callLink.hidden = input.value !== 'yes';
       return;
     }
     if (!service || !serviceId) return;
@@ -723,7 +719,14 @@ export function initCalculator(root: HTMLElement) {
     goTo(nextStep(step));
   };
   nextBtn.addEventListener('click', onNext);
-  panelBtn.addEventListener('click', onNext);
+  panelBtn.addEventListener('click', () => {
+    // на кроці 6 кнопка панелі відправляє форму (з тією самою перевіркою полів)
+    if (step === STEP_COUNT) {
+      if (!sending) els.form.requestSubmit();
+      return;
+    }
+    onNext();
+  });
   els.back.addEventListener('click', () => goTo(prevStep(step)));
 
   els.restart.addEventListener('click', () => {
@@ -733,7 +736,6 @@ export function initCalculator(root: HTMLElement) {
     visited.clear();
     visited.add(1);
     els.form.reset();
-    els.callLink.hidden = true;
     clearErrors();
     els.status.replaceChildren();
     shown = { low: 0, high: 0 };
@@ -902,6 +904,10 @@ export function initCalculator(root: HTMLElement) {
     const label = submitLabel.textContent;
     submitLabel.textContent = t.contact.sending;
     submitBtn.setAttribute('aria-disabled', 'true');
+    // кнопка в панелі показує той самий стан відправки
+    const panelLabel = panelBtn.querySelector<HTMLElement>('.btn__label')!;
+    panelLabel.textContent = t.contact.sending;
+    panelBtn.setAttribute('aria-disabled', 'true');
     let ok = false;
     try {
       const ctrl = new AbortController();
@@ -916,6 +922,8 @@ export function initCalculator(root: HTMLElement) {
     sending = false;
     submitLabel.textContent = label;
     submitBtn.removeAttribute('aria-disabled');
+    panelLabel.textContent = label;
+    panelBtn.removeAttribute('aria-disabled');
 
     if (!ok) {
       showFailed();
@@ -930,8 +938,6 @@ export function initCalculator(root: HTMLElement) {
 
   function renderThanks() {
     const pairs = estimatePairs();
-    const call = new FormData(els.form).get('call');
-    if (call) pairs.push({ k: t.thanks.call, v: call === 'yes' ? t.contact.yes.toLowerCase() : t.contact.no.toLowerCase() });
     els.thanksList.replaceChildren(
       ...pairs.flatMap(({ k, v }) => {
         const dt = document.createElement('dt');
