@@ -302,9 +302,12 @@ const bgWidths = [768, 1280, 1920, 2752];
       margin-inline: auto;
     }
   }
+  /* Телефон: медуза ближче до заголовка (рішення Яни 26.11.2026) — кадр насувається на проміжок,
+     низ кадру гасить маска в ServicesCloud, тож кінчики щупалець не лізуть на текст */
   @media (max-width: 640px) {
     .s-hero__aside {
       width: min(240px, 70%);
+      margin-bottom: calc(-1 * var(--space-16));
     }
   }
 
@@ -350,6 +353,10 @@ const bgWidths = [768, 1280, 1920, 2752];
     .s-hero__content {
       gap: var(--space-32);
       padding-inline: var(--space-20);
+    }
+    /* з картинкою збоку («Послуги»): медуза ближче до заголовка */
+    .s-hero:not(.s-hero--card) .s-hero__content {
+      gap: var(--space-16);
     }
     .s-hero__text {
       gap: var(--space-24);
