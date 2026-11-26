@@ -13,6 +13,8 @@
  * На телефоні так само (як у Kota): картка в стовпчик — текст згори, фото забирає решту висоти.
  * Вмикає скрипт (клас is-stacked), якщо стопка вміщується в екран, і без «зменшити рух»;
  * інакше — звичайний список карток.
+ * Телефон (до 640 px): картка з фото вища за екран, тож замість сцени — прилипання (src/scripts/stack-cards.ts,
+ * як на «Послугах»): картки накладаються одна на одну, висока прилипає низом до краю екрана.
  */
 import { Image } from 'astro:assets';
 import Breath from './Breath.astro';
@@ -199,11 +201,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
     color: var(--text-soft);
   }
 
-  /* «Детальніше»: друга кнопка, обводка м'якша (60 % / 48 %), 28 px з боків */
+  /* «Детальніше»: друга кнопка, 28 px з боків (обводка й заливка — як у всіх другорядних кнопок) */
   .direction__text :global(.direction__more) {
     height: 54px;
     padding-inline: var(--space-28);
-    border-color: var(--more-border);
   }
 
   .direction__media {
@@ -252,7 +253,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
   /* Затемнення накритої картки (--cover від 0 до 1 задає скрипт); під склом наступної вона ледь видна.
      Відтінок ледь фіолетовий (15 % кольору акценту), щоб шари стосу розрізнялись (рішення Яни 26.11.2026) */
-  .directions.is-stacked .direction::after {
+  .directions.is-stacked .direction::after,
+  .directions__list.is-sticky .direction::after {
     content: '';
     position: absolute;
     inset: -1px;
@@ -340,7 +342,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
       font-size: var(--text-body-m);
       line-height: var(--text-body-m--line-height);
     }
+    /* кнопка на картці — на ширину картки */
     .direction__text :global(.direction__more) {
+      align-self: stretch;
       height: 50px;
     }
     .direction__media {
@@ -366,9 +370,25 @@ const pad = (n: number) => String(n).padStart(2, '0');
       backdrop-filter: none;
     }
   }
+
+  /* Телефон: прилипання (клас is-sticky на списку і top карток ставить скрипт stack-cards).
+     Сцена обрізає плями через clip, а не hidden — інакше вона стала б прокручуваною і прилипання не працювало б */
+  @media (max-width: 640px) {
+    .directions__stage {
+      overflow: clip;
+    }
+    .directions__list.is-sticky .direction {
+      position: sticky;
+      background: linear-gradient(var(--card-bg), var(--card-bg)), var(--section-bg);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
 </style>
 
 <script>
+  import { stackCards } from '../scripts/stack-cards';
+
   /*
    * Стопка. Позиції — від верху сцени (екрана):
    *   L — де список стоїть у звичайному порядку (під заголовком), T — під шапкою сайту;
@@ -396,6 +416,9 @@ const pad = (n: number) => String(n).padStart(2, '0');
     const n = cards.length;
 
     const phone = window.matchMedia('(max-width: 599px)');
+    // телефон до 640: замість сцени — прилипання карток (stack-cards), сцена вимкнена
+    const sticky = window.matchMedia('(max-width: 640px)');
+    stackCards(list, cards, { cover: '(max-width: 640px)', phone: '(max-width: 640px)', className: 'is-sticky' });
     const column = window.matchMedia('(max-width: 1100px)'); // картка в стовпчик (і на планшеті)
     const smallLaptop = window.matchMedia('(min-width: 1101px) and (max-width: 1366px)'); // текст і фото — половини
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -422,7 +445,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
       stacked = false;
       lastW = window.innerWidth;
       lastVh = probe.offsetHeight || window.innerHeight;
-      if (reduceMotion.matches) return;
+      if (reduceMotion.matches || sticky.matches) return;
       T = phone.matches ? T_PHONE : T_WIDE;
       const bottom = phone.matches ? BOTTOM_PHONE : BOTTOM_WIDE;
       // найменша висота картки: текст + поля й рамка; у стовпчик — ще проміжок і фото не нижче MIN_MEDIA

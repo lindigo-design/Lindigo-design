@@ -470,6 +470,10 @@ const items = directionOrder.flatMap((d) => t.items.find((item) => item.directio
       font-size: var(--text-body-m);
       line-height: var(--text-body-m--line-height);
     }
+    /* кнопка на картці — на ширину картки */
+    .case__about :global(.btn) {
+      align-self: stretch;
+    }
     .works__tabs {
       gap: var(--space-24);
     }

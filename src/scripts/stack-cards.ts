@@ -2,16 +2,16 @@
  * Стос карток, що накладаються одна на одну під час прокрутки (position: sticky в CSS блоку).
  * - `cover`: де стос працює — там скрипт пише кожній картці --cover (0 … 1: скільки її накрила наступна),
  *   блок по ньому затемнює накриту картку.
- * - `phone`: де скрипт сам ставить списку клас is-stacked і рахує top кожної картки: під шапкою
+ * - `phone`: де скрипт сам ставить списку клас (`className`, типово is-stacked) і рахує top кожної картки: під шапкою
  *   (96 + 8 × номер), а картка, вища за екран, прилипає низом до краю екрана — її видно цілу.
  */
-export function stackCards(list: HTMLElement, cards: HTMLElement[], opts: { cover: string; phone: string }) {
+export function stackCards(list: HTMLElement, cards: HTMLElement[], opts: { cover: string; phone: string; className?: string }) {
   const cover = window.matchMedia(opts.cover);
   const phone = window.matchMedia(opts.phone);
   let raf = 0;
 
   const layout = () => {
-    list.classList.toggle('is-stacked', phone.matches);
+    list.classList.toggle(opts.className ?? 'is-stacked', phone.matches);
     const css = getComputedStyle(document.documentElement);
     const base = parseFloat(css.getPropertyValue('--space-96')) || 96;
     const step = parseFloat(css.getPropertyValue('--space-8')) || 8;
