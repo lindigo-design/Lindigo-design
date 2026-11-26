@@ -43,7 +43,7 @@ const aside = Astro.slots.has('aside');
 const bgWidths = [768, 1280, 1920, 2752];
 ---
 
-<section class="s-hero" aria-labelledby="s-hero-title">
+<section class:list={['s-hero', { 's-hero--card': !aside }]} aria-labelledby="s-hero-title">
   <div class="s-hero__bg" aria-hidden="true">
     <Image class="s-hero__bg-dark" src={bgDark} alt="" widths={bgWidths.filter((w) => w <= bgDark.width)} sizes="100vw" loading="eager" fetchpriority="high" data-theme-only="dark" />
     <Image class="s-hero__bg-light" src={bgLight} alt="" widths={bgWidths.filter((w) => w <= bgLight.width)} sizes="100vw" loading="lazy" data-theme-only="light" />
@@ -118,11 +118,39 @@ const bgWidths = [768, 1280, 1920, 2752];
     }
   }
 
-  /* Високе вікно (великий монітор): висота першого екрана не більша, ніж на ноутбуці (960),
-     вміст притиснутий донизу, як на ноутбуці — інакше над текстом забагато порожнечі (рішення Яни 23.11.2026) */
-  @media (min-width: 1101px) {
-    .s-hero {
-      min-height: min(100svh, 960px);
+  /* Перший екран — на всю висоту вікна і на великому моніторі (рішення Яни 26.11.2026; раніше було не більше 960) */
+
+  /* Великий екран (від 1600): заголовок 92 (--text-h1-xl), опис 28 (Body XL), ширина опису — пропорційно
+     (665 × 28 / 20 = 931), щоб рядки не стали короткими. Ноутбук, планшет і телефон — без змін (рішення Яни 26.11.2026) */
+  @media (min-width: 1600px) {
+    .s-hero .s-hero__title {
+      font-size: var(--text-h1-xl);
+      line-height: var(--text-h1-xl--line-height);
+    }
+    .s-hero .s-hero__lead {
+      max-width: 931px;
+      font-size: var(--text-body-xl);
+      line-height: var(--text-body-xl--line-height);
+    }
+  }
+  /* З карткою проєкту (UI/UX) довгий заголовок не вміщається в 3 рядки поруч із карткою при 92 до ~1780 px
+     (французький рядок «d’Applications et de» — 1130 px). На 1600–1779: заголовок 82, картка як на ноутбуці (392) —
+     сходинки 72 → 82 → 92 → 100 без різкого стрибка (рішення Яни 26.11.2026) */
+  @media (min-width: 1600px) and (max-width: 1779px) {
+    .s-hero.s-hero--card .s-hero__title {
+      font-size: var(--text-h1-l);
+      line-height: var(--text-h1-l--line-height);
+    }
+    .s-hero.s-hero--card .s-hero__content > :global(.work-card) {
+      width: min(392px, 25.93vw);
+    }
+  }
+
+  /* від 1920 — заголовок 100 */
+  @media (min-width: 1920px) {
+    .s-hero .s-hero__title {
+      font-size: var(--text-h1-2xl);
+      line-height: var(--text-h1-2xl--line-height);
     }
   }
 
@@ -256,21 +284,21 @@ const bgWidths = [768, 1280, 1920, 2752];
     width: min(392px, 25.93vw);
     margin-left: auto;
   }
-  /* Картинка праворуч замість картки (сторінка «Послуги»): 541 × 574 на 1512, по центру своєї колонки */
+  /* Хмара → медуза праворуч замість картки (сторінка «Послуги»): вертикальний кадр 9 : 16, притиснутий донизу першого екрана,
+     більший, ніж у макеті (рішення Яни 25.11.2026). Росте з висотою вікна (26.11.2026): ширина — не більша за 720 px,
+     40 % ширини екрана і стільки, щоб уся висота (ширина / 0,5625) вміщалась під шапкою. На ноутбуці 1512 × 982 — 485 px, як було */
   .s-hero__aside {
-    flex-shrink: 0;
-    width: min(541px, 35.78vw);
-    margin-left: auto;
-    align-self: center;
-  }
-  .s-hero__aside :global(img) {
-    width: 100%;
-    height: auto;
+    position: absolute;
+    right: var(--gutter);
+    bottom: 0;
+    width: min(720px, 40vw, calc((100svh - var(--space-120)) * 0.5625));
   }
   @media (max-width: 1100px) {
     .s-hero__aside {
+      position: relative;
+      right: auto;
       order: -1;
-      width: min(360px, 60%);
+      width: min(320px, 50%);
       margin-inline: auto;
     }
   }

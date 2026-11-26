@@ -56,10 +56,16 @@ const bgWidths = [768, 1280, 1920, 2752];
 </Base>
 
 <style>
-  /* Короткий перший екран: місце під шапку (як на сторінці послуги — 136), знизу 120 (рішення Яни 24.11.2026) */
+  /* Перший екран на всю висоту вікна, текст притиснутий донизу, як на сторінках послуг (рішення Яни 26.11.2026;
+     раніше — короткий екран). Місце під шапку 136, знизу 120 */
   .c-hero {
     position: relative;
     isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    min-height: 100vh;
+    min-height: 100svh;
     padding: 136px var(--gutter) var(--space-120);
     overflow: hidden;
     background: var(--night);
@@ -148,6 +154,26 @@ const bgWidths = [768, 1280, 1920, 2752];
     max-width: 665px;
     font-size: var(--text-body-lead);
     line-height: var(--text-body-lead--line-height);
+  }
+
+  /* Великий екран (від 1600): заголовок 92, опис 28 — як на сторінках послуг; висота першого екрана лишається короткою,
+     щоб калькулятор було видно одразу (рішення Яни 26.11.2026) */
+  @media (min-width: 1600px) {
+    .c-hero__title {
+      font-size: var(--text-h1-xl);
+      line-height: var(--text-h1-xl--line-height);
+    }
+    .c-hero__lead {
+      max-width: 931px;
+      font-size: var(--text-body-xl);
+      line-height: var(--text-body-xl--line-height);
+    }
+  }
+  @media (min-width: 1920px) {
+    .c-hero__title {
+      font-size: var(--text-h1-2xl);
+      line-height: var(--text-h1-2xl--line-height);
+    }
   }
 
   @media (max-width: 1100px) {
