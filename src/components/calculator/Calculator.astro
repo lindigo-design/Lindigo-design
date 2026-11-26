@@ -1262,7 +1262,10 @@ const isPills = (q: CalcQuestion) => q.role === 'languages' || (q.role === 'cont
       border-top: 1px solid var(--calc-panel-border);
       background: var(--calc-panel-bg);
     }
-    :global(.calc.is-empty) .calc-bar {
+    /* панель — лише коли є ціна і людина вже сама щось обрала (клас is-touched ставить скрипт):
+       з напрямом з посилання (?service=) ціна за замовчуванням не висить над першим екраном */
+    :global(.calc.is-empty) .calc-bar,
+    :global(.calc:not(.is-touched)) .calc-bar {
       display: none;
     }
     .calc-bar__label {
@@ -1353,7 +1356,7 @@ const isPills = (q: CalcQuestion) => q.role === 'languages' || (q.role === 'cont
       padding-inline: var(--space-20);
     }
     /* Місце під нижню панель, щоб вона не закривала кнопки */
-    :global(.calc:not(.is-empty)) {
+    :global(.calc.is-touched:not(.is-empty)) {
       padding-bottom: calc(var(--space-120) + var(--space-24));
     }
 

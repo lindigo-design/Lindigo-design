@@ -82,6 +82,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .sv-dir {
     /* якір з картки ситуації: зупинка нижче шапки */
     scroll-margin-top: var(--space-96);
+    position: relative;
     display: flex;
     align-items: flex-start;
     gap: var(--space-80);
@@ -240,5 +241,44 @@ const pad = (n: number) => String(n).padStart(2, '0');
     .sv-dir__point dt {
       width: auto;
     }
+    /* кнопки всіх напрямів однієї довжини — на ширину картки; довгий текст переноситься, а не вилазить за край */
+    .sv-dir__side :global(.btn) {
+      align-self: stretch;
+      height: auto;
+      min-height: var(--space-56);
+      padding-block: var(--space-12);
+      white-space: normal;
+      text-align: center;
+    }
+    /* картки накладаються одна на одну, як на головній (клас is-stacked і top ставить скрипт) */
+    .sv-dirs__list.is-stacked .sv-dir {
+      position: sticky;
+      background: linear-gradient(var(--card-bg), var(--card-bg)), var(--section-bg);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
+    }
+  }
+
+  /* накрита картка — ледь фіолетова й темніша (--cover від 0 до 1 задає скрипт) */
+  .sv-dir::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: color-mix(in srgb, var(--section-bg) 85%, var(--accent-text));
+    opacity: calc(var(--cover, 0) * 0.8);
+    pointer-events: none;
   }
 </style>
+
+<script>
+  import { stackCards } from '../../scripts/stack-cards';
+
+  /* Телефон: напрями накладаються один на одного (на комп'ютері прилипає ліва колонка, тож стосу там немає) */
+  document.querySelectorAll<HTMLElement>('.sv-dirs__list').forEach((list) => {
+    stackCards(list, Array.from(list.querySelectorAll<HTMLElement>(':scope > .sv-dir')), {
+      cover: '(max-width: 640px)',
+      phone: '(max-width: 640px)',
+    });
+  });
+</script>

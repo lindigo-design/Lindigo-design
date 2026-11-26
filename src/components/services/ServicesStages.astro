@@ -103,6 +103,7 @@ const total = pad(t.items.length);
   /* Етап — картка, як напрями (Figma 26.11.2026): відступ 32, між текстом і картинкою 48, радіус 32.
      Текст по центру картинки, як у макеті; місце під опис зарезервоване, тож при перемиканні вкладок нічого не зсувається */
   .sv-stage {
+    position: relative;
     display: flex;
     align-items: center;
     gap: var(--space-48);
@@ -125,16 +126,28 @@ const total = pad(t.items.length);
       -webkit-backdrop-filter: none;
       backdrop-filter: none;
     }
-    /* накрита картка — ледь фіолетова й темніша, як на головній (--cover від 0 до 1 задає скрипт) */
-    .sv-stage::after {
-      content: '';
-      position: absolute;
-      inset: -1px;
-      border-radius: inherit;
-      background: color-mix(in srgb, var(--section-bg) 85%, var(--accent-text));
-      opacity: calc(var(--cover, 0) * 0.8);
-      pointer-events: none;
+  }
+
+  /* Телефон: так само накладаються (клас is-stacked ставить скрипт, він же рахує top кожної картки:
+     висока картка прилипає низом до краю екрана, щоб її було видно цілу) */
+  @media (max-width: 640px) {
+    .sv-stages__list.is-stacked .sv-stage {
+      position: sticky;
+      background: linear-gradient(var(--card-bg), var(--card-bg)), var(--section-bg);
+      -webkit-backdrop-filter: none;
+      backdrop-filter: none;
     }
+  }
+
+  /* накрита картка — ледь фіолетова й темніша, як на головній (--cover від 0 до 1 задає скрипт) */
+  .sv-stage::after {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: color-mix(in srgb, var(--section-bg) 85%, var(--accent-text));
+    opacity: calc(var(--cover, 0) * 0.8);
+    pointer-events: none;
   }
 
   .sv-stage__text {
@@ -309,34 +322,15 @@ const total = pad(t.items.length);
 </style>
 
 <script>
-  /* Стос етапів (комп'ютер): скільки наступна картка накрила цю — 0 … 1 у --cover */
-  {
-    const wide = window.matchMedia('(min-width: 1101px)');
-    const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-stages] .sv-stage'));
-    let raf = 0;
-    const update = () => {
-      raf = 0;
-      if (!wide.matches) {
-        cards.forEach((c) => c.style.removeProperty('--cover'));
-        return;
-      }
-      cards.forEach((card, k) => {
-        const next = cards[k + 1];
-        if (!next) return;
-        const r = card.getBoundingClientRect();
-        const stickTop = parseFloat(getComputedStyle(next).top) || 0;
-        const left = next.getBoundingClientRect().top - stickTop; // скільки наступній ще їхати до свого місця
-        const cover = Math.min(1, Math.max(0, 1 - left / r.height));
-        card.style.setProperty('--cover', cover.toFixed(3));
-      });
-    };
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(update);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    update();
-  }
+  import { stackCards } from '../../scripts/stack-cards';
+
+  /* Стос етапів: на комп'ютері й телефоні картки накладаються одна на одну */
+  document.querySelectorAll<HTMLElement>('[data-stages] .sv-stages__list').forEach((list) => {
+    stackCards(list, Array.from(list.querySelectorAll<HTMLElement>('.sv-stage')), {
+      cover: '(min-width: 1101px), (max-width: 640px)',
+      phone: '(max-width: 640px)',
+    });
+  });
 
   document.querySelectorAll<HTMLElement>('[data-stages] [role="tablist"]').forEach((list) => {
     const tabs = Array.from(list.querySelectorAll<HTMLButtonElement>('[role="tab"]'));

@@ -251,6 +251,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
     .principles__top {
       grid-template-columns: minmax(0, 1fr);
     }
+    /* підпис і заголовок — в одній колонці: інакше сітка додає другу (порожню) і текст з фото вужчі за екран */
+    .principles__eyebrow,
+    .principles__lead {
+      grid-column: 1;
+    }
     .principles__media {
       grid-area: 4 / 1;
       width: 100%;

@@ -280,6 +280,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
       gap: var(--space-16);
       padding: var(--space-16) 0;
     }
+    /* розкрита ситуація і її картка — одне ціле: лінії між ними немає */
+    .situation[aria-expanded='true'] {
+      border-bottom-color: transparent;
+    }
     .situation__title {
       font-size: var(--text-title-18);
       line-height: var(--text-title-18--line-height);

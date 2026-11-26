@@ -6,7 +6,7 @@
  */
 import type { Locale } from './ui';
 
-const N = ' ';
+const N = ' '; // нерозривний пробіл
 
 /** Порядок напрямів: як directionPaths у ui.ts (UI/UX, сайти, магазини, брендинг, фото) */
 export type DirectionKey = 'uiux' | 'sites' | 'shop' | 'branding' | 'photo';
