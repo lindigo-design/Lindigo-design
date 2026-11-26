@@ -603,6 +603,8 @@ export function initCalculator(root: HTMLElement) {
 
   root.addEventListener('change', (e) => {
     const input = e.target as HTMLInputElement;
+    // людина сама щось обрала — тепер можна показати нижню панель з ціною (телефон)
+    if (e.isTrusted) root.classList.add('is-touched');
     if (input.name === 'calc-service') {
       // зміна напряму скидає відповіді наступних кроків
       selectService(input.value as ServiceId);
