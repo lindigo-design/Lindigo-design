@@ -315,6 +315,13 @@
   color-scheme: dark;
 }
 
+/* Телефон: бічні поля 20 (Space/20, docs/figma-mobile-brief.md) — однакові в усіх блоках, як у першому екрані */
+@media (max-width: 640px) {
+  :root {
+    --gutter: var(--space-20);
+  }
+}
+
 :root[data-theme='light'] {
   --bg: var(--beige-50);
   --fg: var(--indigo-950);

@@ -322,55 +322,15 @@ const total = pad(t.items.length);
 </style>
 
 <script>
-  /* Стос етапів (комп'ютер і телефон): скільки наступна картка накрила цю — 0 … 1 у --cover.
-     На телефоні ще й місце прилипання: під шапкою (96 + 8 × номер), а висока картка — низом до краю екрана */
-  {
-    const wide = window.matchMedia('(min-width: 1101px)');
-    const phone = window.matchMedia('(max-width: 640px)');
-    const lists = Array.from(document.querySelectorAll<HTMLElement>('[data-stages] .sv-stages__list'));
-    const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-stages] .sv-stage'));
-    let raf = 0;
-    const layoutPhone = () => {
-      lists.forEach((l) => l.classList.toggle('is-stacked', phone.matches));
-      const css = getComputedStyle(document.documentElement);
-      const base = parseFloat(css.getPropertyValue('--space-96')) || 96;
-      const step = parseFloat(css.getPropertyValue('--space-8')) || 8;
-      const edge = parseFloat(css.getPropertyValue('--space-16')) || 16;
-      cards.forEach((card, k) => {
-        if (!phone.matches) return card.style.removeProperty('top');
-        card.style.top = `${Math.min(base + k * step, window.innerHeight - card.offsetHeight - edge)}px`;
-      });
-    };
-    const update = () => {
-      raf = 0;
-      if (!wide.matches && !phone.matches) {
-        cards.forEach((c) => c.style.removeProperty('--cover'));
-        return;
-      }
-      cards.forEach((card, k) => {
-        const next = cards[k + 1];
-        if (!next) return;
-        const r = card.getBoundingClientRect();
-        const stickTop = parseFloat(getComputedStyle(next).top) || 0;
-        const left = next.getBoundingClientRect().top - stickTop; // скільки наступній ще їхати до свого місця
-        const cover = Math.min(1, Math.max(0, 1 - left / r.height));
-        card.style.setProperty('--cover', cover.toFixed(3));
-      });
-    };
-    const onScroll = () => {
-      if (!raf) raf = requestAnimationFrame(update);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', () => {
-      layoutPhone();
-      onScroll();
+  import { stackCards } from '../../scripts/stack-cards';
+
+  /* Стос етапів: на комп'ютері й телефоні картки накладаються одна на одну */
+  document.querySelectorAll<HTMLElement>('[data-stages] .sv-stages__list').forEach((list) => {
+    stackCards(list, Array.from(list.querySelectorAll<HTMLElement>('.sv-stage')), {
+      cover: '(min-width: 1101px), (max-width: 640px)',
+      phone: '(max-width: 640px)',
     });
-    // висота картки міняється, коли довантажилась картинка чи шрифт, — тоді й місце прилипання
-    const ro = new ResizeObserver(() => layoutPhone());
-    cards.forEach((c) => ro.observe(c));
-    layoutPhone();
-    update();
-  }
+  });
 
   document.querySelectorAll<HTMLElement>('[data-stages] [role="tablist"]').forEach((list) => {
     const tabs = Array.from(list.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
