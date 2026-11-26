@@ -250,13 +250,14 @@ const pad = (n: number) => String(n).padStart(2, '0');
     align-self: stretch;
     height: auto;
   }
-  /* Затемнення накритої картки (--cover від 0 до 1 задає скрипт); під склом наступної вона ледь видна */
+  /* Затемнення накритої картки (--cover від 0 до 1 задає скрипт); під склом наступної вона ледь видна.
+     Відтінок ледь фіолетовий (15 % кольору акценту), щоб шари стосу розрізнялись (рішення Яни 26.11.2026) */
   .directions.is-stacked .direction::after {
     content: '';
     position: absolute;
     inset: -1px;
     border-radius: inherit;
-    background: var(--section-bg);
+    background: color-mix(in srgb, var(--section-bg) 85%, var(--accent-text));
     opacity: calc(var(--cover, 0) * 0.8);
     pointer-events: none;
   }
