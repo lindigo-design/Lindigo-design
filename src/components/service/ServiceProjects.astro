@@ -606,6 +606,25 @@ const dt = t.texts.datatixx;
       font-size: var(--text-body-m);
       line-height: var(--text-body-m--line-height);
     }
+    /* Фільтри одним рядком, гортаються вбік (рішення Яни 26.11.2026): замість 4 рядків — один.
+       Смуга від краю до краю екрана (поля 20 стають внутрішнім відступом), край обрізає останню пігулку —
+       видно, що є ще. Запас 8 згори й знизу — щоб прокрутка не обрізала контур фокусу */
+    .projects__filters {
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      margin: calc(-1 * var(--space-8)) calc(-1 * var(--space-20));
+      padding: var(--space-8) var(--space-20);
+      scroll-padding-inline: var(--space-20);
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .projects__filters::-webkit-scrollbar {
+      display: none;
+    }
+    .chip {
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
     .projects__groups {
       gap: var(--space-40);
     }
