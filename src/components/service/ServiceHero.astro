@@ -341,9 +341,11 @@ const bgWidths = [768, 1280, 1920, 2752];
     .s-hero__crumbs {
       display: none;
     }
+    /* знизу 96: на iPhone плаваюча панель браузера (Safari, Chrome) лежить поверх низу екрана
+       і ховала кнопку, притиснуту донизу першого екрана */
     .s-hero {
       padding-top: 112px;
-      padding-bottom: var(--space-32);
+      padding-bottom: var(--space-96);
     }
     .s-hero__content {
       gap: var(--space-32);
