@@ -278,9 +278,10 @@ const bgWidths = [768, 1280, 1920, 2752];
       padding-top: 112px;
     }
     /* Телефон (Figma, 390): поля 20 px; опис і картка на всю ширину між полями */
+    /* знизу 96: на iPhone плаваюча панель браузера лежить поверх низу екрана і ховала вміст першого екрана */
     .hero__content {
       gap: var(--space-32);
-      padding: 0 var(--space-20) var(--space-32);
+      padding: 0 var(--space-20) var(--space-96);
     }
     .hero__text {
       gap: var(--space-24);

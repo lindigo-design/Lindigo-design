@@ -36,6 +36,20 @@ const dir = { dark: `${base}/media/services/cloud-dark`, light: `${base}/media/s
     mask-image: linear-gradient(to right, transparent, black 14%, black 86%, transparent);
   }
 
+  /* Телефон: кадр стоїть ближче до заголовка — низ кадру (кінчики щупалець) теж м'яко гасимо */
+  @media (max-width: 640px) {
+    .sv-cloud__layer {
+      -webkit-mask-image:
+        linear-gradient(to right, transparent, black 14%, black 86%, transparent),
+        linear-gradient(to bottom, black 86%, transparent);
+      -webkit-mask-composite: source-in;
+      mask-image:
+        linear-gradient(to right, transparent, black 14%, black 86%, transparent),
+        linear-gradient(to bottom, black 86%, transparent);
+      mask-composite: intersect;
+    }
+  }
+
   .sv-cloud__poster,
   .sv-cloud__canvas {
     grid-area: 1 / 1;
