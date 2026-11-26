@@ -54,17 +54,20 @@ const total = pad(t.items.length);
                 </button>
               ))}
             </div>
-            {stage.tabs.map((tab, i) => (
-              <p
-                class:list={['sv-stage__panel', { 'is-draft': tab.draft }]}
-                role="tabpanel"
-                id={`stage-${s}-panel-${i}`}
-                aria-labelledby={`stage-${s}-tab-${i}`}
-                hidden={i !== 0}
-              >
-                {keepLastWords(tab.text)}
-              </p>
-            ))}
+            {/* усі описи в одній клітинці сітки: висота — за найдовшим, тож при перемиканні вкладок нічого не зсувається */}
+            <div class="sv-stage__panels">
+              {stage.tabs.map((tab, i) => (
+                <p
+                  class:list={['sv-stage__panel', { 'is-draft': tab.draft }]}
+                  role="tabpanel"
+                  id={`stage-${s}-panel-${i}`}
+                  aria-labelledby={`stage-${s}-tab-${i}`}
+                  hidden={i !== 0}
+                >
+                  {keepLastWords(tab.text)}
+                </p>
+              ))}
+            </div>
           </div>
           {/* етап 2 — анімація (webp з кадрами): віддаємо як є, без перетворення, інакше лишився б один кадр */}
           {!images[s] ? null : s === 1 ? (
@@ -93,9 +96,10 @@ const total = pad(t.items.length);
     list-style: none;
   }
 
+  /* текст вирівняний по верху картинки (рішення Яни 26.11.2026) */
   .sv-stage {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: var(--space-80);
     padding-block: var(--space-56);
     border-top: 1px solid var(--rule);
@@ -197,6 +201,18 @@ const total = pad(t.items.length);
     font-size: var(--text-body-l);
     line-height: var(--text-body-l--line-height);
   }
+  .sv-stage__panels {
+    display: grid;
+  }
+  .sv-stage__panels .sv-stage__panel {
+    grid-area: 1 / 1;
+  }
+  /* прихований опис займає місце, але невидимий і недоступний скрінрідеру */
+  .sv-stage__panels .sv-stage__panel[hidden] {
+    display: block;
+    visibility: hidden;
+  }
+
   .sv-stage__panel.is-draft {
     color: var(--text-muted);
     font-style: italic;
