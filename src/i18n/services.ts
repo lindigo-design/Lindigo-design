@@ -52,7 +52,8 @@ const uk: ServicesText = {
   },
   hero: {
     crumbs: ['Головна', 'Послуги'],
-    title: 'Послуги',
+    // фраза замість «Послуги» (рішення Яни 26.11.2026); «Послуги» лишається в хлібних крихтах і назві сторінки
+    title: 'Надаємо форму вашим ідеям',
     lead: 'Допомагаємо бізнесу створювати нові продукти, розвивати наявні та будувати впізнаваний бренд. Поєднуємо брендинг, дизайн, технології та візуальний контент відповідно до ваших бізнес-завдань.',
   },
   situations: {
@@ -257,7 +258,7 @@ const en: ServicesText = {
   },
   hero: {
     crumbs: ['Home', 'Services'],
-    title: 'Services',
+    title: 'We give shape to your ideas',
     lead: 'We help businesses create new products, develop existing ones and build a recognisable brand. We combine branding, design, technology and visual content to meet your business needs.',
   },
   situations: {
@@ -459,7 +460,7 @@ const fr: ServicesText = {
   },
   hero: {
     crumbs: ['Accueil', 'Services'],
-    title: 'Services',
+    title: 'Nous donnons forme à vos idées',
     lead: 'Nous aidons les entreprises à créer de nouveaux produits, à faire évoluer ceux qui existent déjà et à construire une marque reconnaissable. Nous associons branding, design, technologie et contenu visuel pour répondre à vos besoins.',
   },
   situations: {

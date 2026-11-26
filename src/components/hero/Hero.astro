@@ -218,6 +218,26 @@ const bgWidths = [768, 1280, 1920, 2752];
     line-height: var(--text-body-lead--line-height);
   }
 
+  /* Великі екрани: заголовок 92 (від 1600) і 100 (від 1920), опис 28 і ширший у тій самій пропорції (28 / 20),
+     як на сторінках послуг (рішення Яни 26.11.2026). Ноутбук, планшет і телефон — без змін */
+  @media (min-width: 1600px) {
+    .hero .hero__title {
+      font-size: var(--text-h1-xl);
+      line-height: var(--text-h1-xl--line-height);
+    }
+    .hero .hero__lead {
+      max-width: calc(var(--lead-width) * 1.4);
+      font-size: var(--text-body-xl);
+      line-height: var(--text-body-xl--line-height);
+    }
+  }
+  @media (min-width: 1920px) {
+    .hero .hero__title {
+      font-size: var(--text-h1-2xl);
+      line-height: var(--text-h1-2xl--line-height);
+    }
+  }
+
   .hero__actions {
     display: flex;
     flex-wrap: wrap;
