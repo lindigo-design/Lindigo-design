@@ -14,18 +14,25 @@ const dir = { dark: `${base}/media/services/cloud-dark`, light: `${base}/media/s
 ---
 
 <div class="sv-cloud" data-cloud data-frames={frames} data-dark={dir.dark} data-light={dir.light} aria-hidden="true">
-  <img class="sv-cloud__poster" src={`${dir.dark}/000.webp`} width="640" height="1138" alt="" fetchpriority="high" data-theme-only="dark" />
-  <img class="sv-cloud__poster" src={`${dir.light}/000.webp`} width="640" height="1138" alt="" loading="lazy" data-theme-only="light" />
-  <canvas class="sv-cloud__canvas" width="640" height="1138" hidden></canvas>
+  <div class="sv-cloud__layer">
+    <img class="sv-cloud__poster" src={`${dir.dark}/000.webp`} width="640" height="1138" alt="" fetchpriority="high" data-theme-only="dark" />
+    <img class="sv-cloud__poster" src={`${dir.light}/000.webp`} width="640" height="1138" alt="" loading="lazy" data-theme-only="light" />
+    <canvas class="sv-cloud__canvas" width="640" height="1138" hidden></canvas>
+  </div>
 </div>
 
 <style>
-  /* розмір задає перший кадр (картинка в потоці), полотно лежить поверх */
+  /* Накладання — на зовнішній обгортці, а фільтр і маска — на внутрішній: Safari (iPhone) ігнорує
+     mix-blend-mode, якщо на тому ж елементі є filter або mask, і чорне тло кадру лишалося видно.
+     На дітях накладання теж не можна: шар із filter і mask не бачить фону сторінки */
   .sv-cloud {
     position: relative;
-    display: grid;
-    /* накладання — на обгортці (filter і mask роблять її окремим шаром, і накладання дітей не бачило б фону) */
     mix-blend-mode: screen;
+  }
+
+  /* розмір задає перший кадр (картинка в потоці), полотно лежить поверх */
+  .sv-cloud__layer {
+    display: grid;
     /* темна тема: screen додає фон сторінки, і медуза бліднула — робимо кадр контрастнішим і насиченішим,
        середні тони трохи темнішими (чорне тло лишається чорним; рішення Яни 26.11.2026) */
     filter: contrast(1.45) brightness(0.82) saturate(1.3);
@@ -46,6 +53,8 @@ const dir = { dark: `${base}/media/services/cloud-dark`, light: `${base}/media/s
 
   :global(:root[data-theme='light']) .sv-cloud {
     mix-blend-mode: multiply;
+  }
+  :global(:root[data-theme='light']) .sv-cloud__layer {
     filter: none;
   }
 
