@@ -11,6 +11,8 @@ import ServicesHead from './ServicesHead.astro';
 import stage1 from '../../assets/services/overview/stage-1.jpg';
 import stage2 from '../../assets/services/overview/stage-2.webp';
 import stage3 from '../../assets/services/overview/stage-3.jpg';
+// Етап 4 — мокап сайту барбершопу на пристроях (картинка від Яни, 26.11.2026)
+import stage4 from '../../assets/services/overview/stage-4.jpg';
 import { keepLastWords, type Locale } from '../../i18n/ui';
 import type { ServicesText } from '../../i18n/services';
 
@@ -20,8 +22,7 @@ interface Props {
 }
 
 const { content: t } = Astro.props;
-// Етап 4: у макеті на місці картинки відео, яке не експортується (443:3510) — поки без картинки
-const images: (ImageMetadata | undefined)[] = [stage1, stage2, stage3, undefined];
+const images: (ImageMetadata | undefined)[] = [stage1, stage2, stage3, stage4];
 const pad = (n: number) => String(n).padStart(2, '0');
 const total = pad(t.items.length);
 ---
