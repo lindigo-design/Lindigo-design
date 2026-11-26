@@ -96,7 +96,7 @@ const uk: ContactText = {
   },
   form: {
     eyebrow: 'Написати нам',
-    title: 'Розкажіть про проєкт',
+    title: 'Кілька питань, щоб почати',
     lead: 'Обов’язкові лише ім’я та email. Решта допоможе нам підготуватися до розмови.',
     interest: {
       title: 'Мене цікавить',
@@ -200,7 +200,7 @@ const fr: ContactText = {
   },
   form: {
     eyebrow: 'Nous écrire',
-    title: 'Parlez-nous de votre projet',
+    title: 'Quelques questions pour bien démarrer',
     lead: 'Seuls le nom et l’e-mail sont obligatoires. Le reste nous aide à préparer notre échange.',
     interest: {
       title: 'Ce qui m’intéresse',
@@ -304,7 +304,7 @@ const en: ContactText = {
   },
   form: {
     eyebrow: 'Write to us',
-    title: 'Tell us about your project',
+    title: 'A few questions to get started',
     lead: 'Only your name and email are required. The rest helps us prepare for the conversation.',
     interest: {
       title: 'I’m interested in',
