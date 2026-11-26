@@ -92,18 +92,26 @@ const total = pad(t.items.length);
   }
 
   .sv-stages__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-24);
     margin: 0;
     padding: 0;
     list-style: none;
   }
 
-  /* текст вирівняний по верху картинки (рішення Яни 26.11.2026) */
+  /* Етап — картка, як напрями (Figma 26.11.2026): відступ 32, між текстом і картинкою 48, радіус 32.
+     Текст по центру картинки, як у макеті; місце під опис зарезервоване, тож при перемиканні вкладок нічого не зсувається */
   .sv-stage {
     display: flex;
-    align-items: flex-start;
-    gap: var(--space-80);
-    padding-block: var(--space-56);
-    border-top: 1px solid var(--rule);
+    align-items: center;
+    gap: var(--space-48);
+    padding: var(--space-32);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-32);
+    background: var(--card-bg);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
   }
 
   .sv-stage__text {
@@ -251,8 +259,12 @@ const total = pad(t.items.length);
       gap: var(--space-40);
       padding-block: var(--space-56);
     }
+    .sv-stages__list {
+      gap: var(--space-16);
+    }
     .sv-stage {
-      padding-block: var(--space-40);
+      padding: var(--space-24);
+      border-radius: var(--radius-24);
     }
     .sv-stage__title {
       gap: var(--space-12);
