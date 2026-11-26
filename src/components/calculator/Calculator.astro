@@ -224,25 +224,6 @@ const isPills = (q: CalcQuestion) => q.role === 'languages' || (q.role === 'cont
           </div>
         </fieldset>
 
-        <fieldset class="calc-q" data-question="call" data-step="6" aria-describedby="calc-call-hint">
-          <legend class="calc-q__head" tabindex="-1">
-            <span class="calc-q__title">{t.contact.callTitle}</span>
-          </legend>
-          <div class="calc-q__body">
-            <p class="calc-q__hint" id="calc-call-hint">{keepLastWords(t.contact.callHint)}</p>
-            <Pills
-              name="call"
-              options={[
-                { value: 'yes', label: t.contact.yes },
-                { value: 'no', label: t.contact.no },
-              ]}
-            />
-            <p class="calc-q__note" data-call-link hidden>
-              <a href={contact}>{t.contact.callLink}</a>
-            </p>
-          </div>
-        </fieldset>
-
         <div class="calc-form__submit" data-step-extra="6">
           <Button type="submit">{t.contact.submit}</Button>
           <p class="calc-form__note">
@@ -263,6 +244,13 @@ const isPills = (q: CalcQuestion) => q.role === 'languages' || (q.role === 'cont
         <div class="calc-thanks__card">
           <p class="calc-sum__label">{t.thanks.summary}</p>
           <dl class="calc-thanks__list" data-thanks-list></dl>
+        </div>
+        <!-- Питання про дзвінок — після відправки, а не перед кнопкою (рішення Яни 26.11.2026):
+             після полів форми людина чекає кнопку «Надіслати», а не ще одне питання -->
+        <div class="calc-thanks__call">
+          <h3 class="calc-thanks__call-title">{t.contact.callTitle}</h3>
+          <p class="calc-q__hint">{keepLastWords(t.contact.callHint)}</p>
+          <Button href={contact} variant="secondary">{t.contact.callLink}</Button>
         </div>
       </div>
     </div>
@@ -807,6 +795,24 @@ const isPills = (q: CalcQuestion) => q.role === 'languages' || (q.role === 'cont
   }
   .calc-thanks[hidden] {
     display: none;
+  }
+
+  .calc-thanks__call {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-8);
+  }
+  .calc-thanks__call :global(.btn) {
+    margin-top: var(--space-16);
+  }
+  .calc-thanks__call-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: var(--text-h4--font-weight);
+    font-size: var(--text-h4);
+    line-height: var(--text-h4--line-height);
+    text-wrap: balance;
   }
 
   .calc-thanks__head {
