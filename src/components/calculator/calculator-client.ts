@@ -100,7 +100,6 @@ export function initCalculator(root: HTMLElement) {
     back: $<HTMLButtonElement>('[data-back]'),
     form: $<HTMLFormElement>('[data-form]'),
     status: $('[data-status]'),
-    callLink: $('[data-call-link]'),
     thanks: $('[data-thanks]'),
     thanksList: $('[data-thanks-list]'),
     included: document.querySelector<HTMLElement>('[data-calc-included]'),
@@ -609,10 +608,6 @@ export function initCalculator(root: HTMLElement) {
       selectService(input.value as ServiceId);
       return;
     }
-    if (input.name === 'call') {
-      els.callLink.hidden = input.value !== 'yes';
-      return;
-    }
     if (!service || !serviceId) return;
     const qEl = input.closest<HTMLElement>('[data-question]');
     const q = service.questions.find((x) => x.id === qEl?.dataset.question);
@@ -741,7 +736,6 @@ export function initCalculator(root: HTMLElement) {
     visited.clear();
     visited.add(1);
     els.form.reset();
-    els.callLink.hidden = true;
     clearErrors();
     els.status.replaceChildren();
     shown = { low: 0, high: 0 };
@@ -944,8 +938,6 @@ export function initCalculator(root: HTMLElement) {
 
   function renderThanks() {
     const pairs = estimatePairs();
-    const call = new FormData(els.form).get('call');
-    if (call) pairs.push({ k: t.thanks.call, v: call === 'yes' ? t.contact.yes.toLowerCase() : t.contact.no.toLowerCase() });
     els.thanksList.replaceChildren(
       ...pairs.flatMap(({ k, v }) => {
         const dt = document.createElement('dt');
