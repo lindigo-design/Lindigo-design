@@ -125,6 +125,16 @@ const total = pad(t.items.length);
       -webkit-backdrop-filter: none;
       backdrop-filter: none;
     }
+    /* накрита картка — ледь фіолетова й темніша, як на головній (--cover від 0 до 1 задає скрипт) */
+    .sv-stage::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: color-mix(in srgb, var(--section-bg) 85%, var(--accent-text));
+      opacity: calc(var(--cover, 0) * 0.8);
+      pointer-events: none;
+    }
   }
 
   .sv-stage__text {
@@ -299,6 +309,35 @@ const total = pad(t.items.length);
 </style>
 
 <script>
+  /* Стос етапів (комп'ютер): скільки наступна картка накрила цю — 0 … 1 у --cover */
+  {
+    const wide = window.matchMedia('(min-width: 1101px)');
+    const cards = Array.from(document.querySelectorAll<HTMLElement>('[data-stages] .sv-stage'));
+    let raf = 0;
+    const update = () => {
+      raf = 0;
+      if (!wide.matches) {
+        cards.forEach((c) => c.style.removeProperty('--cover'));
+        return;
+      }
+      cards.forEach((card, k) => {
+        const next = cards[k + 1];
+        if (!next) return;
+        const r = card.getBoundingClientRect();
+        const stickTop = parseFloat(getComputedStyle(next).top) || 0;
+        const left = next.getBoundingClientRect().top - stickTop; // скільки наступній ще їхати до свого місця
+        const cover = Math.min(1, Math.max(0, 1 - left / r.height));
+        card.style.setProperty('--cover', cover.toFixed(3));
+      });
+    };
+    const onScroll = () => {
+      if (!raf) raf = requestAnimationFrame(update);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
+    update();
+  }
+
   document.querySelectorAll<HTMLElement>('[data-stages] [role="tablist"]').forEach((list) => {
     const tabs = Array.from(list.querySelectorAll<HTMLButtonElement>('[role="tab"]'));
     const select = (i: number, focus = false) => {
