@@ -134,11 +134,15 @@ const bgWidths = [768, 1280, 1920, 2752];
     }
   }
   /* З карткою проєкту (UI/UX) довгий заголовок не вміщається в 3 рядки поруч із карткою при 92 до ~1780 px
-     (французький рядок «d’Applications et de» — 1130 px): до 1780 лишаємо 72, як на ноутбуці (26.11.2026) */
+     (французький рядок «d’Applications et de» — 1130 px). На 1600–1779: заголовок 82, картка як на ноутбуці (392) —
+     сходинки 72 → 82 → 92 → 100 без різкого стрибка (рішення Яни 26.11.2026) */
   @media (min-width: 1600px) and (max-width: 1779px) {
     .s-hero.s-hero--card .s-hero__title {
-      font-size: var(--text-display);
-      line-height: var(--text-display--line-height);
+      font-size: var(--text-h1-l);
+      line-height: var(--text-h1-l--line-height);
+    }
+    .s-hero.s-hero--card .s-hero__content > :global(.work-card) {
+      width: min(392px, 25.93vw);
     }
   }
 
